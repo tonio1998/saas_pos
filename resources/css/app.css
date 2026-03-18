@@ -23,14 +23,14 @@
     --font-sans:'Inter',system-ui,-apple-system,sans-serif;
 
     /* BRAND */
-    --color-primary:#004D1A;
+    --color-primary:#008000;
     --color-primary-600:#74BC44;
     --color-primary-700:#003D14;
     --color-primary-soft:#E8F3EC;
 
     --color-brand:#74BC44;
 
-    --color-accent:#FFD04C;
+    --color-accent:#008000;
     --color-accent-600:#F4B400;
     --color-accent-soft:#FFF7D1;
 

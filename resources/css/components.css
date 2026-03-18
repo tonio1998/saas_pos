@@ -274,14 +274,13 @@
 
 .btn-primary{
     background:var(--btn-accent-bg);
-    color:var(--btn-accent-text);
-    border-radius:var(--radius);
+    color: white;
     transition:var(--transition);
 }
 
 .btn-primary:hover{
-    background:var(--color-accent-600);
-    color:var(--btn-accent-text);
+    background:var(--btn-accent-bg);
+    color:white;
     transform:translateY(-1px);
     box-shadow:var(--shadow-sm);
 }
