@@ -6,7 +6,7 @@ use App\Http\Controllers\ParentsController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ScannerController;
-use App\Http\Controllers\StudentsController;
+use App\Http\Controllers\ResidentsController;
 use App\Http\Controllers\TeachersController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -45,13 +45,13 @@ Route::middleware('auth')->group(function(){
         Route::get('/data', [LogsController::class, 'logs_data'])->name('data');
     });
 
-    Route::prefix('students')->name('students.')->group(function(){
-        Route::get('/index', [StudentsController::class, 'index'])->name('index');
-        Route::get('/edit/{id}', [StudentsController::class, 'edit'])->name('edit');
-        Route::put('/update/{id}', [StudentsController::class, 'update'])->name('update');
-        Route::get('/create', [StudentsController::class, 'create'])->name('create');
-        Route::post('/create', [StudentsController::class, 'store'])->name('store');
-        Route::get('/data', [StudentsController::class, 'ajaxData'])->name('data');
+    Route::prefix('residents')->name('residents.')->group(function(){
+        Route::get('/index', [ResidentsController::class, 'index'])->name('index');
+        Route::get('/edit/{id}', [ResidentsController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [ResidentsController::class, 'update'])->name('update');
+        Route::get('/create', [ResidentsController::class, 'create'])->name('create');
+        Route::post('/create', [ResidentsController::class, 'store'])->name('store');
+        Route::get('/data', [ResidentsController::class, 'ajaxData'])->name('data');
     });
 
     Route::prefix('teachers')->name('teachers.')->group(function(){

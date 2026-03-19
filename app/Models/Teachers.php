@@ -40,7 +40,7 @@ class Teachers extends Model implements AuditableContract
 
     public function students()
     {
-        return $this->hasMany(Students::class, 'GuardianID');
+        return $this->hasMany(Residents::class, 'GuardianID');
     }
 
     public function teacherUser()

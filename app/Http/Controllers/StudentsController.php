@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Students;
+use App\Models\Residents;
 use App\Models\User;
 use App\Traits\TCommonFunctions;
 use Illuminate\Http\Request;
@@ -15,7 +15,7 @@ class StudentsController extends Controller
     use TCommonFunctions;
     public function index()
     {
-        return view('pages.students.index');
+        return view('pages.residents.index');
     }
 
     public function edit($id)
@@ -26,8 +26,8 @@ class StudentsController extends Controller
             abort(404);
         }
 
-        $student = Students::findOrFail($id);
-        return view('pages.students.create', compact('student'));
+        $student = Residents::findOrFail($id);
+        return view('pages.residents.create', compact('student'));
     }
 
     public function update(Request $request, $id)
@@ -38,7 +38,7 @@ class StudentsController extends Controller
             abort(404);
         }
 
-        $student = Students::findOrFail($id);
+        $student = Residents::findOrFail($id);
 
         $data = $request->validate(
             [
@@ -67,20 +67,20 @@ class StudentsController extends Controller
         );
 
         if ($request->hasFile('filepath')) {
-            $path = $request->file('filepath')->store('students','public');
+            $path = $request->file('filepath')->store('residents','public');
             $data['filepath'] = $path;
         }
 
         $student->update($data);
 
         return redirect()
-            ->route('students.index')
+            ->route('residents.index')
             ->with('success','Student updated successfully');
     }
 
     public function create()
     {
-        return view('pages.students.create');
+        return view('pages.residents.create');
     }
 
     public function store(Request $request)
@@ -112,22 +112,22 @@ class StudentsController extends Controller
         );
 
         if ($request->hasFile('filepath')) {
-            $path = $request->file('filepath')->store('students','public');
+            $path = $request->file('filepath')->store('residents','public');
             $data['filepath'] = $path;
         }
 
-        $student = new Students();
+        $student = new Residents();
         $student->fill($data);
         $this->setCommonFields($student);
         $student->save();
 
         return redirect()
-            ->route('students.index')
+            ->route('residents.index')
             ->with('success','Student created successfully');
     }
     public function ajaxData(Request $request)
     {
-        $query = Students::with(['createdBy', 'guardian', 'studentUser']);
+        $query = Residents::with(['createdBy', 'guardian', 'studentUser']);
 
         return datatables()
             ->eloquent($query)
@@ -137,7 +137,7 @@ class StudentsController extends Controller
 
                 $menu[] = '
                 <li>
-                    <a href="'.route('students.edit',encrypt($student->id)).'" class="dropdown-item">
+                    <a href="'.route('residents.edit',encrypt($student->id)).'" class="dropdown-item">
                         <i class="bi bi-pencil me-2"></i> Edit
                     </a>
                 </li>';
@@ -147,7 +147,7 @@ class StudentsController extends Controller
                 <li>
                     <a href="javascript:void(0)"
                        class="dropdown-item btn-password"
-                       data-url="'.route('users.password',['students',$student->id,$student->UserID ?? 0]).'"
+                       data-url="'.route('users.password',['residents',$student->id,$student->UserID ?? 0]).'"
                        data-type="'.($student->studentUser ? 'regenerate' : 'generate').'">
                        <i class="bi bi-key me-2"></i>
                        '.($student->studentUser ? 'Update Password' : 'Generate Password').'
