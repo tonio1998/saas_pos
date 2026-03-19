@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Parents;
-use App\Models\Students;
+use App\Models\Residents;
 use App\Models\Teachers;
 use Illuminate\Http\Request;
 
@@ -12,12 +12,12 @@ class DashboardController extends Controller
     public $data = [];
     public function index()
     {
-        $students = Students::count();
+        $students = Residents::count();
         $teachers = Teachers::count();
         $parents = Parents::count();
 
         $this->data = [
-            'students' => $students,
+            'residents' => $students,
             'teachers' => $teachers,
             'parents' => $parents
         ];

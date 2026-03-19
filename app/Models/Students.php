@@ -12,7 +12,7 @@ class Students extends Model implements AuditableContract
     use SoftDeletes;
     use Auditable;
 
-    protected $table = 'students';
+    protected $table = 'residents';
 
     protected $fillable = [
         'UserID',
@@ -47,7 +47,7 @@ class Students extends Model implements AuditableContract
     public function studentUser()
     {
         return $this->hasOne(User::class, 'conn_id', 'id')->whereHas('roles', function ($q) {
-            $q->where('name', 'students');
+            $q->where('name', 'residents');
         });
     }
 

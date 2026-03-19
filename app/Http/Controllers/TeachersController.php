@@ -151,7 +151,7 @@ class TeachersController extends Controller
             ->addColumn('address', function ($teacher) {
                 return $teacher->Address;
             })
-            ->addColumn('students', function ($teacher) {
+            ->addColumn('residents', function ($teacher) {
                 $a = '';
                 foreach ($teacher->students as $teacher) {
                     $a .= "<div class='text-muted'>" . $teacher->FirstName . ' ' . $teacher->LastName . "</div>";
@@ -164,7 +164,7 @@ class TeachersController extends Controller
             ->addColumn('createdBy', function ($teacher) {
                 return $teacher->createdBy->name;
             })
-            ->rawColumns(['actions','students', 'name'])
+            ->rawColumns(['actions','residents', 'name'])
             ->make(true);
     }
 }

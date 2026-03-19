@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Parents;
 use App\Models\QrCodes;
-use App\Models\Students;
+use App\Models\Residents;
 use App\Models\Teachers;
 use App\Models\User;
 use App\Traits\TCommonFunctions;
@@ -205,8 +205,8 @@ class UserController extends Controller
 
         try {
 
-            if($user_type === 'students'){
-                $UserT = Students::findOrFail($UserTypeID);
+            if($user_type === 'residents'){
+                $UserT = Residents::findOrFail($UserTypeID);
             }elseif($user_type === 'teachers'){
                 $UserT = Teachers::findOrFail($UserTypeID);
             }elseif($user_type === 'parents'){

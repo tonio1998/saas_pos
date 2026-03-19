@@ -12,7 +12,7 @@
         subtitle="Manage student"
     >
         <x-slot:action>
-            <a href="{{ route('students.index') }}" class="btn btn-light btn-md">
+            <a href="{{ route('residents.index') }}" class="btn btn-light btn-md">
                 <i class="bi bi-arrow-left"></i> Back
             </a>
         </x-slot:action>
@@ -21,7 +21,7 @@
     <x-card>
 
         <form method="POST"
-              action="{{ $isEdit ? route('students.update',encrypt($student->id)) : route('students.store') }}"
+              action="{{ $isEdit ? route('residents.update',encrypt($student->id)) : route('residents.store') }}"
               enctype="multipart/form-data">
 
             @csrf
@@ -145,7 +145,7 @@
                         {{ $isEdit ? 'Update Student' : 'Save Student' }}
                     </button>
 
-                    <a href="{{ route('students.index') }}" class="btn btn-light">
+                    <a href="{{ route('residents.index') }}" class="btn btn-light">
                         Cancel
                     </a>
 

@@ -42,11 +42,11 @@
                 <i class="bi bi-chevron-down dropdown-icon"></i>
             </a>
             <div class="collapse sidebar-dropdown" id="studentMenu">
-                <a href="{{ route('students.create') }}" class="sidebar-sublink">
+                <a href="{{ route('residents.create') }}" class="sidebar-sublink">
                     <i class="bi bi-person-plus sidebar-subicon"></i>
                     Add Student
                 </a>
-                <a href="{{ route('students.index') }}" class="sidebar-sublink">
+                <a href="{{ route('residents.index') }}" class="sidebar-sublink">
                     <i class="bi bi-people sidebar-subicon"></i>
                     Masterlist
                 </a>
