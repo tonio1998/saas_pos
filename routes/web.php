@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function(){
         Route::put('/{user}/permissions',[UserController::class,'updatePermissions'])->name('permissions.update');
         Route::get('/{user}/change-photo', [UserController::class,'changePhoto'])->name('change-photo');
         Route::post('/upload', [UserController::class,'upload'])->name('upload');
+        Route::get('/print-id/{id}', [UserController::class, 'printID'])->name('printID');
     });
 
     Route::prefix('logs')->name('logs.')->group(function(){
@@ -54,7 +55,6 @@ Route::middleware('auth')->group(function(){
         Route::get('/create', [StudentsController::class, 'create'])->name('create');
         Route::post('/create', [StudentsController::class, 'store'])->name('store');
         Route::get('/data', [StudentsController::class, 'ajaxData'])->name('data');
-        Route::get('/print-id/{id}', [StudentsController::class, 'printID'])->name('printID');
     });
 
     Route::prefix('teachers')->name('teachers.')->group(function(){
