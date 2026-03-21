@@ -11,10 +11,11 @@
     <x-card>
         <x-datatable
             id="usersTable"
-            :columns="['Actions','Name','Email','Role']"
+            :columns="['Actions','Photo','Name','Email','Role']"
             :ajax="route('users.data')"
             :datatableColumns="[
                 ['data'=>'actions','orderable'=>false,'searchable'=>false],
+                ['data'=>'filepath'],
                 ['data'=>'name'],
                 ['data'=>'email'],
                 ['data'=>'role'],

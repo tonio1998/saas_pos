@@ -78,7 +78,7 @@ class UserController extends Controller
 
     public function users_data(Request $request)
     {
-        $users = User::with('roles')->select(['id','name','email']);
+        $users = User::with('roles')->select(['id','name','email', 'filepath']);
 
         return DataTables::of($users)
             ->addColumn('name', fn($user) => e($user->name))
@@ -101,7 +101,15 @@ class UserController extends Controller
                 </div>
             ';
             })
-            ->rawColumns(['actions'])
+            ->addColumn('filepath', function ($student) {
+                $src = $student->filepath ? asset('storage/'.$student->filepath) : url('//images/logo.png');
+                    return '<img
+                    src="'.$src.'"
+                    onerror="this.src=\''.url('/images/avatar.png').'\'"
+                    style="width:40px;height:40px;border-radius:100px;object-fit:cover;"
+                >';
+            })
+            ->rawColumns(['actions', 'filepath'])
             ->make(true);
     }
 
@@ -288,6 +296,19 @@ class UserController extends Controller
         $user = User::findOrFail(decrypt($request->segment(2)));
         $user_type = $request->q;
         return view('pages.users.change-photo',compact('user', 'user_type'));
+    }
+
+    public function printID(Request $request)
+    {
+        $id = decrypt($request->segment(3));
+        $user = User::find($id);
+        if(!$user) return redirect()->route('students.index')->with('error','Generate Password first');
+
+        $student = Students::with(['guardian'])->where('id', $user->conn_id)->firstOrFail();
+        $user_type = 'students';
+
+        return view('pages.users.print', compact('student', 'user', 'user_type'))
+            ->with('success', 'Student ID printed successfully');
     }
 
     public function upload(Request $request)

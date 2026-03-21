@@ -126,18 +126,6 @@ class StudentsController extends Controller
             ->route('students.index')
             ->with('success','Student created successfully');
     }
-    public function printID(Request $request)
-    {
-        $id = decrypt($request->segment(3));
-        $user = User::find($id);
-        if(!$user) return redirect()->route('students.index')->with('error','Generate Password first');
-
-        $student = Students::with(['guardian'])->where('id', $user->conn_id)->firstOrFail();
-        $user_type = 'students';
-
-        return view('pages.students.print', compact('student', 'user', 'user_type'))
-            ->with('success', 'Student ID printed successfully');
-    }
 
     public function ajaxData(Request $request)
     {
@@ -158,7 +146,7 @@ class StudentsController extends Controller
 
                 $menu[] = '
                 <li>
-                    <a href="'.route('students.printID',encrypt($student->UserID ?? 0)).'" class="dropdown-item">
+                    <a href="'.route('users.printID',encrypt($student->UserID ?? 0)).'" class="dropdown-item">
                         <i class="bi bi-eye me-2"></i> Show ID
                     </a>
                 </li>';
