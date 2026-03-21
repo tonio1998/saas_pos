@@ -151,20 +151,13 @@ class TeachersController extends Controller
             ->addColumn('address', function ($teacher) {
                 return $teacher->Address;
             })
-            ->addColumn('residents', function ($teacher) {
-                $a = '';
-                foreach ($teacher->students as $teacher) {
-                    $a .= "<div class='text-muted'>" . $teacher->FirstName . ' ' . $teacher->LastName . "</div>";
-                }
-                return $a;
-            })
             ->editColumn('created_at', function ($teacher) {
                 return $teacher->created_at->format('M d, Y h:i A');
             })
             ->addColumn('createdBy', function ($teacher) {
                 return $teacher->createdBy->name;
             })
-            ->rawColumns(['actions','residents', 'name'])
+            ->rawColumns(['actions','students', 'name'])
             ->make(true);
     }
 }

@@ -1,22 +1,57 @@
 @props([
-'name',
-'label'=>null,
-'options'=>[],
-'value'=>null,
-'text'=>null,
-'placeholder'=>null,
-'ajax'=>null,
-'inline'=>false,
-'style'=>false,
-'class'=>''
+    'name',
+    'label' => null,
+    'options' => [],
+    'value' => null,
+    'text' => null,
+    'placeholder' => null,
+    'ajax' => null,
+    'inline' => false,
+    'style' => false,
+    'class' => ''
 ])
 
 @php
-    $selectedValue = old($name,$value);
+    $selectedValue = old($name, $value);
+    $selectedText = $text ?? '';
 @endphp
 
+@php
+    $select = '
+        <select
+            name="'.$name.'"
+            data-ajax="'.$ajax.'"
+            data-placeholder="'.$placeholder.'"
+            data-value="'.$selectedValue.'"
+            data-selected="'.$selectedText.'"
+            '.$attributes->merge(['class'=>'form-select select2']).'
+        >
+
+            <option></option>';
+
+    if ($ajax) {
+
+        if ($selectedValue && $selectedText) {
+            $select .= '<option value="'.$selectedValue.'" selected>'.$selectedText.'</option>';
+        }
+
+    } else {
+
+        foreach ($options as $key => $optionText) {
+            $isSelected = $selectedValue == $key ? 'selected' : '';
+            $select .= '<option value="'.$key.'" '.$isSelected.'>'.$optionText.'</option>';
+        }
+
+    }
+
+    $select .= '</select>';
+@endphp
+
+
 @if($inline)
+
     <div class="row mb-3 align-items-center {{ $class }}" {{ $style }}>
+
         @if($label)
             <label class="col-sm-3 col-form-label fw-semibold">
                 {{ $label }}
@@ -24,37 +59,9 @@
         @endif
 
         <div class="col-sm-9">
-
-            <select
-                name="{{ $name }}"
-                data-ajax="{{ $ajax }}"
-                data-placeholder="{{ $placeholder }}"
-                {{ $attributes->merge(['class'=>'form-select select2']) }}
-            >
-
-                <option></option>
-
-                @if($ajax)
-
-                    @if($selectedValue)
-                        <option value="{{ $selectedValue }}" selected>
-                            {{ $text }}
-                        </option>
-                    @endif
-
-                @else
-
-                    @foreach($options as $key=>$text)
-                        <option value="{{ $key }}" @selected($selectedValue==$key)>
-                            {{ $text }}
-                        </option>
-                    @endforeach
-
-                @endif
-
-            </select>
-
+            {!! $select !!}
         </div>
+
     </div>
 
 @else
@@ -67,34 +74,7 @@
             </label>
         @endif
 
-        <select
-            name="{{ $name }}"
-            data-ajax="{{ $ajax }}"
-            data-placeholder="{{ $placeholder }}"
-            {{ $attributes->merge(['class'=>'form-select select2']) }}
-        >
-
-            <option></option>
-
-            @if($ajax)
-
-                @if($selectedValue)
-                    <option value="{{ $selectedValue }}" selected>
-                        {{ $text }}
-                    </option>
-                @endif
-
-            @else
-
-                @foreach($options as $key=>$text)
-                    <option value="{{ $key }}" @selected($selectedValue==$key)>
-                        {{ $text }}
-                    </option>
-                @endforeach
-
-            @endif
-
-        </select>
+        {!! $select !!}
 
     </div>
 
