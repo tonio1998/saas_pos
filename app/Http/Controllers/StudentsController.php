@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Residents;
+use App\Models\Students;
 use App\Models\User;
 use App\Traits\TCommonFunctions;
 use Illuminate\Http\Request;
@@ -15,7 +15,7 @@ class StudentsController extends Controller
     use TCommonFunctions;
     public function index()
     {
-        return view('pages.residents.index');
+        return view('pages.students.index');
     }
 
     public function edit($id)
@@ -26,8 +26,8 @@ class StudentsController extends Controller
             abort(404);
         }
 
-        $student = Residents::findOrFail($id);
-        return view('pages.residents.create', compact('student'));
+        $student = Students::findOrFail($id);
+        return view('pages.students.create', compact('student'));
     }
 
     public function update(Request $request, $id)
@@ -38,12 +38,13 @@ class StudentsController extends Controller
             abort(404);
         }
 
-        $student = Residents::findOrFail($id);
+        $student = Students::findOrFail($id);
 
         $data = $request->validate(
             [
                 'LRN' => ['required','string','max:12'],
                 'FirstName' => ['required','string','max:255'],
+                'MiddleName' => ['nullable','string','max:255'],
                 'LastName' => ['required','string','max:255'],
                 'Suffix' => ['nullable','string','max:255'],
                 'PhoneNumber' => ['required','regex:/^\+639\d{9}$/'],
@@ -67,20 +68,20 @@ class StudentsController extends Controller
         );
 
         if ($request->hasFile('filepath')) {
-            $path = $request->file('filepath')->store('residents','public');
+            $path = $request->file('filepath')->store('students','public');
             $data['filepath'] = $path;
         }
 
         $student->update($data);
 
         return redirect()
-            ->route('residents.index')
+            ->route('students.index')
             ->with('success','Student updated successfully');
     }
 
     public function create()
     {
-        return view('pages.residents.create');
+        return view('pages.students.create');
     }
 
     public function store(Request $request)
@@ -112,22 +113,35 @@ class StudentsController extends Controller
         );
 
         if ($request->hasFile('filepath')) {
-            $path = $request->file('filepath')->store('residents','public');
+            $path = $request->file('filepath')->store('students','public');
             $data['filepath'] = $path;
         }
 
-        $student = new Residents();
+        $student = new Students();
         $student->fill($data);
         $this->setCommonFields($student);
         $student->save();
 
         return redirect()
-            ->route('residents.index')
+            ->route('students.index')
             ->with('success','Student created successfully');
     }
+    public function printID(Request $request)
+    {
+        $id = decrypt($request->segment(3));
+        $user = User::find($id);
+        if(!$user) return redirect()->route('students.index')->with('error','Generate Password first');
+
+        $student = Students::with(['guardian'])->where('id', $user->conn_id)->firstOrFail();
+        $user_type = 'students';
+
+        return view('pages.students.print', compact('student', 'user', 'user_type'))
+            ->with('success', 'Student ID printed successfully');
+    }
+
     public function ajaxData(Request $request)
     {
-        $query = Residents::with(['createdBy', 'guardian', 'studentUser']);
+        $query = Students::with(['createdBy', 'guardian', 'studentUser']);
 
         return datatables()
             ->eloquent($query)
@@ -137,8 +151,15 @@ class StudentsController extends Controller
 
                 $menu[] = '
                 <li>
-                    <a href="'.route('residents.edit',encrypt($student->id)).'" class="dropdown-item">
+                    <a href="'.route('students.edit',encrypt($student->id)).'" class="dropdown-item">
                         <i class="bi bi-pencil me-2"></i> Edit
+                    </a>
+                </li>';
+
+                $menu[] = '
+                <li>
+                    <a href="'.route('students.printID',encrypt($student->UserID ?? 0)).'" class="dropdown-item">
+                        <i class="bi bi-eye me-2"></i> Show ID
                     </a>
                 </li>';
 
@@ -147,12 +168,13 @@ class StudentsController extends Controller
                 <li>
                     <a href="javascript:void(0)"
                        class="dropdown-item btn-password"
-                       data-url="'.route('users.password',['residents',$student->id,$student->UserID ?? 0]).'"
+                       data-url="'.route('users.password',['students',$student->id,$student->UserID ?? 0]).'"
                        data-type="'.($student->studentUser ? 'regenerate' : 'generate').'">
                        <i class="bi bi-key me-2"></i>
                        '.($student->studentUser ? 'Update Password' : 'Generate Password').'
                     </a>
                 </li>';
+
 
                 if(empty($menu)) return '';
 
@@ -175,11 +197,11 @@ class StudentsController extends Controller
                 return $a;
             })
             ->addColumn('image', function ($student) {
-                $src = $student->filepath ? url('/storage/'.$student->filepath) : url('/logo.png');
-
+                $src = $student->studentUser ? asset('storage/'.$student->studentUser->filepath) : url('//images/logo.png');
+//                return $src;
                 return '<img
                 src="'.$src.'"
-                onerror="this.src=\''.url('/logo.png').'\'"
+                onerror="this.src=\''.url('/images/avatar.png').'\'"
                 style="width:40px;height:40px;border-radius:100px;object-fit:cover;"
             >';
             })

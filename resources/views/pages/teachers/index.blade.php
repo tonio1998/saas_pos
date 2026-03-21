@@ -12,14 +12,13 @@
     <x-card>
         <x-datatable
             id="teachersTable"
-            :columns="['Actions','Name','Phone Number','Address','Residents','Created At', 'Created By']"
+            :columns="['Actions','Name','Phone Number','Address','Created At', 'Created By']"
             :ajax="route('teachers.data')"
             :datatableColumns="[
                 ['data'=>'actions','orderable'=>false,'searchable'=>false],
                 ['data'=>'name'],
                 ['data'=>'phone_number'],
                 ['data'=>'address'],
-                ['data'=>'residents'],
                 ['data'=>'created_at'],
                 ['data'=>'createdBy']
             ]"

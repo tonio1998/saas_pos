@@ -8,9 +8,7 @@
 
 @if($filters)
     <div id="{{ $id }}-filters" class="datatable-filters d-none">
-
         @foreach($filters as $filter)
-
             @if($filter['type'] === 'select')
                 <select
                     name="{{ $filter['name'] }}"
@@ -24,7 +22,6 @@
 
                 </select>
             @endif
-
                 @if($filter['type'] === 'select2')
                     <select
                         name="{{ $filter['name'] }}"
@@ -36,7 +33,6 @@
                         <option value=""></option>
                     </select>
                 @endif
-
             @if($filter['type'] === 'date')
                 <input
                     type="date"
@@ -44,19 +40,15 @@
                     class="form-control form-control-sm datatable-filter"
                 >
             @endif
-
         @endforeach
-
         <button type="button" class="btn btn-light btn-sm datatable-reset">
             <i class="bi bi-x"></i>
         </button>
-
     </div>
 @endif
 
 
 <table id="{{ $id }}" class="table align-middle table-hover w-100 datatable">
-
     <thead>
     <tr>
         @foreach($columns as $column)
@@ -64,21 +56,17 @@
         @endforeach
     </tr>
     </thead>
-
     <tbody>
     @if(!$ajax)
         {{ $slot }}
     @endif
     </tbody>
-
 </table>
 
 
 @push('scripts')
     <script>
-
         document.addEventListener("DOMContentLoaded",function(){
-
             let table = $('#{{ $id }}').DataTable({
                 processing:true,
                 @if($ajax)
@@ -88,14 +76,11 @@
                     data:function(d){
 
                         $('#{{ $id }}-filters .datatable-filter').each(function(){
-
                             let name=$(this).attr('name');
                             let value=$(this).val();
-
                             if(value!=='' && value!==null){
                                 d[name]=value;
                             }
-
                         });
 
                         $('.datatable-external-filter').each(function(){

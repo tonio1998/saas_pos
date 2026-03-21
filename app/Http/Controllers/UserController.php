@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Parents;
 use App\Models\QrCodes;
-use App\Models\Residents;
+use App\Models\Students;
 use App\Models\Teachers;
 use App\Models\User;
 use App\Traits\TCommonFunctions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -205,8 +206,8 @@ class UserController extends Controller
 
         try {
 
-            if($user_type === 'residents'){
-                $UserT = Residents::findOrFail($UserTypeID);
+            if($user_type === 'students'){
+                $UserT = Students::findOrFail($UserTypeID);
             }elseif($user_type === 'teachers'){
                 $UserT = Teachers::findOrFail($UserTypeID);
             }elseif($user_type === 'parents'){
@@ -281,6 +282,57 @@ class UserController extends Controller
             ],500);
 
         }
+    }
+
+    public function changePhoto(Request $request){
+        $user = User::findOrFail(decrypt($request->segment(2)));
+        $user_type = $request->q;
+        return view('pages.users.change-photo',compact('user', 'user_type'));
+    }
+
+    public function upload(Request $request)
+    {
+        $request->validate([
+            'cropped_photo' => ['required', 'string'],
+            'user_id' => ['required', 'exists:users,id'],
+            'user_type' => ['required', 'string', 'in:students,teachers']
+        ]);
+
+        $user = User::findOrFail($request->user_id);
+
+        $image = $request->cropped_photo;
+
+        if (!preg_match('/^data:image\/(\w+);base64,/', $image, $type)) {
+            return back()->withErrors(['cropped_photo' => 'Invalid image format']);
+        }
+
+        $image = substr($image, strpos($image, ',') + 1);
+        $image = base64_decode($image);
+
+        if ($image === false) {
+            return back()->withErrors(['cropped_photo' => 'Base64 decode failed']);
+        }
+
+        $extension = strtolower($type[1]);
+        if (!in_array($extension, ['jpg', 'jpeg', 'png'])) {
+            return back()->withErrors(['cropped_photo' => 'Invalid image type']);
+        }
+
+        $fileName = 'users/' . $request->user_type.'/'. $request->user_id.'/'.Str::uuid() . '.' . $extension;
+
+        Storage::disk('public')->put($fileName, $image);
+
+        if ($user->filepath && Storage::disk('public')->exists($user->filepath)) {
+            Storage::disk('public')->delete($user->filepath);
+        }
+
+        $user->update([
+            'filepath' => $fileName,
+        ]);
+
+        return redirect()
+            ->back()
+            ->with('success', 'User photo updated successfully');
     }
 
 }

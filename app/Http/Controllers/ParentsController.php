@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Parents;
-use App\Models\Residents;
 use App\Traits\TCommonFunctions;
 use Illuminate\Http\Request;
 
@@ -151,7 +150,7 @@ class ParentsController extends Controller
             ->addColumn('address', function ($parent) {
                 return $parent->Address;
             })
-            ->addColumn('residents', function ($parent) {
+            ->addColumn('students', function ($parent) {
                 $a = '';
                 foreach ($parent->students as $student) {
                     $a .= "<div class='text-muted'>" . $student->FirstName . ' ' . $student->LastName . "</div>";
@@ -164,7 +163,7 @@ class ParentsController extends Controller
             ->addColumn('createdBy', function ($parent) {
                 return $parent->createdBy->name;
             })
-            ->rawColumns(['actions','residents', 'name'])
+            ->rawColumns(['actions','students', 'name'])
             ->make(true);
     }
     public function parents_search(Request $request)

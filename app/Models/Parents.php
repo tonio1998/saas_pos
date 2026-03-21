@@ -33,7 +33,7 @@ class Parents extends Model implements AuditableContract
 
     public function students()
     {
-        return $this->hasMany(Residents::class, 'GuardianID');
+        return $this->hasMany(Students::class, 'GuardianID');
     }
 
     public function createdBy()

@@ -1,75 +1,53 @@
 @extends('layouts.scanner')
-
 @section('title','DepEd Gate Scanner')
-
 @section('content')
-
     <div class="scanner-wrapper">
-
         <div class="scanner-header">
-
             <div class="header-left">
-
-                <img src="{{ asset('deped.png') }}" class="deped-logo">
-                <img src="{{ asset('tubajon.png') }}" class="deped-logo">
-                <img src="{{ asset('logo.png') }}" class="deped-logo">
-
+                <img src="{{ asset('images/deped.png') }}" class="deped-logo">
+                <img src="{{ asset('images/snsu.png') }}" class="deped-logo">
+                <img src="{{ asset('images/tubajon.png') }}" class="deped-logo">
                 <div class="header-text">
                     <div class="agency">{{ config('app.name') }}</div>
                     <div class="school">School Gate Monitoring System</div>
                 </div>
-
             </div>
 
             <div class="header-right">
-
                 <div class="status-indicator">
                     READY
                 </div>
-
                 <a href="{{ route('dashboard') }}" class="exit-btn">
                     Exit
                 </a>
-
             </div>
-
         </div>
 
         <div class="scanner-main">
-
             <div class="scan-display">
-
                 <img
                     id="person-photo"
-                    src="{{ asset('avatar.png') }}"
+                    src="{{ asset('images/avatar.png') }}"
                     class="person-photo">
 
                 <div class="person-info">
-
                     <div id="person-name" class="person-name">
                         Waiting for Scan
                     </div>
-
                     <div id="person-role" class="person-role">
                         Student / Staff
                     </div>
-
                     <div id="scan-status" class="scan-status idle">
                         Idle
                     </div>
-
                     <div class="scan-time" id="scan-time">
                         --:--
                     </div>
-
                 </div>
-
             </div>
 
             <div class="scanner-side">
-
                 <div class="scan-indicator">
-
                     <input
                         type="text"
                         id="scan-input"
@@ -83,15 +61,11 @@
                 </div>
 
                 <div class="scanner-logs">
-
                     <div class="logs-title">
                         Recent Logs
                     </div>
-
                     <div class="logs-container">
-
                         <table class="logs-table">
-
                             <thead>
                             <tr>
                                 <th>Name</th>
@@ -99,25 +73,17 @@
                                 <th>Status</th>
                             </tr>
                             </thead>
-
                             <tbody id="scan-logs">
-
                             <tr>
                                 <td colspan="3" class="logs-empty">
                                     No scans yet
                                 </td>
                             </tr>
-
                             </tbody>
-
                         </table>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
 
         <style>
