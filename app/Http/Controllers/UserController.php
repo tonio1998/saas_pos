@@ -199,7 +199,7 @@ class UserController extends Controller
         $qrCodeRow->archived = 0;
         $qrCodeRow->save();
 
-        return $prefix . str_pad($newNumber, 12, '0', STR_PAD_LEFT);
+        return $prefix . str_pad($newNumber, 6, '0', STR_PAD_LEFT);
     }
 
     public function generatePassword(Request $request): \Illuminate\Http\JsonResponse

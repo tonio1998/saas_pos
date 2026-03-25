@@ -15,151 +15,162 @@ const zoomIn = document.getElementById('zoomIn')
 const zoomOut = document.getElementById('zoomOut')
 const resetBtn = document.getElementById('resetPhoto')
 const saveBtn = document.getElementById('saveBtn')
-const hiddenInput = document.getElementById('croppedPhoto')
+const croppedInput = document.getElementById('croppedPhoto')
 
-let img = null
+const currentPhoto = document.getElementById('currentPhoto')?.value
+
+let img = new Image()
 let scale = 1
-let offsetX = 0
-let offsetY = 0
-
-let dragging = false
+let minScale = 1
+let posX = 0
+let posY = 0
+let isDragging = false
 let startX = 0
 let startY = 0
 
-const clamp = (val, min, max) => Math.max(min, Math.min(max, val))
+function draw() {
+    ctx.clearRect(0, 0, WIDTH, HEIGHT)
 
-function getBounds(imgW, imgH){
-    const minX = WIDTH - imgW
-    const minY = HEIGHT - imgH
-    return {
-        minX: Math.min(0, minX),
-        maxX: 0,
-        minY: Math.min(0, minY),
-        maxY: 0
+    if (!img.src) return
+
+    const w = img.width * scale
+    const h = img.height * scale
+
+    ctx.drawImage(img, posX, posY, w, h)
+}
+
+function fitImage() {
+    if (!img.width || !img.height) return
+
+    const scaleX = WIDTH / img.width
+    const scaleY = HEIGHT / img.height
+
+    minScale = Math.max(scaleX, scaleY)
+    scale = minScale
+
+    const w = img.width * scale
+    const h = img.height * scale
+
+    posX = (WIDTH - w) / 2
+    posY = (HEIGHT - h) / 2
+
+    draw()
+}
+
+function loadImage(src) {
+    if (!src) return
+
+    const temp = new Image()
+    temp.crossOrigin = 'anonymous'
+
+    temp.onload = () => {
+        img = temp
+        fitImage()
     }
+
+    temp.onerror = () => {
+        console.error('Image load failed')
+    }
+
+    temp.src = src
 }
 
-function draw(){
-    ctx.clearRect(0,0,WIDTH,HEIGHT)
-
-    if(!img) return
-
-    const imgW = img.width * scale
-    const imgH = img.height * scale
-
-    const bounds = getBounds(imgW, imgH)
-
-    offsetX = clamp(offsetX, bounds.minX, bounds.maxX)
-    offsetY = clamp(offsetY, bounds.minY, bounds.maxY)
-
-    ctx.drawImage(img, offsetX, offsetY, imgW, imgH)
-
-    ctx.strokeStyle = 'rgba(0,0,0,0.2)'
-    ctx.lineWidth = 2
-    ctx.strokeRect(0,0,WIDTH,HEIGHT)
-
-    ctx.beginPath()
-    ctx.strokeStyle = 'rgba(0,150,0,0.5)'
-    ctx.lineWidth = 2
-
-    const headTop = HEIGHT * 0.15
-    const headBottom = HEIGHT * 0.65
-
-    ctx.moveTo(0, headTop)
-    ctx.lineTo(WIDTH, headTop)
-
-    ctx.moveTo(0, headBottom)
-    ctx.lineTo(WIDTH, headBottom)
-
-    ctx.stroke()
+/* =========================
+   INIT (LOAD CURRENT PHOTO)
+========================= */
+if (currentPhoto) {
+    loadImage(currentPhoto)
 }
 
-upload.addEventListener('change',(e)=>{
+/* =========================
+   FILE UPLOAD
+========================= */
+upload.addEventListener('change', e => {
     const file = e.target.files[0]
-    if(!file) return
+    if (!file) return
 
     const reader = new FileReader()
-    reader.onload = ()=>{
-        img = new Image()
-        img.src = reader.result
-        img.onload = ()=>{
-            const ratio = Math.max(WIDTH / img.width, HEIGHT / img.height)
-            scale = ratio
-            offsetX = (WIDTH - img.width * scale) / 2
-            offsetY = (HEIGHT - img.height * scale) / 2
-            draw()
-        }
+
+    reader.onload = ev => {
+        loadImage(ev.target.result)
     }
+
     reader.readAsDataURL(file)
 })
 
-canvas.addEventListener('mousedown',(e)=>{
-    dragging = true
-    startX = e.offsetX
-    startY = e.offsetY
+/* =========================
+   DRAG
+========================= */
+canvas.addEventListener('mousedown', e => {
+    isDragging = true
+    startX = e.offsetX - posX
+    startY = e.offsetY - posY
 })
 
-canvas.addEventListener('mousemove',(e)=>{
-    if(!dragging) return
+canvas.addEventListener('mousemove', e => {
+    if (!isDragging) return
 
-    const dx = e.offsetX - startX
-    const dy = e.offsetY - startY
-
-    offsetX += dx
-    offsetY += dy
-
-    startX = e.offsetX
-    startY = e.offsetY
+    posX = e.offsetX - startX
+    posY = e.offsetY - startY
 
     draw()
 })
 
-window.addEventListener('mouseup',()=> dragging = false)
+canvas.addEventListener('mouseup', () => isDragging = false)
+canvas.addEventListener('mouseleave', () => isDragging = false)
 
-canvas.addEventListener('wheel',(e)=>{
-    if(!img) return
-    e.preventDefault()
+/* =========================
+   ZOOM
+========================= */
+function applyZoom(factor) {
+    const newScale = scale * factor
+    if (newScale < minScale) return
 
-    const zoom = e.deltaY > 0 ? -0.1 : 0.1
-    const newScale = clamp(scale + zoom, 0.8, 3)
+    const centerX = WIDTH / 2
+    const centerY = HEIGHT / 2
 
-    const mouseX = e.offsetX
-    const mouseY = e.offsetY
-
-    const dx = mouseX - offsetX
-    const dy = mouseY - offsetY
-
-    const ratio = newScale / scale
-
-    offsetX = mouseX - dx * ratio
-    offsetY = mouseY - dy * ratio
+    posX = centerX - (centerX - posX) * (newScale / scale)
+    posY = centerY - (centerY - posY) * (newScale / scale)
 
     scale = newScale
     draw()
+}
+
+zoomIn.addEventListener('click', () => applyZoom(1.1))
+zoomOut.addEventListener('click', () => applyZoom(0.9))
+
+canvas.addEventListener('wheel', e => {
+    e.preventDefault()
+    applyZoom(e.deltaY < 0 ? 1.05 : 0.95)
 })
 
-zoomIn.onclick = ()=>{
-    scale = clamp(scale + 0.1, 0.8, 3)
-    draw()
-}
+/* =========================
+   RESET
+========================= */
+resetBtn.addEventListener('click', () => {
+    if (currentPhoto) {
+        loadImage(currentPhoto)
+    } else {
+        ctx.clearRect(0, 0, WIDTH, HEIGHT)
+    }
+})
 
-zoomOut.onclick = ()=>{
-    scale = clamp(scale - 0.1, 0.8, 3)
-    draw()
-}
+/* =========================
+   SAVE
+========================= */
+saveBtn.addEventListener('click', e => {
+    if (!img.src) {
+        e.preventDefault()
+        alert('Please upload or use a photo first')
+        return
+    }
 
-resetBtn.onclick = ()=>{
-    if(!img) return
-
-    const ratio = Math.max(WIDTH / img.width, HEIGHT / img.height)
-    scale = ratio
-    offsetX = (WIDTH - img.width * scale) / 2
-    offsetY = (HEIGHT - img.height * scale) / 2
-
-    draw()
-}
-
-saveBtn.addEventListener('click',()=>{
-    if(!img) return
-    hiddenInput.value = canvas.toDataURL('image/jpeg', 0.9)
+    try {
+        const data = canvas.toDataURL('image/jpeg', 0.9)
+        croppedInput.value = data
+    } catch (err) {
+        e.preventDefault()
+        console.error(err)
+        alert('Failed to process image')
+    }
 })

@@ -24,6 +24,7 @@ class Students extends Model implements AuditableContract
         'Section',
         'GuardianID',
         'YearLevel',
+        'Strand',
         'PhoneNumber',
         'filepath',
         'created_by',

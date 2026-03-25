@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Parents;
 use App\Models\Teachers;
+use App\Models\User;
 use App\Traits\TCommonFunctions;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TeachersController extends Controller
 {
@@ -36,26 +38,54 @@ class TeachersController extends Controller
             abort(404);
         }
 
-        $student = Teachers::findOrFail($id);
+        DB::beginTransaction();
 
-        $data = $request->validate([
-            'FirstName' => ['required','string','max:255'],
-            'LastName' => ['required','string','max:255'],
-            'Suffix' => ['nullable','string','max:255'],
-            'PhoneNumber' => ['required','regex:/^\+639\d{9}$/'],
-            'Address' => ['required','string','max:255']
-        ],[
-            'FirstName.required' => 'First name is required.',
-            'LastName.required' => 'Last name is required.',
-            'PhoneNumber.regex' => 'Phone number must start with +639 and contain 13 characters.',
-            'Address.required' => 'Address is required.'
-        ]);
+        try {
 
-        $student->update($data);
+            $teacher = Teachers::findOrFail($id);
 
-        return redirect()
-            ->route('teachers.index')
-            ->with('success','Teacher updated successfully');
+            $data = $request->validate([
+                'FirstName' => ['required','string','max:255'],
+                'LastName' => ['required','string','max:255'],
+                'Suffix' => ['nullable','string','max:255'],
+                'PhoneNumber' => ['required','regex:/^\+639\d{9}$/'],
+                'Address' => ['required','string','max:255'],
+                'UserID' => ['nullable','integer']
+            ]);
+
+            $teacher->update($data);
+
+            if (!empty($data['UserID'])) {
+
+                $user = User::find($data['UserID']);
+
+                if ($user) {
+
+                    $roleName = 'teachers';
+
+                    if (!$user->hasRole($roleName)) {
+                        $user->assignRole($roleName);
+                    }
+
+                    if ($teacher->UserID != $user->id) {
+                        $teacher->UserID = $user->id;
+                        $teacher->save();
+                    }
+                }
+            }
+
+            DB::commit();
+
+            return redirect()
+                ->route('teachers.index')
+                ->with('success','Teacher updated successfully');
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return back()->withErrors($e->getMessage())->withInput();
+        }
     }
 
     public function create()
@@ -65,30 +95,55 @@ class TeachersController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate(
-            [
-                'FirstName' => ['required','string','max:255'],
-                'LastName' => ['required','string','max:255'],
-                'Suffix' => ['nullable','string','max:255'],
-                'PhoneNumber' => ['required','regex:/^\+639\d{9}$/'],
-                'Address' => ['required','string','max:255']
-            ],
-            [
-                'FirstName.required' => 'First name is required.',
-                'LastName.required' => 'Last name is required.',
-                'PhoneNumber.regex' => 'Phone number must start with +639 and contain 13 characters.',
-                'Address.required' => 'Address is required.'
-            ]
-        );
+        DB::beginTransaction();
 
-        $new_parent = new Teachers();
-        $new_parent->fill($data);
-        $this->setCommonFields($new_parent);
-        $new_parent->save();
+        try {
 
-        return redirect()
-            ->route('teachers.index')
-            ->with('success','Parent created successfully');
+            $data = $request->validate(
+                [
+                    'FirstName' => ['required','string','max:255'],
+                    'LastName' => ['required','string','max:255'],
+                    'Suffix' => ['nullable','string','max:255'],
+                    'PhoneNumber' => ['required','regex:/^\+639\d{9}$/'],
+                    'Address' => ['required','string','max:255'],
+                    'UserID' => ['nullable','integer']
+                ]
+            );
+
+            $parent = new Parents();
+            $parent->fill($data);
+            $this->setCommonFields($parent);
+            $parent->save();
+
+            if (!empty($data['UserID'])) {
+
+                $user = User::find($data['UserID']);
+
+                if ($user) {
+
+                    $roleName = 'parent';
+
+                    if (!$user->hasRole($roleName)) {
+                        $user->assignRole($roleName);
+                    }
+
+                    $parent->UserID = $user->id;
+                    $parent->save();
+                }
+            }
+
+            DB::commit();
+
+            return redirect()
+                ->route('parents.index')
+                ->with('success','Parent created successfully');
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return back()->withErrors($e->getMessage())->withInput();
+        }
     }
 
     public function ajaxData(Request $request)

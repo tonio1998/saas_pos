@@ -3,6 +3,7 @@
 @section('title','User Photo')
 
 @section('content')
+    @vite('resources/js/photo-crop.js')
     <div class="row justify-content-center">
         <div class="col-lg-6">
             <x-card>
@@ -16,8 +17,8 @@
                     <div style="width:200px; aspect-ratio:413/531; border:1px solid #ccc; border-radius:12px; overflow:hidden;">
                         <canvas id="photoCanvas"></canvas>
                     </div>
-
-                    <input type="file" id="uploadPhoto" accept="image/*" class="form-control form-control-sm">
+                    <input type="hidden" id="currentPhoto" value="{{ $user->filepath ? asset('storage/'.$user->filepath) : asset('images/avatar.png') }}">
+                    <input type="file" id="uploadPhoto"  accept="image/*" class="form-control form-control-sm">
 
                     <div class="d-flex gap-2">
                         <button type="button" class="btn btn-sm btn-outline-secondary" id="zoomIn">+</button>
@@ -45,5 +46,4 @@
         </div>
     </div>
 
-    @vite('resources/js/ph-photo.js')
 @endsection

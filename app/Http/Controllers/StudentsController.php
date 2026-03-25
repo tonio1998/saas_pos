@@ -38,45 +38,67 @@ class StudentsController extends Controller
             abort(404);
         }
 
-        $student = Students::findOrFail($id);
+        DB::beginTransaction();
 
-        $data = $request->validate(
-            [
-                'LRN' => ['required','string','max:12'],
-                'FirstName' => ['required','string','max:255'],
-                'MiddleName' => ['nullable','string','max:255'],
-                'LastName' => ['required','string','max:255'],
-                'Suffix' => ['nullable','string','max:255'],
-                'PhoneNumber' => ['required','regex:/^\+639\d{9}$/'],
-                'YearLevel' => ['required','string','max:255'],
-                'Section' => ['required','string','max:255'],
-                'GuardianID' => ['nullable','integer'],
-                'UserID' => ['nullable','integer'],
-                'filepath' => ['nullable','image','mimes:jpg,jpeg,png','max:2048']
-            ],
-            [
-                'LRN.required' => 'Learner Reference Number (LRN) is required.',
-                'LRN.max' => 'LRN must not exceed 12 characters.',
-                'FirstName.required' => 'First name is required.',
-                'LastName.required' => 'Last name is required.',
-                'PhoneNumber.regex' => 'Phone number must start with +639 and contain 13 characters.',
-                'YearLevel.required' => 'Year level is required.',
-                'Section.required' => 'Section is required.',
-                'filepath.image' => 'Uploaded file must be an image.',
-                'filepath.max' => 'Image must not exceed 2MB.'
-            ]
-        );
+        try {
 
-        if ($request->hasFile('filepath')) {
-            $path = $request->file('filepath')->store('students','public');
-            $data['filepath'] = $path;
+            $student = Students::findOrFail($id);
+
+            $data = $request->validate(
+                [
+                    'LRN' => ['required','string','max:12'],
+                    'FirstName' => ['required','string','max:255'],
+                    'MiddleName' => ['nullable','string','max:255'],
+                    'LastName' => ['required','string','max:255'],
+                    'Suffix' => ['nullable','string','max:255'],
+                    'PhoneNumber' => ['required','regex:/^\+639\d{9}$/'],
+                    'YearLevel' => ['required','string','max:255'],
+                    'Section' => ['required','string','max:255'],
+                    'GuardianID' => ['nullable','integer'],
+                    'UserID' => ['nullable','integer'],
+                    'filepath' => ['nullable','image','mimes:jpg,jpeg,png','max:2048'],
+                    'Strand' => ['nullable','string','max:255']
+                ]
+            );
+
+            if ($request->hasFile('filepath')) {
+                $path = $request->file('filepath')->store('students','public');
+                $data['filepath'] = $path;
+            }
+
+            $student->update($data);
+
+            if (!empty($data['UserID'])) {
+
+                $user = User::find($data['UserID']);
+
+                if ($user) {
+
+                    $roleName = 'students';
+
+                    if (!$user->hasRole($roleName)) {
+                        $user->assignRole($roleName);
+                    }
+
+                    if ($student->UserID != $user->id) {
+                        $student->UserID = $user->id;
+                        $student->save();
+                    }
+                }
+            }
+
+            DB::commit();
+
+            return redirect()
+                ->route('students.index')
+                ->with('success','Student updated successfully');
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return back()->withErrors($e->getMessage())->withInput();
         }
-
-        $student->update($data);
-
-        return redirect()
-            ->route('students.index')
-            ->with('success','Student updated successfully');
     }
 
     public function create()
@@ -97,34 +119,55 @@ class StudentsController extends Controller
                 'Section' => ['required','string','max:255'],
                 'GuardianID' => ['nullable','integer'],
                 'UserID' => ['nullable','integer'],
-                'filepath' => ['nullable','image','mimes:jpg,jpeg,png','max:2048']
-            ],
-            [
-                'LRN.required' => 'Learner Reference Number (LRN) is required.',
-                'LRN.max' => 'LRN must not exceed 12 characters.',
-                'FirstName.required' => 'First name is required.',
-                'LastName.required' => 'Last name is required.',
-                'PhoneNumber.regex' => 'Phone number must start with +639 and contain 13 characters.',
-                'YearLevel.required' => 'Year level is required.',
-                'Section.required' => 'Section is required.',
-                'filepath.image' => 'Uploaded file must be an image.',
-                'filepath.max' => 'Image must not exceed 2MB.'
+                'filepath' => ['nullable','image','mimes:jpg,jpeg,png','max:2048'],
+                'Strand' => ['nullable','string','max:255']
             ]
         );
 
-        if ($request->hasFile('filepath')) {
-            $path = $request->file('filepath')->store('students','public');
-            $data['filepath'] = $path;
+        DB::beginTransaction();
+
+        try {
+
+            if ($request->hasFile('filepath')) {
+                $path = $request->file('filepath')->store('students','public');
+                $data['filepath'] = $path;
+            }
+
+            $student = new Students();
+            $student->fill($data);
+            $this->setCommonFields($student);
+            $student->save();
+
+            if (!empty($data['UserID'])) {
+
+                $user = User::find($data['UserID']);
+
+                if ($user) {
+
+                    $roleName = 'students';
+
+                    if (!$user->hasRole($roleName)) {
+                        $user->assignRole($roleName);
+                    }
+
+                    $student->UserID = $user->id;
+                    $student->save();
+                }
+
+            }
+
+            DB::commit();
+
+            return redirect()
+                ->route('students.index')
+                ->with('success','Student created successfully');
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return back()->withErrors($e->getMessage())->withInput();
         }
-
-        $student = new Students();
-        $student->fill($data);
-        $this->setCommonFields($student);
-        $student->save();
-
-        return redirect()
-            ->route('students.index')
-            ->with('success','Student created successfully');
     }
 
     public function ajaxData(Request $request)

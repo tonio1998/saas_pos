@@ -31,7 +31,7 @@
 
             <div class="row g-4">
 
-                <x-form.group name="LRN" label="LRN" class="col-md-6" required>
+                <x-form.group name="LRN" label="LRN" class="col-md-4" required>
                     <x-form.input
                         name="LRN"
                         value="{{ old('LRN',$student->LRN ?? '') }}"
@@ -40,7 +40,7 @@
                     />
                 </x-form.group>
 
-                <x-form.group name="YearLevel" label="Year Level" class="col-md-6" required>
+                <x-form.group name="YearLevel" label="Year Level" class="col-md-4" required>
                     <select name="YearLevel" class="form-select">
                         <option value="">Select year level</option>
                         @foreach([7,8,9,10,11,12] as $year)
@@ -49,6 +49,14 @@
                             </option>
                         @endforeach
                     </select>
+                </x-form.group>
+
+                <x-form.group name="Strand" label="Strand" class="col-md-4">
+                    <x-form.input
+                        name="Strand"
+                        value="{{ old('Strand',$student->Strand ?? '') }}"
+                        placeholder="Enter student strand"
+                    />
                 </x-form.group>
 
                 <x-form.group name="FirstName" label="First Name" class="col-md-3" required>

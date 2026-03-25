@@ -153,6 +153,8 @@ async function drawFront(){
 
     ctx.fillText(student.LRN ?? '',width/3.7,height-445)
 
+    ctx.fillText(user.qr_code ?? '',width/1.35,height-445)
+
     ctx.font='25px Arial'
     ctx.fillText(`Contact: ${student.PhoneNumber ?? ''}`,width/2,height-290)
 
@@ -162,7 +164,7 @@ async function drawFront(){
     ctx.stroke()
 
     ctx.font='bolder 35px Arial'
-    ctx.fillText(`G-${student.GradeLevel ?? ''} ${student.Strand ?? ''} STUDENT`,width/2,height-48)
+    ctx.fillText(`G-${student.YearLevel ?? ''} ${student.Strand ?? ''} STUDENT`,width/2,height-48)
 }
 
 function drawAcademicTable(ctx,x,y){
