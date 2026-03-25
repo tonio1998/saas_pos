@@ -5,6 +5,7 @@ use App\Http\Controllers\LogsController;
 use App\Http\Controllers\ParentsController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\ScanController;
 use App\Http\Controllers\ScannerController;
 use App\Http\Controllers\StudentsController;
 use App\Http\Controllers\TeachersController;
@@ -107,3 +108,5 @@ Route::middleware('auth')->group(function(){
     });
 
 });
+
+Route::post('/scan',[ScanController::class,'scan'])->name('scan');
