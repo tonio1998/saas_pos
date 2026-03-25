@@ -194,6 +194,15 @@ class StudentsController extends Controller
                     </a>
                 </li>';
 
+//                route('users.change-photo',[encrypt($user->id), 'q=students'])
+
+                $menu[] = '
+                <li>
+                    <a href="'.route('users.change-photo',[encrypt($student->UserID ?? 0), 'q=students']).'" class="dropdown-item">
+                        <i class="bi bi-photo me-2"></i> Change Photo
+                    </a>
+                </li>';
+
 
                 $menu[] = '
                 <li>

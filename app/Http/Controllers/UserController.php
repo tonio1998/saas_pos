@@ -292,10 +292,33 @@ class UserController extends Controller
         }
     }
 
-    public function changePhoto(Request $request){
-        $user = User::findOrFail(decrypt($request->segment(2)));
-        $user_type = $request->q;
-        return view('pages.users.change-photo',compact('user', 'user_type'));
+    public function changePhoto(Request $request)
+    {
+        try {
+            $id = decrypt($request->segment(2));
+
+            if (!$id) {
+                abort(404, 'Invalid user identifier');
+            }
+
+            $user = User::findOrFail($id);
+            $user_type = $request->q ?? null;
+
+            return view('pages.users.change-photo', compact('user', 'user_type'));
+
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            dd($e->getMessage());
+//            return redirect()->back()->with('error', 'Invalid or tampered ID.');
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            dd($e->getMessage());
+//            return redirect()->back()->with('error', 'User not found.');
+
+        } catch (\Throwable $e) {
+            report($e);
+
+            return redirect()->back()->with('error', 'Something went wrong. Please try again.');
+        }
     }
 
     public function printID(Request $request)
