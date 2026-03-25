@@ -3,7 +3,6 @@
 @section('content')
 
     <div class="scanner-wrapper">
-
         <div class="scanner-header">
             <div class="header-left">
                 <img src="{{ asset('images/deped.png') }}" class="deped-logo">
@@ -23,61 +22,45 @@
 
         <div class="scanner-main">
 
-            <div class="scan-display">
-                <img id="person-photo" src="{{ asset('images/avatar.png') }}" class="person-photo">
+            <!-- CENTER DISPLAY -->
+            <div class="scan-display-card">
 
-                <div class="person-info">
+                <div class="photo-section">
+                    <img id="person-photo" src="{{ asset('images/avatar.png') }}" class="person-photo">
+                    <div id="scan-status" class="status-badge idle">IDLE</div>
+                </div>
+
+                <div class="info-section">
                     <div id="person-name" class="person-name">Waiting for Scan</div>
                     <div id="person-role" class="person-role">Student / Staff</div>
-                    <div id="scan-status" class="scan-status idle">Idle</div>
-                    <div class="scan-time" id="scan-time">--:--</div>
-                </div>
-            </div>
 
-            <div class="scanner-side">
-
-                <div class="scan-indicator">
-
-                    <input
-                        type="text"
-                        id="scan-input"
-                        class="scan-input"
-                        placeholder="Scan QR / NFC or Enter Student ID"
-                        autofocus>
-
-                    <div class="scan-message">
-                        Scan QR / NFC or Enter Student ID
-                    </div>
-
-                </div>
-
-                <div class="scanner-logs">
-                    <div class="logs-title">Recent Logs</div>
-                    <div class="logs-container">
-                        <table class="logs-table">
-                            <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Time</th>
-                                <th>Status</th>
-                            </tr>
-                            </thead>
-                            <tbody id="scan-logs">
-                            <tr>
-                                <td colspan="3" class="logs-empty">No scans yet</td>
-                            </tr>
-                            </tbody>
-                        </table>
+                    <div class="meta-row">
+                        <div class="meta-label">TIME</div>
+                        <div class="meta-value" id="scan-time">--:--</div>
                     </div>
                 </div>
 
             </div>
+
+        </div>
+
+        <!-- BOTTOM PANEL -->
+        <div class="scanner-bottom">
+
+            <input
+                type="text"
+                id="scan-input"
+                class="scan-input"
+                placeholder="Scan QR / NFC or Enter ID"
+                autofocus>
+
+            <div class="logs-container" id="scan-logs"></div>
+
         </div>
 
     </div>
 
     <style>
-
         html,body{
             height:100%;
             margin:0;
@@ -115,14 +98,9 @@
             padding:3px;
         }
 
-        .header-text{
-            line-height:1.2;
-        }
-
         .agency{
             font-size:20px;
             font-weight:700;
-            text-transform:uppercase;
         }
 
         .school{
@@ -132,7 +110,6 @@
 
         .header-right{
             display:flex;
-            align-items:center;
             gap:10px;
         }
 
@@ -140,8 +117,6 @@
             background:#28a745;
             padding:6px 16px;
             border-radius:20px;
-            font-size:13px;
-            font-weight:600;
         }
 
         .exit-btn{
@@ -150,180 +125,131 @@
             padding:6px 16px;
             border-radius:8px;
             text-decoration:none;
-            font-weight:600;
         }
 
         .scanner-main{
             flex:1;
-            display:grid;
-            grid-template-columns:2fr 1fr;
-            gap:20px;
-            padding:20px;
-        }
-
-        .scan-display{
-            background:white;
-            border-radius:14px;
             display:flex;
             align-items:center;
             justify-content:center;
-            gap:40px;
-            box-shadow:0 4px 20px rgba(0,0,0,.08);
+        }
+
+        .scan-display-card{
+            width:100%;
+            max-width:1000px;
+            background:white;
+            border-radius:20px;
+            padding:40px;
+            display:flex;
+            gap:50px;
+            box-shadow:0 20px 60px rgba(0,0,0,.15);
+        }
+
+        .photo-section{
+            position:relative;
         }
 
         .person-photo{
-            width:220px;
-            height:220px;
-            border-radius:50%;
+            width:300px;
+            height:300px;
+            border-radius:20px;
             object-fit:cover;
-            border:6px solid #e9ecef;
         }
 
-        .person-info{
-            text-align:left;
+        .status-badge{
+            position:absolute;
+            bottom:-15px;
+            left:50%;
+            transform:translateX(-50%);
+            padding:10px 28px;
+            border-radius:25px;
+            font-weight:700;
+            font-size:18px;
+            color:white;
         }
+
+        .status-badge.idle{background:#6c757d;}
+        .status-badge.in{background:#28a745;}
+        .status-badge.out{background:#007bff;}
+        .status-badge.denied{background:#C8102E;}
 
         .person-name{
+            font-size:56px;
+            font-weight:900;
+        }
+
+        .person-role{
+            font-size:22px;
+            margin-top:10px;
+            color:#6c757d;
+        }
+
+        .meta-value{
             font-size:36px;
             font-weight:800;
         }
 
-        .person-role{
-            font-size:18px;
-            color:#6c757d;
-            margin-top:5px;
-        }
-
-        .scan-status{
-            margin-top:12px;
-            display:inline-block;
-            padding:8px 24px;
-            border-radius:25px;
-            font-weight:700;
-            color:white;
-        }
-
-        .scan-status.idle{background:#6c757d;}
-        .scan-status.in{background:#28a745;}
-        .scan-status.out{background:#007bff;}
-        .scan-status.denied{background:#C8102E;}
-
-        .scan-time{
-            margin-top:10px;
-            font-size:22px;
-            font-weight:600;
-            color:#6c757d;
-        }
-
-        .scanner-side{
-            display:flex;
-            flex-direction:column;
-            gap:20px;
-        }
-
-        .scan-indicator{
+        .scanner-bottom{
+            padding:15px;
             background:white;
-            border-radius:14px;
-            padding:30px;
-            text-align:center;
-            box-shadow:0 4px 20px rgba(0,0,0,.08);
+            border-top:1px solid #eee;
         }
 
         .scan-input{
             width:100%;
-            padding:14px 16px;
+            padding:14px;
             font-size:18px;
             border-radius:10px;
-            border:2px solid #e0e0e0;
-            outline:none;
-            text-align:center;
-            transition:.2s;
-        }
-
-        .scan-input:focus{
-            border-color:#003A8F;
-            box-shadow:0 0 0 3px rgba(0,58,143,0.15);
-        }
-
-        .scan-message{
-            margin-top:12px;
-            font-size:18px;
-            font-weight:600;
-            color:#6c757d;
-        }
-
-        .scanner-logs{
-            background:white;
-            border-radius:14px;
-            padding:15px;
-            box-shadow:0 4px 20px rgba(0,0,0,.08);
-            flex:1;
-            display:flex;
-            flex-direction:column;
-        }
-
-        .logs-title{
-            font-weight:700;
+            border:2px solid #ddd;
             margin-bottom:10px;
+            text-align:center;
         }
 
         .logs-container{
-            overflow:auto;
-            flex:1;
+            display:flex;
+            gap:10px;
+            overflow-x:auto;
         }
 
-        .logs-table{
-            width:100%;
-            border-collapse:collapse;
-            font-size:14px;
+        .log-item{
+            min-width:180px;
+            background:#f8f9fb;
+            padding:10px;
+            border-radius:10px;
         }
 
-        .logs-table th{
-            text-align:left;
-            padding:8px;
-            border-bottom:1px solid #eee;
+        .log-status{
+            margin-top:5px;
+            font-size:12px;
+            padding:3px 8px;
+            border-radius:20px;
+            color:white;
         }
 
-        .logs-table td{
-            padding:8px;
-            border-bottom:1px solid #f2f2f2;
-        }
-
-        .logs-empty{
-            text-align:center;
-            color:#999;
-        }
-
+        .log-status.in{background:#28a745;}
+        .log-status.out{background:#007bff;}
+        .log-status.denied{background:#C8102E;}
     </style>
 
     <script>
-
         const input = document.getElementById('scan-input')
-
-        document.addEventListener('click', () => input.focus())
 
         input.focus()
         renderLogs()
 
+        document.addEventListener('click', () => input.focus())
+
         input.addEventListener('keydown', function(e){
-
             if(e.key === 'Enter'){
-
                 e.preventDefault()
-
                 const code = this.value.trim()
-
                 if(!code) return
-
                 processScan(code)
-
                 this.value = ''
             }
-
         })
 
         function processScan(code){
-
             $.ajax({
                 url: '/scan',
                 type: 'POST',
@@ -332,32 +258,19 @@
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
-                timeout: 5000,
-
                 success: function(data){
 
                     $('#person-name').text(data.name || 'Unknown')
                     $('#person-role').text(data.role || '')
-                    $('#person-photo').attr('src', data.photo)
+                    $('#person-photo').attr('src', data.photo || '/images/avatar.png')
 
                     $('#scan-status')
-                        .attr('class', 'scan-status ' + (data.status || 'denied'))
+                        .attr('class', 'status-badge ' + (data.status || 'denied'))
+                        .text((data.status || 'denied').toUpperCase())
 
                     $('#scan-time').text(data.time || '--:--')
 
                     addLog(data)
-                },
-
-                error: function(xhr){
-
-                    $('#person-name').text('System Error')
-                    $('#person-role').text('')
-                    $('#person-photo').attr('src', '/images/avatar.png')
-
-                    $('#scan-status')
-                        .attr('class', 'scan-status denied')
-
-                    $('#scan-time').text('--:--')
                 }
             })
         }
@@ -368,56 +281,35 @@
         }
 
         function addLog(data){
-
             const key = getTodayKey()
-
             const logs = JSON.parse(localStorage.getItem(key) || '[]')
 
-            logs.unshift({
-                name: data.name,
-                time: data.time,
-                status: data.status
-            })
-
-            if(logs.length > 50){
-                logs.pop()
-            }
+            logs.unshift(data)
+            if(logs.length > 20) logs.pop()
 
             localStorage.setItem(key, JSON.stringify(logs))
-
             renderLogs()
         }
 
         function renderLogs(){
+            const container = document.getElementById('scan-logs')
+            const logs = JSON.parse(localStorage.getItem(getTodayKey()) || '[]')
 
-            const table = document.getElementById('scan-logs')
-            const key = getTodayKey()
-            const logs = JSON.parse(localStorage.getItem(key) || '[]')
+            container.innerHTML = ''
 
-            table.innerHTML = ''
-
-            if(!logs.length){
-                table.innerHTML = `
-<tr>
-    <td colspan="3" class="logs-empty">No scans yet</td>
-</tr>`
-                return
-            }
-
-            logs.forEach(log => {
-
-                const row = document.createElement('tr')
-
-                row.innerHTML = `
-<td>${log.name}</td>
-<td>${log.time}</td>
-<td>${log.status.toUpperCase()}</td>
-`
-
-                table.appendChild(row)
+            logs.forEach(log=>{
+                const el = document.createElement('div')
+                el.className='log-item'
+                el.innerHTML = `
+            <div>${log.name}</div>
+            <div style="font-size:12px;color:#666">${log.time}</div>
+            <div class="log-status ${log.status}">
+                ${log.status.toUpperCase()}
+            </div>
+        `
+                container.appendChild(el)
             })
         }
-
     </script>
 
 @endsection

@@ -15,6 +15,7 @@ class ScanLogs extends Model implements AuditableContract
         'UserID',
         'Mode',
         'lat',
+        'VerificationCode',
         'lng'
     ];
 

@@ -48,4 +48,34 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function studentInfo()
+    {
+        return $this->hasOne(Students::class, 'UserID');
+    }
+
+    public function teacherInfo()
+    {
+        return $this->hasOne(Teachers::class, 'UserID');
+    }
+
+    public function guardianInfo()
+    {
+        return $this->hasOne(Parents::class, 'UserID');
+    }
+
+    public function infoRelation()
+    {
+        return match ($this->role) {
+            'student' => $this->studentInfo(),
+            'teacher' => $this->teacherInfo(),
+            'guardian' => $this->guardianInfo(),
+            default => null,
+        };
+    }
+
+    public function getInfoAttribute()
+    {
+        return $this->infoRelation()?->first(); // avoids eager loading
+    }
 }
