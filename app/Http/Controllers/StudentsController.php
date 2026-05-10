@@ -112,6 +112,7 @@ class StudentsController extends Controller
             [
                 'LRN' => ['required','string','max:12'],
                 'FirstName' => ['required','string','max:255'],
+                'MiddleName' => ['nullable','string','max:255'],
                 'LastName' => ['required','string','max:255'],
                 'Suffix' => ['nullable','string','max:255'],
                 'PhoneNumber' => ['required','regex:/^\+639\d{9}$/'],
@@ -123,6 +124,8 @@ class StudentsController extends Controller
                 'Strand' => ['nullable','string','max:255']
             ]
         );
+
+//        dd($data);
 
         DB::beginTransaction();
 
@@ -163,7 +166,7 @@ class StudentsController extends Controller
                 ->with('success','Student created successfully');
 
         } catch (\Exception $e) {
-
+            dd($e->getMessage());
             DB::rollBack();
 
             return back()->withErrors($e->getMessage())->withInput();

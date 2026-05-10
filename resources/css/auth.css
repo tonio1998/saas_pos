@@ -52,3 +52,176 @@
     width:100%;
     margin-top:6px;
 }
+.auth-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #f2f2f7, #e5e5ea);
+    padding: 16px;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 380px;
+    padding: 28px 22px;
+    border-radius: 24px;
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.auth-logo-img {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    margin-bottom: 12px;
+}
+
+.auth-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.auth-subtitle {
+    font-size: 14px;
+    color: #8e8e93;
+}
+
+.auth-group {
+    margin-bottom: 14px;
+}
+
+.ios-input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: none;
+    background: #f2f2f7;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.ios-input:focus {
+    background: #e5e5ea;
+}
+
+.ios-input.is-invalid {
+    border: 1px solid #ff3b30;
+}
+
+.ios-error {
+    font-size: 12px;
+    color: #ff3b30;
+    margin-top: 4px;
+    display: block;
+}
+
+.ios-button {
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    border: none;
+    background: #007aff;
+    color: #fff;
+    font-weight: 600;
+    font-size: 15px;
+    transition: 0.2s;
+}
+
+.ios-button:hover {
+    background: #0063d1;
+}
+
+.auth-error {
+    background: #fff1f0;
+    color: #ff3b30;
+    padding: 10px 14px;
+    border-radius: 12px;
+    margin-bottom: 14px;
+    font-size: 13px;
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    margin: 18px 0;
+    font-size: 12px;
+    color: #8e8e93;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e5e5ea;
+}
+
+.auth-divider span {
+    margin: 0 10px;
+}
+
+.ios-google-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 14px;
+    border: 1px solid #e5e5ea;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    color: #000;
+    transition: 0.2s;
+}
+
+.ios-google-btn:hover {
+    background: #f9f9f9;
+}
+
+.google-icon {
+    width: 18px;
+    height: 18px;
+}
+
+.auth-footer {
+    margin-top: 18px;
+    text-align: center;
+    font-size: 13px;
+    color: #8e8e93;
+}
+
+.auth-link {
+    color: #007aff;
+    font-weight: 500;
+    margin-left: 4px;
+    text-decoration: none;
+}
+
+.input-wrap {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: #8e8e93;
+}
+
+.ios-input.with-icon {
+    padding-left: 40px;
+}

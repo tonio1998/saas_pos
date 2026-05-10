@@ -30,7 +30,6 @@
             @endif
 
             <div class="row g-4">
-
                 <x-form.group name="LRN" label="LRN" class="col-md-4" required>
                     <x-form.input
                         name="LRN"
@@ -170,81 +169,168 @@
 
     <script>
 
-        document.addEventListener('DOMContentLoaded',function(){
+        document.addEventListener('DOMContentLoaded', () => {
 
-            const form=document.querySelector('form');
+            const form = document.querySelector('form');
 
-            form.addEventListener('submit',function(e){
+            if (!form) return;
 
-                const LRN=form.querySelector('[name="LRN"]').value.trim();
-                const FirstName=form.querySelector('[name="FirstName"]').value.trim();
-                const LastName=form.querySelector('[name="LastName"]').value.trim();
-                const Phone=form.querySelector('[name="PhoneNumber"]').value.trim();
-                const YearLevel=form.querySelector('[name="YearLevel"]').value;
-                const Section=form.querySelector('[name="Section"]').value.trim();
+            const submitBtn = form.querySelector('button[type="submit"]');
 
-                if(!LRN){
-                    Swal.fire({icon:'warning',title:'Validation',text:'LRN is required'});
-                    e.preventDefault();
-                    return;
+            const fields = {
+                LRN: form.querySelector('[name="LRN"]'),
+                FirstName: form.querySelector('[name="FirstName"]'),
+                LastName: form.querySelector('[name="LastName"]'),
+                PhoneNumber: form.querySelector('[name="PhoneNumber"]'),
+                YearLevel: form.querySelector('[name="YearLevel"]'),
+                Section: form.querySelector('[name="Section"]'),
+            };
+
+            const showError = (message, field = null) => {
+
+                if (field) {
+                    field.focus();
+                    field.classList.add('is-invalid');
+
+                    field.addEventListener('input', () => {
+                        field.classList.remove('is-invalid');
+                    }, { once: true });
                 }
 
-                if(!/^\d{12}$/.test(LRN)){
-                    Swal.fire({icon:'warning',title:'Validation',text:'LRN must be 12 digits'});
-                    e.preventDefault();
-                    return;
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Validation Error',
+                    text: message,
+                    confirmButtonColor: '#0d6efd'
+                });
+
+            };
+
+            form.addEventListener('submit', (e) => {
+
+                e.preventDefault();
+
+                const LRN = fields.LRN?.value.trim() || '';
+                const FirstName = fields.FirstName?.value.trim() || '';
+                const LastName = fields.LastName?.value.trim() || '';
+                const Phone = fields.PhoneNumber?.value.trim() || '';
+                const YearLevel = fields.YearLevel?.value || '';
+                const Section = fields.Section?.value.trim() || '';
+
+                if (!LRN) {
+                    return showError('LRN is required.', fields.LRN);
                 }
 
-                if(!FirstName){
-                    Swal.fire({icon:'warning',title:'Validation',text:'First name is required'});
-                    e.preventDefault();
-                    return;
+                if (!/^\d{12}$/.test(LRN)) {
+                    return showError('LRN must contain exactly 12 digits.', fields.LRN);
                 }
 
-                if(!LastName){
-                    Swal.fire({icon:'warning',title:'Validation',text:'Last name is required'});
-                    e.preventDefault();
-                    return;
+                if (!FirstName) {
+                    return showError('First name is required.', fields.FirstName);
                 }
 
-                if(Phone && !/^\+639\d{9}$/.test(Phone)){
-                    Swal.fire({icon:'warning',title:'Validation',text:'Phone number must start with +639'});
-                    e.preventDefault();
-                    return;
+                if (!LastName) {
+                    return showError('Last name is required.', fields.LastName);
                 }
 
-                if(!YearLevel){
-                    Swal.fire({icon:'warning',title:'Validation',text:'Please select year level'});
-                    e.preventDefault();
-                    return;
+                if (!YearLevel) {
+                    return showError('Please select a year level.', fields.YearLevel);
                 }
 
-                if(!Section){
-                    Swal.fire({icon:'warning',title:'Validation',text:'Section is required'});
-                    e.preventDefault();
-                    return;
+                if (!Section) {
+                    return showError('Section is required.', fields.Section);
                 }
+
+                if (Phone && !/^(\+639\d{9}|09\d{9})$/.test(Phone)) {
+                    return showError(
+                        'Phone number format is invalid.',
+                        fields.PhoneNumber
+                    );
+                }
+
+                if (submitBtn) {
+
+                    submitBtn.disabled = true;
+
+                    submitBtn.innerHTML = `
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                Processing...
+            `;
+                }
+
+                form.submit();
 
             });
 
-            const photo=document.getElementById('photo');
-            const preview=document.getElementById('preview');
+            const photo = document.getElementById('photo');
+            const preview = document.getElementById('preview');
 
-            photo.addEventListener('change',function(){
+            if (photo && preview) {
 
-                const file=this.files[0];
-                if(!file)return;
+                photo.addEventListener('change', function () {
 
-                const reader=new FileReader();
+                    const file = this.files?.[0];
 
-                reader.onload=function(e){
-                    preview.src=e.target.result;
-                    preview.style.display='block';
-                }
+                    if (!file) return;
 
-                reader.readAsDataURL(file);
+                    const allowedTypes = [
+                        'image/jpeg',
+                        'image/png',
+                        'image/jpg',
+                        'image/webp'
+                    ];
 
-            });
+                    if (!allowedTypes.includes(file.type)) {
+
+                        this.value = '';
+
+                        return Swal.fire({
+                            icon: 'error',
+                            title: 'Invalid File',
+                            text: 'Only JPG, PNG, and WEBP images are allowed.',
+                            confirmButtonColor: '#dc3545'
+                        });
+
+                    }
+
+                    if (file.size > 5 * 1024 * 1024) {
+
+                        this.value = '';
+
+                        return Swal.fire({
+                            icon: 'error',
+                            title: 'File Too Large',
+                            text: 'Maximum upload size is 5MB.',
+                            confirmButtonColor: '#dc3545'
+                        });
+
+                    }
+
+                    const reader = new FileReader();
+
+                    reader.onload = (e) => {
+
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+
+                    };
+
+                    reader.onerror = () => {
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Preview Error',
+                            text: 'Unable to preview selected image.',
+                            confirmButtonColor: '#dc3545'
+                        });
+
+                    };
+
+                    reader.readAsDataURL(file);
+
+                });
+
+            }
 
         });
 
