@@ -5,20 +5,19 @@
 @section('content')
 
     <div class="auth-wrapper">
+
         <div class="auth-card">
 
             <div class="auth-header">
 
-                <div class="auth-logo">
-                    SNSU
-                </div>
+                <img src="{{ asset('images/logo.png') }}" alt="Logo" class="auth-logo-img">
 
-                <h3 class="auth-title">
-                    Sign in to your account
-                </h3>
+                <h2 class="auth-title">
+                    Welcome back
+                </h2>
 
                 <p class="auth-subtitle">
-                    Enter your credentials to continue
+                    Sign in to continue
                 </p>
 
             </div>
@@ -34,59 +33,57 @@
             @endif
 
             <form method="POST" action="{{ route('login') }}" class="auth-form">
-
                 @csrf
 
                 <div class="auth-group">
-
-                    <label class="form-label">
-                        Email
-                    </label>
-
                     <input
                         type="email"
                         name="email"
                         value="{{ old('email') }}"
-                        class="form-control @error('email') is-invalid @enderror"
-                        placeholder="Enter your email"
+                        class="ios-input @error('email') is-invalid @enderror"
+                        placeholder="Email"
                     >
-
                     @error('email')
-                    <div class="invalid-feedback d-block">
-                        {{ $message }}
-                    </div>
+                    <span class="ios-error">{{ $message }}</span>
                     @enderror
-
                 </div>
 
                 <div class="auth-group">
-
-                    <label class="form-label">
-                        Password
-                    </label>
-
                     <input
                         type="password"
                         name="password"
-                        class="form-control @error('password') is-invalid @enderror"
-                        placeholder="Enter your password"
+                        class="ios-input @error('password') is-invalid @enderror"
+                        placeholder="Password"
                     >
-
                     @error('password')
-                    <div class="invalid-feedback d-block">
-                        {{ $message }}
-                    </div>
+                    <span class="ios-error">{{ $message }}</span>
                     @enderror
-
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100">
-                    Login
+                <button type="submit" class="ios-button">
+                    Continue
                 </button>
 
             </form>
 
+            <div class="auth-divider">
+                <span>or</span>
+            </div>
+
+            <a href="{{ route('google.redirect') }}" class="ios-google-btn">
+                <i class="bi bi-google sidebar-icon"></i>
+                Continue with Google
+            </a>
+
+            <div class="auth-footer">
+                <span>Don’t have an account?</span>
+                <a href="{{ route('register') }}" class="auth-link">
+                    Sign up
+                </a>
+            </div>
+
         </div>
+
     </div>
 
 @endsection
