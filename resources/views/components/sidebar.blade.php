@@ -139,6 +139,20 @@
         </li>
 
         <li class="sidebar-item">
+            <a class="sidebar-link" data-bs-toggle="collapse" href="#GradeLevelMenu">
+                <i class="bi bi-calendar-week sidebar-icon"></i>
+                <span>Grade Level Management</span>
+                <i class="bi bi-chevron-down dropdown-icon"></i>
+            </a>
+            <div class="collapse sidebar-dropdown" id="GradeLevelMenu">
+                <a href="{{ route('grade-levels.index') }}" class="sidebar-sublink">
+                    <i class="bi bi-calendar-week sidebar-subicon"></i>
+                    Masterlist
+                </a>
+            </div>
+        </li>
+
+        <li class="sidebar-item">
             <a class="sidebar-link d-flex align-items-center justify-content-between">
                 <span class="d-flex align-items-center gap-2">
                     <i class="bi bi-bar-chart sidebar-icon"></i>

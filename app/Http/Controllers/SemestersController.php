@@ -159,13 +159,10 @@ class SemestersController extends Controller
             ->route('semesters.index');
     }
 
-    public function edit(Request $request){
+    public function edit(Request $request)
     {
-        $id = decrypt($request->segment(2));
-        dd($id);
-        $semester = $semesters;
-
-        dd($semester);
+        $id = $request->segment(3);
+        $semester = Semesters::findOrFail($id);
 
         return view(
             'pages.semesters.create',
@@ -183,11 +180,14 @@ class SemestersController extends Controller
                 'required',
                 'string',
                 'max:100',
-
-                Rule::unique(
-                    'semesters',
-                    'SemesterName'
-                )->ignore($semesters->id)
+                Rule::unique('semesters')
+                    ->where(function ($query) use ($request) {
+                        return $query->where(
+                            'SemesterName',
+                            $request->SemesterName
+                        );
+                    })
+                    ->ignore($semesters->SemesterID, 'SemesterID'),
             ],
 
             'SemesterOrder' => [
@@ -200,7 +200,11 @@ class SemestersController extends Controller
         if ($request->boolean('IsActive')) {
 
             Semesters::query()
-                ->where('id', '!=', $semesters->id)
+                ->where(
+                    'SemesterID',
+                    '!=',
+                    $semesters->SemesterID
+                )
                 ->update([
                     'IsActive' => 0
                 ]);

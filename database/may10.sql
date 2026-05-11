@@ -1142,12 +1142,27 @@ CREATE TABLE IF NOT EXISTS `grade_levels` (
   `GradeLevel` varchar(50) DEFAULT NULL,
   `EducationLevel` enum('JHS','SHS') DEFAULT NULL,
   `HasSemester` tinyint(1) DEFAULT '0',
+  `IsActive` tinyint(1) DEFAULT '0',
+  `created_by` int(11) NOT NULL,
+  `updated_by` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 
 -- Dumping data for table tnhs-new.grade_levels: 0 rows
 DELETE FROM `grade_levels`;
 /*!40000 ALTER TABLE `grade_levels` DISABLE KEYS */;
+INSERT INTO `grade_levels` (`id`, `GradeLevel`, `EducationLevel`, `HasSemester`, `IsActive`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, '7', 'JHS', 0, 1, 1, 1, '2026-05-11 19:14:21', '2026-05-11 11:14:21', 'active', 0, NULL),
+	(2, '8', 'JHS', 0, 1, 1, 1, '2026-05-11 19:14:30', '2026-05-11 11:14:30', 'active', 0, NULL),
+	(3, '9', 'JHS', 0, 1, 1, 1, '2026-05-11 19:14:35', '2026-05-11 11:14:35', 'active', 0, NULL),
+	(4, '10', 'JHS', 0, 1, 1, 1, '2026-05-11 19:14:39', '2026-05-11 11:14:39', 'active', 0, NULL),
+	(5, '11', 'SHS', 1, 1, 1, 1, '2026-05-11 19:14:46', '2026-05-11 11:14:46', 'active', 0, NULL),
+	(6, '12', 'SHS', 1, 1, 1, 1, '2026-05-11 19:14:59', '2026-05-11 11:14:59', 'active', 0, NULL);
 /*!40000 ALTER TABLE `grade_levels` ENABLE KEYS */;
 
 -- Dumping structure for table tnhs-new.jobs
@@ -1647,7 +1662,7 @@ CREATE TABLE IF NOT EXISTS `sessions` (
 -- Dumping data for table tnhs-new.sessions: ~1 rows (approximately)
 DELETE FROM `sessions`;
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-	('zj80k24RDCNjwGnAtO2umdoAt7wDfqLhASjZoI2S', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiRUxtWnNGN3YxRDB1ZGRwTjRWbm1BOU45SVA4NkdabHJZVm1MTko1MyI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mzk6Imh0dHA6Ly9zYWFza2l0LmRldi5jb20vc2VtZXN0ZXJzL2VkaXQvMiI7czo1OiJyb3V0ZSI7czoxNDoic2VtZXN0ZXJzLmVkaXQiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToxO30=', 1778497195);
+	('zj80k24RDCNjwGnAtO2umdoAt7wDfqLhASjZoI2S', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiRUxtWnNGN3YxRDB1ZGRwTjRWbm1BOU45SVA4NkdabHJZVm1MTko1MyI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MzU6Imh0dHA6Ly9zYWFza2l0LmRldi5jb20vZ3JhZGUtbGV2ZWxzIjtzOjU6InJvdXRlIjtzOjE4OiJncmFkZS1sZXZlbHMuaW5kZXgiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToxO30=', 1778498099);
 
 -- Dumping structure for table tnhs-new.settings
 DROP TABLE IF EXISTS `settings`;
