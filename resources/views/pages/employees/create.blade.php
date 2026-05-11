@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title','Teachers Management')
+@section('title','Employees Management')
 
 @section('content')
 
@@ -8,13 +8,13 @@
     @endphp
 
     <x-page-header
-        title="{{ $isEdit ? 'Edit Teacher' : 'Add Teacher' }}"
-        subtitle="Manage parent"
+        title="{{ $isEdit ? 'Edit Employee' : 'Add Employee' }}"
+        subtitle="Manage Employee"
 
     >
 
         <x-slot:action>
-            <a href="{{ route('parents.index') }}" class="btn btn-light btn-md">
+            <a href="{{ route('employees.index') }}" class="btn btn-light btn-md">
                 <i class="bi bi-arrow-left"></i> Back
             </a>
         </x-slot:action>
@@ -23,7 +23,7 @@
     <x-card>
 
         <form method="POST"
-              action="{{ $isEdit ? route('teachers.update',encrypt($teacher->id)) : route('teachers.store') }}">
+              action="{{ $isEdit ? route('employees.update',encrypt($teacher->id)) : route('employees.store') }}">
 
             @csrf
             @if($isEdit)
@@ -90,10 +90,10 @@
 
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-check"></i>
-                        {{ $isEdit ? 'Update Parent' : 'Save Parent' }}
+                        {{ $isEdit ? 'Update Employee' : 'Save Employee' }}
                     </button>
 
-                    <a href="{{ route('parents.index') }}" class="btn btn-light">
+                    <a href="{{ route('employees.index') }}" class="btn btn-light">
                         Cancel
                     </a>
 

@@ -27,6 +27,7 @@ class User extends Authenticatable
         'avatar',
         'google_id',
         'verified',
+        'nfc_code',
     ];
 
     /**
@@ -59,7 +60,7 @@ class User extends Authenticatable
 
     public function teacherInfo()
     {
-        return $this->hasOne(Teachers::class, 'UserID');
+        return $this->hasOne(Employees::class, 'UserID');
     }
 
     public function guardianInfo()
@@ -75,6 +76,10 @@ class User extends Authenticatable
             'guardian' => $this->guardianInfo(),
             default => null,
         };
+    }
+
+    public function logs(){
+        return $this->hasMany(ScanLogs::class, 'UserID');
     }
 
     public function getInfoAttribute()

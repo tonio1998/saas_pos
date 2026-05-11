@@ -215,7 +215,7 @@ async function drawBack(){
     ctx.textAlign='center'
     ctx.fillStyle='#000'
 
-    ctx.font='bold 20px Arial'
+    ctx.font='bold 25px Arial'
     ctx.fillText('The bearer of this ID card is a bonafide student of the school.', width/2, 50)
     ctx.fillText('Please wear this at all times inside the campus.', width/2, 80)
 

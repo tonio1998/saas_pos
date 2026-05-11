@@ -42,4 +42,22 @@ function generateQrCode()
     return $prefix . str_pad($newNumber, 6, '0', STR_PAD_LEFT);
 }
 
-?>
+function generateSemesterName($order)
+{
+    $semesters = [
+        '1' => '1st Semester',
+        '2' => '2nd Semester',
+        '3' => '3rd Semester',
+        '4' => '4th Semester',
+        '5' => '5th Semester',
+        '6' => '6th Semester',
+        '7' => '7th Semester',
+        '8' => '8th Semester',
+        '9' => '9th Semester',
+        '10' => '10th Semester',
+        '11' => '11th Semester',
+        '12' => '12th Semester',
+    ];
+
+    return $semesters[$order] ?? 'Semester ' . $order;
+}

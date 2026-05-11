@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\NFCCodes;
 use App\Models\Parents;
 use App\Models\QrCodes;
 use App\Models\Students;
-use App\Models\Teachers;
+use App\Models\Employees;
 use App\Models\User;
 use App\Traits\TCommonFunctions;
 use Illuminate\Http\Request;
@@ -78,38 +79,111 @@ class UserController extends Controller
 
     public function users_data(Request $request)
     {
-        $users = User::with('roles')->select(['id','name','email', 'filepath']);
+        $users = User::with([
+                'roles',
+                'logs'
+            ])
+            ->withCount('logs')
+            ->select(['id', 'name', 'email', 'filepath', 'nfc_code']);
+
+//        dd($users->get());
 
         return DataTables::of($users)
-            ->addColumn('name', fn($user) => e($user->name))
-            ->addColumn('email', fn($user) => e($user->email))
-            ->addColumn('role', function($user){
-                return $user->roles->pluck('name')->implode(', ');
-            })
-            ->addColumn('actions', function($user){
-                $permissions = route('users.permissions',encrypt($user->id));
-                $roles = route('users.roles',encrypt($user->id));
+
+            ->addColumn('filepath', function ($user) {
+                $src = $user->filepath
+                    ? asset('storage/' . $user->filepath)
+                    : asset('images/avatar.png');
 
                 return '
-                <div class="d-flex align-items-center gap-2">
-                    <a href="'.$permissions.'" class="btn btn-soft-primary btn-sm">
-                        <i class="bi bi-key"></i> Assign Permissions
-                    </a>
-                    <a href="'.$roles.'" class="btn btn-soft-warning btn-sm">
-                        <i class="bi bi-person-badge"></i> Assign Roles
-                    </a>
-                </div>
+                <img
+                    src="' . $src . '"
+                    onerror="this.src=\'' . asset('images/avatar.png') . '\'"
+                    style="width:40px;height:40px;border-radius:100px;object-fit:cover;"
+                >
             ';
             })
-            ->addColumn('filepath', function ($student) {
-                $src = $student->filepath ? asset('storage/'.$student->filepath) : url('//images/logo.png');
-                    return '<img
-                    src="'.$src.'"
-                    onerror="this.src=\''.url('/images/avatar.png').'\'"
-                    style="width:40px;height:40px;border-radius:100px;object-fit:cover;"
-                >';
+
+            ->addColumn('name', fn($user) => e($user->name))
+
+            ->addColumn('email', fn($user) => e($user->email))
+            ->addColumn('logs', function ($user) {
+                return $user->logs->count();
             })
-            ->rawColumns(['actions', 'filepath'])
+            ->addColumn('role', function ($user) {
+                return e($user->roles->pluck('name')->implode(', '));
+            })
+
+            ->addColumn('NFC', function ($user) {
+                return $user->nfc_code
+                    ? '<span class="badge bg-success-subtle text-success">
+                        <i class="bi bi-credit-card-2-front"></i> ' . e($user->nfc_code) . '
+                   </span>'
+                    : '<span class="badge bg-secondary-subtle text-muted">
+                        No NFC
+                   </span>';
+            })
+
+            ->addColumn('actions', function ($user) {
+
+                $permissions = route('users.permissions', encrypt($user->id));
+                $roles = route('users.roles', encrypt($user->id));
+                $nfc = route('users.nfc', encrypt($user->id));
+
+                $permissionBtn = '
+                    <li>
+                        <a href="' . $permissions . '" class="dropdown-item">
+                            <i class="bi bi-key me-2 text-primary"></i>
+                            Assign Permissions
+                        </a>
+                    </li>
+                ';
+
+                            $rolesBtn = '
+                    <li>
+                        <a href="' . $roles . '" class="dropdown-item">
+                            <i class="bi bi-person-badge me-2 text-warning"></i>
+                            Assign Roles
+                        </a>
+                    </li>
+                ';
+
+                            $nfcBtn = '
+                    <li>
+                        <a href="' . $nfc . '" class="dropdown-item">
+                            <i class="bi bi-credit-card-2-front me-2 text-danger"></i>
+                            Assign NFC Card
+                        </a>
+                    </li>
+                ';
+
+                            $button = '
+                    <button
+                        class="btn btn-soft-primary btn-sm dropdown-toggle"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                    >
+                        <i class="bi bi-gear"></i> Actions
+                    </button>
+                ';
+
+                            $menu = '
+                    <ul class="dropdown-menu shadow-sm border-0">
+                        ' . $permissionBtn . '
+                        ' . $rolesBtn . '
+                        ' . $nfcBtn . '
+                    </ul>
+                ';
+
+                            return '
+                    <div class="dropdown">
+                        ' . $button . '
+                        ' . $menu . '
+                    </div>
+                ';
+            })
+            ->rawColumns(['filepath', 'NFC', 'actions'])
             ->make(true);
     }
 
@@ -216,8 +290,8 @@ class UserController extends Controller
 
             if($user_type === 'students'){
                 $UserT = Students::findOrFail($UserTypeID);
-            }elseif($user_type === 'teachers'){
-                $UserT = Teachers::findOrFail($UserTypeID);
+            }elseif($user_type === 'employees'){
+                $UserT = Employees::findOrFail($UserTypeID);
             }elseif($user_type === 'parents'){
                 $UserT = Parents::findOrFail($UserTypeID);
             }else{
@@ -334,12 +408,103 @@ class UserController extends Controller
             ->with('success', 'Student ID printed successfully');
     }
 
+    public function nfc(Request $request)
+    {
+        $id = decrypt($request->segment(2));
+        $user = User::find($id);
+        if(!$user) return redirect()->route('students.index')->with('error','Generate Password first');
+        return view('pages.users.nfc', compact('user'));
+    }
+
+    public function assignNfc(Request $request)
+    {
+        try {
+
+            $validated = $request->validate([
+                'userID' => 'required|exists:users,id',
+                'nfc_uid' => 'required|string|max:255'
+            ]);
+
+            $user = User::find($validated['userID']);
+
+            if (!$user) {
+
+                return redirect()
+                    ->route('users.index')
+                    ->with('error', 'User not found.');
+            }
+
+            $nfcOwner = User::where('nfc_code', trim($validated['nfc_uid']))
+                ->where('id', '!=', $user->id)
+                ->first();
+
+            if ($nfcOwner) {
+
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->with('error', 'This NFC card is already assigned to another user.');
+            }
+
+            if ($user->nfc_code && !$request->has('force_replace')) {
+
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->with('confirm_replace', [
+                        'user_id' => $user->id,
+                        'user_name' => $user->name,
+                        'old_nfc' => $user->nfc_code,
+                        'new_nfc' => trim($validated['nfc_uid'])
+                    ]);
+            }
+
+            $oldNfc = $user->nfc_code;
+
+            $user->update([
+                'nfc_code' => trim($validated['nfc_uid'])
+            ]);
+
+            $newNFC = new NFCCodes();
+            $newNFC->UserID = $user->id;
+            $newNFC->nf_codes = trim($validated['nfc_uid']);
+            $this->setCommonFields($newNFC);
+            $newNFC->save();
+
+            $message = $oldNfc
+                ? 'NFC card updated successfully.'
+                : 'NFC card assigned successfully.';
+
+            return redirect()
+                ->route('users.index')
+                ->with('success', $message);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+
+            return redirect()
+                ->back()
+                ->withErrors($e->validator)
+                ->withInput();
+
+        } catch (\Throwable $e) {
+
+            report($e);
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', config('app.debug')
+                    ? $e->getMessage()
+                    : 'Something went wrong while assigning the NFC card.');
+        }
+    }
+
     public function upload(Request $request)
     {
         $request->validate([
             'cropped_photo' => ['required', 'string'],
             'user_id' => ['required', 'exists:users,id'],
-            'user_type' => ['required', 'string', 'in:students,teachers']
+            'user_type' => ['required', 'string', 'in:students,employees']
         ]);
 
         $user = User::findOrFail($request->user_id);

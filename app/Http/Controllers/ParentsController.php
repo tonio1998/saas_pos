@@ -45,6 +45,7 @@ class ParentsController extends Controller
 
             $data = $request->validate([
                 'FirstName' => ['required','string','max:255'],
+                'MiddleName' => ['nullable','string','max:255'],
                 'LastName' => ['required','string','max:255'],
                 'Suffix' => ['nullable','string','max:255'],
                 'PhoneNumber' => ['required','regex:/^\+639\d{9}$/'],
@@ -97,10 +98,10 @@ class ParentsController extends Controller
         DB::beginTransaction();
 
         try {
-
             $data = $request->validate(
                 [
                     'FirstName' => ['required','string','max:255'],
+                    'MiddleName' => ['nullable','string','max:255'],
                     'LastName' => ['required','string','max:255'],
                     'Suffix' => ['nullable','string','max:255'],
                     'PhoneNumber' => ['required','regex:/^\+639\d{9}$/'],
@@ -109,8 +110,14 @@ class ParentsController extends Controller
                 ]
             );
 
+
             $parent = new Parents();
-            $parent->fill($data);
+            $parent->FirstName = $data['FirstName'];
+            $parent->MiddleName = $data['MiddleName'];
+            $parent->LastName = $data['LastName'];
+            $parent->Suffix = $data['Suffix'];
+            $parent->PhoneNumber = $data['PhoneNumber'];
+            $parent->Address = $data['Address'];
             $this->setCommonFields($parent);
             $parent->save();
 
@@ -162,15 +169,6 @@ class ParentsController extends Controller
                     </li>';
                 }
 
-                if(auth()->user()->can('view users')) {
-                    $menu .= '
-                        <li>
-                            <a href="" class="dropdown-item">
-                                <i class="bi bi-person-badge me-2"></i> Generate ID
-                            </a>
-                        </li>';
-                }
-
                 $menu .= '
                 <li>
                 <a href="javascript:void(0)"
@@ -216,7 +214,7 @@ class ParentsController extends Controller
                 return $parent->created_at->format('M d, Y h:i A');
             })
             ->addColumn('createdBy', function ($parent) {
-                return $parent->createdBy->name;
+                return $parent->createdBy?->name;
             })
             ->rawColumns(['actions','students', 'name'])
             ->make(true);

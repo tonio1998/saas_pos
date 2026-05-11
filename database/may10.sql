@@ -14,6 +14,23 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
+-- Dumping structure for table tnhs-new.attendance_risk_scores
+DROP TABLE IF EXISTS `attendance_risk_scores`;
+CREATE TABLE IF NOT EXISTS `attendance_risk_scores` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `student_id` bigint(20) unsigned NOT NULL,
+  `total_lates` int(11) DEFAULT '0',
+  `total_absences` int(11) DEFAULT '0',
+  `risk_level` enum('low','medium','high') DEFAULT 'low',
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- Dumping data for table tnhs-new.attendance_risk_scores: 0 rows
+DELETE FROM `attendance_risk_scores`;
+/*!40000 ALTER TABLE `attendance_risk_scores` DISABLE KEYS */;
+/*!40000 ALTER TABLE `attendance_risk_scores` ENABLE KEYS */;
+
 -- Dumping structure for table tnhs-new.audits
 DROP TABLE IF EXISTS `audits`;
 CREATE TABLE IF NOT EXISTS `audits` (
@@ -34,9 +51,9 @@ CREATE TABLE IF NOT EXISTS `audits` (
   PRIMARY KEY (`id`),
   KEY `audits_auditable_type_auditable_id_index` (`auditable_type`,`auditable_id`),
   KEY `audits_user_id_user_type_index` (`user_id`,`user_type`)
-) ENGINE=InnoDB AUTO_INCREMENT=1269 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1336 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.audits: ~873 rows (approximately)
+-- Dumping data for table tnhs-new.audits: ~940 rows (approximately)
 DELETE FROM `audits`;
 INSERT INTO `audits` (`id`, `user_type`, `user_id`, `event`, `auditable_type`, `auditable_id`, `old_values`, `new_values`, `url`, `ip_address`, `user_agent`, `tags`, `created_at`, `updated_at`) VALUES
 	(396, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 50, '{"remember_token":null}', '{"remember_token":"LwskNOAXifbMFhMGmiGSgBrmtigOsqLN58o52bHavimosh5axVFYw7Nk5vbZ"}', 'http://tnhs.dev.com/login', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-07-24 19:14:20', '2025-07-24 19:14:20'),
@@ -911,7 +928,74 @@ INSERT INTO `audits` (`id`, `user_type`, `user_id`, `event`, `auditable_type`, `
 	(1265, 'App\\Models\\User', 116, 'created', 'App\\Models\\Parents', 4, '[]', '{"FirstName":"jklhj","LastName":"lhjklhj","Suffix":"Jr","PhoneNumber":"+639485622724","Address":"STA. CRUZ, TUBAJON, DINAGAT ISLANDS","created_by":116,"updated_by":116,"status":"active","archived":0,"id":4}', 'http://saaskit.dev.com/parents/create', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-10 09:59:20', '2026-05-10 09:59:20'),
 	(1266, 'App\\Models\\User', 116, 'created', 'App\\Models\\Students', 12, '[]', '{"LRN":"545665445454","FirstName":"ANTONIO JR","MiddleName":"LUIB","LastName":"PILOTON","Suffix":null,"PhoneNumber":"+639128941731","YearLevel":"8","Section":"gfd","GuardianID":"2","Strand":"HUMSS","created_by":116,"updated_by":116,"status":"active","archived":0,"id":12}', 'http://saaskit.dev.com/students/create', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-10 10:15:02', '2026-05-10 10:15:02'),
 	(1267, 'App\\Models\\User', 116, 'created', 'App\\Models\\Students', 13, '[]', '{"LRN":"kl\';\'k","FirstName":"ANTONIO JR","MiddleName":"LUIB","LastName":"PILOTON","Suffix":null,"PhoneNumber":"+639128941731","YearLevel":"8","Section":"1A2","GuardianID":"1","Strand":"\'k;l;\'l;\'","created_by":116,"updated_by":116,"status":"active","archived":0,"id":13}', 'http://saaskit.dev.com/students/create', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-10 10:15:24', '2026-05-10 10:15:24'),
-	(1268, 'App\\Models\\User', 116, 'updated', 'App\\Models\\Students', 12, '{"UserID":null}', '{"UserID":117}', 'http://saaskit.dev.com/users/generate-password/students/12/0', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-10 10:15:40', '2026-05-10 10:15:40');
+	(1268, 'App\\Models\\User', 116, 'updated', 'App\\Models\\Students', 12, '{"UserID":null}', '{"UserID":117}', 'http://saaskit.dev.com/users/generate-password/students/12/0', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-10 10:15:40', '2026-05-10 10:15:40'),
+	(1269, 'App\\Models\\User', 116, 'updated', 'App\\Models\\Parents', 3, '{"UserID":0}', '{"UserID":118}', 'http://saaskit.dev.com/users/generate-password/parents/3/0', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 00:55:20', '2026-05-11 00:55:20'),
+	(1270, 'App\\Models\\User', 116, 'updated', 'App\\Models\\Parents', 1, '{"UserID":0}', '{"UserID":119}', 'http://saaskit.dev.com/users/generate-password/parents/1/0', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 00:55:24', '2026-05-11 00:55:24'),
+	(1271, 'App\\Models\\User', 1, 'updated', 'App\\Models\\Teachers', 2, '{"UserID":109}', '{"UserID":3}', 'http://saaskit.dev.com/users/generate-password/teachers/2/109', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 05:52:02', '2026-05-11 05:52:02'),
+	(1272, 'App\\Models\\User', 1, 'updated', 'App\\Models\\Students', 12, '{"UserID":117}', '{"UserID":4}', 'http://saaskit.dev.com/users/generate-password/students/12/117', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 06:43:43', '2026-05-11 06:43:43'),
+	(1273, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 124, '[]', '{"UserID":3,"Mode":1,"VerificationCode":"CWCJBTUEORPAETNJ","created_by":3,"updated_by":3,"status":"active","archived":0,"id":124}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 06:54:39', '2026-05-11 06:54:39'),
+	(1274, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 125, '[]', '{"UserID":3,"Mode":0,"VerificationCode":"NXB0XN8ACMVHANV2","created_by":3,"updated_by":3,"status":"active","archived":0,"id":125}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 06:55:36', '2026-05-11 06:55:36'),
+	(1275, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 126, '[]', '{"UserID":3,"Mode":1,"VerificationCode":"XTEOYFP3UNFQSEH1","created_by":3,"updated_by":3,"status":"active","archived":0,"id":126}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 06:55:59', '2026-05-11 06:55:59'),
+	(1276, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 127, '[]', '{"UserID":3,"Mode":0,"VerificationCode":"C0AWMESD5V0DQMHW","created_by":3,"updated_by":3,"status":"active","archived":0,"id":127}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 06:56:31', '2026-05-11 06:56:31'),
+	(1277, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 128, '[]', '{"UserID":1,"Mode":1,"VerificationCode":"RUXLAJXREFHJPKT1","created_by":1,"updated_by":1,"status":"active","archived":0,"id":128}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 06:56:36', '2026-05-11 06:56:36'),
+	(1278, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 129, '[]', '{"UserID":3,"Mode":1,"VerificationCode":"4JXUWMQ2NLDCL8KC","created_by":3,"updated_by":3,"status":"active","archived":0,"id":129}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 06:56:55', '2026-05-11 06:56:55'),
+	(1279, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 130, '[]', '{"UserID":3,"Mode":0,"VerificationCode":"ZQN4KT5KYH40ITE4","created_by":3,"updated_by":3,"status":"active","archived":0,"id":130}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 06:56:58', '2026-05-11 06:56:58'),
+	(1280, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 131, '[]', '{"UserID":3,"Mode":1,"VerificationCode":"NJWUHFO1HLYH533W","created_by":3,"updated_by":3,"status":"active","archived":0,"id":131}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 06:57:06', '2026-05-11 06:57:06'),
+	(1281, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 132, '[]', '{"UserID":3,"Mode":0,"VerificationCode":"XFVIBTCJ8VUZTC0Y","created_by":3,"updated_by":3,"status":"active","archived":0,"id":132}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:03:24', '2026-05-11 07:03:24'),
+	(1282, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 133, '[]', '{"UserID":3,"Mode":1,"VerificationCode":"P6WZKHIEAGNHXAAT","created_by":3,"updated_by":3,"status":"active","archived":0,"id":133}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:03:30', '2026-05-11 07:03:30'),
+	(1283, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 134, '[]', '{"UserID":3,"Mode":0,"VerificationCode":"MT4JBDRE1O80FANW","created_by":3,"updated_by":3,"status":"active","archived":0,"id":134}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:06:24', '2026-05-11 07:06:24'),
+	(1284, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 135, '[]', '{"UserID":3,"Mode":1,"VerificationCode":"SMC0UP98PZL7HG9F","created_by":3,"updated_by":3,"status":"active","archived":0,"id":135}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:06:31', '2026-05-11 07:06:31'),
+	(1285, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 136, '[]', '{"UserID":3,"Mode":0,"VerificationCode":"NKBZ95VGGNAQ4WVL","created_by":3,"updated_by":3,"status":"active","archived":0,"id":136}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:07:10', '2026-05-11 07:07:10'),
+	(1286, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 137, '[]', '{"UserID":3,"Mode":1,"VerificationCode":"7UGG7HYQX0D0VAJN","created_by":3,"updated_by":3,"status":"active","archived":0,"id":137}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:23:47', '2026-05-11 07:23:47'),
+	(1287, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 138, '[]', '{"UserID":4,"Mode":1,"VerificationCode":"QS5RVYV7KFSXHPY4","created_by":4,"updated_by":4,"status":"active","archived":0,"id":138}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:24:12', '2026-05-11 07:24:12'),
+	(1288, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 139, '[]', '{"UserID":2,"Mode":1,"VerificationCode":"L9IOF3FFRDJHQK3F","created_by":2,"updated_by":2,"status":"active","archived":0,"id":139}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:24:14', '2026-05-11 07:24:14'),
+	(1289, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 140, '[]', '{"UserID":1,"Mode":0,"VerificationCode":"Y0VGG5Y0BLQBPEDS","created_by":1,"updated_by":1,"status":"active","archived":0,"id":140}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:24:17', '2026-05-11 07:24:17'),
+	(1290, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 141, '[]', '{"UserID":1,"Mode":1,"VerificationCode":"PUEKXNNWDFIBRTP1","created_by":1,"updated_by":1,"status":"active","archived":0,"id":141}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:24:56', '2026-05-11 07:24:56'),
+	(1291, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 142, '[]', '{"UserID":2,"Mode":0,"VerificationCode":"NA4RITC9BYZCPKMZ","created_by":2,"updated_by":2,"status":"active","archived":0,"id":142}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:24:58', '2026-05-11 07:24:58'),
+	(1292, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 143, '[]', '{"UserID":4,"Mode":0,"VerificationCode":"3JPKB4KHEAA8QAAO","created_by":4,"updated_by":4,"status":"active","archived":0,"id":143}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:25:00', '2026-05-11 07:25:00'),
+	(1293, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 144, '[]', '{"UserID":4,"Mode":1,"VerificationCode":"CNDYDVUWKCYVK9PU","created_by":4,"updated_by":4,"status":"active","archived":0,"id":144}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:25:43', '2026-05-11 07:25:43'),
+	(1294, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 145, '[]', '{"UserID":2,"Mode":1,"VerificationCode":"J0YR7NJ89HSBLYDZ","created_by":2,"updated_by":2,"status":"active","archived":0,"id":145}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:26:20', '2026-05-11 07:26:20'),
+	(1295, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 146, '[]', '{"UserID":1,"Mode":0,"VerificationCode":"ITCLMCLQUVZO0F4E","created_by":1,"updated_by":1,"status":"active","archived":0,"id":146}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:26:22', '2026-05-11 07:26:22'),
+	(1296, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 147, '[]', '{"UserID":1,"Mode":1,"VerificationCode":"XCBUHQJKB6N8NUQ4","created_by":1,"updated_by":1,"status":"active","archived":0,"id":147}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:26:49', '2026-05-11 07:26:49'),
+	(1297, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 148, '[]', '{"UserID":2,"Mode":0,"VerificationCode":"RWD2WI2YMUKBPHSY","created_by":2,"updated_by":2,"status":"active","archived":0,"id":148}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:26:52', '2026-05-11 07:26:52'),
+	(1298, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 149, '[]', '{"UserID":3,"Mode":0,"VerificationCode":"EVGZIBT4LJDF8UUP","created_by":3,"updated_by":3,"status":"active","archived":0,"id":149}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:26:54', '2026-05-11 07:26:54'),
+	(1299, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 150, '[]', '{"UserID":4,"Mode":0,"VerificationCode":"IBLDIUQZU6GOWE8F","created_by":4,"updated_by":4,"status":"active","archived":0,"id":150}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:26:57', '2026-05-11 07:26:57'),
+	(1300, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 151, '[]', '{"UserID":4,"Mode":1,"VerificationCode":"P3GNWUGE0DFC7EDA","created_by":4,"updated_by":4,"status":"active","archived":0,"id":151}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:28:26', '2026-05-11 07:28:26'),
+	(1301, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 152, '[]', '{"UserID":2,"Mode":1,"VerificationCode":"5JPDCDDADRYMRMFT","created_by":2,"updated_by":2,"status":"active","archived":0,"id":152}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:28:32', '2026-05-11 07:28:32'),
+	(1302, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 153, '[]', '{"UserID":1,"Mode":0,"VerificationCode":"TBYWCLILGPTDL9GJ","created_by":1,"updated_by":1,"status":"active","archived":0,"id":153}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:28:34', '2026-05-11 07:28:34'),
+	(1303, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 154, '[]', '{"UserID":1,"Mode":1,"VerificationCode":"YXUP5LZPAWYUQQCH","created_by":1,"updated_by":1,"status":"active","archived":0,"id":154}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:29:00', '2026-05-11 07:29:00'),
+	(1304, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 155, '[]', '{"UserID":2,"Mode":0,"VerificationCode":"ITTBAIJ39CEZQE8X","created_by":2,"updated_by":2,"status":"active","archived":0,"id":155}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:29:01', '2026-05-11 07:29:01'),
+	(1305, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 156, '[]', '{"UserID":4,"Mode":0,"VerificationCode":"PCQJR2VQ9YPC1WMV","created_by":4,"updated_by":4,"status":"active","archived":0,"id":156}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:29:04', '2026-05-11 07:29:04'),
+	(1306, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 157, '[]', '{"UserID":3,"Mode":1,"VerificationCode":"CYHLFDWNKXPH3V2O","created_by":3,"updated_by":3,"status":"active","archived":0,"id":157}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:29:06', '2026-05-11 07:29:06'),
+	(1307, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 158, '[]', '{"UserID":3,"Mode":0,"VerificationCode":"KWII7SN6WHMUPDER","created_by":3,"updated_by":3,"status":"active","archived":0,"id":158}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:29:23', '2026-05-11 07:29:23'),
+	(1308, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 159, '[]', '{"UserID":2,"Mode":1,"VerificationCode":"QXGMNVFYNKZWY34E","created_by":2,"updated_by":2,"status":"active","archived":0,"id":159}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:29:52', '2026-05-11 07:29:52'),
+	(1309, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 160, '[]', '{"UserID":1,"Mode":0,"VerificationCode":"SHOXCBDT4PF8LWZT","created_by":1,"updated_by":1,"status":"active","archived":0,"id":160}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:29:54', '2026-05-11 07:29:54'),
+	(1310, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 161, '[]', '{"UserID":1,"Mode":1,"VerificationCode":"6DODT5CZV7YI0IAI","created_by":1,"updated_by":1,"status":"active","archived":0,"id":161}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:30:24', '2026-05-11 07:30:24'),
+	(1311, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 162, '[]', '{"UserID":4,"Mode":1,"VerificationCode":"T6IN7PXIXSOVRHYM","created_by":4,"updated_by":4,"status":"active","archived":0,"id":162}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:30:26', '2026-05-11 07:30:26'),
+	(1312, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 163, '[]', '{"UserID":4,"Mode":0,"VerificationCode":"UZL9F06CFVCXNZ4N","created_by":4,"updated_by":4,"status":"active","archived":0,"id":163}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:30:35', '2026-05-11 07:30:35'),
+	(1313, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 164, '[]', '{"UserID":1,"Mode":0,"VerificationCode":"OT1MGTU4SVQKYQC9","created_by":1,"updated_by":1,"status":"active","archived":0,"id":164}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:30:37', '2026-05-11 07:30:37'),
+	(1314, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 165, '[]', '{"UserID":3,"Mode":1,"VerificationCode":"YU5UUIRJKOVB3J3A","created_by":3,"updated_by":3,"status":"active","archived":0,"id":165}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:30:39', '2026-05-11 07:30:39'),
+	(1315, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 166, '[]', '{"UserID":2,"Mode":0,"VerificationCode":"B2IM9WOV6DZSEEYN","created_by":2,"updated_by":2,"status":"active","archived":0,"id":166}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:30:44', '2026-05-11 07:30:44'),
+	(1316, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 167, '[]', '{"UserID":2,"Mode":1,"VerificationCode":"RVD1NPGLO8BGADQ6","created_by":2,"updated_by":2,"status":"active","archived":0,"id":167}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:37:33', '2026-05-11 07:37:33'),
+	(1317, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 168, '[]', '{"UserID":2,"Mode":0,"VerificationCode":"HQV32NLP66LBLESE","created_by":2,"updated_by":2,"status":"active","archived":0,"id":168}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:37:42', '2026-05-11 07:37:42'),
+	(1318, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 169, '[]', '{"UserID":3,"Mode":0,"VerificationCode":"CS5NZ9OHN6SXSIGT","created_by":3,"updated_by":3,"status":"active","archived":0,"id":169}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:37:49', '2026-05-11 07:37:49'),
+	(1319, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 170, '[]', '{"UserID":4,"Mode":1,"VerificationCode":"ZC3IPEZIY1OFESTE","created_by":4,"updated_by":4,"status":"active","archived":0,"id":170}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:42:45', '2026-05-11 07:42:45'),
+	(1320, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 1, '[]', '{"UserID":4,"Mode":1,"VerificationCode":"4WNQQVZMQL7MZISJ","created_by":4,"updated_by":4,"status":"active","archived":0,"id":1}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:42:57', '2026-05-11 07:42:57'),
+	(1321, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 2, '[]', '{"UserID":2,"Mode":1,"VerificationCode":"R7NLFPGTKTVLRJOD","created_by":2,"updated_by":2,"status":"active","archived":0,"id":2}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:43:10', '2026-05-11 07:43:10'),
+	(1322, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 3, '[]', '{"UserID":4,"Mode":0,"VerificationCode":"UISSBACZN1EMASIE","created_by":4,"updated_by":4,"status":"active","archived":0,"id":3}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:43:19', '2026-05-11 07:43:19'),
+	(1323, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 4, '[]', '{"UserID":4,"Mode":1,"VerificationCode":"O6QWPJXMXGYJ2FA6","created_by":4,"updated_by":4,"status":"active","archived":0,"id":4}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:44:30', '2026-05-11 07:44:30'),
+	(1324, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 5, '[]', '{"UserID":4,"Mode":0,"VerificationCode":"DB1MUDVR3QQLZ24M","created_by":4,"updated_by":4,"status":"active","archived":0,"id":5}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:44:32', '2026-05-11 07:44:32'),
+	(1325, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 6, '[]', '{"UserID":2,"Mode":0,"VerificationCode":"NQUVU59SHGTKC2ZE","created_by":2,"updated_by":2,"status":"active","archived":0,"id":6}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:44:37', '2026-05-11 07:44:37'),
+	(1326, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 7, '[]', '{"UserID":2,"Mode":1,"VerificationCode":"AECP6AIZNUVLCHNO","created_by":2,"updated_by":2,"status":"active","archived":0,"id":7}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:44:42', '2026-05-11 07:44:42'),
+	(1327, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 8, '[]', '{"UserID":2,"Mode":0,"VerificationCode":"XFTBAAFXOOZWVN1T","created_by":2,"updated_by":2,"status":"active","archived":0,"scan_type":"nfc","direction":"exit","attendance_status":"present","id":8}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:45:42', '2026-05-11 07:45:42'),
+	(1328, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 9, '[]', '{"UserID":3,"Mode":1,"VerificationCode":"1TPXXQ6EOWMBDY6E","created_by":3,"updated_by":3,"status":"active","archived":0,"scan_type":"nfc","direction":"entry","attendance_status":"present","id":9}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:52:51', '2026-05-11 07:52:51'),
+	(1329, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 10, '[]', '{"UserID":4,"Mode":1,"VerificationCode":"7DFIQ9GMODKFD1NN","created_by":4,"updated_by":4,"status":"active","archived":0,"scan_type":"nfc","direction":"entry","attendance_status":"present","id":10}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:53:00', '2026-05-11 07:53:00'),
+	(1330, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 11, '[]', '{"UserID":2,"Mode":1,"VerificationCode":"Y54UJBZAZOJTH6M5","created_by":2,"updated_by":2,"status":"active","archived":0,"scan_type":"nfc","direction":"entry","attendance_status":"present","id":11}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 07:53:04', '2026-05-11 07:53:04'),
+	(1331, 'App\\Models\\User', 1, 'created', 'App\\Models\\Teachers', 1, '[]', '{"FirstName":"ljkl","MiddleName":"jklhj","LastName":"klhjkl","Suffix":null,"PhoneNumber":"+639868273741","Address":"Sitio Cayutan, Brgy. Cagniog","created_by":1,"updated_by":1,"status":"active","archived":0,"id":1}', 'http://saaskit.dev.com/teachers/create', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 08:12:01', '2026-05-11 08:12:01'),
+	(1332, 'App\\Models\\User', 1, 'created', 'App\\Models\\Parents', 1, '[]', '{"FirstName":"ANTONIO JR","MiddleName":"LUIB","LastName":"PILOTON","Suffix":null,"PhoneNumber":"+639128941731","Address":"Sitio Cayutan, Brgy. Cagniog","created_by":1,"updated_by":1,"status":"active","archived":0,"id":1}', 'http://saaskit.dev.com/parents/create', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 08:29:08', '2026-05-11 08:29:08'),
+	(1333, 'App\\Models\\User', 1, 'created', 'App\\Models\\Teachers', 2, '[]', '{"FirstName":"NORVEN","MiddleName":"OLACO","LastName":"ESPINOSA","Suffix":null,"PhoneNumber":"+639868273741","Address":"Sitio Cayutan, Brgy. Cagniog","created_by":1,"updated_by":1,"status":"active","archived":0,"id":2}', 'http://saaskit.dev.com/teachers/create', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 08:29:39', '2026-05-11 08:29:39'),
+	(1334, 'App\\Models\\User', 1, 'updated', 'App\\Models\\Teachers', 2, '{"UserID":0}', '{"UserID":5}', 'http://saaskit.dev.com/users/generate-password/teachers/2/0', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 08:29:47', '2026-05-11 08:29:47'),
+	(1335, 'App\\Models\\User', 1, 'updated', 'App\\Models\\Employees', 1, '{"UserID":0}', '{"UserID":8}', 'http://saaskit.dev.com/users/generate-password/employees/1/0', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 09:10:40', '2026-05-11 09:10:40');
 
 -- Dumping structure for table tnhs-new.cache
 DROP TABLE IF EXISTS `cache`;
@@ -922,9 +1006,10 @@ CREATE TABLE IF NOT EXISTS `cache` (
   PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.cache: ~1 rows (approximately)
+-- Dumping data for table tnhs-new.cache: ~2 rows (approximately)
 DELETE FROM `cache`;
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
+	('safetrack-a-qr-nfc-based-student-monitoring-and-alert-system-cache-spatie.permission.cache', 'a:3:{s:5:"alias";a:5:{s:1:"a";s:2:"id";s:1:"b";s:4:"name";s:1:"c";s:7:"details";s:1:"d";s:10:"guard_name";s:1:"r";s:5:"roles";}s:11:"permissions";a:17:{i:0;a:5:{s:1:"a";i:6;s:1:"b";s:6:"scanQR";s:1:"c";s:16:"User can scan QR";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:1;a:5:{s:1:"a";i:7;s:1:"b";s:12:"manage users";s:1:"c";s:12:"manage users";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:2;a:5:{s:1:"a";i:8;s:1:"b";s:10:"view users";s:1:"c";s:10:"view users";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:3;a:5:{s:1:"a";i:9;s:1:"b";s:10:"view roles";s:1:"c";s:10:"view roles";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:4;a:5:{s:1:"a";i:10;s:1:"b";s:16:"view permissions";s:1:"c";s:16:"view permissions";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:5;a:5:{s:1:"a";i:11;s:1:"b";s:18:"teacher management";s:1:"c";s:18:"teacher management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:6;a:5:{s:1:"a";i:12;s:1:"b";s:11:"add teacher";s:1:"c";s:11:"add teacher";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:7;a:5:{s:1:"a";i:13;s:1:"b";s:13:"view teachers";s:1:"c";s:13:"view teachers";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:8;a:5:{s:1:"a";i:14;s:1:"b";s:19:"guardian management";s:1:"c";s:19:"guardian management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:9;a:5:{s:1:"a";i:15;s:1:"b";s:12:"add guardian";s:1:"c";s:12:"add guardian";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:10;a:5:{s:1:"a";i:16;s:1:"b";s:13:"view guardian";s:1:"c";s:13:"view guardian";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:11;a:5:{s:1:"a";i:17;s:1:"b";s:18:"student management";s:1:"c";s:18:"student management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:12;a:5:{s:1:"a";i:18;s:1:"b";s:11:"add student";s:1:"c";s:11:"add student";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:16;i:1;i:17;}}i:13;a:5:{s:1:"a";i:19;s:1:"b";s:14:"view residents";s:1:"c";s:14:"view residents";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:14;a:5:{s:1:"a";i:20;s:1:"b";s:15:"logs management";s:1:"c";s:15:"logs management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:15;a:5:{s:1:"a";i:21;s:1:"b";s:9:"view logs";s:1:"c";s:9:"view logs";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:16;a:5:{s:1:"a";i:22;s:1:"b";s:10:"my student";s:1:"c";s:10:"my student";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:16;i:1;i:17;}}}s:5:"roles";a:2:{i:0;a:4:{s:1:"a";i:17;s:1:"b";s:5:"admin";s:1:"c";s:5:"admin";s:1:"d";s:3:"web";}i:1;a:4:{s:1:"a";i:16;s:1:"b";s:8:"teachers";s:1:"c";s:8:"teachers";s:1:"d";s:3:"web";}}}', 1778566866),
 	('scanalert-a-qr-based-student-monitoring-and-alert-system-cache-spatie.permission.cache', 'a:3:{s:5:"alias";a:5:{s:1:"a";s:2:"id";s:1:"b";s:4:"name";s:1:"c";s:7:"details";s:1:"d";s:10:"guard_name";s:1:"r";s:5:"roles";}s:11:"permissions";a:17:{i:0;a:5:{s:1:"a";i:6;s:1:"b";s:6:"scanQR";s:1:"c";s:16:"User can scan QR";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:1;a:5:{s:1:"a";i:7;s:1:"b";s:12:"manage users";s:1:"c";s:12:"manage users";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:2;a:5:{s:1:"a";i:8;s:1:"b";s:10:"view users";s:1:"c";s:10:"view users";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:3;a:5:{s:1:"a";i:9;s:1:"b";s:10:"view roles";s:1:"c";s:10:"view roles";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:4;a:5:{s:1:"a";i:10;s:1:"b";s:16:"view permissions";s:1:"c";s:16:"view permissions";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:5;a:5:{s:1:"a";i:11;s:1:"b";s:18:"teacher management";s:1:"c";s:18:"teacher management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:6;a:5:{s:1:"a";i:12;s:1:"b";s:11:"add teacher";s:1:"c";s:11:"add teacher";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:7;a:5:{s:1:"a";i:13;s:1:"b";s:13:"view teachers";s:1:"c";s:13:"view teachers";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:8;a:5:{s:1:"a";i:14;s:1:"b";s:19:"guardian management";s:1:"c";s:19:"guardian management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:9;a:5:{s:1:"a";i:15;s:1:"b";s:12:"add guardian";s:1:"c";s:12:"add guardian";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:10;a:5:{s:1:"a";i:16;s:1:"b";s:13:"view guardian";s:1:"c";s:13:"view guardian";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:11;a:5:{s:1:"a";i:17;s:1:"b";s:18:"student management";s:1:"c";s:18:"student management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:12;a:5:{s:1:"a";i:18;s:1:"b";s:11:"add student";s:1:"c";s:11:"add student";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:16;i:1;i:17;}}i:13;a:5:{s:1:"a";i:19;s:1:"b";s:14:"view residents";s:1:"c";s:14:"view residents";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:14;a:5:{s:1:"a";i:20;s:1:"b";s:15:"logs management";s:1:"c";s:15:"logs management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:15;a:5:{s:1:"a";i:21;s:1:"b";s:9:"view logs";s:1:"c";s:9:"view logs";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:16;a:5:{s:1:"a";i:22;s:1:"b";s:10:"my student";s:1:"c";s:10:"my student";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:16;i:1;i:17;}}}s:5:"roles";a:2:{i:0;a:4:{s:1:"a";i:17;s:1:"b";s:5:"admin";s:1:"c";s:5:"admin";s:1:"d";s:3:"web";}i:1;a:4:{s:1:"a";i:16;s:1:"b";s:8:"teachers";s:1:"c";s:8:"teachers";s:1:"d";s:3:"web";}}}', 1778493560);
 
 -- Dumping structure for table tnhs-new.cache_locks
@@ -938,6 +1023,78 @@ CREATE TABLE IF NOT EXISTS `cache_locks` (
 
 -- Dumping data for table tnhs-new.cache_locks: ~0 rows (approximately)
 DELETE FROM `cache_locks`;
+
+-- Dumping structure for table tnhs-new.class_schedules
+DROP TABLE IF EXISTS `class_schedules`;
+CREATE TABLE IF NOT EXISTS `class_schedules` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `SubjectID` bigint(20) NOT NULL,
+  `SectionID` bigint(20) NOT NULL,
+  `TeacherID` bigint(20) NOT NULL,
+  `DayOfWeek` enum('MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY') DEFAULT NULL,
+  `StartTime` time DEFAULT NULL,
+  `EndTime` time DEFAULT NULL,
+  `Room` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `created_by` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- Dumping data for table tnhs-new.class_schedules: 0 rows
+DELETE FROM `class_schedules`;
+/*!40000 ALTER TABLE `class_schedules` DISABLE KEYS */;
+/*!40000 ALTER TABLE `class_schedules` ENABLE KEYS */;
+
+-- Dumping structure for table tnhs-new.employees
+DROP TABLE IF EXISTS `employees`;
+CREATE TABLE IF NOT EXISTS `employees` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `UserID` int(11) NOT NULL DEFAULT '0',
+  `PhoneNumber` varchar(13) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `FirstName` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
+  `MiddleName` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `LastName` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Suffix` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Address` varchar(60) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_by` int(11) NOT NULL,
+  `updated_by` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table tnhs-new.employees: 2 rows
+DELETE FROM `employees`;
+/*!40000 ALTER TABLE `employees` DISABLE KEYS */;
+INSERT INTO `employees` (`id`, `UserID`, `PhoneNumber`, `FirstName`, `MiddleName`, `LastName`, `Suffix`, `Address`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 8, '+639868273741', 'ljkl', 'jklhj', 'klhjkl', NULL, 'Sitio Cayutan, Brgy. Cagniog', 1, 1, '2026-05-11 16:12:01', '2026-05-11 09:10:40', 'active', 0, NULL),
+	(2, 5, '+639868273741', 'NORVEN', 'OLACO', 'ESPINOSA', NULL, 'Sitio Cayutan, Brgy. Cagniog', 1, 1, '2026-05-11 16:29:39', '2026-05-11 08:29:47', 'active', 0, NULL);
+/*!40000 ALTER TABLE `employees` ENABLE KEYS */;
+
+-- Dumping structure for table tnhs-new.enrollments
+DROP TABLE IF EXISTS `enrollments`;
+CREATE TABLE IF NOT EXISTS `enrollments` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `StudentID` bigint(20) NOT NULL,
+  `SchoolYearID` bigint(20) NOT NULL,
+  `GradeLevelID` bigint(20) NOT NULL,
+  `SemesterID` bigint(20) DEFAULT NULL,
+  `StrandID` bigint(20) DEFAULT NULL,
+  `SectionID` bigint(20) NOT NULL,
+  `EnrollmentStatus` enum('PENDING','ENROLLED','CANCELLED') DEFAULT 'PENDING',
+  `EnrollmentDate` datetime DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `created_by` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- Dumping data for table tnhs-new.enrollments: 0 rows
+DELETE FROM `enrollments`;
+/*!40000 ALTER TABLE `enrollments` DISABLE KEYS */;
+/*!40000 ALTER TABLE `enrollments` ENABLE KEYS */;
 
 -- Dumping structure for table tnhs-new.failed_jobs
 DROP TABLE IF EXISTS `failed_jobs`;
@@ -955,6 +1112,43 @@ CREATE TABLE IF NOT EXISTS `failed_jobs` (
 
 -- Dumping data for table tnhs-new.failed_jobs: ~0 rows (approximately)
 DELETE FROM `failed_jobs`;
+
+-- Dumping structure for table tnhs-new.grades
+DROP TABLE IF EXISTS `grades`;
+CREATE TABLE IF NOT EXISTS `grades` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `EnrollmentID` bigint(20) NOT NULL,
+  `SubjectID` bigint(20) NOT NULL,
+  `Quarter` enum('1ST','2ND','3RD','4TH') DEFAULT NULL,
+  `InitialGrade` decimal(5,2) DEFAULT NULL,
+  `FinalGrade` decimal(5,2) DEFAULT NULL,
+  `Remarks` enum('PASSED','FAILED') DEFAULT NULL,
+  `TeacherID` bigint(20) DEFAULT NULL,
+  `IsSubmitted` tinyint(1) DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `created_by` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- Dumping data for table tnhs-new.grades: 0 rows
+DELETE FROM `grades`;
+/*!40000 ALTER TABLE `grades` DISABLE KEYS */;
+/*!40000 ALTER TABLE `grades` ENABLE KEYS */;
+
+-- Dumping structure for table tnhs-new.grade_levels
+DROP TABLE IF EXISTS `grade_levels`;
+CREATE TABLE IF NOT EXISTS `grade_levels` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `GradeLevel` varchar(50) DEFAULT NULL,
+  `EducationLevel` enum('JHS','SHS') DEFAULT NULL,
+  `HasSemester` tinyint(1) DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- Dumping data for table tnhs-new.grade_levels: 0 rows
+DELETE FROM `grade_levels`;
+/*!40000 ALTER TABLE `grade_levels` DISABLE KEYS */;
+/*!40000 ALTER TABLE `grade_levels` ENABLE KEYS */;
 
 -- Dumping structure for table tnhs-new.jobs
 DROP TABLE IF EXISTS `jobs`;
@@ -1027,9 +1221,14 @@ CREATE TABLE IF NOT EXISTS `model_has_roles` (
   KEY `model_has_roles_model_id_model_type_index` (`model_id`,`model_type`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.model_has_roles: ~68 rows (approximately)
+-- Dumping data for table tnhs-new.model_has_roles: ~75 rows (approximately)
 DELETE FROM `model_has_roles`;
 INSERT INTO `model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES
+	(17, 'App\\Models\\User', 1),
+	(16, 'App\\Models\\User', 3),
+	(14, 'App\\Models\\User', 4),
+	(16, 'App\\Models\\User', 5),
+	(16, 'App\\Models\\User', 8),
 	(17, 'App\\Models\\User', 50),
 	(14, 'App\\Models\\User', 51),
 	(14, 'App\\Models\\User', 52),
@@ -1097,7 +1296,32 @@ INSERT INTO `model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES
 	(14, 'App\\Models\\User', 114),
 	(14, 'App\\Models\\User', 115),
 	(17, 'App\\Models\\User', 116),
-	(14, 'App\\Models\\User', 117);
+	(14, 'App\\Models\\User', 117),
+	(15, 'App\\Models\\User', 118),
+	(15, 'App\\Models\\User', 119);
+
+-- Dumping structure for table tnhs-new.nfc_codes
+DROP TABLE IF EXISTS `nfc_codes`;
+CREATE TABLE IF NOT EXISTS `nfc_codes` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `UserID` int(11) DEFAULT NULL,
+  `nf_codes` varchar(50) DEFAULT NULL,
+  `created_by` int(11) NOT NULL,
+  `updated_by` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+-- Dumping data for table tnhs-new.nfc_codes: 1 rows
+DELETE FROM `nfc_codes`;
+/*!40000 ALTER TABLE `nfc_codes` DISABLE KEYS */;
+INSERT INTO `nfc_codes` (`id`, `UserID`, `nf_codes`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 5, '0027816452', 1, 1, '2026-05-11 16:29:57', '2026-05-11 08:29:57', 'active', 0, NULL);
+/*!40000 ALTER TABLE `nfc_codes` ENABLE KEYS */;
 
 -- Dumping structure for table tnhs-new.parents
 DROP TABLE IF EXISTS `parents`;
@@ -1118,15 +1342,12 @@ CREATE TABLE IF NOT EXISTS `parents` (
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.parents: ~4 rows (approximately)
+-- Dumping data for table tnhs-new.parents: ~1 rows (approximately)
 DELETE FROM `parents`;
 INSERT INTO `parents` (`id`, `UserID`, `FirstName`, `MiddleName`, `LastName`, `Suffix`, `PhoneNumber`, `Address`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
-	(1, 0, 'NENITA', 'SAYSON', 'EMPLEO', NULL, '+639485622724', 'STA. CRUZ, TUBAJON, DINAGAT ISLANDS', 50, 50, '2025-08-06 14:54:10', '2025-08-06 08:52:29', 'active', 0, NULL),
-	(2, 0, 'JESSA-edited', NULL, 'Hambre', NULL, '+639128941731', 'Espina St', 50, 50, '2026-03-11 06:20:45', '2026-03-10 22:24:39', 'active', 0, NULL),
-	(3, 0, 'NORMA', NULL, 'LUIB', NULL, '+639128941731', 'Sitio Cayutan, Brgy. Cagniog', 50, 50, '2026-03-11 06:23:18', '2026-03-10 22:23:18', 'active', 0, NULL),
-	(4, 0, 'jklhj', NULL, 'lhjklhj', 'Jr', '+639485622724', 'STA. CRUZ, TUBAJON, DINAGAT ISLANDS', 116, 116, '2026-05-10 17:59:20', '2026-05-10 09:59:20', 'active', 0, NULL);
+	(1, 0, 'ANTONIO JR', 'LUIB', 'PILOTON', NULL, '+639128941731', 'Sitio Cayutan, Brgy. Cagniog', 1, 1, '2026-05-11 16:29:08', '2026-05-11 08:29:08', 'active', 0, NULL);
 
 -- Dumping structure for table tnhs-new.password_reset_tokens
 DROP TABLE IF EXISTS `password_reset_tokens`;
@@ -1250,16 +1471,13 @@ CREATE TABLE IF NOT EXISTS `qr_codes` (
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.qr_codes: ~5 rows (approximately)
+-- Dumping data for table tnhs-new.qr_codes: ~2 rows (approximately)
 DELETE FROM `qr_codes`;
 INSERT INTO `qr_codes` (`id`, `prefix`, `UserID`, `last_number`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
-	(1, '1', NULL, 1, 0, 0, '2025-08-05 19:29:21', '2025-08-05 11:29:21', 'active', 0, NULL),
-	(2, '1', NULL, 2, 0, 0, '2025-08-05 20:31:02', '2025-08-05 12:31:02', 'active', 0, NULL),
-	(3, '1', NULL, 3, 0, 0, '2025-08-06 23:35:51', '2025-08-06 15:35:51', 'active', 0, NULL),
-	(4, '1', NULL, 4, 0, 0, '2025-08-07 15:10:44', '2025-08-07 07:10:44', 'active', 0, NULL),
-	(5, '1', NULL, 5, 0, 0, '2026-05-10 18:15:40', '2026-05-10 10:15:40', 'active', 0, NULL);
+	(1, '1', NULL, 1, 0, 0, '2026-05-11 16:29:47', '2026-05-11 08:29:47', 'active', 0, NULL),
+	(4, '1', NULL, 2, 0, 0, '2026-05-11 17:10:40', '2026-05-11 09:10:40', 'active', 0, NULL);
 
 -- Dumping structure for table tnhs-new.roles
 DROP TABLE IF EXISTS `roles`;
@@ -1279,7 +1497,7 @@ DELETE FROM `roles`;
 INSERT INTO `roles` (`id`, `name`, `details`, `guard_name`, `created_at`, `updated_at`) VALUES
 	(14, 'students', 'students', 'web', '2025-07-16 15:55:56', '2025-07-16 15:55:56'),
 	(15, 'parents', 'parents', 'web', '2025-07-16 15:56:01', '2025-07-16 15:56:01'),
-	(16, 'teachers', 'teachers', 'web', '2025-07-16 15:56:06', '2025-07-16 15:56:06'),
+	(16, 'employees', 'employees', 'web', '2025-07-16 15:56:06', '2025-07-16 15:56:06'),
 	(17, 'admin', 'admin', 'web', '2025-07-16 15:56:12', '2025-07-16 15:56:12');
 
 -- Dumping structure for table tnhs-new.role_has_permissions
@@ -1330,159 +1548,87 @@ CREATE TABLE IF NOT EXISTS `scan_logs` (
   `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL,
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
+  `scan_type` enum('qr','nfc') COLLATE utf8mb4_unicode_ci DEFAULT 'qr',
+  `direction` enum('entry','exit') COLLATE utf8mb4_unicode_ci DEFAULT 'entry',
+  `attendance_status` enum('present','late','flagged') COLLATE utf8mb4_unicode_ci DEFAULT 'present',
+  `gate_name` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `remarks` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=124 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.scan_logs: ~123 rows (approximately)
+-- Dumping data for table tnhs-new.scan_logs: ~0 rows (approximately)
 DELETE FROM `scan_logs`;
-INSERT INTO `scan_logs` (`id`, `VerificationCode`, `UserID`, `Mode`, `lat`, `lng`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
-	(1, '000000000000001', 105, 1, NULL, NULL, 50, 50, '2025-08-06 16:46:25', '2025-08-06 08:46:25', 'active', 0, NULL),
-	(2, '000000000000002', 105, 0, NULL, NULL, 50, 50, '2025-08-06 16:47:21', '2025-08-06 08:47:21', 'active', 0, NULL),
-	(3, '000000000000003', 105, 1, NULL, NULL, 50, 50, '2025-08-06 16:48:10', '2025-08-06 08:48:10', 'active', 0, NULL),
-	(4, '000000000000004', 105, 0, NULL, NULL, 50, 50, '2025-08-06 16:49:12', '2025-08-06 08:49:12', 'active', 0, NULL),
-	(5, '000000000000005', 105, 1, NULL, NULL, 50, 50, '2025-08-06 16:49:16', '2025-08-06 08:49:16', 'active', 0, NULL),
-	(6, '000000000000006', 105, 0, NULL, NULL, 50, 50, '2025-08-06 16:50:18', '2025-08-06 08:50:18', 'active', 0, NULL),
-	(7, '000000000000007', 105, 1, NULL, NULL, 50, 50, '2025-08-06 16:50:54', '2025-08-06 08:50:54', 'active', 0, NULL),
-	(8, '000000000000008', 105, 0, NULL, NULL, 50, 50, '2025-08-06 16:51:30', '2025-08-06 08:51:30', 'active', 0, NULL),
-	(9, '000000000000009', 105, 1, NULL, NULL, 50, 50, '2025-08-06 16:51:33', '2025-08-06 08:51:33', 'active', 0, NULL),
-	(10, '000000000000010', 105, 0, NULL, NULL, 50, 50, '2025-08-06 16:52:33', '2025-08-06 08:52:33', 'active', 0, NULL),
-	(11, '000000000000011', 105, 1, NULL, NULL, 50, 50, '2025-08-06 16:52:37', '2025-08-06 08:52:37', 'active', 0, NULL),
-	(12, '000000000000012', 105, 0, NULL, NULL, 50, 50, '2025-08-06 16:58:57', '2025-08-06 08:58:57', 'active', 0, NULL),
-	(13, '000000000000013', 105, 1, NULL, NULL, 50, 50, '2025-08-06 16:59:10', '2025-08-06 08:59:10', 'active', 0, NULL),
-	(14, '000000000000014', 105, 0, NULL, NULL, 50, 50, '2025-08-06 16:59:42', '2025-08-06 08:59:42', 'active', 0, NULL),
-	(15, '000000000000015', 105, 1, NULL, NULL, 50, 50, '2025-08-06 16:59:48', '2025-08-06 08:59:48', 'active', 0, NULL),
-	(16, '000000000000016', 105, 0, NULL, NULL, 50, 50, '2025-08-06 17:00:32', '2025-08-06 09:00:32', 'active', 0, NULL),
-	(17, '000000000000017', 105, 1, NULL, NULL, 50, 50, '2025-08-06 17:04:02', '2025-08-06 09:04:02', 'active', 0, NULL),
-	(18, '000000000000018', 105, 0, NULL, NULL, 50, 50, '2025-08-06 17:04:09', '2025-08-06 09:04:09', 'active', 0, NULL),
-	(19, '000000000000019', 105, 1, NULL, NULL, 50, 50, '2025-08-06 17:04:11', '2025-08-06 09:04:11', 'active', 0, NULL),
-	(20, '000000000000020', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:28:50', '2025-08-07 00:28:50', 'active', 0, NULL),
-	(21, '000000000000021', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:28:52', '2025-08-07 00:28:52', 'active', 0, NULL),
-	(22, '000000000000022', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:28:58', '2025-08-07 00:28:58', 'active', 0, NULL),
-	(23, '000000000000023', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:31:26', '2025-08-07 00:31:26', 'active', 0, NULL),
-	(24, '000000000000024', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:31:28', '2025-08-07 00:31:28', 'active', 0, NULL),
-	(25, '000000000000025', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:40:24', '2025-08-07 00:40:24', 'active', 0, NULL),
-	(26, '000000000000026', 107, 1, NULL, NULL, 50, 50, '2025-08-07 08:41:15', '2025-08-07 00:41:15', 'active', 0, NULL),
-	(27, '000000000000027', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:44:47', '2025-08-07 00:44:47', 'active', 0, NULL),
-	(28, '000000000000028', 107, 0, NULL, NULL, 50, 50, '2025-08-07 08:46:22', '2025-08-07 00:46:22', 'active', 0, NULL),
-	(29, '000000000000029', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:46:32', '2025-08-07 00:46:32', 'active', 0, NULL),
-	(30, '000000000000030', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:47:02', '2025-08-07 00:47:02', 'active', 0, NULL),
-	(31, '000000000000031', 111, 1, NULL, NULL, 50, 50, '2025-08-07 08:47:08', '2025-08-07 00:47:08', 'active', 0, NULL),
-	(32, '000000000000032', 110, 1, NULL, NULL, 50, 50, '2025-08-07 08:47:13', '2025-08-07 00:47:13', 'active', 0, NULL),
-	(33, '000000000000033', 109, 1, NULL, NULL, 50, 50, '2025-08-07 08:47:18', '2025-08-07 00:47:18', 'active', 0, NULL),
-	(34, '000000000000034', 108, 1, NULL, NULL, 50, 50, '2025-08-07 08:47:24', '2025-08-07 00:47:24', 'active', 0, NULL),
-	(35, '000000000000035', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:49:03', '2025-08-07 00:49:03', 'active', 0, NULL),
-	(36, '000000000000036', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:49:06', '2025-08-07 00:49:06', 'active', 0, NULL),
-	(37, '000000000000037', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:49:07', '2025-08-07 00:49:07', 'active', 0, NULL),
-	(38, '000000000000038', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:49:08', '2025-08-07 00:49:08', 'active', 0, NULL),
-	(39, '000000000000039', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:49:09', '2025-08-07 00:49:09', 'active', 0, NULL),
-	(40, '000000000000040', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:49:41', '2025-08-07 00:49:41', 'active', 0, NULL),
-	(41, '000000000000041', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:49:43', '2025-08-07 00:49:44', 'active', 0, NULL),
-	(42, '000000000000042', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:49:45', '2025-08-07 00:49:45', 'active', 0, NULL),
-	(43, '000000000000043', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:49:47', '2025-08-07 00:49:47', 'active', 0, NULL),
-	(44, '000000000000044', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:49:48', '2025-08-07 00:49:48', 'active', 0, NULL),
-	(45, '000000000000045', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:49:49', '2025-08-07 00:49:49', 'active', 0, NULL),
-	(46, '000000000000046', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:49:50', '2025-08-07 00:49:50', 'active', 0, NULL),
-	(47, '000000000000047', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:49:51', '2025-08-07 00:49:51', 'active', 0, NULL),
-	(48, '000000000000048', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:49:51', '2025-08-07 00:49:51', 'active', 0, NULL),
-	(49, '000000000000049', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:49:52', '2025-08-07 00:49:52', 'active', 0, NULL),
-	(50, '000000000000050', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:49:53', '2025-08-07 00:49:53', 'active', 0, NULL),
-	(51, '000000000000051', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:51:41', '2025-08-07 00:51:41', 'active', 0, NULL),
-	(52, '000000000000052', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:51:43', '2025-08-07 00:51:43', 'active', 0, NULL),
-	(53, '000000000000053', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:52:49', '2025-08-07 00:52:49', 'active', 0, NULL),
-	(54, '000000000000054', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:52:51', '2025-08-07 00:52:51', 'active', 0, NULL),
-	(55, '000000000000055', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:52:52', '2025-08-07 00:52:52', 'active', 0, NULL),
-	(56, '000000000000056', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:59:54', '2025-08-07 00:59:54', 'active', 0, NULL),
-	(57, '000000000000057', 105, 0, NULL, NULL, 50, 50, '2025-08-07 09:00:00', '2025-08-07 01:00:01', 'active', 0, NULL),
-	(58, '000000000000058', 105, 1, NULL, NULL, 50, 50, '2025-08-07 09:00:04', '2025-08-07 01:00:04', 'active', 0, NULL),
-	(59, '000000000000059', 105, 0, NULL, NULL, 50, 50, '2025-08-07 09:00:06', '2025-08-07 01:00:06', 'active', 0, NULL),
-	(60, '000000000000060', 105, 1, NULL, NULL, 50, 50, '2025-08-07 09:00:06', '2025-08-07 01:00:06', 'active', 0, NULL),
-	(61, '000000000000061', 105, 0, NULL, NULL, 50, 50, '2025-08-07 09:00:07', '2025-08-07 01:00:07', 'active', 0, NULL),
-	(62, '000000000000062', 105, 1, NULL, NULL, 50, 50, '2025-08-07 09:02:50', '2025-08-07 01:02:50', 'active', 0, NULL),
-	(63, '000000000000063', 105, 0, NULL, NULL, 50, 50, '2025-08-07 09:02:52', '2025-08-07 01:02:52', 'active', 0, NULL),
-	(64, '000000000000064', 105, 1, NULL, NULL, 50, 50, '2025-08-07 09:06:20', '2025-08-07 01:06:20', 'active', 0, NULL),
-	(65, '000000000000065', 105, 0, NULL, NULL, 50, 50, '2025-08-07 09:06:21', '2025-08-07 01:06:21', 'active', 0, NULL),
-	(66, '000000000000066', 105, 1, NULL, NULL, 50, 50, '2025-08-07 09:06:22', '2025-08-07 01:06:22', 'active', 0, NULL),
-	(67, '000000000000067', 105, 0, NULL, NULL, 50, 50, '2025-08-07 09:06:23', '2025-08-07 01:06:23', 'active', 0, NULL),
-	(68, '000000000000068', 107, 1, NULL, NULL, 50, 50, '2025-08-07 09:06:28', '2025-08-07 01:06:28', 'active', 0, NULL),
-	(69, '000000000000069', 107, 0, NULL, NULL, 50, 50, '2025-08-07 09:06:29', '2025-08-07 01:06:29', 'active', 0, NULL),
-	(70, '000000000000070', 107, 1, NULL, NULL, 50, 50, '2025-08-07 09:07:47', '2025-08-07 01:07:47', 'active', 0, NULL),
-	(71, '000000000000071', 107, 0, NULL, NULL, 50, 50, '2025-08-07 09:07:55', '2025-08-07 01:07:55', 'active', 0, NULL),
-	(72, '000000000000072', 107, 1, NULL, NULL, 50, 50, '2025-08-07 09:07:57', '2025-08-07 01:07:57', 'active', 0, NULL),
-	(73, '000000000000073', 107, 0, NULL, NULL, 50, 50, '2025-08-07 09:07:58', '2025-08-07 01:07:58', 'active', 0, NULL),
-	(74, '000000000000074', 107, 1, NULL, NULL, 50, 50, '2025-08-07 09:07:59', '2025-08-07 01:07:59', 'active', 0, NULL),
-	(75, '000000000000075', 107, 0, NULL, NULL, 50, 50, '2025-08-07 09:07:59', '2025-08-07 01:07:59', 'active', 0, NULL),
-	(76, '000000000000076', 107, 0, NULL, NULL, 50, 50, '2025-08-07 09:08:00', '2025-08-07 01:08:00', 'active', 0, NULL),
-	(77, '000000000000077', 107, 1, NULL, NULL, 50, 50, '2025-08-07 09:08:01', '2025-08-07 01:08:01', 'active', 0, NULL),
-	(78, '000000000000078', 107, 0, NULL, NULL, 50, 50, '2025-08-07 09:08:02', '2025-08-07 01:08:02', 'active', 0, NULL),
-	(79, '000000000000079', 107, 1, NULL, NULL, 50, 50, '2025-08-07 09:08:03', '2025-08-07 01:08:03', 'active', 0, NULL),
-	(80, '000000000000080', 107, 0, NULL, NULL, 50, 50, '2025-08-07 09:08:03', '2025-08-07 01:08:03', 'active', 0, NULL),
-	(81, '000000000000081', 107, 0, NULL, NULL, 50, 50, '2025-08-07 09:08:04', '2025-08-07 01:08:04', 'active', 0, NULL),
-	(82, '000000000000082', 107, 1, NULL, NULL, 50, 50, '2025-08-07 09:08:04', '2025-08-07 01:08:04', 'active', 0, NULL),
-	(83, '000000000000083', 107, 0, NULL, NULL, 50, 50, '2025-08-07 09:08:05', '2025-08-07 01:08:05', 'active', 0, NULL),
-	(84, '000000000000084', 107, 1, NULL, NULL, 50, 50, '2025-08-07 09:08:06', '2025-08-07 01:08:06', 'active', 0, NULL),
-	(85, '000000000000085', 109, 0, NULL, NULL, 50, 50, '2025-08-07 09:08:14', '2025-08-07 01:08:14', 'active', 0, NULL),
-	(86, '000000000000086', 109, 1, NULL, NULL, 50, 50, '2025-08-07 09:08:16', '2025-08-07 01:08:16', 'active', 0, NULL),
-	(87, '000000000000087', 109, 0, NULL, NULL, 50, 50, '2025-08-07 09:08:17', '2025-08-07 01:08:17', 'active', 0, NULL),
-	(88, '000000000000088', 109, 1, NULL, NULL, 50, 50, '2025-08-07 09:08:17', '2025-08-07 01:08:17', 'active', 0, NULL),
-	(89, '000000000000089', 109, 0, NULL, NULL, 50, 50, '2025-08-07 09:08:18', '2025-08-07 01:08:18', 'active', 0, NULL),
-	(90, '000000000000090', 109, 1, NULL, NULL, 50, 50, '2025-08-07 09:08:19', '2025-08-07 01:08:19', 'active', 0, NULL),
-	(91, '000000000000091', 109, 0, NULL, NULL, 50, 50, '2025-08-07 09:08:21', '2025-08-07 01:08:21', 'active', 0, NULL),
-	(92, '000000000000092', 109, 1, NULL, NULL, 50, 50, '2025-08-07 09:08:21', '2025-08-07 01:08:21', 'active', 0, NULL),
-	(93, '000000000000093', 109, 1, NULL, NULL, 50, 50, '2025-08-07 09:08:22', '2025-08-07 01:08:22', 'active', 0, NULL),
-	(94, '000000000000094', 109, 0, NULL, NULL, 50, 50, '2025-08-07 09:08:23', '2025-08-07 01:08:23', 'active', 0, NULL),
-	(95, '000000000000095', 105, 1, NULL, NULL, 50, 50, '2025-08-07 14:45:45', '2025-08-07 06:45:45', 'active', 0, NULL),
-	(96, '000000000000096', 105, 0, NULL, NULL, 50, 50, '2025-08-07 14:53:03', '2025-08-07 06:53:03', 'active', 0, NULL),
-	(97, '000000000000097', 107, 0, NULL, NULL, 50, 50, '2025-08-07 14:53:07', '2025-08-07 06:53:07', 'active', 0, NULL),
-	(98, '000000000000098', 108, 0, NULL, NULL, 50, 50, '2025-08-07 14:53:09', '2025-08-07 06:53:09', 'active', 0, NULL),
-	(99, '000000000000099', 109, 1, NULL, NULL, 50, 50, '2025-08-07 14:53:13', '2025-08-07 06:53:13', 'active', 0, NULL),
-	(100, '000000000000100', 110, 0, NULL, NULL, 50, 50, '2025-08-07 14:53:17', '2025-08-07 06:53:17', 'active', 0, NULL),
-	(101, '000000000000101', 111, 0, NULL, NULL, 50, 50, '2025-08-07 14:53:19', '2025-08-07 06:53:19', 'active', 0, NULL),
-	(102, '000000000000102', 112, 1, NULL, NULL, 50, 50, '2025-08-07 15:11:14', '2025-08-07 07:11:14', 'active', 0, NULL),
-	(103, '000000000000103', 112, 0, NULL, NULL, 50, 50, '2025-08-07 15:11:17', '2025-08-07 07:11:17', 'active', 0, NULL),
-	(104, '000000000000104', 112, 1, NULL, NULL, 50, 50, '2025-08-07 15:11:19', '2025-08-07 07:11:19', 'active', 0, NULL),
-	(105, '000000000000105', 112, 0, NULL, NULL, 50, 50, '2025-08-07 15:11:20', '2025-08-07 07:11:20', 'active', 0, NULL),
-	(106, '000000000000106', 112, 1, NULL, NULL, 50, 50, '2025-08-07 15:11:20', '2025-08-07 07:11:20', 'active', 0, NULL),
-	(107, '000000000000107', 112, 0, NULL, NULL, 50, 50, '2025-08-07 15:11:21', '2025-08-07 07:11:21', 'active', 0, NULL),
-	(108, '000000000000108', 112, 1, NULL, NULL, 50, 50, '2025-08-07 15:11:22', '2025-08-07 07:11:22', 'active', 0, NULL),
-	(109, '000000000000109', 112, 0, NULL, NULL, 50, 50, '2025-08-07 15:11:27', '2025-08-07 07:11:27', 'active', 0, NULL),
-	(110, '000000000000110', 105, 1, NULL, NULL, 50, 50, '2025-08-09 20:58:38', '2025-08-09 12:58:38', 'active', 0, NULL),
-	(111, '000000000000111', 105, 0, NULL, NULL, 50, 50, '2025-08-09 20:59:32', '2025-08-09 12:59:32', 'active', 0, NULL),
-	(112, '000000000000112', 109, 0, NULL, NULL, 50, 50, '2025-08-09 20:59:42', '2025-08-09 12:59:42', 'active', 0, NULL),
-	(113, '000000000000113', 110, 1, NULL, NULL, 50, 50, '2025-08-09 20:59:48', '2025-08-09 12:59:48', 'active', 0, NULL),
-	(114, '000000000000114', 105, 1, NULL, NULL, 50, 50, '2025-08-09 20:59:53', '2025-08-09 12:59:53', 'active', 0, NULL),
-	(115, '000000000000115', 111, 1, NULL, NULL, 50, 50, '2026-01-12 13:39:39', '2026-01-12 05:39:39', 'active', 0, NULL),
-	(116, '000000000000116', 112, 1, NULL, NULL, 50, 50, '2026-01-12 13:39:45', '2026-01-12 05:39:45', 'active', 0, NULL),
-	(117, '000000000000117', 105, 1, NULL, NULL, 50, 50, '2026-01-12 13:39:49', '2026-01-12 05:39:49', 'active', 0, NULL),
-	(118, '000000000000118', 105, 0, NULL, NULL, 50, 50, '2026-01-12 13:40:04', '2026-01-12 05:40:04', 'active', 0, NULL),
-	(119, '000000000000119', 112, 0, NULL, NULL, 50, 50, '2026-01-12 13:40:08', '2026-01-12 05:40:08', 'active', 0, NULL),
-	(120, '000000000000120', 111, 0, NULL, NULL, 50, 50, '2026-01-12 13:40:12', '2026-01-12 05:40:12', 'active', 0, NULL),
-	(121, '000000000000121', 111, 0, NULL, NULL, 50, 50, '2026-01-12 13:42:31', '2026-01-12 05:42:31', 'active', 0, NULL),
-	(122, '000000000000122', 111, 0, NULL, NULL, 50, 50, '2026-01-12 13:44:02', '2026-01-12 05:44:02', 'active', 0, NULL),
-	(123, '000000000000123', 112, 0, NULL, NULL, 50, 50, '2026-01-12 13:44:06', '2026-01-12 05:44:06', 'active', 0, NULL);
 
--- Dumping structure for table tnhs-new.school
-DROP TABLE IF EXISTS `school`;
-CREATE TABLE IF NOT EXISTS `school` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `SchoolID` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
-  `SchoolName` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
-  `SchoolAddress` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `SchoolRegion` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `District` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `Principal` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `PrincipalPosition` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+-- Dumping structure for table tnhs-new.school_years
+DROP TABLE IF EXISTS `school_years`;
+CREATE TABLE IF NOT EXISTS `school_years` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `SchoolYear` varchar(20) DEFAULT NULL,
+  `StartDate` date DEFAULT NULL,
+  `EndDate` date DEFAULT NULL,
+  `IsActive` tinyint(1) DEFAULT '0',
   `created_by` int(11) NOT NULL,
   `updated_by` int(11) NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
--- Dumping data for table tnhs-new.school: ~0 rows (approximately)
-DELETE FROM `school`;
+-- Dumping data for table tnhs-new.school_years: 2 rows
+DELETE FROM `school_years`;
+/*!40000 ALTER TABLE `school_years` DISABLE KEYS */;
+INSERT INTO `school_years` (`id`, `SchoolYear`, `StartDate`, `EndDate`, `IsActive`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, '2025-2026', '2026-06-15', '2027-03-31', 0, 1, 1, '2026-05-11 17:41:17', '2026-05-11 10:40:17', 'active', 0, NULL),
+	(2, '2026-2027', '2026-06-11', '2027-03-31', 1, 1, 1, '2026-05-11 18:40:17', '2026-05-11 10:40:17', 'active', 0, NULL);
+/*!40000 ALTER TABLE `school_years` ENABLE KEYS */;
+
+-- Dumping structure for table tnhs-new.sections
+DROP TABLE IF EXISTS `sections`;
+CREATE TABLE IF NOT EXISTS `sections` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `SchoolYearID` bigint(20) NOT NULL,
+  `GradeLevelID` bigint(20) NOT NULL,
+  `StrandID` bigint(20) DEFAULT NULL,
+  `SectionName` varchar(100) NOT NULL,
+  `AdviserID` bigint(20) DEFAULT NULL,
+  `Capacity` int(11) DEFAULT '50',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `created_by` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- Dumping data for table tnhs-new.sections: 0 rows
+DELETE FROM `sections`;
+/*!40000 ALTER TABLE `sections` DISABLE KEYS */;
+/*!40000 ALTER TABLE `sections` ENABLE KEYS */;
+
+-- Dumping structure for table tnhs-new.semesters
+DROP TABLE IF EXISTS `semesters`;
+CREATE TABLE IF NOT EXISTS `semesters` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `SemesterName` varchar(50) DEFAULT NULL,
+  `SemesterOrder` int(11) DEFAULT NULL,
+  `IsActive` tinyint(1) DEFAULT '1',
+  `created_by` int(11) NOT NULL,
+  `updated_by` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+
+-- Dumping data for table tnhs-new.semesters: 2 rows
+DELETE FROM `semesters`;
+/*!40000 ALTER TABLE `semesters` DISABLE KEYS */;
+INSERT INTO `semesters` (`id`, `SemesterName`, `SemesterOrder`, `IsActive`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, '1', 1, 0, 1, 1, '2026-05-11 18:53:07', '2026-05-11 10:53:14', 'active', 0, NULL),
+	(2, '2', 2, 1, 1, 1, '2026-05-11 18:53:14', '2026-05-11 10:53:14', 'active', 0, NULL);
+/*!40000 ALTER TABLE `semesters` ENABLE KEYS */;
 
 -- Dumping structure for table tnhs-new.sessions
 DROP TABLE IF EXISTS `sessions`;
@@ -1501,7 +1647,47 @@ CREATE TABLE IF NOT EXISTS `sessions` (
 -- Dumping data for table tnhs-new.sessions: ~1 rows (approximately)
 DELETE FROM `sessions`;
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-	('21PmxSpIOpiOE861PnYBlfX0NNd5sAmoHsYejJO2', 116, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiRmllRUxzMXJKeEVKM2pQSkNlTmlxVWVodzhXSjJSZVNacFVrYWM0eSI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czozODoiaHR0cDovL3NhYXNraXQuZGV2LmNvbS9zdHVkZW50cy9jcmVhdGUiO31zOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czoyMzg6Imh0dHA6Ly9zYWFza2l0LmRldi5jb20vdXNlcnMvcHJpbnQtaWQvZXlKcGRpSTZJbGczYW5GYVluVTJWVVZ4U1RsaWRVa3dZV05USzFFOVBTSXNJblpoYkhWbElqb2lTVXgzTVdscmExTkhjRzl2TlU5V2FEbDBjMWg2WnowOUlpd2liV0ZqSWpvaU9UWXlaRFk0WWpabVlXUTJaamxpTm1Jd09HVmxaREJqWmpreVlqSmpaVEk1TWpBMk5XRmlOekk1TkRKbE1UWm1NV1F6WkRZNFltTXlZak0zWm1GbE5TSXNJblJoWnlJNklpSjkiO3M6NToicm91dGUiO3M6MTM6InVzZXJzLnByaW50SUQiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToxMTY7fQ==', 1778408172);
+	('zj80k24RDCNjwGnAtO2umdoAt7wDfqLhASjZoI2S', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiRUxtWnNGN3YxRDB1ZGRwTjRWbm1BOU45SVA4NkdabHJZVm1MTko1MyI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mzk6Imh0dHA6Ly9zYWFza2l0LmRldi5jb20vc2VtZXN0ZXJzL2VkaXQvMiI7czo1OiJyb3V0ZSI7czoxNDoic2VtZXN0ZXJzLmVkaXQiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToxO30=', 1778497195);
+
+-- Dumping structure for table tnhs-new.settings
+DROP TABLE IF EXISTS `settings`;
+CREATE TABLE IF NOT EXISTS `settings` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `SchoolName` varchar(255) NOT NULL,
+  `SchoolCode` varchar(100) DEFAULT NULL,
+  `EducationLevel` enum('JHS','SHS','INTEGRATED') DEFAULT 'INTEGRATED',
+  `Region` varchar(100) DEFAULT NULL,
+  `Division` varchar(100) DEFAULT NULL,
+  `Address` text,
+  `ContactNumber` varchar(20) DEFAULT NULL,
+  `EmailAddress` varchar(150) DEFAULT NULL,
+  `PrincipalID` int(11) DEFAULT NULL,
+  `RegistrarID` bigint(20) DEFAULT NULL,
+  `Logo` varchar(255) DEFAULT NULL,
+  `OfficialTimeIn` time DEFAULT '07:00:00',
+  `OfficialTimeOut` time DEFAULT '17:00:00',
+  `LateGraceMinutes` int(11) DEFAULT '15',
+  `EnableNFC` tinyint(1) DEFAULT '1',
+  `EnableQR` tinyint(1) DEFAULT '1',
+  `EnableOfflineAttendance` tinyint(1) DEFAULT '1',
+  `CurrentSchoolYearID` bigint(20) DEFAULT NULL,
+  `ThemeColor` varchar(20) DEFAULT '#004D1A',
+  `created_by` int(11) NOT NULL,
+  `updated_by` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+-- Dumping data for table tnhs-new.settings: 1 rows
+DELETE FROM `settings`;
+/*!40000 ALTER TABLE `settings` DISABLE KEYS */;
+INSERT INTO `settings` (`id`, `SchoolName`, `SchoolCode`, `EducationLevel`, `Region`, `Division`, `Address`, `ContactNumber`, `EmailAddress`, `PrincipalID`, `RegistrarID`, `Logo`, `OfficialTimeIn`, `OfficialTimeOut`, `LateGraceMinutes`, `EnableNFC`, `EnableQR`, `EnableOfflineAttendance`, `CurrentSchoolYearID`, `ThemeColor`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 'TUBAJON NATIONAL HIGH SCHOOL', '304854', 'INTEGRATED', 'CARAGA', 'Dinagat Islands', 'Espina St', '+639128941731', 'jhambre@ssct.edu.ph', 2, 1, 'school/logo/Ttr8dV4ihxwf4oBaXfBWN6U9LfTFwFQ3LRfPv8qH.jpg', '07:00:00', '17:00:00', 15, 1, 1, 1, 2, '#0091ff', 1, 1, '2026-05-11 17:21:46', '2026-05-11 10:40:17', 'active', 0, NULL);
+/*!40000 ALTER TABLE `settings` ENABLE KEYS */;
 
 -- Dumping structure for table tnhs-new.sms_queues
 DROP TABLE IF EXISTS `sms_queues`;
@@ -1518,78 +1704,27 @@ CREATE TABLE IF NOT EXISTS `sms_queues` (
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=68 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.sms_queues: ~67 rows (approximately)
+-- Dumping data for table tnhs-new.sms_queues: ~0 rows (approximately)
 DELETE FROM `sms_queues`;
-INSERT INTO `sms_queues` (`id`, `PhoneNumber`, `Message`, `remark`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
-	(1, '+639128941731', 'Johans Empleo just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 04:50:18 PM. Code: 000000000000006', 'sent', 0, 0, '2025-08-06 16:50:18', '2025-08-06 09:06:40', 'active', 0, NULL),
-	(2, '+639128941731', 'Johans Empleo just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 04:50:54 PM. Code: 000000000000007', 'sent', 0, 0, '2025-08-06 16:50:54', '2025-08-06 09:06:51', 'active', 0, NULL),
-	(3, '+639128941731', 'Johans Empleo just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 04:51:30 PM. Code: 000000000000008', 'sent', 0, 0, '2025-08-06 16:51:30', '2025-08-06 09:07:02', 'active', 0, NULL),
-	(4, '+639128941731', 'Johans Empleo just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 04:51:33 PM. Code: 000000000000009', 'sent', 0, 0, '2025-08-06 16:51:33', '2025-08-06 09:07:14', 'active', 0, NULL),
-	(5, '+639485622724', 'Johans Empleo just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 04:52:33 PM. Code: 000000000000010', 'sent', 0, 0, '2025-08-06 16:52:33', '2025-08-06 09:09:09', 'active', 0, NULL),
-	(6, '+639485622724', 'Johans Empleo just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 04:52:37 PM. Code: 000000000000011', 'sent', 0, 0, '2025-08-06 16:52:37', '2025-08-06 09:08:43', 'active', 0, NULL),
-	(7, '+639485622724', 'Johans Empleo just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 04:58:57 PM. Code: 000000000000012', 'sent', 0, 0, '2025-08-06 16:58:57', '2025-08-06 09:08:09', 'active', 0, NULL),
-	(8, '+639485622724', 'Johans Empleo just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 04:59:10 PM. Code: 000000000000013', 'sent', 0, 0, '2025-08-06 16:59:10', '2025-08-06 09:08:21', 'active', 0, NULL),
-	(9, '+639485622724', 'Johans Empleo just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 04:59:42 PM. Code: 000000000000014', 'sent', 0, 0, '2025-08-06 16:59:42', '2025-08-06 09:07:25', 'active', 0, NULL),
-	(10, '+639485622724', 'Johans Empleo just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 04:59:48 PM. Code: 000000000000015', 'sent', 0, 0, '2025-08-06 16:59:48', '2025-08-06 09:07:36', 'active', 0, NULL),
-	(11, '+639485622724', 'Johans Empleo just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 05:00:32 PM. Code: 000000000000016', 'sent', 0, 0, '2025-08-06 17:00:32', '2025-08-06 09:07:47', 'active', 0, NULL),
-	(12, '+639485622724', 'Johans Empleo just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 05:04:02 PM. Code: 000000000000017', 'sent', 0, 0, '2025-08-06 17:04:02', '2025-08-06 09:09:21', 'active', 0, NULL),
-	(13, '+639485622724', 'Johans Empleo just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 05:04:09 PM. Code: 000000000000018', 'sent', 0, 0, '2025-08-06 17:04:09', '2025-08-06 09:08:32', 'active', 0, NULL),
-	(14, '+639485622724', 'Johans Empleo just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 05:04:11 PM. Code: 000000000000019', 'sent', 0, 0, '2025-08-06 17:04:11', '2025-08-06 09:09:32', 'active', 0, NULL),
-	(15, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:28:50 AM. Code: 000000000000020', NULL, 0, 0, '2025-08-07 08:28:50', '2025-08-07 00:28:50', 'active', 0, NULL),
-	(16, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:28:52 AM. Code: 000000000000021', NULL, 0, 0, '2025-08-07 08:28:52', '2025-08-07 00:28:52', 'active', 0, NULL),
-	(17, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:28:58 AM. Code: 000000000000022', NULL, 0, 0, '2025-08-07 08:28:58', '2025-08-07 00:28:58', 'active', 0, NULL),
-	(18, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:31:26 AM. Code: 000000000000023', NULL, 0, 0, '2025-08-07 08:31:26', '2025-08-07 00:31:26', 'active', 0, NULL),
-	(19, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:31:28 AM. Code: 000000000000024', NULL, 0, 0, '2025-08-07 08:31:28', '2025-08-07 00:31:28', 'active', 0, NULL),
-	(20, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:40:24 AM. Code: 000000000000025', NULL, 0, 0, '2025-08-07 08:40:24', '2025-08-07 00:40:24', 'active', 0, NULL),
-	(21, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:44:47 AM. Code: 000000000000027', NULL, 0, 0, '2025-08-07 08:44:47', '2025-08-07 00:44:47', 'active', 0, NULL),
-	(22, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:46:32 AM. Code: 000000000000029', NULL, 0, 0, '2025-08-07 08:46:32', '2025-08-07 00:46:32', 'active', 0, NULL),
-	(23, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:47:02 AM. Code: 000000000000030', NULL, 0, 0, '2025-08-07 08:47:02', '2025-08-07 00:47:02', 'active', 0, NULL),
-	(24, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:03 AM. Code: 000000000000035', NULL, 0, 0, '2025-08-07 08:49:03', '2025-08-07 00:49:03', 'active', 0, NULL),
-	(25, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:06 AM. Code: 000000000000036', NULL, 0, 0, '2025-08-07 08:49:06', '2025-08-07 00:49:06', 'active', 0, NULL),
-	(26, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:07 AM. Code: 000000000000037', NULL, 0, 0, '2025-08-07 08:49:07', '2025-08-07 00:49:07', 'active', 0, NULL),
-	(27, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:08 AM. Code: 000000000000038', NULL, 0, 0, '2025-08-07 08:49:08', '2025-08-07 00:49:08', 'active', 0, NULL),
-	(28, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:09 AM. Code: 000000000000039', NULL, 0, 0, '2025-08-07 08:49:09', '2025-08-07 00:49:09', 'active', 0, NULL),
-	(29, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:41 AM. Code: 000000000000040', NULL, 0, 0, '2025-08-07 08:49:41', '2025-08-07 00:49:41', 'active', 0, NULL),
-	(30, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:44 AM. Code: 000000000000041', NULL, 0, 0, '2025-08-07 08:49:44', '2025-08-07 00:49:44', 'active', 0, NULL),
-	(31, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:45 AM. Code: 000000000000042', NULL, 0, 0, '2025-08-07 08:49:45', '2025-08-07 00:49:45', 'active', 0, NULL),
-	(32, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:47 AM. Code: 000000000000043', NULL, 0, 0, '2025-08-07 08:49:47', '2025-08-07 00:49:47', 'active', 0, NULL),
-	(33, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:48 AM. Code: 000000000000044', NULL, 0, 0, '2025-08-07 08:49:48', '2025-08-07 00:49:48', 'active', 0, NULL),
-	(34, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:49 AM. Code: 000000000000045', NULL, 0, 0, '2025-08-07 08:49:49', '2025-08-07 00:49:49', 'active', 0, NULL),
-	(35, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:50 AM. Code: 000000000000046', NULL, 0, 0, '2025-08-07 08:49:50', '2025-08-07 00:49:50', 'active', 0, NULL),
-	(36, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:51 AM. Code: 000000000000047', NULL, 0, 0, '2025-08-07 08:49:51', '2025-08-07 00:49:51', 'active', 0, NULL),
-	(37, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:51 AM. Code: 000000000000048', NULL, 0, 0, '2025-08-07 08:49:51', '2025-08-07 00:49:51', 'active', 0, NULL),
-	(38, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:52 AM. Code: 000000000000049', NULL, 0, 0, '2025-08-07 08:49:52', '2025-08-07 00:49:52', 'active', 0, NULL),
-	(39, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:53 AM. Code: 000000000000050', NULL, 0, 0, '2025-08-07 08:49:53', '2025-08-07 00:49:53', 'active', 0, NULL),
-	(40, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:51:41 AM. Code: 000000000000051', NULL, 0, 0, '2025-08-07 08:51:41', '2025-08-07 00:51:41', 'active', 0, NULL),
-	(41, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:51:43 AM. Code: 000000000000052', NULL, 0, 0, '2025-08-07 08:51:43', '2025-08-07 00:51:43', 'active', 0, NULL),
-	(42, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:52:49 AM. Code: 000000000000053', NULL, 0, 0, '2025-08-07 08:52:49', '2025-08-07 00:52:49', 'active', 0, NULL),
-	(43, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:52:51 AM. Code: 000000000000054', NULL, 0, 0, '2025-08-07 08:52:51', '2025-08-07 00:52:51', 'active', 0, NULL),
-	(44, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:52:52 AM. Code: 000000000000055', NULL, 0, 0, '2025-08-07 08:52:52', '2025-08-07 00:52:52', 'active', 0, NULL),
-	(45, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:59:54 AM. Code: 000000000000056', NULL, 0, 0, '2025-08-07 08:59:54', '2025-08-07 00:59:54', 'active', 0, NULL),
-	(46, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 09:00:01 AM. Code: 000000000000057', NULL, 0, 0, '2025-08-07 09:00:01', '2025-08-07 01:00:01', 'active', 0, NULL),
-	(47, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 09:00:04 AM. Code: 000000000000058', NULL, 0, 0, '2025-08-07 09:00:04', '2025-08-07 01:00:04', 'active', 0, NULL),
-	(48, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 09:00:06 AM. Code: 000000000000059', NULL, 0, 0, '2025-08-07 09:00:06', '2025-08-07 01:00:06', 'active', 0, NULL),
-	(49, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 09:00:06 AM. Code: 000000000000060', NULL, 0, 0, '2025-08-07 09:00:06', '2025-08-07 01:00:06', 'active', 0, NULL),
-	(50, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 09:00:07 AM. Code: 000000000000061', NULL, 0, 0, '2025-08-07 09:00:07', '2025-08-07 01:00:07', 'active', 0, NULL),
-	(51, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 09:02:50 AM. Code: 000000000000062', NULL, 0, 0, '2025-08-07 09:02:50', '2025-08-07 01:02:50', 'active', 0, NULL),
-	(52, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 09:02:52 AM. Code: 000000000000063', NULL, 0, 0, '2025-08-07 09:02:52', '2025-08-07 01:02:52', 'active', 0, NULL),
-	(53, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 09:06:20 AM. Code: 000000000000064', NULL, 0, 0, '2025-08-07 09:06:20', '2025-08-07 01:06:20', 'active', 0, NULL),
-	(54, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 09:06:21 AM. Code: 000000000000065', NULL, 0, 0, '2025-08-07 09:06:21', '2025-08-07 01:06:21', 'active', 0, NULL),
-	(55, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 09:06:22 AM. Code: 000000000000066', NULL, 0, 0, '2025-08-07 09:06:22', '2025-08-07 01:06:22', 'active', 0, NULL),
-	(56, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 09:06:23 AM. Code: 000000000000067', NULL, 0, 0, '2025-08-07 09:06:23', '2025-08-07 01:06:23', 'active', 0, NULL),
-	(57, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 02:45:45 PM. Code: 000000000000095', NULL, 0, 0, '2025-08-07 14:45:45', '2025-08-07 06:45:45', 'active', 0, NULL),
-	(58, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 02:53:03 PM. Code: 000000000000096', NULL, 0, 0, '2025-08-07 14:53:03', '2025-08-07 06:53:03', 'active', 0, NULL),
-	(59, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 09, 2025 08:58:38 PM. Code: 000000000000110', NULL, 0, 0, '2025-08-09 20:58:38', '2025-08-09 12:58:38', 'active', 0, NULL),
-	(60, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 09, 2025 08:59:32 PM. Code: 000000000000111', NULL, 0, 0, '2025-08-09 20:59:32', '2025-08-09 12:59:32', 'active', 0, NULL),
-	(61, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 09, 2025 08:59:53 PM. Code: 000000000000114', NULL, 0, 0, '2025-08-09 20:59:53', '2025-08-09 12:59:53', 'active', 0, NULL),
-	(62, '+639485622724', 'DR. SHIRLY C. AGRUPIS vjk just entered TUBAJON NATIONAL HIGH SCHOOL @ Jan 12, 2026 01:39:39 PM. Code: 000000000000115', NULL, 0, 0, '2026-01-12 13:39:39', '2026-01-12 05:39:39', 'active', 0, NULL),
-	(63, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Jan 12, 2026 01:39:49 PM. Code: 000000000000117', NULL, 0, 0, '2026-01-12 13:39:49', '2026-01-12 05:39:49', 'active', 0, NULL),
-	(64, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Jan 12, 2026 01:40:04 PM. Code: 000000000000118', NULL, 0, 0, '2026-01-12 13:40:04', '2026-01-12 05:40:04', 'active', 0, NULL),
-	(65, '+639485622724', 'DR. SHIRLY C. AGRUPIS vjk just left TUBAJON NATIONAL HIGH SCHOOL @ Jan 12, 2026 01:40:12 PM. Code: 000000000000120', NULL, 0, 0, '2026-01-12 13:40:12', '2026-01-12 05:40:12', 'active', 0, NULL),
-	(66, '+639485622724', 'DR. SHIRLY C. AGRUPIS vjk just left TUBAJON NATIONAL HIGH SCHOOL @ Jan 12, 2026 01:42:31 PM. Code: 000000000000121', NULL, 0, 0, '2026-01-12 13:42:31', '2026-01-12 05:42:31', 'active', 0, NULL),
-	(67, '+639485622724', 'DR. SHIRLY C. AGRUPIS vjk just left TUBAJON NATIONAL HIGH SCHOOL @ Jan 12, 2026 01:44:02 PM. Code: 000000000000122', NULL, 0, 0, '2026-01-12 13:44:02', '2026-01-12 05:44:02', 'active', 0, NULL);
+
+-- Dumping structure for table tnhs-new.strands
+DROP TABLE IF EXISTS `strands`;
+CREATE TABLE IF NOT EXISTS `strands` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `StrandCode` varchar(20) DEFAULT NULL,
+  `StrandName` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `created_by` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `StrandCode` (`StrandCode`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- Dumping data for table tnhs-new.strands: 0 rows
+DELETE FROM `strands`;
+/*!40000 ALTER TABLE `strands` DISABLE KEYS */;
+/*!40000 ALTER TABLE `strands` ENABLE KEYS */;
 
 -- Dumping structure for table tnhs-new.students
 DROP TABLE IF EXISTS `students`;
@@ -1602,11 +1737,16 @@ CREATE TABLE IF NOT EXISTS `students` (
   `MiddleName` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `LastName` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `Suffix` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Sex` enum('Male','Female') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `Section` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `PhoneNumber` varchar(13) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `filepath` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `Strand` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `CurrentStatus` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `YearLevel` int(11) DEFAULT NULL,
+  `BirthDate` date DEFAULT NULL,
+  `BirthPlace` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Religion` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_by` int(11) NOT NULL,
   `updated_by` int(11) NOT NULL,
   `created_at` datetime NOT NULL,
@@ -1615,43 +1755,30 @@ CREATE TABLE IF NOT EXISTS `students` (
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.students: ~2 rows (approximately)
+-- Dumping data for table tnhs-new.students: ~0 rows (approximately)
 DELETE FROM `students`;
-INSERT INTO `students` (`id`, `GuardianID`, `UserID`, `LRN`, `FirstName`, `MiddleName`, `LastName`, `Suffix`, `Section`, `PhoneNumber`, `filepath`, `Strand`, `YearLevel`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
-	(12, 2, 117, '545665445454', 'ANTONIO JR', 'LUIB', 'PILOTON', NULL, 'gfd', '+639128941731', NULL, 'HUMSS', 8, 116, 116, '2026-05-10 18:15:02', '2026-05-10 10:15:40', 'active', 0, NULL),
-	(13, 1, NULL, 'kl\';\'k', 'ANTONIO JR', 'LUIB', 'PILOTON', NULL, '1A2', '+639128941731', NULL, '\'k;l;\'l;\'', 8, 116, 116, '2026-05-10 18:15:24', '2026-05-10 10:15:24', 'active', 0, NULL);
 
--- Dumping structure for table tnhs-new.teachers
-DROP TABLE IF EXISTS `teachers`;
-CREATE TABLE IF NOT EXISTS `teachers` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `UserID` int(11) NOT NULL DEFAULT '0',
-  `FirstName` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
-  `MiddleName` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `LastName` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `Suffix` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `Address` varchar(60) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
-  `updated_by` int(11) NOT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `archived` tinyint(4) NOT NULL DEFAULT '0',
-  `deleted_at` timestamp NULL DEFAULT NULL,
-  `PhoneNumber` varchar(13) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+-- Dumping structure for table tnhs-new.subjects
+DROP TABLE IF EXISTS `subjects`;
+CREATE TABLE IF NOT EXISTS `subjects` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `SubjectCode` varchar(50) DEFAULT NULL,
+  `SubjectName` varchar(255) DEFAULT NULL,
+  `GradeLevelID` bigint(20) NOT NULL,
+  `StrandID` bigint(20) DEFAULT NULL,
+  `SemesterID` bigint(20) DEFAULT NULL,
+  `IsCore` tinyint(1) DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `created_by` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table tnhs-new.teachers: 3 rows
-DELETE FROM `teachers`;
-/*!40000 ALTER TABLE `teachers` DISABLE KEYS */;
-INSERT INTO `teachers` (`id`, `UserID`, `FirstName`, `MiddleName`, `LastName`, `Suffix`, `Address`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`, `PhoneNumber`) VALUES
-	(2, 109, 'NORVEN-edited', 'OLACO', 'ESPINOSA', NULL, 'Sitio Cayutan, Brgy. Cagniog', 50, 50, '2025-07-17 00:01:24', '2026-03-10 22:32:48', 'active', 0, NULL, '+639128941731'),
-	(3, 0, 'Teacher', NULL, 'Teacher', NULL, 'Espina St', 50, 50, '2026-03-11 06:32:20', '2026-03-10 22:32:20', 'active', 0, NULL, '+639128941731'),
-	(4, 0, 'jhgfhj', NULL, 'fghjfghj', NULL, 'jfghjfghj', 50, 50, '2026-03-11 06:33:01', '2026-03-10 22:33:01', 'active', 0, NULL, '+639128941731');
-/*!40000 ALTER TABLE `teachers` ENABLE KEYS */;
+-- Dumping data for table tnhs-new.subjects: 0 rows
+DELETE FROM `subjects`;
+/*!40000 ALTER TABLE `subjects` DISABLE KEYS */;
+/*!40000 ALTER TABLE `subjects` ENABLE KEYS */;
 
 -- Dumping structure for table tnhs-new.users
 DROP TABLE IF EXISTS `users`;
@@ -1682,15 +1809,38 @@ CREATE TABLE IF NOT EXISTS `users` (
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_email_unique` (`email`)
-) ENGINE=MyISAM AUTO_INCREMENT=118 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.users: 2 rows
+-- Dumping data for table tnhs-new.users: 5 rows
 DELETE FROM `users`;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` (`id`, `filepath`, `qr_code`, `nfc_code`, `conn_id`, `user_type`, `SchoolID`, `name`, `email`, `email_verified_at`, `avatar`, `fcm_token`, `profile_pic`, `password`, `remember_token`, `google_id`, `verified`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
-	(117, 'users/students/117/27ba7860-4e92-474c-858f-bcd4c954f840.jpeg', '1000005', NULL, 12, 0, 1, 'ANTONIO JR PILOTON', 'apiloton@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$3Vkmls0ucLXeX1dLeWIsDuAs0NobwFTZB2MeNCaa8EXfCOMn9Vgp.', NULL, NULL, NULL, 116, 116, '2026-05-10 18:15:40', '2026-05-10 10:16:02', 'active', 0, NULL),
-	(116, '0', '0', NULL, 0, 0, 0, 'Antonio Jr Piloton', 'apiloton1@snsu.edu.ph', NULL, 'https://lh3.googleusercontent.com/a/ACg8ocICxZuvbmnED8B5vH9nAzZ75oj4EyyJOq04YOMO7jxaSaNGZqsv=s96-c', NULL, NULL, '$2y$12$fwU6Z.DRaBDsLdO1oSW3beDTk39BIKwLllPQz/28mTL7jYTP8K3v6', NULL, '117952079880321133596', 1, NULL, NULL, '2026-05-10 17:58:00', '2026-05-10 09:58:22', NULL, 0, NULL);
+	(1, '0', '0', '0025539332', 0, 0, 0, 'Antonio Jr Piloton', 'apiloton1@snsu.edu.ph', NULL, 'https://lh3.googleusercontent.com/a/ACg8ocICxZuvbmnED8B5vH9nAzZ75oj4EyyJOq04YOMO7jxaSaNGZqsv=s96-c', NULL, NULL, '$2y$12$UobPPzTvk6F2zXcwADdTVeFqfwcLZbMVVxJxjAwjw8XFEUFes9CzO', NULL, '117952079880321133596', 1, NULL, NULL, '2026-05-11 13:48:55', '2026-05-11 07:23:26', NULL, 0, NULL),
+	(8, '0', '1000002', NULL, 1, 0, 1, 'ljkl klhjkl', 'lklhjkl2@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$xP9vUyQknkUeJKa4Hbz1OO1xu.N9tSiRC2KGa7i0QU05q.nhmwW0O', NULL, NULL, NULL, 1, 1, '2026-05-11 17:10:40', '2026-05-11 09:10:40', 'active', 0, NULL),
+	(6, '0', '1000002', NULL, 1, 0, 1, 'ljkl klhjkl', 'lklhjkl@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$T.QtJQGOzXSaNaUmWBE3veO4NvE5TjLij0akdJIJXygCLIvROmsh2', NULL, NULL, NULL, 1, 1, '2026-05-11 17:10:10', '2026-05-11 09:10:10', 'active', 0, NULL),
+	(7, '0', '1000002', NULL, 1, 0, 1, 'ljkl klhjkl', 'lklhjkl1@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$a00JnxjCRRRlY.SRlOLpSuQwBz.aEvB8fhY5rcP1AOIX8fnhrvgbG', NULL, NULL, NULL, 1, 1, '2026-05-11 17:10:22', '2026-05-11 09:10:22', 'active', 0, NULL),
+	(5, '0', '1000001', '0027816452', 2, 0, 1, 'NORVEN ESPINOSA', 'nespinosa@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$fydEEqvyethowztRW1KoWenL8SJddOKA5.LYd/vK6wbZ.cwLeIJKy', NULL, NULL, NULL, 1, 1, '2026-05-11 16:29:47', '2026-05-11 09:10:59', 'active', 0, NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
+
+-- Dumping structure for table tnhs-new.year_level
+DROP TABLE IF EXISTS `year_level`;
+CREATE TABLE IF NOT EXISTS `year_level` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `YearLevel` int(11) NOT NULL DEFAULT '0',
+  `created_by` int(11) NOT NULL,
+  `updated_by` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- Dumping data for table tnhs-new.year_level: 0 rows
+DELETE FROM `year_level`;
+/*!40000 ALTER TABLE `year_level` DISABLE KEYS */;
+/*!40000 ALTER TABLE `year_level` ENABLE KEYS */;
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

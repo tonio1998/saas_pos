@@ -7,8 +7,11 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ScanController;
 use App\Http\Controllers\ScannerController;
+use App\Http\Controllers\SchoolYearController;
+use App\Http\Controllers\SemestersController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\StudentsController;
-use App\Http\Controllers\TeachersController;
+use App\Http\Controllers\EmployeesController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -49,6 +52,8 @@ Route::middleware('auth')->group(function(){
         Route::get('/{user}/change-photo', [UserController::class,'changePhoto'])->name('change-photo');
         Route::post('/upload', [UserController::class,'upload'])->name('upload');
         Route::get('/print-id/{id}', [UserController::class, 'printID'])->name('printID');
+        Route::get('/{id}/nfc', [UserController::class, 'nfc'])->name('nfc');
+        Route::post('/nfc/assign', [UserController::class, 'assignNfc'])->name('nfc.assign');
     });
 
     Route::prefix('logs')->name('logs.')->group(function(){
@@ -65,13 +70,13 @@ Route::middleware('auth')->group(function(){
         Route::get('/data', [StudentsController::class, 'ajaxData'])->name('data');
     });
 
-    Route::prefix('teachers')->name('teachers.')->group(function(){
-        Route::get('/index', [TeachersController::class, 'index'])->name('index');
-        Route::get('/edit/{id}', [TeachersController::class, 'edit'])->name('edit');
-        Route::put('/update/{id}', [TeachersController::class, 'update'])->name('update');
-        Route::get('/create', [TeachersController::class, 'create'])->name('create');
-        Route::post('/create', [TeachersController::class, 'store'])->name('store');
-        Route::get('/data', [TeachersController::class, 'ajaxData'])->name('data');
+    Route::prefix('employees')->name('employees.')->group(function(){
+        Route::get('/index', [EmployeesController::class, 'index'])->name('index');
+        Route::get('/edit/{id}', [EmployeesController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [EmployeesController::class, 'update'])->name('update');
+        Route::get('/create', [EmployeesController::class, 'create'])->name('create');
+        Route::post('/create', [EmployeesController::class, 'store'])->name('store');
+        Route::get('/data', [EmployeesController::class, 'ajaxData'])->name('data');
     });
 
     Route::prefix('parents')->name('parents.')->group(function(){
@@ -105,13 +110,39 @@ Route::middleware('auth')->group(function(){
         Route::get('/data', [RoleController::class, 'ajaxData'])->name('data');
     });
 
+    Route::prefix('settings')->name('settings.')->group(function(){
+        Route::get('', [SettingsController::class, 'index'])->name('index');
+        Route::post('', [SettingsController::class, 'store'])->name('store');
+        Route::get('/edit/{id}', [SettingsController::class, 'edit'])->name('edit');
+        Route::post('/store', [SettingsController::class, 'store'])->name('store');
+        Route::get('/data', [SettingsController::class, 'ajaxData'])->name('data');
+    });
+
+    Route::prefix('school-years')->name('school_years.')->group(function(){
+        Route::get('/', [SchoolYearController::class, 'index'])->name('index');
+        Route::get('/edit/{id}', [SchoolYearController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [SchoolYearController::class, 'update'])->name('update');
+        Route::get('/create', [SchoolYearController::class, 'create'])->name('create');
+        Route::post('/create', [SchoolYearController::class, 'store'])->name('store');
+        Route::get('/data', [SchoolYearController::class, 'ajaxData'])->name('data');
+    });
+
+    Route::prefix('semesters')->name('semesters.')->group(function(){
+        Route::get('/', [SemestersController::class, 'index'])->name('index');
+        Route::get('/edit/{id}', [SemestersController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [SemestersController::class, 'update'])->name('update');
+        Route::get('/create', [SemestersController::class, 'create'])->name('create');
+        Route::post('/create', [SemestersController::class, 'store'])->name('store');
+        Route::get('/data', [SemestersController::class, 'ajaxData'])->name('data');
+    });
+
     Route::get('/reports', fn() => view('pages.reports.index'));
-    Route::get('/settings', fn() => view('pages.settings.index'));
 
     Route::prefix('select2')->name('select2.')->group(function(){
         Route::get('roles/search',[RoleController::class,'search'])->name('roles');
         Route::get('users/search',[UserController::class,'users_search'])->name('users');
         Route::get('guardians/search',[ParentsController::class,'parents_search'])->name('guardians');
+        Route::get('employees/search',[EmployeesController::class,'employees_search'])->name('employees');
     });
 
 });
