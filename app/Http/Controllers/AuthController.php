@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
+use Spatie\Permission\Models\Role;
 
 class AuthController extends Controller
 {
-
     public function showLogin()
     {
         return view('auth.login');
@@ -22,56 +24,46 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-
         $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required'
+            'email' => ['required', 'email'],
+            'password' => ['required'],
         ]);
 
-        if(Auth::attempt($credentials))
-        {
-            $request->session()->regenerate();
-            return redirect('/');
+        $credentials['email'] = strtolower($credentials['email']);
+
+        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+            return back()
+                ->withErrors([
+                    'email' => 'Invalid email or password.',
+                ])
+                ->withInput($request->only('email'));
         }
 
-        return back()->withErrors([
-            'email' => 'Invalid credentials'
-        ]);
+        $request->session()->regenerate();
 
+        return redirect()->intended(route('dashboard.dashboard'));
     }
 
     public function register(Request $request)
     {
         try {
-
             $data = $request->validate([
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-                'password' => ['required', 'min:6', 'confirmed'],
+                'password' => ['required', 'string', 'min:6', 'confirmed'],
             ]);
 
-            $email = strtolower($data['email']);
+            $email = strtolower(trim($data['email']));
 
             $user = User::create([
-                'name' => $data['name'],
+                'name' => trim($data['name']),
                 'email' => $email,
-                'password' => bcrypt($data['password']),
+                'password' => Hash::make($data['password']),
             ]);
 
-            $rolesConfig = config('google_roles');
+            $assignedRole = $this->resolveUserRole($email);
 
-            $assignedRole = 'guest';
-
-            if (is_array($rolesConfig)) {
-                foreach ($rolesConfig as $role => $emails) {
-                    if (in_array($email, array_map('strtolower', $emails))) {
-                        $assignedRole = $role;
-                        break;
-                    }
-                }
-            }
-
-            if (!\Spatie\Permission\Models\Role::where('name', $assignedRole)->exists()) {
+            if (!Role::where('name', $assignedRole)->exists()) {
                 throw new \Exception("Role '{$assignedRole}' does not exist.");
             }
 
@@ -84,37 +76,34 @@ class AuthController extends Controller
             $request->session()->regenerate();
 
             return redirect()->route('dashboard.dashboard');
-
         } catch (\Illuminate\Validation\ValidationException $e) {
 
-            return redirect()->back()
-                ->withErrors($e->validator)
-                ->withInput();
+            throw $e;
 
         } catch (\Throwable $e) {
 
-            \Log::error('Register error', [
+            Log::error('Register error', [
                 'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
-            return redirect()->back()
-                ->withErrors('Registration failed. Please try again.')
+            return back()
+                ->withErrors([
+                    'general' => 'Registration failed. Please try again.',
+                ])
                 ->withInput();
         }
     }
 
     public function logout(Request $request)
     {
-
         Auth::logout();
 
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
 
-        return redirect('/login');
-
+        return redirect()->route('login');
     }
 
     public function redirectToGoogle()
@@ -130,11 +119,14 @@ class AuthController extends Controller
             $email = strtolower($googleUser->getEmail());
 
             $user = User::firstOrCreate(
-                ['email' => $email],
+                [
+                    'email' => $email,
+                ],
                 [
                     'name' => $googleUser->getName(),
                     'google_id' => $googleUser->getId(),
-                    'password' => bcrypt(uniqid())
+                    'password' => Hash::make($email),
+                    'verified' => 1,
                 ]
             );
 
@@ -145,19 +137,11 @@ class AuthController extends Controller
                 'verified' => 1,
             ]);
 
-            $rolesConfig = config('google_roles');
-
-            $assignedRole = 'guest';
-
-            foreach ($rolesConfig as $role => $emails) {
-                if (in_array($email, array_map('strtolower', $emails))) {
-                    $assignedRole = $role;
-                    break;
-                }
-            }
+            $assignedRole = $this->resolveUserRole($email);
 
             if (!$user->roles()->exists()) {
-                if (!\Spatie\Permission\Models\Role::where('name', $assignedRole)->exists()) {
+
+                if (!Role::where('name', $assignedRole)->exists()) {
                     throw new \Exception("Role '{$assignedRole}' does not exist.");
                 }
 
@@ -166,13 +150,40 @@ class AuthController extends Controller
 
             Auth::login($user);
 
+            request()->session()->regenerate();
+
             return redirect()->route('dashboard');
 
         } catch (\Throwable $e) {
-            report($e);
-            dd($e);
-            return redirect()->route('login')->withErrors('Google login failed.');
+
+            Log::error('Google login error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return redirect()
+                ->route('login')
+                ->withErrors([
+                    'google' => 'Google login failed. Please try again.',
+                ]);
         }
     }
 
+    private function resolveUserRole(string $email): string
+    {
+        $rolesConfig = config('google_roles', []);
+
+        $email = strtolower($email);
+
+        foreach ($rolesConfig as $role => $emails) {
+
+            $emails = array_map('strtolower', (array) $emails);
+
+            if (in_array($email, $emails, true)) {
+                return $role;
+            }
+        }
+
+        return 'guest';
+    }
 }

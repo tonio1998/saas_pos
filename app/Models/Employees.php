@@ -6,12 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 use OwenIt\Auditing\Auditable;
-class Teachers extends Model implements AuditableContract
+class Employees extends Model implements AuditableContract
 {
     use SoftDeletes;
     use Auditable;
 
-    protected $table = 'teachers';
+    protected $table = 'employees';
 
     protected $fillable = [
         'UserID',
@@ -46,7 +46,7 @@ class Teachers extends Model implements AuditableContract
     public function teacherUser()
     {
         return $this->hasOne(User::class, 'conn_id', 'id')->whereHas('roles', function ($q) {
-            $q->where('name', 'teachers');
+            $q->where('name', 'employees');
         });
     }
 }

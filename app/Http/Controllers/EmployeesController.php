@@ -3,18 +3,36 @@
 namespace App\Http\Controllers;
 
 use App\Models\Parents;
-use App\Models\Teachers;
+use App\Models\Employees;
 use App\Models\User;
 use App\Traits\TCommonFunctions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class TeachersController extends Controller
+class EmployeesController extends Controller
 {
     use TCommonFunctions;
+
+    public function employees_search(Request $request)
+    {
+        $search = $request->search;
+        $employees = Employees::query()
+            ->when($search,function($q) use ($search){
+                $q->where('FirstName', 'like', "%{$search}%")
+                    ->orWhere('LastName', 'like', "%{$search}%");
+            })
+            ->limit(10)
+            ->get();
+        return $employees->map(function($employee){
+            return [
+                'id'=>$employee->id,
+                'text'=>$employee->FirstName.' '.$employee->LastName
+            ];
+        });
+    }
     public function index()
     {
-        return view('pages.teachers.index');
+        return view('pages.employees.index');
     }
 
     public function edit($id)
@@ -25,9 +43,9 @@ class TeachersController extends Controller
             abort(404);
         }
 
-        $teacher = Teachers::findOrFail($id);
+        $teacher = Employees::findOrFail($id);
 
-        return view('pages.teachers.create', compact('teacher'));
+        return view('pages.employees.create', compact('teacher'));
     }
 
     public function update(Request $request, $id)
@@ -42,7 +60,7 @@ class TeachersController extends Controller
 
         try {
 
-            $teacher = Teachers::findOrFail($id);
+            $teacher = Employees::findOrFail($id);
 
             $data = $request->validate([
                 'FirstName' => ['required','string','max:255'],
@@ -61,7 +79,7 @@ class TeachersController extends Controller
 
                 if ($user) {
 
-                    $roleName = 'teachers';
+                    $roleName = 'employees';
 
                     if (!$user->hasRole($roleName)) {
                         $user->assignRole($roleName);
@@ -77,7 +95,7 @@ class TeachersController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('teachers.index')
+                ->route('employees.index')
                 ->with('success','Teacher updated successfully');
 
         } catch (\Exception $e) {
@@ -90,7 +108,7 @@ class TeachersController extends Controller
 
     public function create()
     {
-        return view('pages.teachers.create');
+        return view('pages.employees.create');
     }
 
     public function store(Request $request)
@@ -102,6 +120,7 @@ class TeachersController extends Controller
             $data = $request->validate(
                 [
                     'FirstName' => ['required','string','max:255'],
+                    'MiddleName' => ['nullable','string','max:255'],
                     'LastName' => ['required','string','max:255'],
                     'Suffix' => ['nullable','string','max:255'],
                     'PhoneNumber' => ['required','regex:/^\+639\d{9}$/'],
@@ -110,7 +129,7 @@ class TeachersController extends Controller
                 ]
             );
 
-            $parent = new Parents();
+            $parent = new Employees();
             $parent->fill($data);
             $this->setCommonFields($parent);
             $parent->save();
@@ -121,7 +140,7 @@ class TeachersController extends Controller
 
                 if ($user) {
 
-                    $roleName = 'parent';
+                    $roleName = 'employees';
 
                     if (!$user->hasRole($roleName)) {
                         $user->assignRole($roleName);
@@ -135,8 +154,8 @@ class TeachersController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('parents.index')
-                ->with('success','Parent created successfully');
+                ->route('employees.index')
+                ->with('success','Teacher created successfully');
 
         } catch (\Exception $e) {
 
@@ -148,7 +167,7 @@ class TeachersController extends Controller
 
     public function ajaxData(Request $request)
     {
-        $query = Teachers::with(['createdBy', 'teacherUser']);
+        $query = Employees::with(['createdBy', 'teacherUser']);
 
         return datatables()
             ->eloquent($query)
@@ -157,26 +176,17 @@ class TeachersController extends Controller
                 if(auth()->user()->can('view users')) {
                     $menu .= '
                     <li>
-                        <a href="'.route('teachers.edit',encrypt($teacher->id)).'" class="dropdown-item">
+                        <a href="'.route('employees.edit',encrypt($teacher->id)).'" class="dropdown-item">
                             <i class="bi bi-pencil me-2"></i> Edit
                         </a>
                     </li>';
-                }
-
-                if(auth()->user()->can('view users')) {
-                    $menu .= '
-                        <li>
-                            <a href="" class="dropdown-item">
-                                <i class="bi bi-person-badge me-2"></i> Generate ID
-                            </a>
-                        </li>';
                 }
 
                 $menu .= '
                 <li>
                 <a href="javascript:void(0)"
                    class="dropdown-item btn-password"
-                   data-url="'.route('users.password',['teachers',$teacher->id,$teacher->UserID ?? 0]).'"
+                   data-url="'.route('users.password',['employees',$teacher->id,$teacher->UserID ?? 0]).'"
                    data-type="'.($teacher->teacherUser ? 'regenerate' : 'generate').'">
                    <i class="bi bi-key me-2"></i>
                    '.($teacher->teacherUser ? 'Update Password' : 'Generate Password').'
@@ -210,7 +220,7 @@ class TeachersController extends Controller
                 return $teacher->created_at->format('M d, Y h:i A');
             })
             ->addColumn('createdBy', function ($teacher) {
-                return $teacher->createdBy->name;
+                return $teacher->createdBy?->name;
             })
             ->rawColumns(['actions','students', 'name'])
             ->make(true);

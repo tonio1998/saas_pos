@@ -1,0 +1,246 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\SchoolSetting;
+use App\Models\Settings;
+use App\Traits\TCommonFunctions;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
+
+class SettingsController extends Controller
+{
+    use TCommonFunctions;
+
+    public function index()
+    {
+        $setting = Settings::with([
+            'principal',
+            'registrar'
+        ])->first();
+
+        return view('pages.settings.index', compact('setting'));
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'SchoolName' => ['required', 'string', 'max:255'],
+            'SchoolCode' => ['nullable', 'string', 'max:100'],
+
+            'EducationLevel' => [
+                'required',
+                Rule::in(['JHS', 'SHS', 'INTEGRATED'])
+            ],
+
+            'Region' => ['nullable', 'string', 'max:100'],
+            'Division' => ['nullable', 'string', 'max:100'],
+            'Address' => ['nullable', 'string'],
+
+            'ContactNumber' => [
+                'nullable',
+                'regex:/^\+639\d{9}$/'
+            ],
+
+            'EmailAddress' => [
+                'nullable',
+                'email',
+                'max:150'
+            ],
+
+            'PrincipalID' => [
+                'nullable',
+                'exists:employees,id'
+            ],
+
+            'RegistrarID' => [
+                'nullable',
+                'exists:employees,id'
+            ],
+
+            'OfficialTimeIn' => [
+                'nullable',
+                'date_format:H:i'
+            ],
+
+            'OfficialTimeOut' => [
+                'nullable',
+                'date_format:H:i'
+            ],
+
+            'LateGraceMinutes' => [
+                'nullable',
+                'integer',
+                'min:0'
+            ],
+
+            'ThemeColor' => [
+                'nullable',
+                'string',
+                'max:20'
+            ],
+
+            'Logo' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:2048'
+            ],
+        ]);
+
+        $validated['EnableNFC'] = $request->boolean('EnableNFC');
+        $validated['EnableQR'] = $request->boolean('EnableQR');
+        $validated['EnableOfflineAttendance'] = $request->boolean('EnableOfflineAttendance');
+
+        $setting = Settings::first();
+
+        if (!$setting) {
+
+            $setting = new Settings();
+
+            $this->setCommonFields($setting);
+        }
+
+        if ($request->hasFile('Logo')) {
+
+            if (
+                $setting->Logo &&
+                Storage::disk('public')->exists($setting->Logo)
+            ) {
+
+                Storage::disk('public')->delete($setting->Logo);
+            }
+
+            $validated['Logo'] = $request
+                ->file('Logo')
+                ->store('school/logo', 'public');
+        } else {
+
+            unset($validated['Logo']);
+        }
+
+        $setting->SchoolName = $validated['SchoolName'];
+        $setting->SchoolCode = $validated['SchoolCode'];
+        $setting->EducationLevel = $validated['EducationLevel'];
+        $setting->Region = $validated['Region'];
+        $setting->Division = $validated['Division'];
+        $setting->Address = $validated['Address'];
+        $setting->ContactNumber = $validated['ContactNumber'];
+        $setting->EmailAddress = $validated['EmailAddress'];
+
+        $setting->PrincipalID = $validated['PrincipalID'] ?? null;
+        $setting->RegistrarID = $validated['RegistrarID'] ?? null;
+
+        if (isset($validated['Logo'])) {
+
+            $setting->Logo = $validated['Logo'];
+        }
+
+        $setting->OfficialTimeIn = $validated['OfficialTimeIn'];
+        $setting->OfficialTimeOut = $validated['OfficialTimeOut'];
+        $setting->LateGraceMinutes = $validated['LateGraceMinutes'];
+
+        $setting->EnableNFC = $validated['EnableNFC'];
+        $setting->EnableQR = $validated['EnableQR'];
+        $setting->EnableOfflineAttendance = $validated['EnableOfflineAttendance'];
+
+        $setting->ThemeColor = $validated['ThemeColor'];
+
+        $setting->save();
+
+        Cache::forget('school_settings');
+
+        return redirect()
+            ->route('settings.index')
+            ->with(
+                'success',
+                'School settings saved successfully.'
+            );
+    }
+
+    public function update(Request $request, SchoolSetting $settings)
+    {
+        $validated = $request->validate([
+            'SchoolName' => ['required', 'string', 'max:255'],
+            'SchoolCode' => ['nullable', 'string', 'max:100'],
+            'EducationLevel' => [
+                'required',
+                Rule::in(['JHS', 'SHS', 'INTEGRATED'])
+            ],
+
+            'Region' => ['nullable', 'string', 'max:100'],
+            'Division' => ['nullable', 'string', 'max:100'],
+            'Address' => ['nullable', 'string'],
+
+            'ContactNumber' => [
+                'nullable',
+                'regex:/^\+639\d{9}$/'
+            ],
+
+            'EmailAddress' => [
+                'nullable',
+                'email',
+                'max:150'
+            ],
+
+            'PrincipalName' => ['nullable', 'string', 'max:255'],
+            'RegistrarName' => ['nullable', 'string', 'max:255'],
+
+            'OfficialTimeIn' => ['nullable', 'date_format:H:i'],
+            'OfficialTimeOut' => ['nullable', 'date_format:H:i'],
+
+            'LateGraceMinutes' => ['nullable', 'integer', 'min:0'],
+
+            'ThemeColor' => ['nullable', 'string', 'max:20'],
+
+            'Logo' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:2048'
+            ],
+        ]);
+
+        $validated['EnableNFC'] = $request->boolean('EnableNFC');
+        $validated['EnableQR'] = $request->boolean('EnableQR');
+        $validated['EnableOfflineAttendance'] = $request->boolean('EnableOfflineAttendance');
+
+        if ($request->hasFile('Logo')) {
+
+            if ($settings->Logo && Storage::disk('public')->exists($settings->Logo)) {
+
+                Storage::disk('public')->delete($settings->Logo);
+            }
+
+            $validated['Logo'] = $request
+                ->file('Logo')
+                ->store('school/logo', 'public');
+        }
+
+        $settings->update($validated);
+
+        Cache::forget('school_settings');
+
+        return redirect()
+            ->route('settings.index')
+            ->with('success', 'School settings updated successfully.');
+    }
+
+    public function destroy(SchoolSetting $settings)
+    {
+        if ($settings->Logo && Storage::disk('public')->exists($settings->Logo)) {
+
+            Storage::disk('public')->delete($settings->Logo);
+        }
+
+        $settings->delete();
+
+        Cache::forget('school_settings');
+
+        return redirect()
+            ->route('settings.index')
+            ->with('success', 'School settings deleted successfully.');
+    }
+}

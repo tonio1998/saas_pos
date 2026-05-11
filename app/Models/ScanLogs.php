@@ -16,7 +16,28 @@ class ScanLogs extends Model implements AuditableContract
         'Mode',
         'lat',
         'VerificationCode',
-        'lng'
+        'created_by',
+        'updated_by',
+        'created_at',
+        'updated_at',
+        'status',
+        'archived',
+        'time',
+        'lat',
+        'lng',
+        'code',
+        'name',
+        'role',
+        'photo',
+        'time',
+        'lat',
+        'lng',
+        'direction',
+        'attendance_status',
+        'official_time',
+        'allowed_until',
+        'gate_name',
+        'scan_type'
     ];
 
     public function user(){

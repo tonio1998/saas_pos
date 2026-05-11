@@ -75,12 +75,12 @@
                 Continue with Google
             </a>
 
-            <div class="auth-footer">
-                <span>Don’t have an account?</span>
-                <a href="{{ route('register') }}" class="auth-link">
-                    Sign up
-                </a>
-            </div>
+{{--            <div class="auth-footer">--}}
+{{--                <span>Don’t have an account?</span>--}}
+{{--                <a href="{{ route('register') }}" class="auth-link">--}}
+{{--                    Sign up--}}
+{{--                </a>--}}
+{{--            </div>--}}
 
         </div>
 

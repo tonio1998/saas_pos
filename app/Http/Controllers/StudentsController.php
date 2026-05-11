@@ -166,7 +166,6 @@ class StudentsController extends Controller
                 ->with('success','Student created successfully');
 
         } catch (\Exception $e) {
-            dd($e->getMessage());
             DB::rollBack();
 
             return back()->withErrors($e->getMessage())->withInput();
@@ -175,98 +174,214 @@ class StudentsController extends Controller
 
     public function ajaxData(Request $request)
     {
-        $query = Students::with(['createdBy', 'guardian', 'studentUser']);
+        $query = Students::with([
+            'createdBy',
+            'guardian',
+            'studentUser'
+        ]);
 
         return datatables()
             ->eloquent($query)
+
             ->addColumn('actions', function ($student) {
 
-                $menu = [];
+                $editUrl = route(
+                    'students.edit',
+                    encrypt($student->id)
+                );
 
-                $menu[] = '
-                <li>
-                    <a href="'.route('students.edit',encrypt($student->id)).'" class="dropdown-item">
-                        <i class="bi bi-pencil me-2"></i> Edit
-                    </a>
-                </li>';
+                $showIdUrl = route(
+                    'users.printID',
+                    encrypt($student->UserID ?? 0)
+                );
 
-                $menu[] = '
-                <li>
-                    <a href="'.route('users.printID',encrypt($student->UserID ?? 0)).'" class="dropdown-item">
-                        <i class="bi bi-eye me-2"></i> Show ID
-                    </a>
-                </li>';
+                $changePhotoUrl = route(
+                    'users.change-photo',
+                    [encrypt($student->UserID ?? 0), 'q=students']
+                );
 
-//                route('users.change-photo',[encrypt($user->id), 'q=students'])
+                $passwordUrl = route(
+                    'users.password',
+                    ['students', $student->id, $student->UserID ?? 0]
+                );
 
-                $menu[] = '
-                <li>
-                    <a href="'.route('users.change-photo',[encrypt($student->UserID ?? 0), 'q=students']).'" class="dropdown-item">
-                        <i class="bi bi-photo me-2"></i> Change Photo
-                    </a>
-                </li>';
+                $passwordType = $student->studentUser
+                    ? 'regenerate'
+                    : 'generate';
 
+                $passwordLabel = $student->studentUser
+                    ? 'Update Password'
+                    : 'Generate Password';
 
-                $menu[] = '
-                <li>
-                    <a href="javascript:void(0)"
-                       class="dropdown-item btn-password"
-                       data-url="'.route('users.password',['students',$student->id,$student->UserID ?? 0]).'"
-                       data-type="'.($student->studentUser ? 'regenerate' : 'generate').'">
-                       <i class="bi bi-key me-2"></i>
-                       '.($student->studentUser ? 'Update Password' : 'Generate Password').'
-                    </a>
-                </li>';
+                $modalId = 'studentActionModal' . $student->id;
 
-
-                if(empty($menu)) return '';
-
-                return '
-                <div class="dropdown">
-                    <button class="btn btn-soft-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                $button = '
+                    <button
+                        class="btn btn-soft-primary btn-sm"
+                        type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#' . $modalId . '"
+                    >
+                        <i class="bi bi-gear"></i>
                         Actions
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        '.implode('', $menu).'
-                    </ul>
-                </div>';
+                ';
 
+                            $modal = '
+                    <div
+                        class="modal fade"
+                        id="' . $modalId . '"
+                        tabindex="-1"
+                        aria-hidden="true"
+                    >
+                        <div class="modal-dialog modal-dialog-centered modal-sm">
+                            <div class="modal-content border-0 shadow">
+
+                                <div class="modal-header">
+                                    <h5 class="modal-title">
+                                        Student Actions
+                                    </h5>
+
+                                    <button
+                                        type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"
+                                        aria-label="Close"
+                                    ></button>
+                                </div>
+
+                                <div class="modal-body p-2">
+
+                                    <div class="d-grid gap-2">
+
+                                        <a
+                                            href="' . $editUrl . '"
+                                            class="btn btn-light text-start"
+                                        >
+                                            <i class="bi bi-pencil me-2 text-primary"></i>
+                                            Edit Student
+                                        </a>
+
+                                        <a
+                                            href="' . $showIdUrl . '"
+                                            class="btn btn-light text-start"
+                                        >
+                                            <i class="bi bi-eye me-2 text-success"></i>
+                                            Show ID
+                                        </a>
+
+                                        <a
+                                            href="' . $changePhotoUrl . '"
+                                            class="btn btn-light text-start"
+                                        >
+                                            <i class="bi bi-photo me-2 text-warning"></i>
+                                            Change Photo
+                                        </a>
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-light text-start btn-password"
+                                            data-url="' . $passwordUrl . '"
+                                            data-type="' . $passwordType . '"
+                                        >
+                                            <i class="bi bi-key me-2 text-danger"></i>
+                                            ' . $passwordLabel . '
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                ';
+
+                            return '
+                    <div class="text-center">
+                        ' . $button . '
+                        ' . $modal . '
+                    </div>
+                ';
             })
+
             ->addColumn('name', function ($student) {
-                $a = "<div class='fw-bold'>".$student->FirstName . ' ' . $student->LastName."</div>";
-                if(isset($student->guardian)){
-                    $a .= "<div class='text-muted'>Parent: ".$student->guardian->FirstName.' '.$student->guardian->LastName."</div>";
+
+                $name = '
+                <div class="fw-semibold">
+                    ' . e($student->FirstName . ' ' . $student->LastName) . '
+                </div>
+            ';
+
+                $guardian = '';
+
+                if ($student->guardian) {
+
+                    $guardian = '
+                    <div class="text-muted small">
+                        Parent:
+                        ' . e(
+                            $student->guardian->FirstName . ' ' .
+                            $student->guardian->LastName
+                        ) . '
+                    </div>
+                ';
                 }
-                return $a;
+
+                return $name . $guardian;
             })
+
             ->addColumn('image', function ($student) {
-                $src = $student->studentUser ? asset('storage/'.$student->studentUser->filepath) : url('//images/logo.png');
-//                return $src;
-                return '<img
-                src="'.$src.'"
-                onerror="this.src=\''.url('/images/avatar.png').'\'"
-                style="width:40px;height:40px;border-radius:100px;object-fit:cover;"
-            >';
+
+                $src = $student->studentUser?->filepath
+                    ? asset('storage/' . $student->studentUser->filepath)
+                    : asset('images/avatar.png');
+
+                return '
+                <img
+                    src="' . $src . '"
+                    onerror="this.src=\'' . asset('images/avatar.png') . '\'"
+                    style="
+                        width:40px;
+                        height:40px;
+                        border-radius:100px;
+                        object-fit:cover;
+                    "
+                >
+            ';
             })
+
             ->addColumn('lrn', function ($student) {
-                return $student->LRN;
+                return e($student->LRN);
             })
+
             ->addColumn('phone_number', function ($student) {
-                return $student->PhoneNumber;
+                return e($student->PhoneNumber);
             })
+
             ->addColumn('section', function ($student) {
-                return $student->Section;
+                return e($student->Section);
             })
+
             ->addColumn('year', function ($student) {
-                return $student->YearLevel;
+                return e($student->YearLevel);
             })
+
             ->editColumn('created_at', function ($student) {
-                return $student->created_at->format('M d, Y h:i A');
+                return optional($student->created_at)
+                    ?->format('M d, Y h:i A');
             })
+
             ->addColumn('createdBy', function ($student) {
-                return $student->createdBy->name;
+                return e($student->createdBy?->name ?? '');
             })
-            ->rawColumns(['actions','image', 'name'])
+
+            ->rawColumns([
+                'actions',
+                'image',
+                'name'
+            ])
+
             ->make(true);
     }
 }

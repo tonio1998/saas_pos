@@ -73,15 +73,15 @@
         <li class="sidebar-item">
             <a class="sidebar-link" data-bs-toggle="collapse" href="#teacherMenu">
                 <i class="bi bi-person-badge sidebar-icon"></i>
-                <span>Teacher Management</span>
+                <span>Employee Management</span>
                 <i class="bi bi-chevron-down dropdown-icon"></i>
             </a>
             <div class="collapse sidebar-dropdown" id="teacherMenu">
-                <a href="{{ route('teachers.create') }}" class="sidebar-sublink">
+                <a href="{{ route('employees.create') }}" class="sidebar-sublink">
                     <i class="bi bi-person-plus sidebar-subicon"></i>
-                    Add Teacher
+                    Add Employee
                 </a>
-                <a href="{{ route('teachers.index') }}" class="sidebar-sublink">
+                <a href="{{ route('employees.index') }}" class="sidebar-sublink">
                     <i class="bi bi-person-vcard sidebar-subicon"></i>
                     Masterlist
                 </a>
@@ -111,7 +111,35 @@
         </li>
 
         <li class="sidebar-item">
-            <a class="sidebar-link d-flex align-items-center justify-content-between" href="#">
+            <a class="sidebar-link" data-bs-toggle="collapse" href="#schoolYearMenu">
+                <i class="bi bi-calendar-week sidebar-icon"></i>
+                <span>School Year Management</span>
+                <i class="bi bi-chevron-down dropdown-icon"></i>
+            </a>
+            <div class="collapse sidebar-dropdown" id="schoolYearMenu">
+                <a href="{{ route('school_years.index') }}" class="sidebar-sublink">
+                    <i class="bi bi-calendar-week sidebar-subicon"></i>
+                    Masterlist
+                </a>
+            </div>
+        </li>
+
+        <li class="sidebar-item">
+            <a class="sidebar-link" data-bs-toggle="collapse" href="#SemesterMenu">
+                <i class="bi bi-calendar-week sidebar-icon"></i>
+                <span>Semester Management</span>
+                <i class="bi bi-chevron-down dropdown-icon"></i>
+            </a>
+            <div class="collapse sidebar-dropdown" id="SemesterMenu">
+                <a href="{{ route('semesters.index') }}" class="sidebar-sublink">
+                    <i class="bi bi-calendar-week sidebar-subicon"></i>
+                    Masterlist
+                </a>
+            </div>
+        </li>
+
+        <li class="sidebar-item">
+            <a class="sidebar-link d-flex align-items-center justify-content-between">
                 <span class="d-flex align-items-center gap-2">
                     <i class="bi bi-bar-chart sidebar-icon"></i>
                     <span>Reports</span>
@@ -121,7 +149,7 @@
         </li>
 
         <li class="sidebar-item">
-            <a class="sidebar-link d-flex align-items-center justify-content-between" href="#">
+            <a class="sidebar-link d-flex align-items-center justify-content-between" href="{{ route('settings.index') }}">
                 <span class="d-flex align-items-center gap-2">
                     <i class="bi bi-gear sidebar-icon"></i>
                     <span>Settings</span>
