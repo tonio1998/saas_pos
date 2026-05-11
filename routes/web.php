@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GradeLevelController;
 use App\Http\Controllers\LogsController;
 use App\Http\Controllers\ParentsController;
 use App\Http\Controllers\PermissionController;
@@ -134,6 +135,15 @@ Route::middleware('auth')->group(function(){
         Route::get('/create', [SemestersController::class, 'create'])->name('create');
         Route::post('/create', [SemestersController::class, 'store'])->name('store');
         Route::get('/data', [SemestersController::class, 'ajaxData'])->name('data');
+    });
+
+    Route::prefix('grade-levels')->name('grade-levels.')->group(function(){
+        Route::get('/', [GradeLevelController::class, 'index'])->name('index');
+        Route::get('/edit/{id}', [GradeLevelController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [GradeLevelController::class, 'update'])->name('update');
+        Route::get('/create', [GradeLevelController::class, 'create'])->name('create');
+        Route::post('/create', [GradeLevelController::class, 'store'])->name('store');
+        Route::get('/data', [GradeLevelController::class, 'ajaxData'])->name('data');
     });
 
     Route::get('/reports', fn() => view('pages.reports.index'));
