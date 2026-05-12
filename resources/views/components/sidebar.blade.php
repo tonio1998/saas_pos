@@ -110,47 +110,41 @@
             </div>
         </li>
 
-        <li class="sidebar-item">
-            <a class="sidebar-link" data-bs-toggle="collapse" href="#schoolYearMenu">
-                <i class="bi bi-calendar-week sidebar-icon"></i>
-                <span>School Year Management</span>
-                <i class="bi bi-chevron-down dropdown-icon"></i>
-            </a>
-            <div class="collapse sidebar-dropdown" id="schoolYearMenu">
-                <a href="{{ route('school_years.index') }}" class="sidebar-sublink">
-                    <i class="bi bi-calendar-week sidebar-subicon"></i>
-                    Masterlist
-                </a>
-            </div>
-        </li>
+{{--        <li class="sidebar-item">--}}
+{{--            <a class="sidebar-link" data-bs-toggle="collapse" href="#EnrollmentMenu">--}}
+{{--                <i class="bi bi-calendar-week sidebar-icon"></i>--}}
+{{--                <span>Enrollment Management</span>--}}
+{{--                <i class="bi bi-chevron-down dropdown-icon"></i>--}}
+{{--            </a>--}}
+{{--            <div class="collapse sidebar-dropdown" id="EnrollmentMenu">--}}
+{{--                <a href="{{ route('enrollments.index') }}" class="sidebar-sublink">--}}
+{{--                    <i class="bi bi-calendar-week sidebar-subicon"></i>--}}
+{{--                    Masterlist--}}
+{{--                </a>--}}
+{{--            </div>--}}
+{{--        </li>--}}
 
-        <li class="sidebar-item">
-            <a class="sidebar-link" data-bs-toggle="collapse" href="#SemesterMenu">
-                <i class="bi bi-calendar-week sidebar-icon"></i>
-                <span>Semester Management</span>
-                <i class="bi bi-chevron-down dropdown-icon"></i>
-            </a>
-            <div class="collapse sidebar-dropdown" id="SemesterMenu">
-                <a href="{{ route('semesters.index') }}" class="sidebar-sublink">
-                    <i class="bi bi-calendar-week sidebar-subicon"></i>
-                    Masterlist
-                </a>
-            </div>
-        </li>
-
-        <li class="sidebar-item">
-            <a class="sidebar-link" data-bs-toggle="collapse" href="#GradeLevelMenu">
-                <i class="bi bi-calendar-week sidebar-icon"></i>
-                <span>Grade Level Management</span>
-                <i class="bi bi-chevron-down dropdown-icon"></i>
-            </a>
-            <div class="collapse sidebar-dropdown" id="GradeLevelMenu">
-                <a href="{{ route('grade-levels.index') }}" class="sidebar-sublink">
-                    <i class="bi bi-calendar-week sidebar-subicon"></i>
-                    Masterlist
-                </a>
-            </div>
-        </li>
+{{--        <li class="sidebar-item">--}}
+{{--            <a class="sidebar-link" data-bs-toggle="collapse" href="#MngtMenu">--}}
+{{--                <i class="bi bi-person-lines-fill sidebar-icon"></i>--}}
+{{--                <span>Management</span>--}}
+{{--                <i class="bi bi-chevron-down dropdown-icon"></i>--}}
+{{--            </a>--}}
+{{--            <div class="collapse sidebar-dropdown" id="MngtMenu">--}}
+{{--                <a href="{{ route('classes.index') }}" class="sidebar-sublink">--}}
+{{--                    <i class="bi bi-person-lines-fill sidebar-subicon"></i>--}}
+{{--                    Classes Management--}}
+{{--                </a>--}}
+{{--                <a href="{{ route('strands.index') }}" class="sidebar-sublink">--}}
+{{--                    <i class="bi bi-person-lines-fill sidebar-subicon"></i>--}}
+{{--                    Strand Management--}}
+{{--                </a>--}}
+{{--                <a href="{{ route('grade-levels.index') }}" class="sidebar-sublink">--}}
+{{--                    <i class="bi bi-person-lines-fill sidebar-subicon"></i>--}}
+{{--                    Grade Level Management--}}
+{{--                </a>--}}
+{{--            </div>--}}
+{{--        </li>--}}
 
         <li class="sidebar-item">
             <a class="sidebar-link d-flex align-items-center justify-content-between">

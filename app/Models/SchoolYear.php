@@ -18,6 +18,9 @@ class SchoolYear extends Model
         'updated_at',
         'status',
         'archived',
+        'Semester',
+        'AYFrom',
+        'AYTo',
     ];
 
     public function createdBy()

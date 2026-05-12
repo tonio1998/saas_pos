@@ -20,7 +20,7 @@ class Employees extends Model implements AuditableContract
         'MiddleName',
         'LastName',
         'Suffix',
-        'Section',
+        'Classes',
         'Address',
         'YearLevel',
         'created_by',
@@ -48,5 +48,15 @@ class Employees extends Model implements AuditableContract
         return $this->hasOne(User::class, 'conn_id', 'id')->whereHas('roles', function ($q) {
             $q->where('name', 'employees');
         });
+    }
+
+    public function getFullNameAttribute()
+    {
+        return collect([
+            $this->FirstName,
+            $this->MiddleName,
+            $this->LastName,
+            $this->Suffix
+        ])->filter()->implode(' ');
     }
 }

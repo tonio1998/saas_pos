@@ -15,7 +15,6 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 -- Dumping structure for table tnhs-new.attendance_risk_scores
-DROP TABLE IF EXISTS `attendance_risk_scores`;
 CREATE TABLE IF NOT EXISTS `attendance_risk_scores` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `student_id` bigint(20) unsigned NOT NULL,
@@ -32,7 +31,6 @@ DELETE FROM `attendance_risk_scores`;
 /*!40000 ALTER TABLE `attendance_risk_scores` ENABLE KEYS */;
 
 -- Dumping structure for table tnhs-new.audits
-DROP TABLE IF EXISTS `audits`;
 CREATE TABLE IF NOT EXISTS `audits` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `user_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -51,9 +49,9 @@ CREATE TABLE IF NOT EXISTS `audits` (
   PRIMARY KEY (`id`),
   KEY `audits_auditable_type_auditable_id_index` (`auditable_type`,`auditable_id`),
   KEY `audits_user_id_user_type_index` (`user_id`,`user_type`)
-) ENGINE=InnoDB AUTO_INCREMENT=1336 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1341 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.audits: ~940 rows (approximately)
+-- Dumping data for table tnhs-new.audits: ~945 rows (approximately)
 DELETE FROM `audits`;
 INSERT INTO `audits` (`id`, `user_type`, `user_id`, `event`, `auditable_type`, `auditable_id`, `old_values`, `new_values`, `url`, `ip_address`, `user_agent`, `tags`, `created_at`, `updated_at`) VALUES
 	(396, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 50, '{"remember_token":null}', '{"remember_token":"LwskNOAXifbMFhMGmiGSgBrmtigOsqLN58o52bHavimosh5axVFYw7Nk5vbZ"}', 'http://tnhs.dev.com/login', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-07-24 19:14:20', '2025-07-24 19:14:20'),
@@ -995,10 +993,14 @@ INSERT INTO `audits` (`id`, `user_type`, `user_id`, `event`, `auditable_type`, `
 	(1332, 'App\\Models\\User', 1, 'created', 'App\\Models\\Parents', 1, '[]', '{"FirstName":"ANTONIO JR","MiddleName":"LUIB","LastName":"PILOTON","Suffix":null,"PhoneNumber":"+639128941731","Address":"Sitio Cayutan, Brgy. Cagniog","created_by":1,"updated_by":1,"status":"active","archived":0,"id":1}', 'http://saaskit.dev.com/parents/create', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 08:29:08', '2026-05-11 08:29:08'),
 	(1333, 'App\\Models\\User', 1, 'created', 'App\\Models\\Teachers', 2, '[]', '{"FirstName":"NORVEN","MiddleName":"OLACO","LastName":"ESPINOSA","Suffix":null,"PhoneNumber":"+639868273741","Address":"Sitio Cayutan, Brgy. Cagniog","created_by":1,"updated_by":1,"status":"active","archived":0,"id":2}', 'http://saaskit.dev.com/teachers/create', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 08:29:39', '2026-05-11 08:29:39'),
 	(1334, 'App\\Models\\User', 1, 'updated', 'App\\Models\\Teachers', 2, '{"UserID":0}', '{"UserID":5}', 'http://saaskit.dev.com/users/generate-password/teachers/2/0', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 08:29:47', '2026-05-11 08:29:47'),
-	(1335, 'App\\Models\\User', 1, 'updated', 'App\\Models\\Employees', 1, '{"UserID":0}', '{"UserID":8}', 'http://saaskit.dev.com/users/generate-password/employees/1/0', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 09:10:40', '2026-05-11 09:10:40');
+	(1335, 'App\\Models\\User', 1, 'updated', 'App\\Models\\Employees', 1, '{"UserID":0}', '{"UserID":8}', 'http://saaskit.dev.com/users/generate-password/employees/1/0', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-11 09:10:40', '2026-05-11 09:10:40'),
+	(1336, 'App\\Models\\User', 1, 'created', 'App\\Models\\Students', 1, '[]', '{"LRN":"545665445454","FirstName":"ANTONIO JR","MiddleName":"LUIB","LastName":"PILOTON","Suffix":null,"PhoneNumber":"+639128941731","YearLevel":"7","Section":"1A2","GuardianID":"1","Strand":"HUMSS","created_by":1,"updated_by":1,"status":"active","archived":0,"id":1}', 'http://saaskit.dev.com/students/create', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-12 09:41:31', '2026-05-12 09:41:31'),
+	(1337, 'App\\Models\\User', 1, 'created', 'App\\Models\\Students', 2, '[]', '{"LRN":"123456789123","FirstName":"MARY JANE","MiddleName":"LIBAY","LastName":"PILOTON","Suffix":null,"PhoneNumber":"+639868273741","GuardianID":"1","created_by":1,"updated_by":1,"status":"active","archived":0,"id":2}', 'http://saaskit.dev.com/students/create', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-12 10:19:52', '2026-05-12 10:19:52'),
+	(1338, 'App\\Models\\User', 1, 'updated', 'App\\Models\\Students', 1, '{"UserID":null}', '{"UserID":9}', 'http://saaskit.dev.com/users/generate-password/students/1/0', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-12 10:20:04', '2026-05-12 10:20:04'),
+	(1339, 'App\\Models\\User', 1, 'created', 'App\\Models\\Students', 3, '[]', '{"LRN":"154542121454","FirstName":"hjhfghjfghj","MiddleName":"hfgh","LastName":"Hambre","Suffix":null,"PhoneNumber":"+639128941731","GuardianID":"1","YearLevel":"8","Strand":"HUMSS","created_by":1,"updated_by":1,"status":"active","archived":0,"id":3}', 'http://saaskit.dev.com/students/create', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-12 11:39:14', '2026-05-12 11:39:14'),
+	(1340, 'App\\Models\\User', 1, 'updated', 'App\\Models\\Students', 2, '{"UserID":null}', '{"UserID":10}', 'http://saaskit.dev.com/users/generate-password/students/2/0', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-12 11:40:16', '2026-05-12 11:40:16');
 
 -- Dumping structure for table tnhs-new.cache
-DROP TABLE IF EXISTS `cache`;
 CREATE TABLE IF NOT EXISTS `cache` (
   `key` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `value` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -1006,14 +1008,15 @@ CREATE TABLE IF NOT EXISTS `cache` (
   PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.cache: ~2 rows (approximately)
+-- Dumping data for table tnhs-new.cache: ~4 rows (approximately)
 DELETE FROM `cache`;
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-	('safetrack-a-qr-nfc-based-student-monitoring-and-alert-system-cache-spatie.permission.cache', 'a:3:{s:5:"alias";a:5:{s:1:"a";s:2:"id";s:1:"b";s:4:"name";s:1:"c";s:7:"details";s:1:"d";s:10:"guard_name";s:1:"r";s:5:"roles";}s:11:"permissions";a:17:{i:0;a:5:{s:1:"a";i:6;s:1:"b";s:6:"scanQR";s:1:"c";s:16:"User can scan QR";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:1;a:5:{s:1:"a";i:7;s:1:"b";s:12:"manage users";s:1:"c";s:12:"manage users";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:2;a:5:{s:1:"a";i:8;s:1:"b";s:10:"view users";s:1:"c";s:10:"view users";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:3;a:5:{s:1:"a";i:9;s:1:"b";s:10:"view roles";s:1:"c";s:10:"view roles";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:4;a:5:{s:1:"a";i:10;s:1:"b";s:16:"view permissions";s:1:"c";s:16:"view permissions";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:5;a:5:{s:1:"a";i:11;s:1:"b";s:18:"teacher management";s:1:"c";s:18:"teacher management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:6;a:5:{s:1:"a";i:12;s:1:"b";s:11:"add teacher";s:1:"c";s:11:"add teacher";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:7;a:5:{s:1:"a";i:13;s:1:"b";s:13:"view teachers";s:1:"c";s:13:"view teachers";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:8;a:5:{s:1:"a";i:14;s:1:"b";s:19:"guardian management";s:1:"c";s:19:"guardian management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:9;a:5:{s:1:"a";i:15;s:1:"b";s:12:"add guardian";s:1:"c";s:12:"add guardian";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:10;a:5:{s:1:"a";i:16;s:1:"b";s:13:"view guardian";s:1:"c";s:13:"view guardian";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:11;a:5:{s:1:"a";i:17;s:1:"b";s:18:"student management";s:1:"c";s:18:"student management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:12;a:5:{s:1:"a";i:18;s:1:"b";s:11:"add student";s:1:"c";s:11:"add student";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:16;i:1;i:17;}}i:13;a:5:{s:1:"a";i:19;s:1:"b";s:14:"view residents";s:1:"c";s:14:"view residents";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:14;a:5:{s:1:"a";i:20;s:1:"b";s:15:"logs management";s:1:"c";s:15:"logs management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:15;a:5:{s:1:"a";i:21;s:1:"b";s:9:"view logs";s:1:"c";s:9:"view logs";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:16;a:5:{s:1:"a";i:22;s:1:"b";s:10:"my student";s:1:"c";s:10:"my student";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:16;i:1;i:17;}}}s:5:"roles";a:2:{i:0;a:4:{s:1:"a";i:17;s:1:"b";s:5:"admin";s:1:"c";s:5:"admin";s:1:"d";s:3:"web";}i:1;a:4:{s:1:"a";i:16;s:1:"b";s:8:"teachers";s:1:"c";s:8:"teachers";s:1:"d";s:3:"web";}}}', 1778566866),
-	('scanalert-a-qr-based-student-monitoring-and-alert-system-cache-spatie.permission.cache', 'a:3:{s:5:"alias";a:5:{s:1:"a";s:2:"id";s:1:"b";s:4:"name";s:1:"c";s:7:"details";s:1:"d";s:10:"guard_name";s:1:"r";s:5:"roles";}s:11:"permissions";a:17:{i:0;a:5:{s:1:"a";i:6;s:1:"b";s:6:"scanQR";s:1:"c";s:16:"User can scan QR";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:1;a:5:{s:1:"a";i:7;s:1:"b";s:12:"manage users";s:1:"c";s:12:"manage users";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:2;a:5:{s:1:"a";i:8;s:1:"b";s:10:"view users";s:1:"c";s:10:"view users";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:3;a:5:{s:1:"a";i:9;s:1:"b";s:10:"view roles";s:1:"c";s:10:"view roles";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:4;a:5:{s:1:"a";i:10;s:1:"b";s:16:"view permissions";s:1:"c";s:16:"view permissions";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:5;a:5:{s:1:"a";i:11;s:1:"b";s:18:"teacher management";s:1:"c";s:18:"teacher management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:6;a:5:{s:1:"a";i:12;s:1:"b";s:11:"add teacher";s:1:"c";s:11:"add teacher";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:7;a:5:{s:1:"a";i:13;s:1:"b";s:13:"view teachers";s:1:"c";s:13:"view teachers";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:8;a:5:{s:1:"a";i:14;s:1:"b";s:19:"guardian management";s:1:"c";s:19:"guardian management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:9;a:5:{s:1:"a";i:15;s:1:"b";s:12:"add guardian";s:1:"c";s:12:"add guardian";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:10;a:5:{s:1:"a";i:16;s:1:"b";s:13:"view guardian";s:1:"c";s:13:"view guardian";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:11;a:5:{s:1:"a";i:17;s:1:"b";s:18:"student management";s:1:"c";s:18:"student management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:12;a:5:{s:1:"a";i:18;s:1:"b";s:11:"add student";s:1:"c";s:11:"add student";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:16;i:1;i:17;}}i:13;a:5:{s:1:"a";i:19;s:1:"b";s:14:"view residents";s:1:"c";s:14:"view residents";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:14;a:5:{s:1:"a";i:20;s:1:"b";s:15:"logs management";s:1:"c";s:15:"logs management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:15;a:5:{s:1:"a";i:21;s:1:"b";s:9:"view logs";s:1:"c";s:9:"view logs";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:16;a:5:{s:1:"a";i:22;s:1:"b";s:10:"my student";s:1:"c";s:10:"my student";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:16;i:1;i:17;}}}s:5:"roles";a:2:{i:0;a:4:{s:1:"a";i:17;s:1:"b";s:5:"admin";s:1:"c";s:5:"admin";s:1:"d";s:3:"web";}i:1;a:4:{s:1:"a";i:16;s:1:"b";s:8:"teachers";s:1:"c";s:8:"teachers";s:1:"d";s:3:"web";}}}', 1778493560);
+	('safetrack-a-qr-nfc-based-student-monitoring-and-alert-system-cache-school_settings', 'O:19:"App\\Models\\Settings":33:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:8:"settings";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:27:{s:2:"id";i:1;s:10:"SchoolName";s:28:"TUBAJON NATIONAL HIGH SCHOOL";s:10:"SchoolCode";s:6:"304854";s:14:"EducationLevel";s:10:"INTEGRATED";s:6:"Region";s:6:"CARAGA";s:8:"Division";s:15:"Dinagat Islands";s:7:"Address";s:9:"Espina St";s:13:"ContactNumber";s:13:"+639128941731";s:12:"EmailAddress";s:19:"jhambre@ssct.edu.ph";s:11:"PrincipalID";i:2;s:11:"RegistrarID";i:1;s:4:"Logo";s:56:"school/logo/Ttr8dV4ihxwf4oBaXfBWN6U9LfTFwFQ3LRfPv8qH.jpg";s:14:"OfficialTimeIn";s:8:"07:00:00";s:15:"OfficialTimeOut";s:8:"17:00:00";s:16:"LateGraceMinutes";i:15;s:9:"EnableNFC";i:1;s:8:"EnableQR";i:1;s:23:"EnableOfflineAttendance";i:1;s:19:"CurrentSchoolYearID";i:3;s:10:"ThemeColor";s:7:"#0091ff";s:10:"created_by";i:1;s:10:"updated_by";i:1;s:10:"created_at";s:19:"2026-05-11 17:21:46";s:10:"updated_at";s:19:"2026-05-12 16:47:08";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:11:"\0*\0original";a:27:{s:2:"id";i:1;s:10:"SchoolName";s:28:"TUBAJON NATIONAL HIGH SCHOOL";s:10:"SchoolCode";s:6:"304854";s:14:"EducationLevel";s:10:"INTEGRATED";s:6:"Region";s:6:"CARAGA";s:8:"Division";s:15:"Dinagat Islands";s:7:"Address";s:9:"Espina St";s:13:"ContactNumber";s:13:"+639128941731";s:12:"EmailAddress";s:19:"jhambre@ssct.edu.ph";s:11:"PrincipalID";i:2;s:11:"RegistrarID";i:1;s:4:"Logo";s:56:"school/logo/Ttr8dV4ihxwf4oBaXfBWN6U9LfTFwFQ3LRfPv8qH.jpg";s:14:"OfficialTimeIn";s:8:"07:00:00";s:15:"OfficialTimeOut";s:8:"17:00:00";s:16:"LateGraceMinutes";i:15;s:9:"EnableNFC";i:1;s:8:"EnableQR";i:1;s:23:"EnableOfflineAttendance";i:1;s:19:"CurrentSchoolYearID";i:3;s:10:"ThemeColor";s:7:"#0091ff";s:10:"created_by";i:1;s:10:"updated_by";i:1;s:10:"created_at";s:19:"2026-05-11 17:21:46";s:10:"updated_at";s:19:"2026-05-12 16:47:08";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:5:{s:9:"EnableNFC";s:7:"boolean";s:8:"EnableQR";s:7:"boolean";s:23:"EnableOfflineAttendance";s:7:"boolean";s:14:"OfficialTimeIn";s:12:"datetime:H:i";s:15:"OfficialTimeOut";s:12:"datetime:H:i";}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:2:{s:9:"principal";O:20:"App\\Models\\Employees":41:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:9:"employees";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:15:{s:2:"id";i:2;s:6:"UserID";i:5;s:11:"PhoneNumber";s:13:"+639868273741";s:9:"FirstName";s:6:"NORVEN";s:10:"MiddleName";s:5:"OLACO";s:8:"LastName";s:8:"ESPINOSA";s:6:"Suffix";N;s:7:"Address";s:28:"Sitio Cayutan, Brgy. Cagniog";s:10:"created_by";i:1;s:10:"updated_by";i:1;s:10:"created_at";s:19:"2026-05-11 16:29:39";s:10:"updated_at";s:19:"2026-05-11 16:29:47";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:11:"\0*\0original";a:15:{s:2:"id";i:2;s:6:"UserID";i:5;s:11:"PhoneNumber";s:13:"+639868273741";s:9:"FirstName";s:6:"NORVEN";s:10:"MiddleName";s:5:"OLACO";s:8:"LastName";s:8:"ESPINOSA";s:6:"Suffix";N;s:7:"Address";s:28:"Sitio Cayutan, Brgy. Cagniog";s:10:"created_by";i:1;s:10:"updated_by";i:1;s:10:"created_at";s:19:"2026-05-11 16:29:39";s:10:"updated_at";s:19:"2026-05-11 16:29:47";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:1:{s:10:"deleted_at";s:8:"datetime";}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:0:{}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:15:{i:0;s:6:"UserID";i:1;s:11:"PhoneNumber";i:2;s:9:"FirstName";i:3;s:10:"MiddleName";i:4;s:8:"LastName";i:5;s:6:"Suffix";i:6;s:7:"Section";i:7;s:7:"Address";i:8;s:9:"YearLevel";i:9;s:10:"created_by";i:10;s:10:"updated_by";i:11;s:7:"Address";i:12;s:10:"created_at";i:13;s:6:"status";i:14;s:8:"archived";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}s:8:"\0*\0dates";a:3:{i:0;s:10:"deleted_at";i:1;s:10:"created_at";i:2;s:10:"updated_at";}s:16:"\0*\0forceDeleting";b:0;s:21:"\0*\0excludedAttributes";a:0:{}s:10:"auditEvent";N;s:14:"auditCustomOld";N;s:14:"auditCustomNew";N;s:13:"isCustomEvent";b:0;s:21:"preloadedResolverData";a:0:{}}s:9:"registrar";O:20:"App\\Models\\Employees":41:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:9:"employees";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:15:{s:2:"id";i:1;s:6:"UserID";i:8;s:11:"PhoneNumber";s:13:"+639868273741";s:9:"FirstName";s:4:"ljkl";s:10:"MiddleName";s:5:"jklhj";s:8:"LastName";s:6:"klhjkl";s:6:"Suffix";N;s:7:"Address";s:28:"Sitio Cayutan, Brgy. Cagniog";s:10:"created_by";i:1;s:10:"updated_by";i:1;s:10:"created_at";s:19:"2026-05-11 16:12:01";s:10:"updated_at";s:19:"2026-05-11 17:10:40";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:11:"\0*\0original";a:15:{s:2:"id";i:1;s:6:"UserID";i:8;s:11:"PhoneNumber";s:13:"+639868273741";s:9:"FirstName";s:4:"ljkl";s:10:"MiddleName";s:5:"jklhj";s:8:"LastName";s:6:"klhjkl";s:6:"Suffix";N;s:7:"Address";s:28:"Sitio Cayutan, Brgy. Cagniog";s:10:"created_by";i:1;s:10:"updated_by";i:1;s:10:"created_at";s:19:"2026-05-11 16:12:01";s:10:"updated_at";s:19:"2026-05-11 17:10:40";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:1:{s:10:"deleted_at";s:8:"datetime";}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:0:{}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:15:{i:0;s:6:"UserID";i:1;s:11:"PhoneNumber";i:2;s:9:"FirstName";i:3;s:10:"MiddleName";i:4;s:8:"LastName";i:5;s:6:"Suffix";i:6;s:7:"Section";i:7;s:7:"Address";i:8;s:9:"YearLevel";i:9;s:10:"created_by";i:10;s:10:"updated_by";i:11;s:7:"Address";i:12;s:10:"created_at";i:13;s:6:"status";i:14;s:8:"archived";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}s:8:"\0*\0dates";a:3:{i:0;s:10:"deleted_at";i:1;s:10:"created_at";i:2;s:10:"updated_at";}s:16:"\0*\0forceDeleting";b:0;s:21:"\0*\0excludedAttributes";a:0:{}s:10:"auditEvent";N;s:14:"auditCustomOld";N;s:14:"auditCustomNew";N;s:13:"isCustomEvent";b:0;s:21:"preloadedResolverData";a:0:{}}}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:19:{i:0;s:10:"SchoolName";i:1;s:10:"SchoolCode";i:2;s:14:"EducationLevel";i:3;s:6:"Region";i:4;s:8:"Division";i:5;s:7:"Address";i:6;s:13:"ContactNumber";i:7;s:12:"EmailAddress";i:8;s:11:"PrincipalID";i:9;s:11:"RegistrarID";i:10;s:4:"Logo";i:11;s:14:"OfficialTimeIn";i:12;s:15:"OfficialTimeOut";i:13;s:16:"LateGraceMinutes";i:14;s:9:"EnableNFC";i:15;s:8:"EnableQR";i:16;s:23:"EnableOfflineAttendance";i:17;s:19:"CurrentSchoolYearID";i:18;s:10:"ThemeColor";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}}', 2093935834),
+	('safetrack-a-qr-nfc-based-student-monitoring-and-alert-system-cache-school_years', 'O:39:"Illuminate\\Database\\Eloquent\\Collection":2:{s:8:"\0*\0items";a:4:{i:0;O:21:"App\\Models\\SchoolYear":33:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:12:"school_years";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:3:{s:2:"id";i:1;s:6:"AYFrom";s:4:"2026";s:4:"AYTo";s:4:"2027";}s:11:"\0*\0original";a:3:{s:2:"id";i:1;s:6:"AYFrom";s:4:"2026";s:4:"AYTo";s:4:"2027";}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:0:{}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:0:{}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:13:{i:0;s:10:"SchoolYear";i:1;s:9:"StartDate";i:2;s:7:"EndDate";i:3;s:8:"IsActive";i:4;s:10:"created_by";i:5;s:10:"updated_by";i:6;s:10:"created_at";i:7;s:10:"updated_at";i:8;s:6:"status";i:9;s:8:"archived";i:10;s:8:"Semester";i:11;s:6:"AYFrom";i:12;s:4:"AYTo";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}}i:1;O:21:"App\\Models\\SchoolYear":33:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:12:"school_years";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:3:{s:2:"id";i:2;s:6:"AYFrom";s:4:"2025";s:4:"AYTo";s:4:"2026";}s:11:"\0*\0original";a:3:{s:2:"id";i:2;s:6:"AYFrom";s:4:"2025";s:4:"AYTo";s:4:"2026";}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:0:{}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:0:{}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:13:{i:0;s:10:"SchoolYear";i:1;s:9:"StartDate";i:2;s:7:"EndDate";i:3;s:8:"IsActive";i:4;s:10:"created_by";i:5;s:10:"updated_by";i:6;s:10:"created_at";i:7;s:10:"updated_at";i:8;s:6:"status";i:9;s:8:"archived";i:10;s:8:"Semester";i:11;s:6:"AYFrom";i:12;s:4:"AYTo";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}}i:2;O:21:"App\\Models\\SchoolYear":33:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:12:"school_years";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:3:{s:2:"id";i:3;s:6:"AYFrom";s:4:"2024";s:4:"AYTo";s:4:"2025";}s:11:"\0*\0original";a:3:{s:2:"id";i:3;s:6:"AYFrom";s:4:"2024";s:4:"AYTo";s:4:"2025";}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:0:{}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:0:{}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:13:{i:0;s:10:"SchoolYear";i:1;s:9:"StartDate";i:2;s:7:"EndDate";i:3;s:8:"IsActive";i:4;s:10:"created_by";i:5;s:10:"updated_by";i:6;s:10:"created_at";i:7;s:10:"updated_at";i:8;s:6:"status";i:9;s:8:"archived";i:10;s:8:"Semester";i:11;s:6:"AYFrom";i:12;s:4:"AYTo";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}}i:3;O:21:"App\\Models\\SchoolYear":33:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:12:"school_years";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:3:{s:2:"id";i:4;s:6:"AYFrom";s:4:"2023";s:4:"AYTo";s:4:"2024";}s:11:"\0*\0original";a:3:{s:2:"id";i:4;s:6:"AYFrom";s:4:"2023";s:4:"AYTo";s:4:"2024";}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:0:{}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:0:{}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:13:{i:0;s:10:"SchoolYear";i:1;s:9:"StartDate";i:2;s:7:"EndDate";i:3;s:8:"IsActive";i:4;s:10:"created_by";i:5;s:10:"updated_by";i:6;s:10:"created_at";i:7;s:10:"updated_at";i:8;s:6:"status";i:9;s:8:"archived";i:10;s:8:"Semester";i:11;s:6:"AYFrom";i:12;s:4:"AYTo";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}}}s:28:"\0*\0escapeWhenCastingToString";b:0;}', 2093935834),
+	('safetrack-a-qr-nfc-based-student-monitoring-and-alert-system-cache-semesters', 'O:39:"Illuminate\\Database\\Eloquent\\Collection":2:{s:8:"\0*\0items";a:2:{i:0;O:20:"App\\Models\\Semesters":33:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:9:"semesters";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:3:{s:2:"id";i:1;s:12:"SemesterName";s:1:"1";s:13:"SemesterOrder";i:1;}s:11:"\0*\0original";a:3:{s:2:"id";i:1;s:12:"SemesterName";s:1:"1";s:13:"SemesterOrder";i:1;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:0:{}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:0:{}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:9:{i:0;s:12:"SemesterName";i:1;s:13:"SemesterOrder";i:2;s:8:"IsActive";i:3;s:10:"created_by";i:4;s:10:"updated_by";i:5;s:10:"created_at";i:6;s:10:"updated_at";i:7;s:6:"status";i:8;s:8:"archived";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}}i:1;O:20:"App\\Models\\Semesters":33:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:9:"semesters";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:3:{s:2:"id";i:2;s:12:"SemesterName";s:1:"2";s:13:"SemesterOrder";i:2;}s:11:"\0*\0original";a:3:{s:2:"id";i:2;s:12:"SemesterName";s:1:"2";s:13:"SemesterOrder";i:2;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:0:{}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:0:{}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:9:{i:0;s:12:"SemesterName";i:1;s:13:"SemesterOrder";i:2;s:8:"IsActive";i:3;s:10:"created_by";i:4;s:10:"updated_by";i:5;s:10:"created_at";i:6;s:10:"updated_at";i:7;s:6:"status";i:8;s:8:"archived";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}}}s:28:"\0*\0escapeWhenCastingToString";b:0;}', 2093935834),
+	('safetrack-a-qr-nfc-based-student-monitoring-and-alert-system-cache-spatie.permission.cache', 'a:3:{s:5:"alias";a:5:{s:1:"a";s:2:"id";s:1:"b";s:4:"name";s:1:"c";s:7:"details";s:1:"d";s:10:"guard_name";s:1:"r";s:5:"roles";}s:11:"permissions";a:17:{i:0;a:5:{s:1:"a";i:6;s:1:"b";s:6:"scanQR";s:1:"c";s:16:"User can scan QR";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:1;a:5:{s:1:"a";i:7;s:1:"b";s:12:"manage users";s:1:"c";s:12:"manage users";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:2;a:5:{s:1:"a";i:8;s:1:"b";s:10:"view users";s:1:"c";s:10:"view users";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:3;a:5:{s:1:"a";i:9;s:1:"b";s:10:"view roles";s:1:"c";s:10:"view roles";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:4;a:5:{s:1:"a";i:10;s:1:"b";s:16:"view permissions";s:1:"c";s:16:"view permissions";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:5;a:5:{s:1:"a";i:11;s:1:"b";s:18:"teacher management";s:1:"c";s:18:"teacher management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:6;a:5:{s:1:"a";i:12;s:1:"b";s:11:"add teacher";s:1:"c";s:11:"add teacher";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:7;a:5:{s:1:"a";i:13;s:1:"b";s:13:"view teachers";s:1:"c";s:13:"view teachers";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:8;a:5:{s:1:"a";i:14;s:1:"b";s:19:"guardian management";s:1:"c";s:19:"guardian management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:9;a:5:{s:1:"a";i:15;s:1:"b";s:12:"add guardian";s:1:"c";s:12:"add guardian";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:10;a:5:{s:1:"a";i:16;s:1:"b";s:13:"view guardian";s:1:"c";s:13:"view guardian";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:11;a:5:{s:1:"a";i:17;s:1:"b";s:18:"student management";s:1:"c";s:18:"student management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:12;a:5:{s:1:"a";i:18;s:1:"b";s:11:"add student";s:1:"c";s:11:"add student";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:16;i:1;i:17;}}i:13;a:5:{s:1:"a";i:19;s:1:"b";s:14:"view residents";s:1:"c";s:14:"view residents";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:14;a:5:{s:1:"a";i:20;s:1:"b";s:15:"logs management";s:1:"c";s:15:"logs management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:15;a:5:{s:1:"a";i:21;s:1:"b";s:9:"view logs";s:1:"c";s:9:"view logs";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:16;a:5:{s:1:"a";i:22;s:1:"b";s:10:"my student";s:1:"c";s:10:"my student";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:16;i:1;i:17;}}}s:5:"roles";a:2:{i:0;a:4:{s:1:"a";i:17;s:1:"b";s:5:"admin";s:1:"c";s:5:"admin";s:1:"d";s:3:"web";}i:1;a:4:{s:1:"a";i:16;s:1:"b";s:9:"employees";s:1:"c";s:9:"employees";s:1:"d";s:3:"web";}}}', 1778671911);
 
 -- Dumping structure for table tnhs-new.cache_locks
-DROP TABLE IF EXISTS `cache_locks`;
 CREATE TABLE IF NOT EXISTS `cache_locks` (
   `key` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `owner` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -1024,8 +1027,50 @@ CREATE TABLE IF NOT EXISTS `cache_locks` (
 -- Dumping data for table tnhs-new.cache_locks: ~0 rows (approximately)
 DELETE FROM `cache_locks`;
 
+-- Dumping structure for table tnhs-new.classes
+CREATE TABLE IF NOT EXISTS `classes` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `Semester` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `AYFrom` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `AYTo` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `GradeLevelID` bigint(20) unsigned NOT NULL,
+  `StrandID` bigint(20) unsigned DEFAULT NULL,
+  `AdviserID` bigint(20) unsigned DEFAULT NULL,
+  `SectionName` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Capacity` int(11) DEFAULT '50',
+  `Room` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `IsActive` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table tnhs-new.classes: ~16 rows (approximately)
+DELETE FROM `classes`;
+INSERT INTO `classes` (`id`, `Semester`, `AYFrom`, `AYTo`, `GradeLevelID`, `StrandID`, `AdviserID`, `SectionName`, `Capacity`, `Room`, `IsActive`, `created_at`, `updated_at`, `created_by`, `updated_by`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 2, 2025, 2026, 1, 0, 2, 'A', 50, 'EB101', 1, '2026-05-12 09:17:39', '2026-05-12 09:17:39', 1, 1, 'active', 0, NULL),
+	(2, 2, 2025, 2026, 1, 0, 1, 'B', 50, NULL, 1, '2026-05-12 09:19:55', '2026-05-12 09:19:55', 1, 1, 'active', 0, NULL),
+	(3, 2, 2025, 2026, 2, 0, 2, 'A', 50, NULL, 1, '2026-05-12 09:24:35', '2026-05-12 09:24:35', 1, 1, 'active', 0, NULL),
+	(4, 2, 2025, 2026, 2, 0, 2, 'B', 50, NULL, 1, '2026-05-12 09:24:44', '2026-05-12 09:24:44', 1, 1, 'active', 0, NULL),
+	(5, 2, 2025, 2026, 3, 0, 1, 'A', 50, NULL, 1, '2026-05-12 09:24:57', '2026-05-12 09:24:57', 1, 1, 'active', 0, NULL),
+	(6, 2, 2025, 2026, 3, 0, 2, 'B', 50, NULL, 1, '2026-05-12 09:25:04', '2026-05-12 09:25:04', 1, 1, 'active', 0, NULL),
+	(7, 2, 2025, 2026, 4, 0, 2, 'A', 50, NULL, 1, '2026-05-12 09:25:15', '2026-05-12 09:25:15', 1, 1, 'active', 0, NULL),
+	(8, 2, 2025, 2026, 4, 0, 2, 'B', 50, NULL, 1, '2026-05-12 09:25:24', '2026-05-12 09:25:24', 1, 1, 'active', 0, NULL),
+	(9, 2, 2025, 2026, 5, 1, 2, 'A', 50, NULL, 1, '2026-05-12 09:25:35', '2026-05-12 09:25:35', 1, 1, 'active', 0, NULL),
+	(10, 2, 2025, 2026, 5, 3, 2, 'A', 50, NULL, 1, '2026-05-12 09:26:16', '2026-05-12 09:26:16', 1, 1, 'active', 0, NULL),
+	(11, 2, 2025, 2026, 5, 6, 2, 'A', 50, NULL, 1, '2026-05-12 09:26:29', '2026-05-12 09:26:29', 1, 1, 'active', 0, NULL),
+	(12, 2, 2025, 2026, 6, 1, 2, 'A', 50, NULL, 1, '2026-05-12 09:26:39', '2026-05-12 09:26:39', 1, 1, 'active', 0, NULL),
+	(13, 2, 2025, 2026, 6, 6, 2, 'A', 50, NULL, 1, '2026-05-12 09:26:48', '2026-05-12 09:26:48', 1, 1, 'active', 0, NULL),
+	(14, 2, 2025, 2026, 6, 3, 1, 'A', 50, NULL, 1, '2026-05-12 09:26:57', '2026-05-12 09:26:57', 1, 1, 'active', 0, NULL),
+	(15, 1, 2026, 2027, 1, 0, 2, 'A', 50, NULL, 1, '2026-05-12 11:23:11', '2026-05-12 11:23:11', 1, 1, 'active', 0, NULL),
+	(16, 1, 2026, 2027, 1, 0, 1, 'B', 50, NULL, 1, '2026-05-12 11:23:25', '2026-05-12 11:23:25', 1, 1, 'active', 0, NULL);
+
 -- Dumping structure for table tnhs-new.class_schedules
-DROP TABLE IF EXISTS `class_schedules`;
 CREATE TABLE IF NOT EXISTS `class_schedules` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `SubjectID` bigint(20) NOT NULL,
@@ -1046,7 +1091,6 @@ DELETE FROM `class_schedules`;
 /*!40000 ALTER TABLE `class_schedules` ENABLE KEYS */;
 
 -- Dumping structure for table tnhs-new.employees
-DROP TABLE IF EXISTS `employees`;
 CREATE TABLE IF NOT EXISTS `employees` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `UserID` int(11) NOT NULL DEFAULT '0',
@@ -1075,29 +1119,34 @@ INSERT INTO `employees` (`id`, `UserID`, `PhoneNumber`, `FirstName`, `MiddleName
 /*!40000 ALTER TABLE `employees` ENABLE KEYS */;
 
 -- Dumping structure for table tnhs-new.enrollments
-DROP TABLE IF EXISTS `enrollments`;
 CREATE TABLE IF NOT EXISTS `enrollments` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `StudentID` bigint(20) NOT NULL,
-  `SchoolYearID` bigint(20) NOT NULL,
-  `GradeLevelID` bigint(20) NOT NULL,
-  `SemesterID` bigint(20) DEFAULT NULL,
-  `StrandID` bigint(20) DEFAULT NULL,
-  `SectionID` bigint(20) NOT NULL,
-  `EnrollmentStatus` enum('PENDING','ENROLLED','CANCELLED') DEFAULT 'PENDING',
-  `EnrollmentDate` datetime DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `created_by` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `StudentID` bigint(20) unsigned DEFAULT NULL,
+  `AYFrom` year(4) DEFAULT NULL,
+  `AYTo` year(4) DEFAULT NULL,
+  `Semester` tinyint(4) DEFAULT NULL,
+  `GradeLevelID` bigint(20) unsigned DEFAULT NULL,
+  `StrandID` bigint(20) unsigned DEFAULT NULL,
+  `ClassID` bigint(20) unsigned DEFAULT NULL,
+  `EnrollmentStatus` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT 'ENROLLED',
+  `EnrollmentDate` date DEFAULT NULL,
+  `Remarks` text COLLATE utf8mb4_unicode_ci,
+  `created_by` int(11) NOT NULL,
+  `updated_by` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_grade` (`GradeLevelID`),
+  KEY `idx_section` (`ClassID`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.enrollments: 0 rows
+-- Dumping data for table tnhs-new.enrollments: ~0 rows (approximately)
 DELETE FROM `enrollments`;
-/*!40000 ALTER TABLE `enrollments` DISABLE KEYS */;
-/*!40000 ALTER TABLE `enrollments` ENABLE KEYS */;
 
 -- Dumping structure for table tnhs-new.failed_jobs
-DROP TABLE IF EXISTS `failed_jobs`;
 CREATE TABLE IF NOT EXISTS `failed_jobs` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `uuid` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -1114,7 +1163,6 @@ CREATE TABLE IF NOT EXISTS `failed_jobs` (
 DELETE FROM `failed_jobs`;
 
 -- Dumping structure for table tnhs-new.grades
-DROP TABLE IF EXISTS `grades`;
 CREATE TABLE IF NOT EXISTS `grades` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `EnrollmentID` bigint(20) NOT NULL,
@@ -1136,7 +1184,6 @@ DELETE FROM `grades`;
 /*!40000 ALTER TABLE `grades` ENABLE KEYS */;
 
 -- Dumping structure for table tnhs-new.grade_levels
-DROP TABLE IF EXISTS `grade_levels`;
 CREATE TABLE IF NOT EXISTS `grade_levels` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `GradeLevel` varchar(50) DEFAULT NULL,
@@ -1153,7 +1200,7 @@ CREATE TABLE IF NOT EXISTS `grade_levels` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 
--- Dumping data for table tnhs-new.grade_levels: 0 rows
+-- Dumping data for table tnhs-new.grade_levels: 6 rows
 DELETE FROM `grade_levels`;
 /*!40000 ALTER TABLE `grade_levels` DISABLE KEYS */;
 INSERT INTO `grade_levels` (`id`, `GradeLevel`, `EducationLevel`, `HasSemester`, `IsActive`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
@@ -1166,7 +1213,6 @@ INSERT INTO `grade_levels` (`id`, `GradeLevel`, `EducationLevel`, `HasSemester`,
 /*!40000 ALTER TABLE `grade_levels` ENABLE KEYS */;
 
 -- Dumping structure for table tnhs-new.jobs
-DROP TABLE IF EXISTS `jobs`;
 CREATE TABLE IF NOT EXISTS `jobs` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `queue` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -1183,7 +1229,6 @@ CREATE TABLE IF NOT EXISTS `jobs` (
 DELETE FROM `jobs`;
 
 -- Dumping structure for table tnhs-new.job_batches
-DROP TABLE IF EXISTS `job_batches`;
 CREATE TABLE IF NOT EXISTS `job_batches` (
   `id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -1202,7 +1247,6 @@ CREATE TABLE IF NOT EXISTS `job_batches` (
 DELETE FROM `job_batches`;
 
 -- Dumping structure for table tnhs-new.migrations
-DROP TABLE IF EXISTS `migrations`;
 CREATE TABLE IF NOT EXISTS `migrations` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `migration` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -1214,7 +1258,6 @@ CREATE TABLE IF NOT EXISTS `migrations` (
 DELETE FROM `migrations`;
 
 -- Dumping structure for table tnhs-new.model_has_permissions
-DROP TABLE IF EXISTS `model_has_permissions`;
 CREATE TABLE IF NOT EXISTS `model_has_permissions` (
   `permission_id` bigint(20) unsigned NOT NULL,
   `model_type` varchar(125) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -1227,7 +1270,6 @@ CREATE TABLE IF NOT EXISTS `model_has_permissions` (
 DELETE FROM `model_has_permissions`;
 
 -- Dumping structure for table tnhs-new.model_has_roles
-DROP TABLE IF EXISTS `model_has_roles`;
 CREATE TABLE IF NOT EXISTS `model_has_roles` (
   `role_id` bigint(20) unsigned NOT NULL,
   `model_type` varchar(125) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -1236,7 +1278,7 @@ CREATE TABLE IF NOT EXISTS `model_has_roles` (
   KEY `model_has_roles_model_id_model_type_index` (`model_id`,`model_type`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.model_has_roles: ~75 rows (approximately)
+-- Dumping data for table tnhs-new.model_has_roles: ~77 rows (approximately)
 DELETE FROM `model_has_roles`;
 INSERT INTO `model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES
 	(17, 'App\\Models\\User', 1),
@@ -1244,6 +1286,8 @@ INSERT INTO `model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES
 	(14, 'App\\Models\\User', 4),
 	(16, 'App\\Models\\User', 5),
 	(16, 'App\\Models\\User', 8),
+	(14, 'App\\Models\\User', 9),
+	(14, 'App\\Models\\User', 10),
 	(17, 'App\\Models\\User', 50),
 	(14, 'App\\Models\\User', 51),
 	(14, 'App\\Models\\User', 52),
@@ -1316,7 +1360,6 @@ INSERT INTO `model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES
 	(15, 'App\\Models\\User', 119);
 
 -- Dumping structure for table tnhs-new.nfc_codes
-DROP TABLE IF EXISTS `nfc_codes`;
 CREATE TABLE IF NOT EXISTS `nfc_codes` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `UserID` int(11) DEFAULT NULL,
@@ -1329,17 +1372,18 @@ CREATE TABLE IF NOT EXISTS `nfc_codes` (
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
--- Dumping data for table tnhs-new.nfc_codes: 1 rows
+-- Dumping data for table tnhs-new.nfc_codes: 3 rows
 DELETE FROM `nfc_codes`;
 /*!40000 ALTER TABLE `nfc_codes` DISABLE KEYS */;
 INSERT INTO `nfc_codes` (`id`, `UserID`, `nf_codes`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
-	(1, 5, '0027816452', 1, 1, '2026-05-11 16:29:57', '2026-05-11 08:29:57', 'active', 0, NULL);
+	(1, 5, '0027816452', 1, 1, '2026-05-11 16:29:57', '2026-05-11 08:29:57', 'active', 0, NULL),
+	(2, 9, '0027619844', 1, 1, '2026-05-12 18:22:10', '2026-05-12 10:22:10', 'active', 0, NULL),
+	(3, 8, '0021529092', 1, 1, '2026-05-12 18:22:46', '2026-05-12 10:22:46', 'active', 0, NULL);
 /*!40000 ALTER TABLE `nfc_codes` ENABLE KEYS */;
 
 -- Dumping structure for table tnhs-new.parents
-DROP TABLE IF EXISTS `parents`;
 CREATE TABLE IF NOT EXISTS `parents` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `UserID` int(11) NOT NULL DEFAULT '0',
@@ -1365,7 +1409,6 @@ INSERT INTO `parents` (`id`, `UserID`, `FirstName`, `MiddleName`, `LastName`, `S
 	(1, 0, 'ANTONIO JR', 'LUIB', 'PILOTON', NULL, '+639128941731', 'Sitio Cayutan, Brgy. Cagniog', 1, 1, '2026-05-11 16:29:08', '2026-05-11 08:29:08', 'active', 0, NULL);
 
 -- Dumping structure for table tnhs-new.password_reset_tokens
-DROP TABLE IF EXISTS `password_reset_tokens`;
 CREATE TABLE IF NOT EXISTS `password_reset_tokens` (
   `email` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `token` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -1377,7 +1420,6 @@ CREATE TABLE IF NOT EXISTS `password_reset_tokens` (
 DELETE FROM `password_reset_tokens`;
 
 -- Dumping structure for table tnhs-new.permissions
-DROP TABLE IF EXISTS `permissions`;
 CREATE TABLE IF NOT EXISTS `permissions` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(125) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -1411,7 +1453,6 @@ INSERT INTO `permissions` (`id`, `name`, `details`, `guard_name`, `created_at`, 
 	(22, 'my student', 'my student', 'web', '2025-08-05 11:56:44', '2025-08-05 11:56:44');
 
 -- Dumping structure for table tnhs-new.personal_access_tokens
-DROP TABLE IF EXISTS `personal_access_tokens`;
 CREATE TABLE IF NOT EXISTS `personal_access_tokens` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `tokenable_type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -1472,7 +1513,6 @@ INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `n
 	(171, 'App\\Models\\User', 50, 'mobile', '3153871347e9c1649f672b13cf0c3cb5e1613b2d4b1f0e980244028d9a6e1fec', '["*"]', '2026-02-17 09:36:42', NULL, '2026-02-17 09:35:27', '2026-02-17 09:36:42');
 
 -- Dumping structure for table tnhs-new.qr_codes
-DROP TABLE IF EXISTS `qr_codes`;
 CREATE TABLE IF NOT EXISTS `qr_codes` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `prefix` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -1486,16 +1526,17 @@ CREATE TABLE IF NOT EXISTS `qr_codes` (
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.qr_codes: ~2 rows (approximately)
+-- Dumping data for table tnhs-new.qr_codes: ~4 rows (approximately)
 DELETE FROM `qr_codes`;
 INSERT INTO `qr_codes` (`id`, `prefix`, `UserID`, `last_number`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
 	(1, '1', NULL, 1, 0, 0, '2026-05-11 16:29:47', '2026-05-11 08:29:47', 'active', 0, NULL),
-	(4, '1', NULL, 2, 0, 0, '2026-05-11 17:10:40', '2026-05-11 09:10:40', 'active', 0, NULL);
+	(4, '1', NULL, 2, 0, 0, '2026-05-11 17:10:40', '2026-05-11 09:10:40', 'active', 0, NULL),
+	(5, '1', NULL, 3, 0, 0, '2026-05-12 18:20:04', '2026-05-12 10:20:04', 'active', 0, NULL),
+	(6, '1', NULL, 4, 0, 0, '2026-05-12 19:40:16', '2026-05-12 11:40:16', 'active', 0, NULL);
 
 -- Dumping structure for table tnhs-new.roles
-DROP TABLE IF EXISTS `roles`;
 CREATE TABLE IF NOT EXISTS `roles` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(125) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -1516,7 +1557,6 @@ INSERT INTO `roles` (`id`, `name`, `details`, `guard_name`, `created_at`, `updat
 	(17, 'admin', 'admin', 'web', '2025-07-16 15:56:12', '2025-07-16 15:56:12');
 
 -- Dumping structure for table tnhs-new.role_has_permissions
-DROP TABLE IF EXISTS `role_has_permissions`;
 CREATE TABLE IF NOT EXISTS `role_has_permissions` (
   `permission_id` bigint(20) unsigned NOT NULL,
   `role_id` bigint(20) unsigned NOT NULL,
@@ -1548,7 +1588,6 @@ INSERT INTO `role_has_permissions` (`permission_id`, `role_id`) VALUES
 	(22, 17);
 
 -- Dumping structure for table tnhs-new.scan_logs
-DROP TABLE IF EXISTS `scan_logs`;
 CREATE TABLE IF NOT EXISTS `scan_logs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `VerificationCode` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
@@ -1575,10 +1614,11 @@ CREATE TABLE IF NOT EXISTS `scan_logs` (
 DELETE FROM `scan_logs`;
 
 -- Dumping structure for table tnhs-new.school_years
-DROP TABLE IF EXISTS `school_years`;
 CREATE TABLE IF NOT EXISTS `school_years` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `SchoolYear` varchar(20) DEFAULT NULL,
+  `Semester` int(11) NOT NULL DEFAULT '0',
+  `AYFrom` year(4) DEFAULT NULL,
+  `AYTo` year(4) DEFAULT NULL,
   `StartDate` date DEFAULT NULL,
   `EndDate` date DEFAULT NULL,
   `IsActive` tinyint(1) DEFAULT '0',
@@ -1590,63 +1630,19 @@ CREATE TABLE IF NOT EXISTS `school_years` (
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
--- Dumping data for table tnhs-new.school_years: 2 rows
+-- Dumping data for table tnhs-new.school_years: 4 rows
 DELETE FROM `school_years`;
 /*!40000 ALTER TABLE `school_years` DISABLE KEYS */;
-INSERT INTO `school_years` (`id`, `SchoolYear`, `StartDate`, `EndDate`, `IsActive`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
-	(1, '2025-2026', '2026-06-15', '2027-03-31', 0, 1, 1, '2026-05-11 17:41:17', '2026-05-11 10:40:17', 'active', 0, NULL),
-	(2, '2026-2027', '2026-06-11', '2027-03-31', 1, 1, 1, '2026-05-11 18:40:17', '2026-05-11 10:40:17', 'active', 0, NULL);
+INSERT INTO `school_years` (`id`, `Semester`, `AYFrom`, `AYTo`, `StartDate`, `EndDate`, `IsActive`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 0, '2026', '2027', '2026-06-11', '2027-03-31', 1, 1, 1, '2026-05-12 16:45:46', '2026-05-12 08:49:57', 'active', 0, NULL),
+	(2, 0, '2025', '2026', '2026-06-15', '2026-08-22', 1, 1, 1, '2026-05-12 16:46:45', '2026-05-12 08:49:58', 'active', 0, NULL),
+	(3, 0, '2024', '2025', '2026-04-26', '2026-05-30', 1, 1, 1, '2026-05-12 16:47:08', '2026-05-12 08:47:08', 'active', 0, NULL),
+	(4, 0, '2023', '2024', '2026-04-26', '2026-05-30', 1, 1, 1, '2026-05-12 16:47:58', '2026-05-12 08:49:59', 'active', 0, NULL);
 /*!40000 ALTER TABLE `school_years` ENABLE KEYS */;
 
--- Dumping structure for table tnhs-new.sections
-DROP TABLE IF EXISTS `sections`;
-CREATE TABLE IF NOT EXISTS `sections` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `SchoolYearID` bigint(20) NOT NULL,
-  `GradeLevelID` bigint(20) NOT NULL,
-  `StrandID` bigint(20) DEFAULT NULL,
-  `SectionName` varchar(100) NOT NULL,
-  `AdviserID` bigint(20) DEFAULT NULL,
-  `Capacity` int(11) DEFAULT '50',
-  `created_at` timestamp NULL DEFAULT NULL,
-  `created_by` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
--- Dumping data for table tnhs-new.sections: 0 rows
-DELETE FROM `sections`;
-/*!40000 ALTER TABLE `sections` DISABLE KEYS */;
-/*!40000 ALTER TABLE `sections` ENABLE KEYS */;
-
--- Dumping structure for table tnhs-new.semesters
-DROP TABLE IF EXISTS `semesters`;
-CREATE TABLE IF NOT EXISTS `semesters` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `SemesterName` varchar(50) DEFAULT NULL,
-  `SemesterOrder` int(11) DEFAULT NULL,
-  `IsActive` tinyint(1) DEFAULT '1',
-  `created_by` int(11) NOT NULL,
-  `updated_by` int(11) NOT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `archived` tinyint(4) NOT NULL DEFAULT '0',
-  `deleted_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
-
--- Dumping data for table tnhs-new.semesters: 2 rows
-DELETE FROM `semesters`;
-/*!40000 ALTER TABLE `semesters` DISABLE KEYS */;
-INSERT INTO `semesters` (`id`, `SemesterName`, `SemesterOrder`, `IsActive`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
-	(1, '1', 1, 0, 1, 1, '2026-05-11 18:53:07', '2026-05-11 10:53:14', 'active', 0, NULL),
-	(2, '2', 2, 1, 1, 1, '2026-05-11 18:53:14', '2026-05-11 10:53:14', 'active', 0, NULL);
-/*!40000 ALTER TABLE `semesters` ENABLE KEYS */;
-
 -- Dumping structure for table tnhs-new.sessions
-DROP TABLE IF EXISTS `sessions`;
 CREATE TABLE IF NOT EXISTS `sessions` (
   `id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `user_id` bigint(20) unsigned DEFAULT NULL,
@@ -1659,13 +1655,13 @@ CREATE TABLE IF NOT EXISTS `sessions` (
   KEY `sessions_last_activity_index` (`last_activity`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.sessions: ~1 rows (approximately)
+-- Dumping data for table tnhs-new.sessions: ~2 rows (approximately)
 DELETE FROM `sessions`;
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-	('zj80k24RDCNjwGnAtO2umdoAt7wDfqLhASjZoI2S', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiRUxtWnNGN3YxRDB1ZGRwTjRWbm1BOU45SVA4NkdabHJZVm1MTko1MyI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MzU6Imh0dHA6Ly9zYWFza2l0LmRldi5jb20vZ3JhZGUtbGV2ZWxzIjtzOjU6InJvdXRlIjtzOjE4OiJncmFkZS1sZXZlbHMuaW5kZXgiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToxO30=', 1778498099);
+	('elOMWXDJJYRhNzDtZHmh39YNhMBsRk6ptCSyweY1', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', 'YToxMjp7czo2OiJfdG9rZW4iO3M6NDA6InlRTk1iak1SWlJsZmxnQUU3T1ZUUGVKNmdEZGtNcUMycFhQN1VJSksiO3M6OToiX3ByZXZpb3VzIjthOjI6e3M6MzoidXJsIjtzOjM3OiJodHRwOi8vc2Fhc2tpdC5kZXYuY29tL3N0dWRlbnRzL2luZGV4IjtzOjU6InJvdXRlIjtzOjE0OiJzdHVkZW50cy5pbmRleCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7czoyMToiYWN0aXZlX3NjaG9vbF95ZWFyX2lkIjtpOjE7czoyMzoiYWN0aXZlX3NjaG9vbF95ZWFyX25hbWUiO3M6OToiMjAyNi0yMDI3IjtzOjE4OiJhY3RpdmVfc2VtZXN0ZXJfaWQiO2k6MTtzOjIwOiJhY3RpdmVfc2VtZXN0ZXJfbmFtZSI7czoxMjoiMXN0IFNlbWVzdGVyIjtzOjg6IlNlbWVzdGVyIjtpOjE7czo2OiJBWUZyb20iO2k6MjAyNjtzOjQ6IkFZVG8iO2k6MjAyNztzOjEyOiJBY2FkZW1pY1llYXIiO3M6OToiMjAyNi0yMDI3Ijt9', 1778586093),
+	('hkpqKnVDZlbaTsSIoIhpaGezs3fMNb6i5WmY6qIc', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoibjFncXpaTTVySnRCUU9FUXlFNm83N0hGMmZjMDdhbEt3U3pjME90YyI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czo0MToiaHR0cDovL3NhYXNraXQuZGV2LmNvbS9lbnJvbGxtZW50cy9jcmVhdGUiO31zOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czo0MToiaHR0cDovL3NhYXNraXQuZGV2LmNvbS9lbnJvbGxtZW50cy9jcmVhdGUiO3M6NToicm91dGUiO3M6MTg6ImVucm9sbG1lbnRzLmNyZWF0ZSI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1778584915);
 
 -- Dumping structure for table tnhs-new.settings
-DROP TABLE IF EXISTS `settings`;
 CREATE TABLE IF NOT EXISTS `settings` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `SchoolName` varchar(255) NOT NULL,
@@ -1701,11 +1697,10 @@ CREATE TABLE IF NOT EXISTS `settings` (
 DELETE FROM `settings`;
 /*!40000 ALTER TABLE `settings` DISABLE KEYS */;
 INSERT INTO `settings` (`id`, `SchoolName`, `SchoolCode`, `EducationLevel`, `Region`, `Division`, `Address`, `ContactNumber`, `EmailAddress`, `PrincipalID`, `RegistrarID`, `Logo`, `OfficialTimeIn`, `OfficialTimeOut`, `LateGraceMinutes`, `EnableNFC`, `EnableQR`, `EnableOfflineAttendance`, `CurrentSchoolYearID`, `ThemeColor`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
-	(1, 'TUBAJON NATIONAL HIGH SCHOOL', '304854', 'INTEGRATED', 'CARAGA', 'Dinagat Islands', 'Espina St', '+639128941731', 'jhambre@ssct.edu.ph', 2, 1, 'school/logo/Ttr8dV4ihxwf4oBaXfBWN6U9LfTFwFQ3LRfPv8qH.jpg', '07:00:00', '17:00:00', 15, 1, 1, 1, 2, '#0091ff', 1, 1, '2026-05-11 17:21:46', '2026-05-11 10:40:17', 'active', 0, NULL);
+	(1, 'TUBAJON NATIONAL HIGH SCHOOL', '304854', 'INTEGRATED', 'CARAGA', 'Dinagat Islands', 'Espina St', '+639128941731', 'jhambre@ssct.edu.ph', 2, 1, 'school/logo/Ttr8dV4ihxwf4oBaXfBWN6U9LfTFwFQ3LRfPv8qH.jpg', '07:00:00', '17:00:00', 15, 1, 1, 1, 3, '#0091ff', 1, 1, '2026-05-11 17:21:46', '2026-05-12 08:47:08', 'active', 0, NULL);
 /*!40000 ALTER TABLE `settings` ENABLE KEYS */;
 
 -- Dumping structure for table tnhs-new.sms_queues
-DROP TABLE IF EXISTS `sms_queues`;
 CREATE TABLE IF NOT EXISTS `sms_queues` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `PhoneNumber` varchar(13) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -1725,24 +1720,37 @@ CREATE TABLE IF NOT EXISTS `sms_queues` (
 DELETE FROM `sms_queues`;
 
 -- Dumping structure for table tnhs-new.strands
-DROP TABLE IF EXISTS `strands`;
 CREATE TABLE IF NOT EXISTS `strands` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `StrandCode` varchar(20) DEFAULT NULL,
   `StrandName` varchar(100) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `created_by` timestamp NULL DEFAULT NULL,
+  `created_by` int(11) NOT NULL,
+  `updated_by` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `StrandCode` (`StrandCode`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
 
--- Dumping data for table tnhs-new.strands: 0 rows
+-- Dumping data for table tnhs-new.strands: 9 rows
 DELETE FROM `strands`;
 /*!40000 ALTER TABLE `strands` DISABLE KEYS */;
+INSERT INTO `strands` (`id`, `StrandCode`, `StrandName`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 'STEM', 'Science, Technology, Engineering and Mathematics', 1, 1, '2026-05-12 16:22:54', '2026-05-12 08:22:54', 'active', 0, NULL),
+	(2, 'HUMSS', 'Humanities and Social Sciences', 1, 1, '2026-05-12 16:23:03', '2026-05-12 08:23:03', 'active', 0, NULL),
+	(3, 'ABM', 'Accountancy, Business and Management', 1, 1, '2026-05-12 16:23:10', '2026-05-12 08:23:10', 'active', 0, NULL),
+	(4, 'GAS', 'General Academic Strand', 1, 1, '2026-05-12 16:23:16', '2026-05-12 08:23:16', 'active', 0, NULL),
+	(5, 'TVL-HE', 'Home Economics', 1, 1, '2026-05-12 16:23:26', '2026-05-12 08:23:26', 'active', 0, NULL),
+	(6, 'TVL-ICT', 'Information and Communications Technology', 1, 1, '2026-05-12 16:23:36', '2026-05-12 08:23:36', 'active', 0, NULL),
+	(7, 'TVL-IA', 'Industrial Arts', 1, 1, '2026-05-12 16:23:44', '2026-05-12 08:23:44', 'active', 0, NULL),
+	(8, 'TVL-AFA', 'Agri-Fishery Arts', 1, 1, '2026-05-12 16:24:08', '2026-05-12 08:24:08', 'active', 0, NULL),
+	(0, 'N/A', 'N/A', 0, 0, '0000-00-00 00:00:00', '2026-05-12 08:58:08', 'active', 0, NULL);
 /*!40000 ALTER TABLE `strands` ENABLE KEYS */;
 
 -- Dumping structure for table tnhs-new.students
-DROP TABLE IF EXISTS `students`;
 CREATE TABLE IF NOT EXISTS `students` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `GuardianID` int(11) DEFAULT NULL,
@@ -1770,13 +1778,16 @@ CREATE TABLE IF NOT EXISTS `students` (
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.students: ~0 rows (approximately)
+-- Dumping data for table tnhs-new.students: ~3 rows (approximately)
 DELETE FROM `students`;
+INSERT INTO `students` (`id`, `GuardianID`, `UserID`, `LRN`, `FirstName`, `MiddleName`, `LastName`, `Suffix`, `Sex`, `Section`, `PhoneNumber`, `filepath`, `Strand`, `CurrentStatus`, `YearLevel`, `BirthDate`, `BirthPlace`, `Religion`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 1, 9, '545665445454', 'ANTONIO JR', 'LUIB', 'PILOTON', NULL, NULL, '1A2', '+639128941731', NULL, 'HUMSS', NULL, 7, NULL, NULL, NULL, 1, 1, '2026-05-12 17:41:31', '2026-05-12 10:20:04', 'active', 0, NULL),
+	(2, 1, 10, '123456789123', 'MARY JANE', 'LIBAY', 'PILOTON', NULL, NULL, NULL, '+639868273741', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, '2026-05-12 18:19:52', '2026-05-12 11:40:16', 'active', 0, NULL),
+	(3, 1, NULL, '154542121454', 'hjhfghjfghj', 'hfgh', 'Hambre', NULL, NULL, NULL, '+639128941731', NULL, 'HUMSS', NULL, 8, NULL, NULL, NULL, 1, 1, '2026-05-12 19:39:14', '2026-05-12 11:39:14', 'active', 0, NULL);
 
 -- Dumping structure for table tnhs-new.subjects
-DROP TABLE IF EXISTS `subjects`;
 CREATE TABLE IF NOT EXISTS `subjects` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `SubjectCode` varchar(50) DEFAULT NULL,
@@ -1796,7 +1807,6 @@ DELETE FROM `subjects`;
 /*!40000 ALTER TABLE `subjects` ENABLE KEYS */;
 
 -- Dumping structure for table tnhs-new.users
-DROP TABLE IF EXISTS `users`;
 CREATE TABLE IF NOT EXISTS `users` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `filepath` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
@@ -1824,21 +1834,22 @@ CREATE TABLE IF NOT EXISTS `users` (
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_email_unique` (`email`)
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.users: 5 rows
+-- Dumping data for table tnhs-new.users: 7 rows
 DELETE FROM `users`;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` (`id`, `filepath`, `qr_code`, `nfc_code`, `conn_id`, `user_type`, `SchoolID`, `name`, `email`, `email_verified_at`, `avatar`, `fcm_token`, `profile_pic`, `password`, `remember_token`, `google_id`, `verified`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
 	(1, '0', '0', '0025539332', 0, 0, 0, 'Antonio Jr Piloton', 'apiloton1@snsu.edu.ph', NULL, 'https://lh3.googleusercontent.com/a/ACg8ocICxZuvbmnED8B5vH9nAzZ75oj4EyyJOq04YOMO7jxaSaNGZqsv=s96-c', NULL, NULL, '$2y$12$UobPPzTvk6F2zXcwADdTVeFqfwcLZbMVVxJxjAwjw8XFEUFes9CzO', NULL, '117952079880321133596', 1, NULL, NULL, '2026-05-11 13:48:55', '2026-05-11 07:23:26', NULL, 0, NULL),
-	(8, '0', '1000002', NULL, 1, 0, 1, 'ljkl klhjkl', 'lklhjkl2@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$xP9vUyQknkUeJKa4Hbz1OO1xu.N9tSiRC2KGa7i0QU05q.nhmwW0O', NULL, NULL, NULL, 1, 1, '2026-05-11 17:10:40', '2026-05-11 09:10:40', 'active', 0, NULL),
+	(9, 'users/students/9/ce450ddd-0082-4ac6-9c55-681826253694.jpeg', '1000003', '0027619844', 1, 0, 1, 'ANTONIO JR PILOTON', 'apiloton@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$E2A/NNwrZZq0rQXIw8wh/.p/hagaWOgaNm3/.mH387BiGEA57myuy', NULL, NULL, NULL, 1, 1, '2026-05-12 18:20:04', '2026-05-12 10:22:10', 'active', 0, NULL),
+	(8, '0', '1000002', '0021529092', 1, 0, 1, 'ljkl klhjkl', 'lklhjkl2@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$xP9vUyQknkUeJKa4Hbz1OO1xu.N9tSiRC2KGa7i0QU05q.nhmwW0O', NULL, NULL, NULL, 1, 1, '2026-05-11 17:10:40', '2026-05-12 10:22:46', 'active', 0, NULL),
 	(6, '0', '1000002', NULL, 1, 0, 1, 'ljkl klhjkl', 'lklhjkl@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$T.QtJQGOzXSaNaUmWBE3veO4NvE5TjLij0akdJIJXygCLIvROmsh2', NULL, NULL, NULL, 1, 1, '2026-05-11 17:10:10', '2026-05-11 09:10:10', 'active', 0, NULL),
 	(7, '0', '1000002', NULL, 1, 0, 1, 'ljkl klhjkl', 'lklhjkl1@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$a00JnxjCRRRlY.SRlOLpSuQwBz.aEvB8fhY5rcP1AOIX8fnhrvgbG', NULL, NULL, NULL, 1, 1, '2026-05-11 17:10:22', '2026-05-11 09:10:22', 'active', 0, NULL),
-	(5, '0', '1000001', '0027816452', 2, 0, 1, 'NORVEN ESPINOSA', 'nespinosa@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$fydEEqvyethowztRW1KoWenL8SJddOKA5.LYd/vK6wbZ.cwLeIJKy', NULL, NULL, NULL, 1, 1, '2026-05-11 16:29:47', '2026-05-11 09:10:59', 'active', 0, NULL);
+	(5, '0', '1000001', '0027816452', 2, 0, 1, 'NORVEN ESPINOSA', 'nespinosa@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$fydEEqvyethowztRW1KoWenL8SJddOKA5.LYd/vK6wbZ.cwLeIJKy', NULL, NULL, NULL, 1, 1, '2026-05-11 16:29:47', '2026-05-11 09:10:59', 'active', 0, NULL),
+	(10, 'users/students/10/34410568-d8e9-49b8-ba4f-8b19dc3c2e75.jpeg', '1000004', NULL, 2, 0, 1, 'MARY JANE PILOTON', 'mpiloton@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$BClevo6kLLFbYCe4AULhh.0MS44BMG86WkJhLSJeKTavFJJhAm.iK', NULL, NULL, NULL, 1, 1, '2026-05-12 19:40:16', '2026-05-12 11:40:40', 'active', 0, NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 
 -- Dumping structure for table tnhs-new.year_level
-DROP TABLE IF EXISTS `year_level`;
 CREATE TABLE IF NOT EXISTS `year_level` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `YearLevel` int(11) NOT NULL DEFAULT '0',

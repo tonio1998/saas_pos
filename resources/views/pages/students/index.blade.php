@@ -12,7 +12,7 @@
     <x-card>
         <x-datatable
             id="studentsTable"
-            :columns="['Actions','Image','Student Name','LRN','Phone Number','Section','Year','Created At', 'Created By']"
+            :columns="['Actions','Image','Student Name','LRN','Phone Number','Year', 'Strand','Created At', 'Created By']"
             :ajax="route('students.data')"
             :datatableColumns="[
                 ['data'=>'actions','orderable'=>false,'searchable'=>false],
@@ -20,8 +20,8 @@
                 ['data'=>'name'],
                 ['data'=>'lrn'],
                 ['data'=>'phone_number'],
-                ['data'=>'section'],
                 ['data'=>'year'],
+                ['data'=>'Strand'],
                 ['data'=>'created_at'],
                 ['data'=>'createdBy']
             ]"

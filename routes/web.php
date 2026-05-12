@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\AcademicContextController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\GradeLevelController;
 use App\Http\Controllers\LogsController;
 use App\Http\Controllers\ParentsController;
@@ -9,8 +11,10 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ScanController;
 use App\Http\Controllers\ScannerController;
 use App\Http\Controllers\SchoolYearController;
+use App\Http\Controllers\ClassesController;
 use App\Http\Controllers\SemestersController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\StrandsController;
 use App\Http\Controllers\StudentsController;
 use App\Http\Controllers\EmployeesController;
 use App\Http\Controllers\UserController;
@@ -146,6 +150,33 @@ Route::middleware('auth')->group(function(){
         Route::get('/data', [GradeLevelController::class, 'ajaxData'])->name('data');
     });
 
+    Route::prefix('strands')->name('strands.')->group(function(){
+        Route::get('/', [StrandsController::class, 'index'])->name('index');
+        Route::get('/edit/{id}', [StrandsController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [StrandsController::class, 'update'])->name('update');
+        Route::get('/create', [StrandsController::class, 'create'])->name('create');
+        Route::post('/create', [StrandsController::class, 'store'])->name('store');
+        Route::get('/data', [StrandsController::class, 'ajaxData'])->name('data');
+    });
+
+    Route::prefix('classes')->name('classes.')->group(function(){
+        Route::get('/', [ClassesController::class, 'index'])->name('index');
+        Route::get('/edit/{id}', [ClassesController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [ClassesController::class, 'update'])->name('update');
+        Route::get('/create', [ClassesController::class, 'create'])->name('create');
+        Route::post('/create', [ClassesController::class, 'store'])->name('store');
+        Route::get('/data', [ClassesController::class, 'ajaxData'])->name('data');
+    });
+
+    Route::prefix('enrollments')->name('enrollments.')->group(function(){
+        Route::get('/', [EnrollmentController::class, 'index'])->name('index');
+        Route::get('/edit/{id}', [EnrollmentController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [EnrollmentController::class, 'update'])->name('update');
+        Route::get('/create', [EnrollmentController::class, 'create'])->name('create');
+        Route::post('/create', [EnrollmentController::class, 'store'])->name('store');
+        Route::get('/data', [EnrollmentController::class, 'ajaxData'])->name('data');
+    });
+
     Route::get('/reports', fn() => view('pages.reports.index'));
 
     Route::prefix('select2')->name('select2.')->group(function(){
@@ -153,6 +184,12 @@ Route::middleware('auth')->group(function(){
         Route::get('users/search',[UserController::class,'users_search'])->name('users');
         Route::get('guardians/search',[ParentsController::class,'parents_search'])->name('guardians');
         Route::get('employees/search',[EmployeesController::class,'employees_search'])->name('employees');
+        Route::get('students/search',[StudentsController::class,'students_search'])->name('students');
+        Route::get('classes/search',[ClassesController::class,'sections_search'])->name('classes');
+    });
+
+    Route::prefix('academic-context')->name('academic-context.')->group(function(){
+        Route::post('/',[AcademicContextController::class,'store'])->name('store');
     });
 
 });

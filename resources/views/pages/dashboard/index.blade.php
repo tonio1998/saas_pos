@@ -13,7 +13,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <div class="small opacity-75">Students</div>
-                        <h3 class="mb-0">{{ $students }}</h3>
+                        <h3 class="mb-0">{{ $students ?? 0 }}</h3>
                     </div>
                     <i class="bi bi-mortarboard fs-1 opacity-50"></i>
                 </div>
@@ -25,7 +25,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <div class="small opacity-75">Teachers</div>
-                        <h3 class="mb-0">{{ $teachers }}</h3>
+                        <h3 class="mb-0">{{ $teachers ?? 0 }}</h3>
                     </div>
                     <i class="bi bi-person-workspace fs-1 opacity-50"></i>
                 </div>
@@ -37,7 +37,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <div class="small opacity-75">Parents</div>
-                        <h3 class="mb-0">{{ $parents }}</h3>
+                        <h3 class="mb-0">{{ $parents ?? 0 }}</h3>
                     </div>
                     <i class="bi bi-people fs-1 opacity-50"></i>
                 </div>
