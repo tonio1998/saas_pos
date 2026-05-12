@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Employees;
 use App\Models\Students;
 use App\Models\User;
 use App\Traits\TCommonFunctions;
@@ -13,6 +14,24 @@ use Illuminate\Support\Str;
 class StudentsController extends Controller
 {
     use TCommonFunctions;
+
+    public function students_search(Request $request)
+    {
+        $search = $request->search;
+        $employees = Students::query()
+            ->when($search,function($q) use ($search){
+                $q->where('FirstName', 'like', "%{$search}%")
+                    ->orWhere('LastName', 'like', "%{$search}%");
+            })
+            ->limit(10)
+            ->get();
+        return $employees->map(function($employee){
+            return [
+                'id'=>$employee->id,
+                'text'=>$employee->FirstName.' '.$employee->LastName
+            ];
+        });
+    }
     public function index()
     {
         return view('pages.students.index');
@@ -52,12 +71,12 @@ class StudentsController extends Controller
                     'LastName' => ['required','string','max:255'],
                     'Suffix' => ['nullable','string','max:255'],
                     'PhoneNumber' => ['required','regex:/^\+639\d{9}$/'],
-                    'YearLevel' => ['required','string','max:255'],
-                    'Section' => ['required','string','max:255'],
                     'GuardianID' => ['nullable','integer'],
                     'UserID' => ['nullable','integer'],
                     'filepath' => ['nullable','image','mimes:jpg,jpeg,png','max:2048'],
-                    'Strand' => ['nullable','string','max:255']
+                    'Section' => ['nullable','string','max:255'],
+                    'YearLevel' => ['required','string','max:255'],
+                    'Strand' => ['required','string','max:255']
                 ]
             );
 
@@ -116,18 +135,18 @@ class StudentsController extends Controller
                 'LastName' => ['required','string','max:255'],
                 'Suffix' => ['nullable','string','max:255'],
                 'PhoneNumber' => ['required','regex:/^\+639\d{9}$/'],
-                'YearLevel' => ['required','string','max:255'],
-                'Section' => ['required','string','max:255'],
                 'GuardianID' => ['nullable','integer'],
                 'UserID' => ['nullable','integer'],
                 'filepath' => ['nullable','image','mimes:jpg,jpeg,png','max:2048'],
-                'Strand' => ['nullable','string','max:255']
+                'Section' => ['nullable','string','max:255'],
+                'YearLevel' => ['required','string','max:255'],
+                'Strand' => ['required','string','max:255']
             ]
         );
 
-//        dd($data);
-
         DB::beginTransaction();
+
+//        dd($data);
 
         try {
 
@@ -142,21 +161,15 @@ class StudentsController extends Controller
             $student->save();
 
             if (!empty($data['UserID'])) {
-
                 $user = User::find($data['UserID']);
-
                 if ($user) {
-
                     $roleName = 'students';
-
                     if (!$user->hasRole($roleName)) {
                         $user->assignRole($roleName);
                     }
-
                     $student->UserID = $user->id;
                     $student->save();
                 }
-
             }
 
             DB::commit();
@@ -358,11 +371,6 @@ class StudentsController extends Controller
             ->addColumn('phone_number', function ($student) {
                 return e($student->PhoneNumber);
             })
-
-            ->addColumn('section', function ($student) {
-                return e($student->Section);
-            })
-
             ->addColumn('year', function ($student) {
                 return e($student->YearLevel);
             })

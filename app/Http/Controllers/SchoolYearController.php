@@ -39,12 +39,12 @@ class SchoolYearController extends Controller
             ->addColumn('actions', function ($parent) {
                 $menu = '';
                 if(auth()->user()->can('view users')) {
-                    $menu .= '
-                    <li>
-                        <a href="'.route('school_years.edit',encrypt($parent->id)).'" class="dropdown-item">
-                            <i class="bi bi-pencil me-2"></i> Edit
-                        </a>
-                    </li>';
+//                    $menu .= '
+//                    <li>
+//                        <a href="'.route('school_years.edit',encrypt($parent->id)).'" class="dropdown-item">
+//                            <i class="bi bi-pencil me-2"></i> Edit
+//                        </a>
+//                    </li>';
                 }
 
                 return '
@@ -59,7 +59,7 @@ class SchoolYearController extends Controller
 
             })
             ->addColumn('SchoolYear', function ($parent) {
-                $a = "<div class='fw-bold'>" . $parent->SchoolYear . "</div>";
+                $a = "<div class='fw-bold'>" . $parent->AYFrom . '-' . $parent->AYTo . "</div>";
                 return $a;
             })
             ->addColumn('StartDate', function ($parent) {
@@ -85,7 +85,6 @@ class SchoolYearController extends Controller
                 'required',
                 'string',
                 'max:20',
-                'unique:school_years,SchoolYear'
             ],
 
             'StartDate' => [
@@ -109,8 +108,9 @@ class SchoolYearController extends Controller
         }
 
         $i = new SchoolYear();
-
-        $i->SchoolYear = $validated['SchoolYear'];
+        [$ayFrom, $ayTo] = explode('-', $validated['SchoolYear']);
+        $i->AYFrom = $ayFrom;
+        $i->AYTo = $ayTo;
         $i->StartDate = $validated['StartDate'];
         $i->EndDate = $validated['EndDate'];
         $i->IsActive = $request->boolean('IsActive');
@@ -160,12 +160,7 @@ class SchoolYearController extends Controller
             'SchoolYear' => [
                 'required',
                 'string',
-                'max:20',
-
-                Rule::unique(
-                    'school_years',
-                    'SchoolYear'
-                )->ignore($schoolYear->id)
+                'max:20'
             ],
 
             'StartDate' => [
@@ -189,7 +184,9 @@ class SchoolYearController extends Controller
                 ]);
         }
 
-        $schoolYear->SchoolYear = $validated['SchoolYear'];
+        [$ayFrom, $ayTo] = explode('-', $validated['SchoolYear']);
+        $schoolYear->AYFrom = $ayFrom;
+        $schoolYear->AYTo = $ayTo;
         $schoolYear->StartDate = $validated['StartDate'];
         $schoolYear->EndDate = $validated['EndDate'];
         $schoolYear->IsActive = $request->boolean('IsActive');

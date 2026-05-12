@@ -21,7 +21,7 @@ class Students extends Model implements AuditableContract
         'LastName',
         'Suffix',
         'LRN',
-        'Section',
+        'Classes',
         'GuardianID',
         'YearLevel',
         'Strand',
@@ -50,6 +50,16 @@ class Students extends Model implements AuditableContract
         return $this->hasOne(User::class, 'conn_id', 'id')->whereHas('roles', function ($q) {
             $q->where('name', 'students');
         });
+    }
+
+    public function getFullNameAttribute()
+    {
+        return collect([
+            $this->FirstName,
+            $this->MiddleName,
+            $this->LastName,
+            $this->Suffix
+        ])->filter()->implode(' ');
     }
 
 

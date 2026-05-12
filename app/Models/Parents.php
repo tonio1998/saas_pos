@@ -19,7 +19,7 @@ class Parents extends Model implements AuditableContract
         'MiddleName',
         'LastName',
         'Suffix',
-        'Section',
+        'Classes',
         'Address',
         'YearLevel',
         'created_by',
