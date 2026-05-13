@@ -4,9 +4,6 @@
 
 @section('content')
     <x-page-header title="Users" subtitle="Manage system users">
-        <x-slot:action>
-            <a href="{{ route('users.create') }}" class="btn btn-primary btn-md"><i class="bi bi-plus"></i>Add User</a>
-        </x-slot:action>
     </x-page-header>
     <x-card>
         <x-datatable
@@ -16,7 +13,7 @@
             :datatableColumns="[
                 ['data'=>'actions','orderable'=>false,'searchable'=>false],
                 ['data'=>'filepath'],
-                ['data' => 'NFC'],
+                ['data' => 'nfc_code'],
                 ['data'=>'name'],
                 ['data'=>'email'],
                 ['data'=>'logs'],

@@ -20,7 +20,6 @@ class Employees extends Model implements AuditableContract
         'MiddleName',
         'LastName',
         'Suffix',
-        'Classes',
         'Address',
         'YearLevel',
         'created_by',

@@ -13,14 +13,6 @@
     </x-page-header>
 
     <x-card>
-        <div class="d-flex justify-content-end">
-                <x-form.select
-                    name="user"
-                    class="col-md-3"
-                    ajax="{{ route('select2.users') }}"
-                    placeholder="Select user"
-                />
-        </div>
         <x-datatable
             id="usersTable"
             :columns="['Actions','Name','Mode','Date']"

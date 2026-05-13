@@ -40,49 +40,9 @@ class AppServiceProvider extends ServiceProvider
             }
         );
 
-        $schoolYears = Cache::rememberForever(
-            'school_years',
-            function () {
-
-                return SchoolYear::query()
-                    ->orderByDesc('AYFrom')
-                    ->get([
-                        'id',
-                        'AYFrom',
-                        'AYTo'
-                    ]);
-
-            }
-        );
-
-        $semesters = Cache::rememberForever(
-            'semesters',
-            function () {
-
-                return Semesters::query()
-                    ->where('IsActive',1)
-                    ->orderBy('SemesterOrder')
-                    ->get([
-                        'id',
-                        'SemesterName',
-                        'SemesterOrder'
-                    ]);
-            }
-        );
-
         View::share(
             'schoolSettings',
             $schoolSettings
-        );
-
-        View::share(
-            'schoolYears',
-            $schoolYears
-        );
-
-        View::share(
-            'semesters',
-            $semesters
         );
     }
 }

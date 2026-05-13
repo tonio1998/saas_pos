@@ -79,111 +79,132 @@ class UserController extends Controller
 
     public function users_data(Request $request)
     {
-        $users = User::with([
-                'roles',
-                'logs'
-            ])
+        $users = User::query()
+            ->with('roles:id,name')
             ->withCount('logs')
-            ->select(['id', 'name', 'email', 'filepath', 'nfc_code']);
-
-//        dd($users->get());
+            ->select([
+                'id',
+                'name',
+                'email',
+                'filepath',
+                'nfc_code'
+            ]);
 
         return DataTables::of($users)
 
-            ->addColumn('filepath', function ($user) {
-                $src = $user->filepath
+            ->editColumn('filepath', function ($user) {
+
+                $avatar = $user->filepath
                     ? asset('storage/' . $user->filepath)
                     : asset('images/avatar.png');
 
+                $fallback = asset('images/avatar.png');
+
                 return '
                 <img
-                    src="' . $src . '"
-                    onerror="this.src=\'' . asset('images/avatar.png') . '\'"
-                    style="width:40px;height:40px;border-radius:100px;object-fit:cover;"
+                    src="' . $avatar . '"
+                    onerror="this.onerror=null;this.src=\'' . $fallback . '\';"
+                    class="rounded-circle border"
+                    style="width:42px;height:42px;object-fit:cover;"
                 >
             ';
             })
 
-            ->addColumn('name', fn($user) => e($user->name))
+            ->filterColumn('name', function ($query, $keyword) {
 
-            ->addColumn('email', fn($user) => e($user->email))
-            ->addColumn('logs', function ($user) {
-                return $user->logs->count();
+                $query->where('name', 'LIKE', "%{$keyword}%");
             })
+
+            ->addColumn('logs', fn($user) => number_format($user->logs_count))
+
             ->addColumn('role', function ($user) {
-                return e($user->roles->pluck('name')->implode(', '));
+
+                return $user->roles->pluck('name')->implode(', ');
             })
 
-            ->addColumn('NFC', function ($user) {
-                return $user->nfc_code
-                    ? '<span class="badge bg-success-subtle text-success">
-                        <i class="bi bi-credit-card-2-front"></i> ' . e($user->nfc_code) . '
-                   </span>'
-                    : '<span class="badge bg-secondary-subtle text-muted">
+            ->editColumn('nfc_code', function ($user) {
+
+                if (!$user->nfc_code) {
+                    return '
+                    <span class="badge bg-secondary-subtle text-secondary border">
                         No NFC
-                   </span>';
+                    </span>
+                ';
+                }
+
+                return '
+                <span class="badge bg-success-subtle text-success border">
+                    <i class="bi bi-credit-card-2-front me-1"></i>
+                    ' . e($user->nfc_code) . '
+                </span>
+            ';
             })
 
             ->addColumn('actions', function ($user) {
 
-                $permissions = route('users.permissions', encrypt($user->id));
-                $roles = route('users.roles', encrypt($user->id));
-                $nfc = route('users.nfc', encrypt($user->id));
+                $encryptedId = encrypt($user->id);
 
-                $permissionBtn = '
-                    <li>
-                        <a href="' . $permissions . '" class="dropdown-item">
-                            <i class="bi bi-key me-2 text-primary"></i>
-                            Assign Permissions
-                        </a>
-                    </li>
-                ';
+                $permissionsUrl = route('users.permissions', $encryptedId);
+                $rolesUrl       = route('users.roles', $encryptedId);
+                $nfcUrl         = route('users.nfc', $encryptedId);
 
-                            $rolesBtn = '
-                    <li>
-                        <a href="' . $roles . '" class="dropdown-item">
-                            <i class="bi bi-person-badge me-2 text-warning"></i>
-                            Assign Roles
-                        </a>
-                    </li>
-                ';
+                $assignText = $user->nfc_code
+                    ? 'Update NFC Card'
+                    : 'Assign NFC Card';
 
-                            $nfcBtn = '
-                    <li>
-                        <a href="' . $nfc . '" class="dropdown-item">
-                            <i class="bi bi-credit-card-2-front me-2 text-danger"></i>
-                            Assign NFC Card
-                        </a>
-                    </li>
-                ';
-
-                            $button = '
+                return '
+                <div class="dropdown">
                     <button
                         class="btn btn-soft-primary btn-sm dropdown-toggle"
                         type="button"
                         data-bs-toggle="dropdown"
-                        aria-expanded="false"
                     >
-                        <i class="bi bi-gear"></i> Actions
+                        <i class="bi bi-gear"></i>
                     </button>
-                ';
 
-                            $menu = '
-                    <ul class="dropdown-menu shadow-sm border-0">
-                        ' . $permissionBtn . '
-                        ' . $rolesBtn . '
-                        ' . $nfcBtn . '
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+
+                        <li>
+                            <a
+                                href="' . $permissionsUrl . '"
+                                class="dropdown-item"
+                            >
+                                <i class="bi bi-key me-2 text-primary"></i>
+                                Assign Permissions
+                            </a>
+                        </li>
+
+                        <li>
+                            <a
+                                href="' . $rolesUrl . '"
+                                class="dropdown-item"
+                            >
+                                <i class="bi bi-person-badge me-2 text-warning"></i>
+                                Assign Roles
+                            </a>
+                        </li>
+
+                        <li>
+                            <a
+                                href="' . $nfcUrl . '"
+                                class="dropdown-item"
+                            >
+                                <i class="bi bi-credit-card-2-front me-2 text-danger"></i>
+                                ' . $assignText . '
+                            </a>
+                        </li>
+
                     </ul>
-                ';
-
-                            return '
-                    <div class="dropdown">
-                        ' . $button . '
-                        ' . $menu . '
-                    </div>
-                ';
+                </div>
+            ';
             })
-            ->rawColumns(['filepath', 'NFC', 'actions'])
+
+            ->rawColumns([
+                'filepath',
+                'nfc_code',
+                'actions'
+            ])
+
             ->make(true);
     }
 

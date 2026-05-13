@@ -12,8 +12,8 @@
 
         <li class="sidebar-item">
             <a
-                href="{{ route('dashboard') }}"
-                class="sidebar-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
+                href="{{ route('dashboard.index') }}"
+                class="sidebar-link {{ request()->routeIs('dashboard.index') ? 'active' : '' }}"
             >
                 <i class="bi bi-speedometer2 sidebar-icon"></i>
                 <span>Dashboard</span>
@@ -30,6 +30,11 @@
                 <a href="{{ route('logs.index') }}" class="sidebar-sublink">
                     <i class="bi bi-clock-history sidebar-subicon"></i>
                     All Logs
+                </a>
+                <a href="{{ route('logs.users') }}" class="sidebar-sublink">
+                    <i class="bi bi-bar-chart sidebar-subicon"></i>
+                    User Logs
+                    <span class="badge bg-warning text-dark">Soon</span>
                 </a>
             </div>
         </li>
@@ -147,24 +152,23 @@
 {{--        </li>--}}
 
         <li class="sidebar-item">
-            <a class="sidebar-link d-flex align-items-center justify-content-between">
-                <span class="d-flex align-items-center gap-2">
-                    <i class="bi bi-bar-chart sidebar-icon"></i>
-                    <span>Reports</span>
-                </span>
-                <span class="badge bg-warning text-dark">Soon</span>
-            </a>
-        </li>
-
-        <li class="sidebar-item">
             <a class="sidebar-link d-flex align-items-center justify-content-between" href="{{ route('settings.index') }}">
                 <span class="d-flex align-items-center gap-2">
                     <i class="bi bi-gear sidebar-icon"></i>
                     <span>Settings</span>
                 </span>
-                <span class="badge bg-warning text-dark">Soon</span>
+{{--                <span class="badge bg-warning text-dark">Soon</span>--}}
             </a>
         </li>
+{{--        <li class="sidebar-item">--}}
+{{--            <a class="sidebar-link d-flex align-items-center justify-content-between" href="{{ route('reports.index') }}">--}}
+{{--                <span class="d-flex align-items-center gap-2">--}}
+{{--                    <i class="bi bi-bar-chart sidebar-icon"></i>--}}
+{{--                    <span>Reports</span>--}}
+{{--                </span>--}}
+{{--                <span class="badge bg-warning text-dark">Soon</span>--}}
+{{--            </a>--}}
+{{--        </li>--}}
 
     </ul>
 </div>

@@ -172,39 +172,116 @@ class EmployeesController extends Controller
         return datatables()
             ->eloquent($query)
             ->addColumn('actions', function ($teacher) {
-                $menu = '';
-                if(auth()->user()->can('view users')) {
-                    $menu .= '
-                    <li>
-                        <a href="'.route('employees.edit',encrypt($teacher->id)).'" class="dropdown-item">
-                            <i class="bi bi-pencil me-2"></i> Edit
+
+                $editUrl = route(
+                    'employees.edit',
+                    encrypt($teacher->id)
+                );
+
+                $passwordUrl = route(
+                    'users.password',
+                    [
+                        'employees',
+                        $teacher->id,
+                        $teacher->UserID ?? 0
+                    ]
+                );
+
+                $passwordType = $teacher->teacherUser
+                    ? 'regenerate'
+                    : 'generate';
+
+                $passwordLabel = $teacher->teacherUser
+                    ? 'Update Password'
+                    : 'Generate Password';
+
+                $modalId = 'teacherActionModal' . $teacher->id;
+
+                $button = '
+                    <button
+                        class="btn btn-soft-primary btn-sm"
+                        type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#' . $modalId . '"
+                    >
+                        <i class="bi bi-gear"></i>
+                        Actions
+                    </button>
+                ';
+
+                            $actions = '';
+
+                            if(auth()->user()->can('view users')) {
+
+                                $actions .= '
+                        <a
+                            href="' . $editUrl . '"
+                            class="btn btn-light text-start"
+                        >
+                            <i class="bi bi-pencil me-2 text-primary"></i>
+                            Edit Employee
                         </a>
-                    </li>';
-                }
+                    ';
+                            }
 
-                $menu .= '
-                <li>
-                <a href="javascript:void(0)"
-                   class="dropdown-item btn-password"
-                   data-url="'.route('users.password',['employees',$teacher->id,$teacher->UserID ?? 0]).'"
-                   data-type="'.($teacher->teacherUser ? 'regenerate' : 'generate').'">
-                   <i class="bi bi-key me-2"></i>
-                   '.($teacher->teacherUser ? 'Update Password' : 'Generate Password').'
-                </a>
-                </li>';
+                            $actions .= '
+                    <button
+                        type="button"
+                        class="btn btn-light text-start btn-password"
+                        data-url="' . $passwordUrl . '"
+                        data-type="' . $passwordType . '"
+                    >
+                        <i class="bi bi-key me-2 text-danger"></i>
+                        ' . $passwordLabel . '
+                    </button>
+                ';
 
-                if($menu == '') return '';
+                            if($actions == '') {
+                                return '';
+                            }
 
-                return '
-                    <div class="dropdown">
-                        <button class="btn btn-soft-primary btn-sm p-2 px-3 dropdown-toggle" data-bs-toggle="dropdown">
-                           Actions
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            '.$menu.'
-                        </ul>
-                    </div>';
+                            $modal = '
+                    <div
+                        class="modal fade"
+                        id="' . $modalId . '"
+                        tabindex="-1"
+                        aria-hidden="true"
+                    >
+                        <div class="modal-dialog modal-dialog-centered modal-sm">
+                            <div class="modal-content border-0 shadow">
 
+                                <div class="modal-header">
+                                    <h5 class="modal-title">
+                                        Employee Actions
+                                    </h5>
+
+                                    <button
+                                        type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"
+                                        aria-label="Close"
+                                    ></button>
+                                </div>
+
+                                <div class="modal-body p-2">
+
+                                    <div class="d-grid gap-2">
+                                        ' . $actions . '
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                ';
+
+                            return '
+                    <div class="text-center">
+                        ' . $button . '
+                        ' . $modal . '
+                    </div>
+                ';
             })
             ->addColumn('name', function ($teacher) {
                 $a = "<div class='fw-bold'>" . $teacher->FirstName . ' ' . $teacher->LastName . "</div>";
