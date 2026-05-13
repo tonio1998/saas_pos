@@ -32,6 +32,7 @@
 
                     :columns="[
                         'Actions',
+                        'Photo',
                         'Student',
                         'LRN',
                         'Phone Number',
@@ -51,7 +52,9 @@
                             'searchable'=>false,
                             'width'=>'90px'
                         ],
-
+[
+                            'data'=>'photo'
+                        ],
                         [
                             'data'=>'name'
                         ],

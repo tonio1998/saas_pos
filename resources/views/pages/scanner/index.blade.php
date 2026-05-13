@@ -786,15 +786,14 @@
                             return;
                         }
 
-                        if(e.key === '1'){
-
+                        if(e.key === 1){
                             e.preventDefault();
 
                             setMode('TIME_IN');
 
                         }
 
-                        if(e.key === '0'){
+                        if(e.key === 0){
 
                             e.preventDefault();
 

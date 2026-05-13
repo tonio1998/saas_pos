@@ -195,9 +195,7 @@ class StudentsController extends Controller
 
         return datatables()
             ->eloquent($query)
-
             ->addColumn('actions', function ($student) {
-
                 $editUrl = route(
                     'students.edit',
                     encrypt($student->id)
@@ -317,14 +315,12 @@ class StudentsController extends Controller
                     </div>
                 ';
             })
-
             ->addColumn('name', function ($student) {
-
                 $name = '
-                <div class="fw-semibold">
-                    ' . e($student->FirstName . ' ' . $student->LastName) . '
-                </div>
-            ';
+                    <div class="fw-semibold">
+                        ' . e($student->FirstName . ' ' . $student->LastName) . '
+                    </div>
+                ';
 
                 $guardian = '';
 
@@ -345,51 +341,62 @@ class StudentsController extends Controller
             })
 
             ->addColumn('image', function ($student) {
-
                 $src = $student->studentUser?->filepath
                     ? asset('storage/' . $student->studentUser->filepath)
                     : asset('images/avatar.png');
 
                 return '
-                <img
-                    src="' . $src . '"
-                    onerror="this.src=\'' . asset('images/avatar.png') . '\'"
-                    style="
-                        width:40px;
-                        height:40px;
-                        border-radius:100px;
-                        object-fit:cover;
-                    "
-                >
-            ';
+                    <img
+                        src="' . $src . '"
+                        onerror="this.src=\'' . asset('images/avatar.png') . '\'"
+                        style="
+                            width:40px;
+                            height:40px;
+                            border-radius:100px;
+                            object-fit:cover;
+                        "
+                    >
+                ';
             })
-
+            ->addColumn('photo', function ($student) {
+                $src = $student->studentUser?->filepath
+                    ? asset('storage/' . $student->studentUser->filepath)
+                    : asset('images/avatar.png');
+                return '
+                    <img
+                        src="' . $src . '"
+                        onerror="this.src=\'' . asset('images/avatar.png') . '\'"
+                        style="
+                            width:40px;
+                            height:40px;
+                            border-radius:100px;
+                            object-fit:cover;
+                        "
+                    >
+                ';
+            })
             ->addColumn('lrn', function ($student) {
                 return e($student->LRN);
             })
-
             ->addColumn('phone_number', function ($student) {
                 return e($student->PhoneNumber);
             })
             ->addColumn('year', function ($student) {
                 return e($student->YearLevel);
             })
-
             ->editColumn('created_at', function ($student) {
                 return optional($student->created_at)
                     ?->format('M d, Y h:i A');
             })
-
             ->addColumn('createdBy', function ($student) {
                 return e($student->createdBy?->name ?? '');
             })
-
             ->rawColumns([
                 'actions',
                 'image',
-                'name'
+                'name',
+                'photo'
             ])
-
             ->make(true);
     }
 }

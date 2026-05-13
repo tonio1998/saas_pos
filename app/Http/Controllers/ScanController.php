@@ -139,7 +139,7 @@ class ScanController extends Controller
 
             $smsEnabled = (int) ($settings['sms_enabled'] ?? 0);
 
-            if ($smsEnabled === 1) {
+            if (true) {
 
                 foreach ($phoneNumbers as $number) {
 
