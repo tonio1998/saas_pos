@@ -26,6 +26,13 @@ class SettingsController extends Controller
 
     public function store(Request $request)
     {
+
+//        dd([
+//            'hasFile' => $request->hasFile('Logo'),
+//            'file' => $request->file('Logo'),
+//            'error' => $request->file('Logo')?->getError(),
+//            'errorMessage' => $request->file('Logo')?->getErrorMessage(),
+//        ]);
         $validated = $request->validate([
             'SchoolName' => ['required', 'string', 'max:255'],
             'SchoolCode' => ['nullable', 'string', 'max:100'],
@@ -86,9 +93,11 @@ class SettingsController extends Controller
                 'nullable',
                 'image',
                 'mimes:jpg,jpeg,png,webp',
-                'max:2048'
+                'max:10000'
             ],
         ]);
+
+//        dd($validated);
 
         $validated['EnableNFC'] = $request->boolean('EnableNFC');
         $validated['EnableQR'] = $request->boolean('EnableQR');

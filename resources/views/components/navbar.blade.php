@@ -66,52 +66,52 @@
 
         <div class="d-flex align-items-center gap-2 gap-md-3">
 
-            <button
-                type="button"
-                class="btn btn-light border rounded-pill px-3 d-flex align-items-center gap-2"
-                data-bs-toggle="modal"
-                data-bs-target="#academicContextModal"
-            >
+{{--            <button--}}
+{{--                type="button"--}}
+{{--                class="btn btn-light border rounded-pill px-3 d-flex align-items-center gap-2"--}}
+{{--                data-bs-toggle="modal"--}}
+{{--                data-bs-target="#academicContextModal"--}}
+{{--            >--}}
 
-                <i class="bi bi-calendar3"></i>
+{{--                <i class="bi bi-calendar3"></i>--}}
 
-                <span>
+{{--                <span>--}}
 
-        {{
-            $semesterNames[
-                $currentSemester
-            ] ?? '1st Semester'
-        }}
+{{--        {{--}}
+{{--            $semesterNames[--}}
+{{--                $currentSemester--}}
+{{--            ] ?? '1st Semester'--}}
+{{--        }}--}}
 
-    </span>
+{{--    </span>--}}
 
-                <span class="text-muted">
-        •
-    </span>
+{{--                <span class="text-muted">--}}
+{{--        •--}}
+{{--    </span>--}}
 
-                <span class="fw-semibold">
+{{--                <span class="fw-semibold">--}}
 
-        SY
+{{--        SY--}}
 
-        {{
-            session(
-                'AYFrom',
-                $currentYear
-            )
-        }}
+{{--        {{--}}
+{{--            session(--}}
+{{--                'AYFrom',--}}
+{{--                $currentYear--}}
+{{--            )--}}
+{{--        }}--}}
 
-        -
+{{--        ---}}
 
-        {{
-            session(
-                'AYTo',
-                $currentYear + 1
-            )
-        }}
+{{--        {{--}}
+{{--            session(--}}
+{{--                'AYTo',--}}
+{{--                $currentYear + 1--}}
+{{--            )--}}
+{{--        }}--}}
 
-    </span>
+{{--    </span>--}}
 
-            </button>
+{{--            </button>--}}
 
             <button class="nav-icon position-relative">
 

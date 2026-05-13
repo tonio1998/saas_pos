@@ -13,22 +13,46 @@
             id="status-bar"
             class="status-bar idle"
         >
+
             <div class="status-indicator"></div>
 
             <div class="status-content">
+
                 <div class="status-title">
-                    READY TO SCAN
+                    TIME IN MODE
                 </div>
 
                 <div class="status-subtitle">
-                    Waiting for NFC or QR Code
+                    Waiting for entry scan
                 </div>
+
             </div>
+
         </div>
 
         <div class="scanner-body">
 
             <div class="scanner-card">
+
+                <div class="mode-switch">
+
+                    <button
+                        class="mode-btn active"
+                        data-mode="TIME_IN"
+                    >
+                        <i class="bi bi-box-arrow-in-right"></i>
+                        TIME IN
+                    </button>
+
+                    <button
+                        class="mode-btn"
+                        data-mode="TIME_OUT"
+                    >
+                        <i class="bi bi-box-arrow-left"></i>
+                        TIME OUT
+                    </button>
+
+                </div>
 
                 <div class="scanner-grid">
 
@@ -39,10 +63,12 @@
                             <div class="scanner-ring-2"></div>
 
                             <div class="photo-wrap">
+
                                 <img
                                     id="person-photo"
                                     src="{{ asset('images/avatar.png') }}"
                                 >
+
                             </div>
 
                         </div>
@@ -57,6 +83,13 @@
 
                             LIVE GATE TERMINAL
 
+                        </div>
+
+                        <div
+                            id="greeting-text"
+                            class="greeting-text"
+                        >
+                            READY TO WELCOME
                         </div>
 
                         <div
@@ -93,12 +126,12 @@
                             <div class="info-box yellow">
 
                                 <div class="info-label">
-                                    SCANS
+                                    TOTAL SCANS
                                 </div>
 
                                 <div
                                     id="scan-count"
-                                    class="big-value"
+                                    class="big-value dark"
                                 >
                                     0
                                 </div>
@@ -133,21 +166,35 @@
 
     <style>
 
+        :root{
+
+            --primary:#16a34a;
+            --primary-dark:#14532d;
+            --blue:#2563eb;
+            --danger:#dc2626;
+            --warning:#facc15;
+            --glass:rgba(255,255,255,.08);
+            --glass-border:rgba(255,255,255,.12);
+
+        }
+
         body{
-            background:
-                radial-gradient(circle at top left,#174c29 0%,#0b1f13 45%,#030805 100%);
+            margin:0;
             overflow:hidden;
             font-family:
                 Inter,
                 system-ui,
                 sans-serif;
+
+            background:
+                radial-gradient(circle at top left,#14532d 0%,#08140d 55%,#020403 100%);
         }
 
         .kiosk-wrap{
             height:100vh;
             position:relative;
             overflow:hidden;
-            padding:24px;
+            padding:28px;
         }
 
         .scanner-bg{
@@ -155,11 +202,11 @@
             width:700px;
             height:700px;
             border-radius:50%;
-            background:rgba(255,255,255,.05);
-            top:-280px;
-            right:-180px;
-            animation:floatBg 10s linear infinite;
-            filter:blur(10px);
+            background:rgba(255,255,255,.04);
+            filter:blur(20px);
+            top:-250px;
+            right:-200px;
+            animation:floatBg 14s linear infinite;
         }
 
         .scanner-bg-2{
@@ -167,43 +214,52 @@
             height:500px;
             top:auto;
             bottom:-180px;
-            left:-140px;
-            animation-duration:14s;
+            left:-150px;
+            animation-duration:18s;
         }
 
         @keyframes floatBg{
+
             0%{
-                transform:rotate(0deg) translateY(0px);
+                transform:translateY(0px) rotate(0deg);
             }
+
             50%{
-                transform:rotate(180deg) translateY(20px);
+                transform:translateY(20px) rotate(180deg);
             }
+
             100%{
-                transform:rotate(360deg) translateY(0px);
+                transform:translateY(0px) rotate(360deg);
             }
+
         }
 
         .status-bar{
             position:relative;
             z-index:10;
+
             display:flex;
             align-items:center;
             gap:20px;
-            padding:28px 36px;
-            border-radius:32px;
-            transition:.25s ease;
+
+            padding:24px 32px;
+
+            backdrop-filter:blur(20px);
+
+            border:1px solid var(--glass-border);
+
             box-shadow:
-                0 20px 60px rgba(0,0,0,.35);
-            border:3px solid rgba(255,255,255,.15);
-            backdrop-filter:blur(18px);
+                0 20px 50px rgba(0,0,0,.35);
+
+            transition:.25s ease;
         }
 
         .status-bar.idle{
             background:
                 linear-gradient(
                     135deg,
-                    #0B7A2A,
-                    #00A63E
+                    #15803d,
+                    #16a34a
                 );
         }
 
@@ -211,8 +267,8 @@
             background:
                 linear-gradient(
                     135deg,
-                    #00C853,
-                    #00E676
+                    #00c853,
+                    #00e676
                 );
         }
 
@@ -220,8 +276,8 @@
             background:
                 linear-gradient(
                     135deg,
-                    #0077FF,
-                    #00A2FF
+                    #2563eb,
+                    #38bdf8
                 );
         }
 
@@ -229,91 +285,122 @@
             background:
                 linear-gradient(
                     135deg,
-                    #C62828,
-                    #FF1744
+                    #b91c1c,
+                    #ef4444
                 );
         }
 
         .status-indicator{
-            width:24px;
-            height:24px;
+            width:22px;
+            height:22px;
             border-radius:50%;
             background:#fff;
-            position:relative;
-            flex-shrink:0;
+
             box-shadow:
                 0 0 25px rgba(255,255,255,.9);
-        }
 
-        .status-indicator::after{
-            content:'';
-            position:absolute;
-            inset:-12px;
-            border-radius:50%;
-            border:3px solid rgba(255,255,255,.55);
-            animation:pulseStatus 1.8s infinite;
-        }
-
-        @keyframes pulseStatus{
-            0%{
-                transform:scale(.7);
-                opacity:1;
-            }
-            100%{
-                transform:scale(1.8);
-                opacity:0;
-            }
+            flex-shrink:0;
         }
 
         .status-title{
-            color:#fff;
-            font-size:54px;
+            font-size:42px;
             font-weight:1000;
-            letter-spacing:3px;
             line-height:1;
-            text-shadow:
-                0 4px 18px rgba(0,0,0,.35);
+            color:#fff;
+            letter-spacing:2px;
         }
 
         .status-subtitle{
-            color:rgba(255,255,255,.95);
-            margin-top:8px;
-            font-size:18px;
+            margin-top:6px;
+            font-size:16px;
             font-weight:600;
+            color:rgba(255,255,255,.92);
+        }
+
+        .mode-switch{
+            margin-top:22px;
+
+            display:flex;
+            gap:14px;
+
+            position:relative;
+            z-index:10;
+        }
+
+        .mode-btn{
+            border:none;
+
+            padding:14px 26px;
+
+            border-radius:18px;
+
+            background:rgba(255,255,255,.08);
+
+            color:#fff;
+
+            font-size:15px;
+            font-weight:900;
             letter-spacing:1px;
+
+            border:1px solid rgba(255,255,255,.12);
+
+            backdrop-filter:blur(12px);
+
+            transition:.2s ease;
+        }
+
+        .mode-btn:hover{
+            transform:translateY(-2px);
+        }
+
+        .mode-btn.active{
+            background:#facc15;
+            color:#111827;
+
+            box-shadow:
+                0 10px 30px rgba(250,204,21,.35);
         }
 
         .scanner-body{
-            height:calc(100vh - 145px);
+            height:calc(100vh - 170px);
+
             display:flex;
             align-items:center;
             justify-content:center;
+
             position:relative;
             z-index:2;
         }
 
         .scanner-card{
+
             width:100%;
-            max-width:1500px;
-            border-radius:42px;
+            max-width:1450px;
+
+            border-radius:40px;
+
+            padding:50px;
+
             background:
                 linear-gradient(
                     180deg,
-                    rgba(255,255,255,.16),
-                    rgba(255,255,255,.08)
+                    rgba(255,255,255,.10),
+                    rgba(255,255,255,.05)
                 );
-            border:3px solid rgba(255,255,255,.18);
+
+            border:1px solid rgba(255,255,255,.10);
+
             backdrop-filter:blur(24px);
+
             box-shadow:
-                0 35px 90px rgba(0,0,0,.45);
-            padding:54px;
+                0 30px 80px rgba(0,0,0,.45);
         }
 
         .scanner-grid{
             display:grid;
-            grid-template-columns:460px 1fr;
-            align-items:center;
+            grid-template-columns:420px 1fr;
             gap:70px;
+            align-items:center;
         }
 
         .scanner-left{
@@ -322,65 +409,78 @@
         }
 
         .scanner-ring{
-            width:380px;
-            height:380px;
-            border-radius:50%;
+            width:340px;
+            height:340px;
+
             position:relative;
+
             display:flex;
             align-items:center;
             justify-content:center;
-            background:
-                radial-gradient(
-                    circle,
-                    rgba(255,255,255,.14),
-                    transparent 70%
-                );
         }
 
         .scanner-ring::before{
             content:'';
+
             position:absolute;
             inset:0;
+
             border-radius:50%;
-            border:4px solid rgba(255,255,255,.35);
-            animation:rotateRing 8s linear infinite;
+
+            border:4px solid rgba(255,255,255,.20);
+
+            animation:rotateRing 10s linear infinite;
         }
 
         .scanner-ring-2{
             position:absolute;
-            inset:30px;
+            inset:28px;
+
             border-radius:50%;
-            border:3px dashed rgba(255,255,255,.25);
-            animation:rotateRingReverse 12s linear infinite;
+
+            border:3px dashed rgba(255,255,255,.18);
+
+            animation:rotateRingReverse 14s linear infinite;
         }
 
         @keyframes rotateRing{
+
             from{
                 transform:rotate(0deg);
             }
+
             to{
                 transform:rotate(360deg);
             }
+
         }
 
         @keyframes rotateRingReverse{
+
             from{
                 transform:rotate(360deg);
             }
+
             to{
                 transform:rotate(0deg);
             }
+
         }
 
         .photo-wrap{
-            width:290px;
-            height:290px;
+            width:260px;
+            height:260px;
+
             border-radius:50%;
+
             overflow:hidden;
-            border:8px solid #FFD600;
+
+            border:7px solid #facc15;
+
+            background:#111827;
+
             box-shadow:
-                0 25px 80px rgba(255,214,0,.45);
-            background:#111;
+                0 15px 40px rgba(0,0,0,.45);
         }
 
         .photo-wrap img{
@@ -390,128 +490,191 @@
         }
 
         .scanner-chip{
+
             display:inline-flex;
             align-items:center;
-            gap:12px;
-            padding:12px 22px;
+            gap:10px;
+
+            padding:10px 18px;
+
             border-radius:999px;
-            background:rgba(255,255,255,.14);
+
+            background:rgba(255,255,255,.08);
+
+            border:1px solid rgba(255,255,255,.12);
+
             color:#fff;
-            font-size:15px;
-            font-weight:800;
+
+            font-size:13px;
+            font-weight:900;
             letter-spacing:1px;
-            margin-bottom:34px;
-            border:2px solid rgba(255,255,255,.18);
+
+            margin-bottom:30px;
         }
 
         .scanner-dot{
-            width:12px;
-            height:12px;
+            width:10px;
+            height:10px;
+
             border-radius:50%;
-            background:#00FF7F;
-            animation:pulseDot 1.4s infinite;
-            box-shadow:
-                0 0 18px #00FF7F;
+
+            background:#00ff7f;
+
+            animation:pulseDot 1.2s infinite;
         }
 
         @keyframes pulseDot{
+
             0%{
                 opacity:1;
             }
+
             50%{
-                opacity:.35;
+                opacity:.3;
             }
+
             100%{
                 opacity:1;
             }
+
+        }
+
+        .greeting-text{
+            font-size:22px;
+            font-weight:1000;
+            letter-spacing:4px;
+            margin-bottom:12px;
+            text-transform:uppercase;
+
+            color:#facc15;
+
+            text-shadow:
+                0 0 20px rgba(250,204,21,.45);
+
+            animation:greetPulse 1.5s infinite;
+        }
+
+        @keyframes greetPulse{
+
+            0%{
+                opacity:1;
+                transform:scale(1);
+            }
+
+            50%{
+                opacity:.7;
+                transform:scale(1.03);
+            }
+
+            100%{
+                opacity:1;
+                transform:scale(1);
+            }
+
         }
 
         .name-text{
-            font-size:60px;
+            font-size:64px;
             font-weight:1000;
+            line-height:1;
+
             color:#fff;
-            line-height:1.02;
-            margin-bottom:14px;
-            /*word-break:break-word;*/
-            overflow: hidden;
+
+            margin-bottom:12px;
+
+            text-transform:uppercase;
+
             text-shadow:
-                0 5px 20px rgba(0,0,0,.4);
+                0 8px 30px rgba(0,0,0,.35);
         }
 
         .role-text{
-            font-size:30px;
-            color:rgba(255,255,255,.98);
-            margin-bottom:46px;
+            font-size:26px;
             font-weight:700;
-            letter-spacing:1px;
-            text-shadow:
-                0 3px 10px rgba(0,0,0,.3);
+
+            color:rgba(255,255,255,.9);
+
+            margin-bottom:40px;
         }
 
         .info-grid{
             display:grid;
-            grid-template-columns:repeat(2,minmax(220px,260px));
-            gap:24px;
+            grid-template-columns:repeat(2,minmax(300px,250px));
+            gap:22px;
         }
 
         .info-box{
+
+            padding:30px;
+
+            border-radius:28px;
+
             background:
                 linear-gradient(
                     180deg,
-                    rgba(255,255,255,.18),
-                    rgba(255,255,255,.1)
+                    rgba(255,255,255,.10),
+                    rgba(255,255,255,.06)
                 );
-            border:3px solid rgba(255,255,255,.14);
-            border-radius:32px;
-            padding:34px;
-            backdrop-filter:blur(16px);
-            box-shadow:
-                0 15px 40px rgba(0,0,0,.18);
+
+            border:1px solid rgba(255,255,255,.10);
+
+            backdrop-filter:blur(14px);
         }
 
         .info-box.yellow{
+
             background:
                 linear-gradient(
                     135deg,
-                    #FFD600,
-                    #FFF176
+                    #facc15,
+                    #fde047
                 );
-            color:#000;
+
+            color:#111827;
         }
 
         .info-label{
-            font-size:18px;
+            font-size:15px;
             font-weight:900;
-            letter-spacing:2px;
-            opacity:.92;
-            margin-bottom:18px;
+            letter-spacing:1px;
+
+            margin-bottom:14px;
         }
 
         .big-value{
-            font-size:52px;
+            font-size:46px;
             font-weight:1000;
             line-height:1;
-            color: #fff2f2;
+
+            color:#fff;
+        }
+
+        .big-value.dark{
+            color:#111827;
         }
 
         .scanner-footer{
-            margin-top:42px;
+
+            margin-top:36px;
+
             display:flex;
             align-items:center;
-            gap:14px;
+            gap:12px;
+
             color:#fff;
-            font-size:18px;
+
+            font-size:16px;
             font-weight:700;
-            letter-spacing:1px;
         }
 
         .pulse-dot{
-            width:14px;
-            height:14px;
+            width:12px;
+            height:12px;
+
             border-radius:50%;
-            background:#00FF7F;
-            box-shadow:
-                0 0 22px #00FF7F;
+
+            background:#00ff7f;
+
             animation:pulseDot 1.2s infinite;
         }
 
@@ -526,36 +689,22 @@
             .scanner-grid{
                 grid-template-columns:1fr;
                 text-align:center;
-                gap:42px;
             }
 
             .scanner-left{
-                order:1;
-            }
-
-            .scanner-right{
-                order:2;
-            }
-
-            .scanner-card{
-                padding:38px;
-            }
-
-            .status-title{
-                font-size:38px;
-            }
-
-            .name-text{
-                font-size:54px;
-            }
-
-            .role-text{
-                font-size:24px;
+                justify-content:center;
             }
 
             .info-grid{
                 justify-content:center;
-                grid-template-columns:repeat(2,minmax(180px,220px));
+            }
+
+            .scanner-chip{
+                margin-inline:auto;
+            }
+
+            .scanner-footer{
+                justify-content:center;
             }
 
         }
@@ -564,115 +713,456 @@
 
     <script>
 
-        const input = document.getElementById('scan-input')
-        input.focus()
-        renderLogs()
+        document.addEventListener(
+            'DOMContentLoaded',
+            () => {
 
-        setInterval(()=>input.focus(),500)
+                const input =
+                    document.getElementById(
+                        'scan-input'
+                    );
 
-        input.addEventListener('keydown', function(e){
-            if(e.key === 'Enter'){
-                e.preventDefault()
-                const code = this.value.trim()
-                if(!code) return
-                processScan(code)
-                this.value=''
-            }
-        })
+                const statusBar =
+                    document.getElementById(
+                        'status-bar'
+                    );
 
-        function processScan(code){
-            $.ajax({
-                url:'/scan',
-                type:'POST',
-                data:JSON.stringify({code}),
-                contentType:'application/json',
-                headers:{
-                    'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
-                },
-                success:function(data){
+                const personName =
+                    document.getElementById(
+                        'person-name'
+                    );
 
-                    $('#person-name').text(data.name || 'UNKNOWN')
-                    $('#person-role').text(data.role || '')
-                    $('#person-photo').attr('src', data.photo || '/images/avatar.png')
-                    $('#scan-time').text(data.time || '--:--')
+                const personRole =
+                    document.getElementById(
+                        'person-role'
+                    );
 
-                    const bar = document.getElementById('status-bar')
-                    bar.classList.remove('idle','success','error','out')
+                const personPhoto =
+                    document.getElementById(
+                        'person-photo'
+                    );
 
-                    if(data.status === 'in'){
-                        bar.classList.add('success')
-                        bar.querySelector('.status-title').innerText = 'ACCESS GRANTED'
-                        bar.querySelector('.status-subtitle').innerText = 'Entry successfully recorded'
-                    }else if(data.status === 'out'){
-                        bar.classList.add('out')
-                        bar.querySelector('.status-title').innerText = 'EXIT RECORDED'
-                        bar.querySelector('.status-subtitle').innerText = 'Exit successfully recorded'
+                const scanTime =
+                    document.getElementById(
+                        'scan-time'
+                    );
+
+                const scanCount =
+                    document.getElementById(
+                        'scan-count'
+                    );
+
+                const greetingText =
+                    document.getElementById(
+                        'greeting-text'
+                    );
+
+                let processing = false;
+
+                let scanMode = 'TIME_IN';
+
+                input.focus();
+
+                renderLogs();
+
+                setMode(scanMode);
+
+                document.addEventListener(
+                    'click',
+                    () => {
+
+                        input.focus();
+
+                    }
+                );
+
+                document.addEventListener(
+                    'keydown',
+                    function(e){
+
+                        if(
+                            document.activeElement?.id === 'scan-input'
+                        ){
+                            return;
+                        }
+
+                        if(e.key === 1){
+                            e.preventDefault();
+
+                            setMode('TIME_IN');
+
+                        }
+
+                        if(e.key === 0){
+
+                            e.preventDefault();
+
+                            setMode('TIME_OUT');
+
+                        }
+
+                    }
+                );
+
+                document.querySelectorAll(
+                    '.mode-btn'
+                ).forEach(btn => {
+
+                    btn.addEventListener(
+                        'click',
+                        function(){
+
+                            setMode(
+                                this.dataset.mode
+                            );
+
+                        }
+                    );
+
+                });
+
+                function setMode(mode){
+
+                    scanMode = mode;
+
+                    document
+                        .querySelectorAll(
+                            '.mode-btn'
+                        )
+                        .forEach(el => {
+
+                            el.classList.remove(
+                                'active'
+                            );
+
+                        });
+
+                    document
+                        .querySelector(
+                            `.mode-btn[data-mode="${mode}"]`
+                        )
+                        ?.classList.add(
+                        'active'
+                    );
+
+                    if(mode === 'TIME_IN'){
+
+                        statusBar.className =
+                            'status-bar idle';
+
+                        statusBar.querySelector(
+                            '.status-title'
+                        ).innerText =
+                            'TIME IN MODE';
+
+                        statusBar.querySelector(
+                            '.status-subtitle'
+                        ).innerText =
+                            'Waiting for entry scan';
+
+                        greetingText.innerText =
+                            'READY TO WELCOME';
+
+                        greetingText.style.color =
+                            '#facc15';
+
                     }else{
-                        bar.classList.add('error')
-                        bar.querySelector('.status-title').innerText = 'ACCESS DENIED'
-                        bar.querySelector('.status-subtitle').innerText = 'Unauthorized access detected'
+
+                        statusBar.className =
+                            'status-bar out';
+
+                        statusBar.querySelector(
+                            '.status-title'
+                        ).innerText =
+                            'TIME OUT MODE';
+
+                        statusBar.querySelector(
+                            '.status-subtitle'
+                        ).innerText =
+                            'Waiting for exit scan';
+
+                        greetingText.innerText =
+                            'READY TO EXIT';
+
+                        greetingText.style.color =
+                            '#bfdbfe';
+
                     }
 
-                    addLog(data)
+                    input.focus();
 
-                    setTimeout(()=>{
-                        bar.className = 'status-bar idle'
-                        bar.querySelector('.status-title').innerText = 'READY TO SCAN'
-                        bar.querySelector('.status-subtitle').innerText = 'Waiting for NFC or QR Code'
-                    },2000)
-
-                }, error: function(err) {
-
-                    $('#person-name').text('USER NOT FOUND')
-                    $('#person-role').text('INVALID QR / NFC')
-                    $('#person-photo').attr('src', '/images/avatar.png')
-                    $('#scan-time').text('--:--')
-
-                    const bar = document.getElementById('status-bar')
-                    bar.classList.remove('idle','success','error','out')
-
-                    bar.classList.add('error')
-                    bar.querySelector('.status-title').innerText = 'ACCESS DENIED'
-                    bar.querySelector('.status-subtitle').innerText = 'Invalid scan detected'
-
-                    addLog({
-                        name:'UNKNOWN',
-                        role:'INVALID',
-                        status:'error',
-                        time:new Date().toLocaleTimeString()
-                    })
-
-                    setTimeout(()=>{
-                        bar.className = 'status-bar idle'
-                        bar.querySelector('.status-title').innerText = 'READY TO SCAN'
-                        bar.querySelector('.status-subtitle').innerText = 'Waiting for NFC or QR Code'
-                    },2000)
-
-                    console.error(err)
                 }
-            })
-        }
 
-        function getTodayKey(){
-            const d = new Date()
-            return 'scan_logs_' + d.toISOString().slice(0,10)
-        }
+                input.addEventListener(
+                    'keydown',
+                    function(e){
 
-        function addLog(data){
-            const key = getTodayKey()
-            const logs = JSON.parse(localStorage.getItem(key) || '[]')
+                        if(e.key !== 'Enter'){
+                            return;
+                        }
 
-            logs.unshift(data)
-            if(logs.length > 20) logs.pop()
+                        e.preventDefault();
 
-            localStorage.setItem(key, JSON.stringify(logs))
-            document.getElementById('scan-count').innerText = logs.length
-        }
+                        if(processing){
+                            return;
+                        }
 
-        function renderLogs(){
-            const logs = JSON.parse(localStorage.getItem(getTodayKey()) || '[]')
-            document.getElementById('scan-count').innerText = logs.length
-        }
+                        const code =
+                            this.value.trim();
+
+                        this.value = '';
+
+                        if(!code){
+                            return;
+                        }
+
+                        processing = true;
+
+                        processScan(code);
+
+                    }
+                );
+
+                function processScan(code){
+                    fetch('/scan',{
+                        method:'POST',
+                        headers:{
+                            'Content-Type':
+                                'application/json',
+
+                            'X-CSRF-TOKEN':
+                            document.querySelector(
+                                'meta[name="csrf-token"]'
+                            ).content
+                        },
+                        body:JSON.stringify({
+                            code,
+                            mode:scanMode
+                        })
+                    })
+                        .then(async response => {
+                            const data = await response.json();
+                            if(!response.ok){
+                                throw data;
+                            }
+                            updateScannerUI(data);
+                            addLog(data);
+                            processing = false;
+                        })
+                        .catch(error => {
+                            showErrorState();
+                            processing = false;
+                            console.error(error);
+                        });
+                }
+
+                function updateScannerUI(data){
+
+                    const fullName =
+                        data.name || 'UNKNOWN';
+
+                    personName.innerText =
+                        fullName;
+
+                    personRole.innerText =
+                        data.role || '';
+
+                    personPhoto.src =
+                        data.photo
+                        || '/images/avatar.png';
+
+                    scanTime.innerText =
+                        data.time || '--:--';
+
+                    statusBar.classList.remove(
+                        'idle',
+                        'success',
+                        'error',
+                        'out'
+                    );
+
+                    if(data.status === 'success'){
+
+                        if(scanMode === 'TIME_IN'){
+
+                            greetingText.innerText =
+                                '👋 WELCOME';
+
+                            greetingText.style.color =
+                                '#fde047';
+
+                            statusBar.classList.add(
+                                'success'
+                            );
+
+                            statusBar.querySelector(
+                                '.status-title'
+                            ).innerText =
+                                'ENTRY RECORDED';
+
+                            statusBar.querySelector(
+                                '.status-subtitle'
+                            ).innerText =
+                                data.message
+                                ||
+                                'Have a great day!';
+
+                        }else{
+
+                            greetingText.innerText =
+                                '🚪 GOODBYE';
+
+                            greetingText.style.color =
+                                '#bfdbfe';
+
+                            statusBar.classList.add(
+                                'out'
+                            );
+
+                            statusBar.querySelector(
+                                '.status-title'
+                            ).innerText =
+                                'EXIT RECORDED';
+
+                            statusBar.querySelector(
+                                '.status-subtitle'
+                            ).innerText =
+                                data.message
+                                ||
+                                'See you again!';
+
+                        }
+
+                    }else{
+
+                        showErrorState();
+
+                    }
+
+                    setTimeout(() => {
+
+                        resetScanner();
+
+                    },1500);
+
+                }
+
+                function showErrorState(){
+
+                    greetingText.innerText =
+                        '⚠ ACCESS';
+
+                    greetingText.style.color =
+                        '#fecaca';
+
+                    personName.innerText =
+                        'ACCESS DENIED';
+
+                    personRole.innerText =
+                        'INVALID QR / RFID';
+
+                    personPhoto.src =
+                        '/images/avatar.png';
+
+                    statusBar.classList.remove(
+                        'idle',
+                        'success',
+                        'error',
+                        'out'
+                    );
+
+                    statusBar.classList.add(
+                        'error'
+                    );
+
+                    statusBar.querySelector(
+                        '.status-title'
+                    ).innerText =
+                        'ACCESS DENIED';
+
+                    statusBar.querySelector(
+                        '.status-subtitle'
+                    ).innerText =
+                        'Invalid scan detected';
+
+                    setTimeout(() => {
+
+                        resetScanner();
+
+                    },1500);
+
+                }
+
+                function resetScanner(){
+
+                    setMode(scanMode);
+
+                    personName.innerText =
+                        'WAITING...';
+
+                    personRole.innerText =
+                        'TAP CARD / SCAN QR';
+
+                    personPhoto.src =
+                        '/images/avatar.png';
+
+                    input.focus();
+
+                }
+
+                function getTodayKey(){
+
+                    const d = new Date();
+
+                    return (
+                        'scan_logs_' +
+                        d.toISOString().slice(0,10)
+                    );
+
+                }
+
+                function addLog(data){
+
+                    const key =
+                        getTodayKey();
+
+                    const logs =
+                        JSON.parse(
+                            localStorage.getItem(key)
+                            || '[]'
+                        );
+
+                    logs.unshift(data);
+
+                    if(logs.length > 20){
+                        logs.pop();
+                    }
+
+                    localStorage.setItem(
+                        key,
+                        JSON.stringify(logs)
+                    );
+
+                    scanCount.innerText =
+                        logs.length;
+
+                }
+
+                function renderLogs(){
+
+                    const logs =
+                        JSON.parse(
+                            localStorage.getItem(
+                                getTodayKey()
+                            ) || '[]'
+                        );
+
+                    scanCount.innerText =
+                        logs.length;
+
+                }
+
+            });
 
     </script>
 

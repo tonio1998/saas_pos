@@ -12,6 +12,78 @@ class LogsController extends Controller
         return view('pages.logs.index');
     }
 
+    public function users()
+    {
+        return view('pages.logs.users');
+    }
+
+    public function users_data(Request $request)
+    {
+        $userId = trim($request->user_id);
+
+        if (!$userId) {
+
+            return response()->json([
+                'status'  => false,
+                'message' => 'User ID is required.'
+            ]);
+
+        }
+
+        $logs = ScanLogs::query()
+
+            ->where('UserID', $userId)
+
+            ->orderByDesc('created_at')
+
+            ->get()
+
+            ->groupBy(function ($log) {
+
+                return \Carbon\Carbon::parse($log->created_at)
+                    ->format('F d, Y');
+
+            });
+
+        $data = [];
+
+        foreach ($logs as $date => $items) {
+
+            $data[] = [
+
+                'date'  => $date,
+
+                'total' => $items->count(),
+
+                'logs'  => $items->map(function ($log) {
+
+                    return [
+
+                        'mode' => $log->Mode == 1
+                            ? 'IN'
+                            : 'OUT',
+
+                        'time' => \Carbon\Carbon::parse($log->created_at)
+                            ->format('h:i A'),
+
+                        'device' => $log->Device ?? 'Scanner Device',
+
+                        'created_at' => $log->created_at
+
+                    ];
+
+                })->values()
+
+            ];
+
+        }
+
+        return response()->json([
+            'status' => true,
+            'data'   => $data
+        ]);
+    }
+
     public function logs_data(Request $request)
     {
         $query = ScanLogs::with('user');

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title','Parent Management')
 @section('content')
-    <x-page-header title="Parent Management" subtitle="Manage student">
+    <x-page-header title="Parent Management" subtitle="Manage Parent">
         <x-slot:action>
             <a href="{{ route('parents.create') }}" class="btn btn-primary btn-md">
                 <i class="bi bi-plus"></i> Add Parent

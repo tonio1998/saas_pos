@@ -17,7 +17,8 @@ class ScanController extends Controller
         try {
 
             $request->validate([
-                'code' => 'required|string|max:255'
+                'code' => 'required|string|max:255',
+                'mode' => 'required|string'
             ]);
 
             $input = trim($request->code);
@@ -30,22 +31,26 @@ class ScanController extends Controller
             ]);
 
             if (ctype_digit($input)) {
-                $query->where(function ($q) use ($input) {
+
+                $normalizedInput = ltrim($input, '0');
+
+                $query->where(function ($q) use ($input, $normalizedInput) {
+
                     $q->where('qr_code', $input)
                         ->orWhere('id', $input)
-                        ->orWhere('nfc_code', $input);
+                        ->orWhereRaw('CAST(nfc_code AS UNSIGNED) = ?', [$normalizedInput ?: 0]);
                 });
 
             } else {
 
                 $query->where(function ($q) use ($input) {
+
                     $q->where('nfc_code', $input)
                         ->orWhere('qr_code', $input);
                 });
             }
 
             $user = $query->first();
-
             if (!$user) {
 
                 return response()->json([
@@ -64,7 +69,8 @@ class ScanController extends Controller
                 ->latest('id')
                 ->first();
 
-            $mode = ($lastLog && (int) $lastLog->Mode === 1) ? 0 : 1;
+//            $mode = ($lastLog && (int) $lastLog->Mode === 1) ? 0 : 1;
+            $mode = $request->mode === 'TIME_IN' ? 1 : 0;
 
             $direction = $mode === 1 ? 'entry' : 'exit';
 
@@ -76,29 +82,7 @@ class ScanController extends Controller
                 ScanLogs::where('VerificationCode', $verificationCode)->exists()
             );
 
-            $settings = Cache::remember(
-                'school_settings',
-                now()->addHours(12),
-                function () {
-
-                    return SchoolSetting::pluck(
-                        'setting_value',
-                        'setting_key'
-                    )->toArray();
-                }
-            );
-
-            $officialTimeIn = $settings['official_time_in'] ?? '07:30';
-            $gracePeriod = (int) ($settings['grace_period_minutes'] ?? 10);
-
             $attendanceStatus = 'present';
-
-            $todayOfficialTime = Carbon::today()
-                ->setTimeFromTimeString($officialTimeIn);
-
-            $allowedTime = $todayOfficialTime
-                ->copy()
-                ->addMinutes($gracePeriod);
 
             $scanLog = ScanLogs::create([
                 'UserID' => $user->id,
@@ -155,7 +139,7 @@ class ScanController extends Controller
 
             $smsEnabled = (int) ($settings['sms_enabled'] ?? 0);
 
-            if ($smsEnabled === 1) {
+            if (true) {
 
                 foreach ($phoneNumbers as $number) {
 
@@ -176,13 +160,11 @@ class ScanController extends Controller
             }
 
             return response()->json([
-                'status' => $mode === 1 ? 'in' : 'out',
+                'status' => 'success',
                 'message' => $mode === 1
                     ? 'Entry recorded successfully.'
                     : 'Exit recorded successfully.',
                 'attendance_status' => $attendanceStatus,
-                'official_time_in' => $officialTimeIn,
-                'grace_period_minutes' => $gracePeriod,
                 'name' => $user->name,
                 'role' => $roles
                     ->map(fn($role) => ucfirst($role))

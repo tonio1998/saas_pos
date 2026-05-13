@@ -41,7 +41,7 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard.dashboard'));
+        return redirect()->intended(route('dashboard.index'));
     }
 
     public function register(Request $request)
@@ -75,7 +75,7 @@ class AuthController extends Controller
 
             $request->session()->regenerate();
 
-            return redirect()->route('dashboard.dashboard');
+            return redirect()->route('dashboard.index');
         } catch (\Illuminate\Validation\ValidationException $e) {
 
             throw $e;
@@ -152,7 +152,7 @@ class AuthController extends Controller
 
             request()->session()->regenerate();
 
-            return redirect()->route('dashboard');
+            return redirect()->route('dashboard.index');
 
         } catch (\Throwable $e) {
 

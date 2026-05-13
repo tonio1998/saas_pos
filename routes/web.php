@@ -7,6 +7,7 @@ use App\Http\Controllers\GradeLevelController;
 use App\Http\Controllers\LogsController;
 use App\Http\Controllers\ParentsController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ScanController;
 use App\Http\Controllers\ScannerController;
@@ -24,7 +25,7 @@ use App\Http\Controllers\AuthController;
 
 Route::get('/', function () {
     return Auth::check()
-        ? redirect()->route('dashboard')
+        ? redirect()->route('dashboard.index')
         : view('auth.login');
 });
 
@@ -39,7 +40,12 @@ Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('g
 Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 
 Route::middleware('auth')->group(function(){
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::prefix('dashboard')->name('dashboard.')->group(function(){
+        Route::get('/', [DashboardController::class, 'index'])->name('index');
+        Route::get('/data', [DashboardController::class, 'data'])->name('data');
+    });
+
+
     Route::prefix('users')->name('users.')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('index');
         Route::get('data', [UserController::class, 'users_data'])->name('data');
@@ -64,6 +70,8 @@ Route::middleware('auth')->group(function(){
     Route::prefix('logs')->name('logs.')->group(function(){
         Route::get('/index', [LogsController::class, 'index'])->name('index');
         Route::get('/data', [LogsController::class, 'logs_data'])->name('data');
+        Route::get('/users', [LogsController::class, 'users'])->name('users');
+        Route::get('/users/data', [LogsController::class, 'users_data'])->name('users.data');
     });
 
     Route::prefix('students')->name('students.')->group(function(){
@@ -91,10 +99,6 @@ Route::middleware('auth')->group(function(){
         Route::get('/create', [ParentsController::class, 'create'])->name('create');
         Route::post('/create', [ParentsController::class, 'store'])->name('store');
         Route::get('/data', [ParentsController::class, 'ajaxData'])->name('data');
-    });
-
-    Route::prefix('scanner')->name('scanner.')->group(function(){
-        Route::get('/index', [ScannerController::class, 'index'])->name('index');
     });
 
     Route::prefix('permissions')->name('permissions.')->group(function(){
@@ -159,6 +163,11 @@ Route::middleware('auth')->group(function(){
         Route::get('/data', [StrandsController::class, 'ajaxData'])->name('data');
     });
 
+    Route::prefix('reports')->name('reports.')->group(function(){
+        Route::get('/', [ReportsController::class, 'index'])->name('index');
+        Route::get('/gate-logs/data', [ReportsController::class, 'gateLogsData'])->name('gate-logs.data');
+    });
+
     Route::prefix('classes')->name('classes.')->group(function(){
         Route::get('/', [ClassesController::class, 'index'])->name('index');
         Route::get('/edit/{id}', [ClassesController::class, 'edit'])->name('edit');
@@ -177,8 +186,6 @@ Route::middleware('auth')->group(function(){
         Route::get('/data', [EnrollmentController::class, 'ajaxData'])->name('data');
     });
 
-    Route::get('/reports', fn() => view('pages.reports.index'));
-
     Route::prefix('select2')->name('select2.')->group(function(){
         Route::get('roles/search',[RoleController::class,'search'])->name('roles');
         Route::get('users/search',[UserController::class,'users_search'])->name('users');
@@ -195,3 +202,6 @@ Route::middleware('auth')->group(function(){
 });
 
 Route::post('/scan',[ScanController::class,'scan'])->name('scan');
+Route::prefix('scanner')->name('scanner.')->group(function(){
+    Route::get('/', [ScannerController::class, 'index'])->name('index');
+});

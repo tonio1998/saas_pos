@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title','Employees Management')
 @section('content')
-    <x-page-header title="Employee Management" subtitle="Manage teacher">
+    <x-page-header title="Employee Management" subtitle="Manage Employee">
         <x-slot:action>
             <a href="{{ route('employees.create') }}" class="btn btn-primary btn-md">
                 <i class="bi bi-plus"></i> Add Employee

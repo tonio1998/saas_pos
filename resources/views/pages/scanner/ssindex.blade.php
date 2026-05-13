@@ -1,47 +1,145 @@
 @extends('layouts.scanner')
+
 @section('title','Gate Scanner')
+
 @section('content')
-    <div class="container-fluid kiosk-wrap d-flex flex-column p-0">
-        <!-- STATUS BAR (VERY IMPORTANT) -->
-        <div id="status-bar" class="status-bar idle">
-            READY TO SCAN
+
+    <div class="container-fluid kiosk-wrap p-0">
+
+        <div class="scanner-bg"></div>
+        <div class="scanner-bg scanner-bg-2"></div>
+
+        <div
+            id="status-bar"
+            class="status-bar idle"
+        >
+
+            <div class="status-indicator"></div>
+
+            <div class="status-content">
+
+                <div class="status-title">
+                    TIME IN MODE
+                </div>
+
+                <div class="status-subtitle">
+                    Waiting for entry scan
+                </div>
+
+            </div>
+
         </div>
 
-        <!-- MAIN -->
-        <div class="flex-grow-1 d-flex align-items-center justify-content-center">
 
-            <div class="text-center w-100 px-3">
+        <div class="scanner-body">
 
-                <!-- PHOTO -->
-                <div class="photo-wrap mx-auto mb-3">
-                    <img id="person-photo" src="{{ asset('images/avatar.png') }}">
+            <div class="scanner-card">
+                <div class="mode-switch">
+
+                    <button
+                        class="mode-btn active"
+                        data-mode="TIME_IN"
+                    >
+                        <i class="bi bi-box-arrow-in-right"></i>
+                        TIME IN
+                    </button>
+
+                    <button
+                        class="mode-btn"
+                        data-mode="TIME_OUT"
+                    >
+                        <i class="bi bi-box-arrow-left"></i>
+                        TIME OUT
+                    </button>
+
                 </div>
+                <div class="scanner-grid">
 
-                <!-- NAME -->
-                <div id="person-name" class="name-text">
-                    WAITING...
-                </div>
+                    <div class="scanner-left">
 
-                <!-- ROLE -->
-                <div id="person-role" class="role-text mb-4">
-                    TAP CARD / SCAN QR
-                </div>
+                        <div class="scanner-ring">
 
-                <!-- INFO -->
-                <div class="row g-3 justify-content-center">
+                            <div class="scanner-ring-2"></div>
 
-                    <div class="col-5 col-md-3">
-                        <div class="info-box">
-                            <div>TIME</div>
-                            <div id="scan-time" class="big-value">--:--</div>
+                            <div class="photo-wrap">
+
+                                <img
+                                    id="person-photo"
+                                    src="{{ asset('images/avatar.png') }}"
+                                >
+
+                            </div>
+
                         </div>
+
                     </div>
 
-                    <div class="col-5 col-md-3">
-                        <div class="info-box yellow">
-                            <div>SCANS</div>
-                            <div id="scan-count" class="big-value">0</div>
+                    <div class="scanner-right">
+
+                        <div class="scanner-chip">
+
+                            <div class="scanner-dot"></div>
+
+                            LIVE GATE TERMINAL
+
                         </div>
+
+                        <div
+                            id="person-name"
+                            class="name-text"
+                        >
+                            WAITING...
+                        </div>
+
+                        <div
+                            id="person-role"
+                            class="role-text"
+                        >
+                            TAP CARD / SCAN QR
+                        </div>
+
+                        <div class="info-grid">
+
+                            <div class="info-box">
+
+                                <div class="info-label">
+                                    TIME
+                                </div>
+
+                                <div
+                                    id="scan-time"
+                                    class="big-value"
+                                >
+                                    --:--
+                                </div>
+
+                            </div>
+
+                            <div class="info-box yellow">
+
+                                <div class="info-label">
+                                    TOTAL SCANS
+                                </div>
+
+                                <div
+                                    id="scan-count"
+                                    class="big-value dark"
+                                >
+                                    0
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="scanner-footer">
+
+                            <div class="pulse-dot"></div>
+
+                            Scanner Active
+
+                        </div>
+
                     </div>
 
                 </div>
@@ -50,57 +148,333 @@
 
         </div>
 
-        <!-- INPUT (HIDDEN STYLE BUT ACTIVE) -->
-        <input type="text" id="scan-input" autofocus>
+        <input
+            type="text"
+            id="scan-input"
+            autofocus
+        >
+
     </div>
 
     <style>
 
-        /* BASE */
-        body{
-            background:#FFF;
-            color:#fff;
-            overflow:hidden;
+        :root{
+
+            --primary:#16a34a;
+            --primary-dark:#14532d;
+            --blue:#2563eb;
+            --danger:#dc2626;
+            --warning:#facc15;
+            --glass:rgba(255,255,255,.08);
+            --glass-border:rgba(255,255,255,.12);
+
         }
 
-        /* FULLSCREEN */
+        body{
+            margin:0;
+            overflow:hidden;
+            font-family:
+                Inter,
+                system-ui,
+                sans-serif;
+
+            background:
+                radial-gradient(circle at top left,#14532d 0%,#08140d 55%,#020403 100%);
+        }
+
         .kiosk-wrap{
             height:100vh;
+            position:relative;
+            overflow:hidden;
+            padding:28px;
         }
 
-        /* STATUS BAR */
+        .scanner-bg{
+            position:absolute;
+            width:700px;
+            height:700px;
+            border-radius:50%;
+            background:rgba(255,255,255,.04);
+            filter:blur(20px);
+            top:-250px;
+            right:-200px;
+            animation:floatBg 14s linear infinite;
+        }
+
+        .scanner-bg-2{
+            width:500px;
+            height:500px;
+            top:auto;
+            bottom:-180px;
+            left:-150px;
+            animation-duration:18s;
+        }
+
+        @keyframes floatBg{
+
+            0%{
+                transform:translateY(0px) rotate(0deg);
+            }
+
+            50%{
+                transform:translateY(20px) rotate(180deg);
+            }
+
+            100%{
+                transform:translateY(0px) rotate(360deg);
+            }
+
+        }
+
         .status-bar{
-            font-size:48px;
-            font-weight:900;
-            text-align:center;
-            padding:20px;
-            letter-spacing:2px;
-            transition:.2s;
+            position:relative;
+            z-index:10;
+
+            display:flex;
+            align-items:center;
+            gap:20px;
+
+            padding:24px 32px;
+
+            /*border-radius:28px;*/
+
+            backdrop-filter:blur(20px);
+
+            border:1px solid var(--glass-border);
+
+            box-shadow:
+                0 20px 50px rgba(0,0,0,.35);
+
+            transition:.25s ease;
         }
 
         .status-bar.idle{
-            background:#004D1A;
+            background:
+                linear-gradient(
+                    135deg,
+                    #15803d,
+                    #16a34a
+                );
         }
 
         .status-bar.success{
-            background:#00c853;
+            background:
+                linear-gradient(
+                    135deg,
+                    #00c853,
+                    #00e676
+                );
         }
 
         .status-bar.out{
-            background:#0091ea;
+            background:
+                linear-gradient(
+                    135deg,
+                    #2563eb,
+                    #38bdf8
+                );
         }
 
         .status-bar.error{
-            background:#d50000;
+            background:
+                linear-gradient(
+                    135deg,
+                    #b91c1c,
+                    #ef4444
+                );
         }
 
-        /* PHOTO */
-        .photo-wrap{
-            width:180px;
-            height:180px;
+        .status-indicator{
+            width:22px;
+            height:22px;
             border-radius:50%;
+            background:#fff;
+
+            box-shadow:
+                0 0 25px rgba(255,255,255,.9);
+
+            flex-shrink:0;
+        }
+
+        .status-title{
+            font-size:42px;
+            font-weight:1000;
+            line-height:1;
+            color:#fff;
+            letter-spacing:2px;
+        }
+
+        .status-subtitle{
+            margin-top:6px;
+            font-size:16px;
+            font-weight:600;
+            color:rgba(255,255,255,.92);
+        }
+
+        .mode-switch{
+            margin-top:22px;
+
+            display:flex;
+            gap:14px;
+
+            position:relative;
+            z-index:10;
+        }
+
+        .mode-btn{
+            border:none;
+
+            padding:14px 26px;
+
+            border-radius:18px;
+
+            background:rgba(255,255,255,.08);
+
+            color:#fff;
+
+            font-size:15px;
+            font-weight:900;
+            letter-spacing:1px;
+
+            border:1px solid rgba(255,255,255,.12);
+
+            backdrop-filter:blur(12px);
+
+            transition:.2s ease;
+        }
+
+        .mode-btn:hover{
+            transform:translateY(-2px);
+        }
+
+        .mode-btn.active{
+            background:#facc15;
+            color:#111827;
+
+            box-shadow:
+                0 10px 30px rgba(250,204,21,.35);
+        }
+
+        .scanner-body{
+            height:calc(100vh - 170px);
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+
+            position:relative;
+            z-index:2;
+        }
+
+        .scanner-card{
+
+            width:100%;
+            max-width:1450px;
+
+            border-radius:40px;
+
+            padding:50px;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(255,255,255,.10),
+                    rgba(255,255,255,.05)
+                );
+
+            border:1px solid rgba(255,255,255,.10);
+
+            backdrop-filter:blur(24px);
+
+            box-shadow:
+                0 30px 80px rgba(0,0,0,.45);
+        }
+
+        .scanner-grid{
+            display:grid;
+            grid-template-columns:420px 1fr;
+            gap:70px;
+            align-items:center;
+        }
+
+        .scanner-left{
+            display:flex;
+            justify-content:center;
+        }
+
+        .scanner-ring{
+            width:340px;
+            height:340px;
+
+            position:relative;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+        }
+
+        .scanner-ring::before{
+            content:'';
+
+            position:absolute;
+            inset:0;
+
+            border-radius:50%;
+
+            border:4px solid rgba(255,255,255,.20);
+
+            animation:rotateRing 10s linear infinite;
+        }
+
+        .scanner-ring-2{
+            position:absolute;
+            inset:28px;
+
+            border-radius:50%;
+
+            border:3px dashed rgba(255,255,255,.18);
+
+            animation:rotateRingReverse 14s linear infinite;
+        }
+
+        @keyframes rotateRing{
+
+            from{
+                transform:rotate(0deg);
+            }
+
+            to{
+                transform:rotate(360deg);
+            }
+
+        }
+
+        @keyframes rotateRingReverse{
+
+            from{
+                transform:rotate(360deg);
+            }
+
+            to{
+                transform:rotate(0deg);
+            }
+
+        }
+
+        .photo-wrap{
+            width:260px;
+            height:260px;
+
+            border-radius:50%;
+
             overflow:hidden;
-            border:6px solid #FFD04C;
+
+            border:7px solid #facc15;
+
+            background:#111827;
+
+            box-shadow:
+                0 15px 40px rgba(0,0,0,.45);
         }
 
         .photo-wrap img{
@@ -109,125 +483,619 @@
             object-fit:cover;
         }
 
-        /* TEXT */
+        .scanner-chip{
+
+            display:inline-flex;
+            align-items:center;
+            gap:10px;
+
+            padding:10px 18px;
+
+            border-radius:999px;
+
+            background:rgba(255,255,255,.08);
+
+            border:1px solid rgba(255,255,255,.12);
+
+            color:#fff;
+
+            font-size:13px;
+            font-weight:900;
+            letter-spacing:1px;
+
+            margin-bottom:30px;
+        }
+
+        .scanner-dot{
+            width:10px;
+            height:10px;
+
+            border-radius:50%;
+
+            background:#00ff7f;
+
+            animation:pulseDot 1.2s infinite;
+        }
+
+        @keyframes pulseDot{
+
+            0%{
+                opacity:1;
+            }
+
+            50%{
+                opacity:.3;
+            }
+
+            100%{
+                opacity:1;
+            }
+
+        }
+
         .name-text{
-            font-size:48px;
-            font-weight:800;
+            font-size:58px;
+            font-weight:1000;
+            line-height:1;
+
+            color:#fff;
+
+            margin-bottom:12px;
+
+            text-transform:uppercase;
         }
 
         .role-text{
-            font-size:22px;
-            color:#bbb;
+            font-size:26px;
+            font-weight:700;
+
+            color:rgba(255,255,255,.9);
+
+            margin-bottom:40px;
         }
 
-        /* INFO */
+        .info-grid{
+            display:grid;
+            grid-template-columns:repeat(2,minmax(300px,250px));
+            gap:22px;
+        }
+
         .info-box{
-            background:#111;
-            padding:20px;
-            border-radius:16px;
-            text-align:center;
+
+            padding:30px;
+
+            border-radius:28px;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(255,255,255,.10),
+                    rgba(255,255,255,.06)
+                );
+
+            border:1px solid rgba(255,255,255,.10);
+
+            backdrop-filter:blur(14px);
         }
 
         .info-box.yellow{
-            background:#FFD04C;
-            color:#000;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #facc15,
+                    #fde047
+                );
+
+            color:#111827;
+        }
+
+        .info-label{
+            font-size:15px;
+            font-weight:900;
+            letter-spacing:1px;
+
+            margin-bottom:14px;
         }
 
         .big-value{
-            font-size:32px;
-            font-weight:900;
+            font-size:46px;
+            font-weight:1000;
+            line-height:1;
+
+            color:#fff;
         }
 
-        /* INPUT hidden but usable */
+        .big-value.dark{
+            color:#111827;
+        }
+
+        .scanner-footer{
+
+            margin-top:36px;
+
+            display:flex;
+            align-items:center;
+            gap:12px;
+
+            color:#fff;
+
+            font-size:16px;
+            font-weight:700;
+        }
+
+        .pulse-dot{
+            width:12px;
+            height:12px;
+
+            border-radius:50%;
+
+            background:#00ff7f;
+
+            animation:pulseDot 1.2s infinite;
+        }
+
         #scan-input{
             position:absolute;
             opacity:0;
             pointer-events:none;
         }
 
+        @media(max-width:1200px){
+
+            .scanner-grid{
+                grid-template-columns:1fr;
+                text-align:center;
+            }
+
+            .scanner-left{
+                justify-content:center;
+            }
+
+            .info-grid{
+                justify-content:center;
+            }
+
+            .scanner-chip{
+                margin-inline:auto;
+            }
+
+            .scanner-footer{
+                justify-content:center;
+            }
+
+        }
+
     </style>
 
     <script>
 
-        const input = document.getElementById('scan-input')
-        input.focus()
-        renderLogs()
+        document.addEventListener(
+            'DOMContentLoaded',
+            () => {
 
-        setInterval(()=>input.focus(),500)
+                const input =
+                    document.getElementById(
+                        'scan-input'
+                    );
 
-        /* ENTER SCAN */
-        input.addEventListener('keydown', function(e){
-            if(e.key === 'Enter'){
-                e.preventDefault()
-                const code = this.value.trim()
-                if(!code) return
-                processScan(code)
-                this.value=''
-            }
-        })
+                const statusBar =
+                    document.getElementById(
+                        'status-bar'
+                    );
 
-        /* PROCESS */
-        function processScan(code){
-            $.ajax({
-                url:'/scan',
-                type:'POST',
-                data:JSON.stringify({code}),
-                contentType:'application/json',
-                headers:{
-                    'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
-                },
-                success:function(data){
+                const personName =
+                    document.getElementById(
+                        'person-name'
+                    );
 
-                    $('#person-name').text(data.name || 'UNKNOWN')
-                    $('#person-role').text(data.role || '')
-                    $('#person-photo').attr('src', data.photo || '/images/avatar.png')
-                    $('#scan-time').text(data.time || '--:--')
+                const personRole =
+                    document.getElementById(
+                        'person-role'
+                    );
 
-                    const bar = document.getElementById('status-bar')
-                    bar.classList.remove('idle','success','error','out')
+                const personPhoto =
+                    document.getElementById(
+                        'person-photo'
+                    );
 
-                    if(data.status === 'in'){
-                        bar.classList.add('success')
-                        bar.innerText = 'ACCESS GRANTED'
-                    }else if(data.status === 'out'){
-                        bar.classList.add('out')
-                        bar.innerText = 'EXIT RECORDED'
+                const scanTime =
+                    document.getElementById(
+                        'scan-time'
+                    );
+
+                const scanCount =
+                    document.getElementById(
+                        'scan-count'
+                    );
+
+                let processing = false;
+
+                let scanMode = 'TIME_IN';
+
+                input.focus();
+
+                renderLogs();
+
+                document.addEventListener(
+                    'click',
+                    () => {
+
+                        input.focus();
+
+                    }
+                );
+
+                document.querySelectorAll(
+                    '.mode-btn'
+                ).forEach(btn => {
+
+                    btn.addEventListener(
+                        'click',
+                        function(){
+
+                            document
+                                .querySelectorAll(
+                                    '.mode-btn'
+                                )
+                                .forEach(el => {
+
+                                    el.classList.remove(
+                                        'active'
+                                    );
+
+                                });
+
+                            this.classList.add(
+                                'active'
+                            );
+
+                            scanMode =
+                                this.dataset.mode;
+
+                            if(
+                                scanMode === 'TIME_IN'
+                            ){
+
+                                statusBar.className =
+                                    'status-bar idle';
+
+                                statusBar.querySelector(
+                                    '.status-title'
+                                ).innerText =
+                                    'TIME IN MODE';
+
+                                statusBar.querySelector(
+                                    '.status-subtitle'
+                                ).innerText =
+                                    'Waiting for entry scan';
+
+                            }else{
+
+                                statusBar.className =
+                                    'status-bar out';
+
+                                statusBar.querySelector(
+                                    '.status-title'
+                                ).innerText =
+                                    'TIME OUT MODE';
+
+                                statusBar.querySelector(
+                                    '.status-subtitle'
+                                ).innerText =
+                                    'Waiting for exit scan';
+
+                            }
+
+                            input.focus();
+
+                        }
+                    );
+
+                });
+
+                input.addEventListener(
+                    'keydown',
+                    function(e){
+
+                        if(e.key !== 'Enter'){
+                            return;
+                        }
+
+                        e.preventDefault();
+
+                        if(processing){
+                            return;
+                        }
+
+                        const code =
+                            this.value.trim();
+
+                        this.value = '';
+
+                        if(!code){
+                            return;
+                        }
+
+                        processing = true;
+
+                        processScan(code);
+
+                    }
+                );
+
+                function processScan(code){
+
+                    fetch('/scan',{
+
+                        method:'POST',
+
+                        headers:{
+
+                            'Content-Type':
+                                'application/json',
+
+                            'X-CSRF-TOKEN':
+                            document.querySelector(
+                                'meta[name="csrf-token"]'
+                            ).content
+
+                        },
+
+                        body:JSON.stringify({
+
+                            code,
+                            mode:scanMode
+
+                        })
+
+                    })
+                        .then(async response => {
+
+                            const data =
+                                await response.json();
+
+                            if(!response.ok){
+                                throw data;
+                            }
+
+                            updateScannerUI(data);
+
+                            addLog(data);
+
+                            processing = false;
+
+                        })
+                        .catch(error => {
+
+                            showErrorState();
+
+                            processing = false;
+
+                            console.error(error);
+
+                        });
+
+                }
+
+                function updateScannerUI(data){
+
+                    personName.innerText =
+                        data.name || 'UNKNOWN';
+
+                    personRole.innerText =
+                        data.role || '';
+
+                    personPhoto.src =
+                        data.photo
+                        || '/images/avatar.png';
+
+                    scanTime.innerText =
+                        data.time || '--:--';
+
+                    statusBar.classList.remove(
+                        'idle',
+                        'success',
+                        'error',
+                        'out'
+                    );
+
+                    if(data.status === 'success'){
+
+                        if(
+                            scanMode === 'TIME_IN'
+                        ){
+
+                            statusBar.classList.add(
+                                'success'
+                            );
+
+                            statusBar.querySelector(
+                                '.status-title'
+                            ).innerText =
+                                'ENTRY RECORDED';
+
+                            statusBar.querySelector(
+                                '.status-subtitle'
+                            ).innerText =
+                                data.message
+                                ||
+                                'Time in successfully recorded';
+
+                        }else{
+
+                            statusBar.classList.add(
+                                'out'
+                            );
+
+                            statusBar.querySelector(
+                                '.status-title'
+                            ).innerText =
+                                'EXIT RECORDED';
+
+                            statusBar.querySelector(
+                                '.status-subtitle'
+                            ).innerText =
+                                data.message
+                                ||
+                                'Time out successfully recorded';
+
+                        }
+
                     }else{
-                        bar.classList.add('error')
-                        bar.innerText = 'ACCESS DENIED'
+
+                        showErrorState();
+
                     }
 
-                    addLog(data)
+                    setTimeout(() => {
 
-                    setTimeout(()=>{
-                        bar.className = 'status-bar idle'
-                        bar.innerText = 'READY TO SCAN'
-                    },2000)
+                        resetScanner();
+
+                    },1500);
+
                 }
-            })
-        }
 
-        /* LOGS */
-        function getTodayKey(){
-            const d = new Date()
-            return 'scan_logs_' + d.toISOString().slice(0,10)
-        }
+                function showErrorState(){
 
-        function addLog(data){
-            const key = getTodayKey()
-            const logs = JSON.parse(localStorage.getItem(key) || '[]')
+                    personName.innerText =
+                        'ACCESS DENIED';
 
-            logs.unshift(data)
-            if(logs.length > 20) logs.pop()
+                    personRole.innerText =
+                        'INVALID QR / RFID';
 
-            localStorage.setItem(key, JSON.stringify(logs))
-            document.getElementById('scan-count').innerText = logs.length
-        }
+                    personPhoto.src =
+                        '/images/avatar.png';
 
-        function renderLogs(){
-            const logs = JSON.parse(localStorage.getItem(getTodayKey()) || '[]')
-            document.getElementById('scan-count').innerText = logs.length
-        }
+                    statusBar.classList.remove(
+                        'idle',
+                        'success',
+                        'error',
+                        'out'
+                    );
+
+                    statusBar.classList.add(
+                        'error'
+                    );
+
+                    statusBar.querySelector(
+                        '.status-title'
+                    ).innerText =
+                        'ACCESS DENIED';
+
+                    statusBar.querySelector(
+                        '.status-subtitle'
+                    ).innerText =
+                        'Invalid scan detected';
+
+                    setTimeout(() => {
+
+                        resetScanner();
+
+                    },1500);
+
+                }
+
+                function resetScanner(){
+
+                    if(scanMode === 'TIME_IN'){
+
+                        statusBar.className =
+                            'status-bar idle';
+
+                        statusBar.querySelector(
+                            '.status-title'
+                        ).innerText =
+                            'TIME IN MODE';
+
+                        statusBar.querySelector(
+                            '.status-subtitle'
+                        ).innerText =
+                            'Waiting for entry scan';
+
+                    }else{
+
+                        statusBar.className =
+                            'status-bar out';
+
+                        statusBar.querySelector(
+                            '.status-title'
+                        ).innerText =
+                            'TIME OUT MODE';
+
+                        statusBar.querySelector(
+                            '.status-subtitle'
+                        ).innerText =
+                            'Waiting for exit scan';
+
+                    }
+
+                    personName.innerText =
+                        'WAITING...';
+
+                    personRole.innerText =
+                        'TAP CARD / SCAN QR';
+
+                    personPhoto.src =
+                        '/images/avatar.png';
+
+                    input.focus();
+
+                }
+
+                function getTodayKey(){
+
+                    const d = new Date();
+
+                    return (
+                        'scan_logs_' +
+                        d.toISOString().slice(0,10)
+                    );
+
+                }
+
+                function addLog(data){
+
+                    const key =
+                        getTodayKey();
+
+                    const logs =
+                        JSON.parse(
+                            localStorage.getItem(key)
+                            || '[]'
+                        );
+
+                    logs.unshift(data);
+
+                    if(logs.length > 20){
+                        logs.pop();
+                    }
+
+                    localStorage.setItem(
+                        key,
+                        JSON.stringify(logs)
+                    );
+
+                    scanCount.innerText =
+                        logs.length;
+
+                }
+
+                function renderLogs(){
+
+                    const logs =
+                        JSON.parse(
+                            localStorage.getItem(
+                                getTodayKey()
+                            ) || '[]'
+                        );
+
+                    scanCount.innerText =
+                        logs.length;
+
+                }
+
+            });
 
     </script>
 
