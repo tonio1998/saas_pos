@@ -15,6 +15,7 @@ use App\Http\Controllers\SchoolYearController;
 use App\Http\Controllers\ClassesController;
 use App\Http\Controllers\SemestersController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\SMSController;
 use App\Http\Controllers\StrandsController;
 use App\Http\Controllers\StudentsController;
 use App\Http\Controllers\EmployeesController;
@@ -184,6 +185,11 @@ Route::middleware('auth')->group(function(){
         Route::get('/create', [EnrollmentController::class, 'create'])->name('create');
         Route::post('/create', [EnrollmentController::class, 'store'])->name('store');
         Route::get('/data', [EnrollmentController::class, 'ajaxData'])->name('data');
+    });
+
+    Route::prefix('sms')->name('sms.')->group(function(){
+       Route::get('/',[SmsController::class,'index'])->name('index');
+       Route::get('data',[SmsController::class,'ajaxData'])->name('data');
     });
 
     Route::prefix('select2')->name('select2.')->group(function(){
