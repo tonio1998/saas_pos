@@ -94,6 +94,20 @@
         </li>
 
         <li class="sidebar-item">
+            <a class="sidebar-link" data-bs-toggle="collapse" href="#smsMenu">
+                <i class="bi bi-telephone-out sidebar-icon"></i>
+                <span>SMS Management</span>
+                <i class="bi bi-chevron-down dropdown-icon"></i>
+            </a>
+            <div class="collapse sidebar-dropdown" id="smsMenu">
+                <a href="{{ route('sms.index') }}" class="sidebar-sublink">
+                    <i class="bi bi-telephone-out sidebar-subicon"></i>
+                    SMS Queue
+                </a>
+            </div>
+        </li>
+
+        <li class="sidebar-item">
             <a class="sidebar-link" data-bs-toggle="collapse" href="#usersMenu">
                 <i class="bi bi-shield-lock sidebar-icon"></i>
                 <span>User Management</span>
