@@ -36,7 +36,7 @@ class SettingsController extends Controller
         $validated = $request->validate([
             'SchoolName' => ['required', 'string', 'max:255'],
             'SchoolCode' => ['nullable', 'string', 'max:100'],
-
+            'SystemTitle' => ['required', 'string', 'max:255'],
             'EducationLevel' => [
                 'required',
                 Rule::in(['JHS', 'SHS', 'INTEGRATED'])
@@ -129,7 +129,7 @@ class SettingsController extends Controller
 
             unset($validated['Logo']);
         }
-
+        $setting->SystemTitle = $validated['SystemTitle'];
         $setting->SchoolName = $validated['SchoolName'];
         $setting->SchoolCode = $validated['SchoolCode'];
         $setting->EducationLevel = $validated['EducationLevel'];
@@ -172,6 +172,7 @@ class SettingsController extends Controller
     public function update(Request $request, SchoolSetting $settings)
     {
         $validated = $request->validate([
+            'SystemTitle' => ['required', 'string', 'max:255'],
             'SchoolName' => ['required', 'string', 'max:255'],
             'SchoolCode' => ['nullable', 'string', 'max:100'],
             'EducationLevel' => [

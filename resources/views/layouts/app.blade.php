@@ -7,10 +7,10 @@
     <title>@yield('title')</title>
 
     @vite(['resources/css/app.css','resources/js/app.js'])
+    @include('theme')
     @stack('styles')
 </head>
 <body>
-
 @include('components.navbar')
 
 @include('components.sidebar')
@@ -25,6 +25,5 @@
 <x-ios-confirm />
 @include('components.footer')
 @stack('scripts')
-
 </body>
 </html>
