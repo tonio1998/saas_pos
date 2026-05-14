@@ -28,6 +28,14 @@
                     </div>
                 </div>
 
+                <x-form.group name="SystemTitle" label="System Title" class="col-md-6" required>
+                    <x-form.input
+                        name="SystemTitle"
+                        value="{{ old('SystemTitle',$setting->SystemTitle ?? '') }}"
+                        placeholder="Enter system title"
+                    />
+                </x-form.group>
+
                 <x-form.group name="SchoolName" label="School Name" class="col-md-6" required>
                     <x-form.input
                         name="SchoolName"

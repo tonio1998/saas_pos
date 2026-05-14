@@ -30,7 +30,7 @@ class ParentsSeeder extends Seeder
 
                 $parent = Parents::create([
                     'UserID'      => 0,
-                    'PhoneNumber' => '09' . fake()->numerify('#########'),
+                    'PhoneNumber' => '+639' . fake()->numerify('#########'),
                     'FirstName'   => $firstName,
                     'MiddleName'  => fake()->lastName(),
                     'LastName'    => fake()->lastName(),

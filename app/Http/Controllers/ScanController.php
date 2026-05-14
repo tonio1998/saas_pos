@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ScanLogs;
 use App\Models\SchoolSetting;
+use App\Models\SmsQueuingModel;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -31,11 +32,8 @@ class ScanController extends Controller
             ]);
 
             if (ctype_digit($input)) {
-
                 $normalizedInput = ltrim($input, '0');
-
                 $query->where(function ($q) use ($input, $normalizedInput) {
-
                     $q->where('qr_code', $input)
                         ->orWhere('id', $input)
                         ->orWhereRaw('CAST(nfc_code AS UNSIGNED) = ?', [$normalizedInput ?: 0]);
@@ -138,21 +136,17 @@ class ScanController extends Controller
             );
 
             $smsEnabled = (int) ($settings['sms_enabled'] ?? 0);
-
             if (true) {
-
+//                dd($user);
                 foreach ($phoneNumbers as $number) {
-
                     $cleanNumber = preg_replace('/[^0-9]/', '', $number);
-
+//                    dd($cleanNumber);
                     if (strlen($cleanNumber) >= 10) {
-
                         try {
-
-                            queueSMSSend($cleanNumber, $message);
-
+//                            dd($cleanNumber, $message);
+                            $this->queueSMSSend($cleanNumber, $message);
                         } catch (\Throwable $smsError) {
-
+//                            dd($smsError);
                             report($smsError);
                         }
                     }
@@ -203,5 +197,20 @@ class ScanController extends Controller
                 'time' => now()->format('h:i A')
             ], 500);
         }
+    }
+
+    private function queueSMSSend($phoneNumber, $message)
+    {
+        $queue = new SmsQueuingModel();
+        $queue->PhoneNumber = $phoneNumber;
+        $queue->Message = $message;
+        $queue->remark = "pending";
+        $queue->created_at = now();
+        $queue->updated_at = now();
+        $queue->status = 'active';
+        $queue->archived = 0;
+        $queue->created_by = 0;
+        $queue->updated_by = 0;
+        $queue->save();
     }
 }

@@ -71,7 +71,7 @@ class StudentsSeeder extends Seeder
                     'Strand' => in_array($yearLevels, [11, 12])
                         ? fake()->randomElement($strands)
                         : null,
-                    'PhoneNumber' => '09' . fake()->numerify('#########'),
+                    'PhoneNumber' => '+639' . fake()->numerify('#########'),
                     'filepath'    => null,
                     'created_by'  => 1,
                     'updated_by'  => 1,
