@@ -11,6 +11,6 @@ class SmsQueuingModel extends Model
     protected $fillable = [
         'PhoneNumber',
         'Message',
-        'remark'
+        'remark',
     ];
 }

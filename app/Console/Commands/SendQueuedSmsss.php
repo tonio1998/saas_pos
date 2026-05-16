@@ -10,9 +10,9 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Process\Process;
 
-class SendQueuedSms extends Command
+class SendQueuedSmsss extends Command
 {
-    protected $signature = 'sms:send';
+    protected $signature = 'sms:sendssss';
 
     protected $description = 'Send queued SMS messages';
 
@@ -39,10 +39,12 @@ class SendQueuedSms extends Command
                     function () {
 
                         return Settings::query()
+
                             ->with([
                                 'principal',
                                 'registrar'
                             ])
+
                             ->first();
                     }
                 );
@@ -62,7 +64,6 @@ class SendQueuedSms extends Command
 
                 $queuedMessages = SmsQueuingModel::query()
                     ->where(function ($query) {
-
                         $query
                             ->where('remark', '!=', 'sent')
                             ->orWhereNull('remark');
@@ -104,7 +105,7 @@ class SendQueuedSms extends Command
                         Log::info($message);
 
                         $provider = strtolower(
-                            trim($schoolSettings->sms_provider ?? 'api')
+                            $schoolSettings->sms_provider ?? 'api'
                         );
 
                         $output = '';
@@ -112,9 +113,7 @@ class SendQueuedSms extends Command
                         $errorOutput = '';
 
                         $isSuccessful = false;
-
-                        $this->line('SMS Provider: ' . strtoupper($provider));
-
+                        $this->line($provider);
                         if ($provider === 'api') {
 
                             if (
@@ -127,34 +126,21 @@ class SendQueuedSms extends Command
                                 );
                             }
 
-                            $apiUrl = rtrim(
-                                    trim($schoolSettings->sms_api_url),
-                                    '/'
-                                ) . '/';
-
-                            $phoneNumber = trim($sms->PhoneNumber);
-
                             $payload = [
-                                'apikey' => trim(
-                                    $schoolSettings->sms_api_key
-                                ),
-                                'recipients' => $phoneNumber,
-                                'message' => trim($sms->Message),
+                                'apikey' => $schoolSettings->sms_api_key,
+                                'recipient' => $sms->PhoneNumber,
+                                'message' => $sms->Message,
                             ];
 
-                            $query = http_build_query($payload);
+                            if (!empty($schoolSettings->sms_api_device_id)) {
 
-                            $finalUrl = $apiUrl . '?' . $query;
+                                $payload['device_id'] =
+                                    $schoolSettings->sms_api_device_id;
+                            }
 
-                            $this->warn(
-                                '================ API REQUEST ================'
-                            );
+                            $this->warn('================ API REQUEST ================');
 
-                            $this->line('URL:');
-
-                            $this->line($finalUrl);
-
-                            $this->line('');
+                            $this->line('URL: ' . $schoolSettings->sms_api_url);
 
                             $this->line('Payload:');
 
@@ -164,49 +150,35 @@ class SendQueuedSms extends Command
                             ));
 
                             Log::info('SMS API REQUEST', [
-                                'url' => $finalUrl,
+                                'url' => $schoolSettings->sms_api_url,
                                 'payload' => $payload,
                             ]);
 
                             $response = Http::timeout(30)
                                 ->acceptJson()
-                                ->get($finalUrl);
+                                ->asJson()
+                                ->post(
+                                    $schoolSettings->sms_api_url,
+                                    $payload
+                                );
 
-                            $output = trim(
-                                $response->body()
-                            );
+                            $output = trim($response->body());
 
                             $errorOutput = $response->successful()
                                 ? ''
-                                : trim($response->body());
+                                : $response->body();
 
-                            $responseJson = [];
+                            $isSuccessful = $response->successful();
 
-                            try {
+                            $this->warn('================ API RESPONSE ================');
 
-                                $responseJson =
-                                    $response->json() ?? [];
+                            $this->line('HTTP Status: ' . $response->status());
 
-                            } catch (\Throwable $e) {
-
-                                $responseJson = [];
-                            }
-
-                            $this->warn(
-                                '================ API RESPONSE ================'
-                            );
-
-                            $this->line(
-                                'HTTP Status: ' .
-                                $response->status()
-                            );
-
-                            $this->line(
-                                'Reason: ' .
-                                $response->reason()
-                            );
-
-                            $this->line('');
+                            $this->line('Success: ' . (
+                                $response->successful()
+                                    ? 'YES'
+                                    : 'NO'
+                                ));
 
                             $this->line('Headers:');
 
@@ -215,48 +187,16 @@ class SendQueuedSms extends Command
                                 JSON_PRETTY_PRINT
                             ));
 
-                            $this->line('');
-
-                            $this->line('Body Raw:');
+                            $this->line('Body:');
 
                             $this->line($response->body());
 
-                            $this->line('');
-
-                            $this->line('Body JSON:');
-
-                            $this->line(json_encode(
-                                $responseJson,
-                                JSON_PRETTY_PRINT
-                            ));
-
                             Log::info('SMS API RESPONSE', [
-                                'status_code' => $response->status(),
-                                'reason' => $response->reason(),
+                                'status' => $response->status(),
                                 'success' => $response->successful(),
                                 'headers' => $response->headers(),
-                                'body_raw' => $response->body(),
-                                'body_json' => $responseJson,
+                                'body' => $response->body(),
                             ]);
-
-                            $combinedResponse = strtolower(
-                                json_encode($responseJson) .
-                                ' ' .
-                                $output .
-                                ' ' .
-                                $errorOutput
-                            );
-
-                            $isSuccessful =
-                                $response->successful() &&
-                                (
-                                    ($responseJson['result']['error'] ?? 1) == 0
-                                ) &&
-                                (
-                                    ($responseJson['result']['sent'] ?? '0') == '1'
-                                );
-
-                            $this->line('$isSuccessful: ' . $isSuccessful);
                         } else {
 
                             if (empty($schoolSettings->python_path)) {
@@ -273,30 +213,6 @@ class SendQueuedSms extends Command
                                 );
                             }
 
-                            $this->warn(
-                                '================ GSM REQUEST ================'
-                            );
-
-                            $this->line('Python Path:');
-
-                            $this->line(
-                                $schoolSettings->python_path
-                            );
-
-                            $this->line('');
-
-                            $this->line('COM Port:');
-
-                            $this->line(
-                                $schoolSettings->port_com
-                            );
-
-                            $this->line('');
-
-                            $this->line('Phone Number:');
-
-                            $this->line($sms->PhoneNumber);
-
                             $process = new Process([
                                 $schoolSettings->python_path,
                                 base_path('sms/send_sms.py'),
@@ -309,49 +225,20 @@ class SendQueuedSms extends Command
 
                             $process->run();
 
-                            $output = trim(
-                                $process->getOutput()
-                            );
+                            $output = trim($process->getOutput());
 
                             $errorOutput = trim(
                                 $process->getErrorOutput()
                             );
 
-                            $isSuccessful =
-                                $process->isSuccessful();
-
-                            $this->warn(
-                                '================ GSM RESPONSE ================'
-                            );
-
-                            $this->line(
-                                'Success: ' . (
-                                $isSuccessful
-                                    ? 'YES'
-                                    : 'NO'
-                                )
-                            );
-
-                            $this->line('');
-
-                            $this->line('Output:');
-
-                            $this->line($output);
-
-                            $this->line('');
-
-                            $this->line('Error Output:');
-
-                            $this->line($errorOutput);
-
-                            Log::info('SMS GSM RESPONSE', [
-                                'success' => $isSuccessful,
-                                'output' => $output,
-                                'error_output' => $errorOutput,
-                            ]);
+                            $isSuccessful = $process->isSuccessful();
                         }
 
-                        if (!$isSuccessful) {
+                        if (
+                            !$isSuccessful ||
+                            str_contains(strtolower($errorOutput), 'error') ||
+                            str_contains(strtolower($output), 'error')
+                        ) {
 
                             $sms->remark = 'failed';
 
@@ -360,51 +247,54 @@ class SendQueuedSms extends Command
                             $schoolSettings->sms_failed_count =
                                 ($schoolSettings->sms_failed_count ?? 0) + 1;
 
-                            $schoolSettings->sms_last_failed_at =
-                                now();
+                            $schoolSettings->sms_last_failed_at = now();
+
+                            if (
+                                str_contains(strtolower($errorOutput), 'cms error') ||
+                                str_contains(strtolower($errorOutput), 'no carrier') ||
+                                str_contains(strtolower($errorOutput), 'credit') ||
+                                str_contains(strtolower($errorOutput), 'balance') ||
+                                str_contains(strtolower($output), 'credit') ||
+                                str_contains(strtolower($output), 'balance')
+                            ) {
+
+                                $schoolSettings->sms_low_balance = 1;
+                            }
+
+                            if ($schoolSettings->sms_failed_count >= 5) {
+
+                                $schoolSettings->sms_low_balance = 1;
+                            }
 
                             $schoolSettings->save();
 
                             Cache::forget('school_settings');
 
-                            $message =
-                                "SMS FAILED to {$sms->PhoneNumber}";
+                            $message = "SMS FAILED to {$sms->PhoneNumber}: {$errorOutput}";
 
                             $this->error($message);
 
-                            $this->error($output);
-
-                            $this->error($errorOutput);
-
-                            Log::error($message, [
-                                'output' => $output,
-                                'error_output' => $errorOutput,
-                            ]);
+                            Log::error($message);
 
                             continue;
                         }
 
                         $sms->remark = 'sent';
+
+                        $sms->total_sent =
+                            ($sms->total_sent ?? 0) + 1;
+
                         $sms->save();
-
-                        $schoolSettings->total_sent =
-                            ($schoolSettings->total_sent ?? 0) + 1;
-
-                        $schoolSettings->save();
 
                         $schoolSettings->sms_failed_count = 0;
 
                         $schoolSettings->sms_low_balance = 0;
 
-                        $schoolSettings->sms_last_failed_at =
-                            null;
-
                         $schoolSettings->save();
 
                         Cache::forget('school_settings');
 
-                        $message =
-                            "SMS SENT to {$sms->PhoneNumber}";
+                        $message = "SMS sent to {$sms->PhoneNumber}";
 
                         $this->info($message);
 
@@ -419,8 +309,7 @@ class SendQueuedSms extends Command
                         $schoolSettings->sms_failed_count =
                             ($schoolSettings->sms_failed_count ?? 0) + 1;
 
-                        $schoolSettings->sms_last_failed_at =
-                            now();
+                        $schoolSettings->sms_last_failed_at = now();
 
                         $schoolSettings->save();
 
@@ -430,9 +319,7 @@ class SendQueuedSms extends Command
 
                         $this->error($message);
 
-                        Log::error($message, [
-                            'trace' => $e->getTraceAsString(),
-                        ]);
+                        Log::error($message);
                     }
 
                     sleep(2);
@@ -450,9 +337,7 @@ class SendQueuedSms extends Command
 
                 $this->error($message);
 
-                Log::error($message, [
-                    'trace' => $e->getTraceAsString(),
-                ]);
+                Log::error($message);
             }
 
             sleep(10);
