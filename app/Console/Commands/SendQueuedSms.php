@@ -178,7 +178,7 @@ class SendQueuedSms extends Command
                         }
 
                         $sms->remark = 'sent';
-
+                        $sms->total_sent = $sms->total_sent + 1;
                         $sms->save();
 
                         $schoolSettings->sms_failed_count = 0;

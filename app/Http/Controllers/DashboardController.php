@@ -215,7 +215,7 @@ class DashboardController extends Controller
             'studentExits' => $studentExits,
             'employeesPresent' => $employeesPresent,
             'visitors' => $visitors,
-            'recentLogs' => $recentLogs
+            'recentLogs' => $recentLogs,
         ]);
     }
 }
