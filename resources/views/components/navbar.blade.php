@@ -13,7 +13,7 @@
 
 @endphp
 
-<nav class="navbar navbar-expand-lg bg-white px-3 px-lg-4 sticky-top shadow-sm">
+<nav class="navbar navbar-expand-lg app-navbar sticky-top border-b-2">
 
     <div class="container-fluid d-flex align-items-center justify-content-between">
 
@@ -46,16 +46,11 @@
                 <div class="brand-info d-none d-sm-flex">
 
                     <div class="system-name">
-                        {{ config('app.name') }}
+                        <?= $schoolSettings?->SystemTitle ?? 'SAFETRACK' ?>
                     </div>
 
                     <div class="school-name">
-
-                        {{
-                            $schoolSettings?->SchoolName
-                                ?? 'School Name'
-                        }}
-
+                        {{ $schoolSettings?->SchoolName ?? 'School Name' }}
                     </div>
 
                 </div>
@@ -66,57 +61,8 @@
 
         <div class="d-flex align-items-center gap-2 gap-md-3">
 
-{{--            <button--}}
-{{--                type="button"--}}
-{{--                class="btn btn-light border rounded-pill px-3 d-flex align-items-center gap-2"--}}
-{{--                data-bs-toggle="modal"--}}
-{{--                data-bs-target="#academicContextModal"--}}
-{{--            >--}}
-
-{{--                <i class="bi bi-calendar3"></i>--}}
-
-{{--                <span>--}}
-
-{{--        {{--}}
-{{--            $semesterNames[--}}
-{{--                $currentSemester--}}
-{{--            ] ?? '1st Semester'--}}
-{{--        }}--}}
-
-{{--    </span>--}}
-
-{{--                <span class="text-muted">--}}
-{{--        •--}}
-{{--    </span>--}}
-
-{{--                <span class="fw-semibold">--}}
-
-{{--        SY--}}
-
-{{--        {{--}}
-{{--            session(--}}
-{{--                'AYFrom',--}}
-{{--                $currentYear--}}
-{{--            )--}}
-{{--        }}--}}
-
-{{--        ---}}
-
-{{--        {{--}}
-{{--            session(--}}
-{{--                'AYTo',--}}
-{{--                $currentYear + 1--}}
-{{--            )--}}
-{{--        }}--}}
-
-{{--    </span>--}}
-
-{{--            </button>--}}
-
             <button class="nav-icon position-relative">
-
                 <i class="bi bi-bell"></i>
-
             </button>
 
             <div class="dropdown">
@@ -141,39 +87,23 @@
                     </span>
 
                     <span class="user-name d-none d-md-inline">
-
-                        {{
-                            auth()->user()->name ?? 'User'
-                        }}
-
+                        {{ auth()->user()->name ?? 'User' }}
                     </span>
 
                 </button>
 
-                <ul
-                    class="dropdown-menu dropdown-menu-end shadow-sm border-0"
-                >
+                <ul class="dropdown-menu dropdown-menu-end app-dropdown">
 
                     <li>
-
-                        <a
-                            class="dropdown-item"
-                            href="#"
-                        >
+                        <a class="dropdown-item" href="#">
                             Profile
                         </a>
-
                     </li>
 
                     <li>
-
-                        <a
-                            class="dropdown-item"
-                            href="#"
-                        >
+                        <a class="dropdown-item" href="#">
                             Settings
                         </a>
-
                     </li>
 
                     <li>
