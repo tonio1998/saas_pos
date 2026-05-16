@@ -39,7 +39,7 @@
 }
 
 .dataTables_wrapper .dataTables_paginate .paginate_button.current{
-    background:var(--primary);
+    background:var(--theme-bg) !important;
     color:white !important;
 }
 
@@ -108,7 +108,7 @@
 }
 
 .dataTables_wrapper .page-item.active .page-link{
-    background:#4f46e5;
+    background:var(--theme-bg) !important;
     color:#fff;
 }
 
@@ -178,7 +178,7 @@
 }
 
 .datatable-footer .pagination .page-item.active .page-link{
-    background:var(--color-primary-soft) !important;
+    background:color-mix(in srgb, var(--theme-bg) 15%, #000 1%) !important;
     border-color:var(--color-primary-soft) !important;
     color: var(--color-primary) !important;
 }

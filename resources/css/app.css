@@ -16,6 +16,7 @@
 @import "./modal.css";
 @import "./confirmation.css";
 @import "./id.css";
+@import "./body.css";
 
 @import "@fontsource/inter/400.css";
 @import "@fontsource/inter/500.css";
@@ -143,7 +144,7 @@ body{
 
 .container,
 .container-fluid{
-    padding-top:20px;
+    /*padding-top:20px;*/
     padding-bottom:20px;
 }
 
@@ -237,27 +238,27 @@ a{
     font-size:14px;
 }
 
-.btn-primary{
-    background:var(--theme-bg) !important;
-    border:1px solid var(--theme-border) !important;
-    color:var(--theme-text) !important;
-}
+/*.btn-primary{*/
+/*    background:var(--theme-bg) !important;*/
+/*    border:1px solid var(--theme-border) !important;*/
+/*    color:var(--theme-text) !important;*/
+/*}*/
 
-.btn-primary:hover{
-    background:var(--theme-hover) !important;
-    border-color:var(--theme-border) !important;
-    color:var(--theme-text) !important;
-    transform:translateY(-1px);
-    box-shadow:var(--shadow-sm);
-}
+/*.btn-primary:hover{*/
+/*    background:var(--theme-hover) !important;*/
+/*    border-color:var(--theme-border) !important;*/
+/*    color:var(--theme-text) !important;*/
+/*    transform:translateY(-1px);*/
+/*    box-shadow:var(--shadow-sm);*/
+/*}*/
 
-.btn-primary:focus,
-.btn-primary:active{
-    background:var(--theme-active) !important;
-    border-color:var(--theme-border) !important;
-    color:var(--theme-text) !important;
-    box-shadow:none !important;
-}
+/*.btn-primary:focus,*/
+/*.btn-primary:active{*/
+/*    background:var(--theme-active) !important;*/
+/*    border-color:var(--theme-border) !important;*/
+/*    color:var(--theme-text) !important;*/
+/*    box-shadow:none !important;*/
+/*}*/
 
 .btn-primary:disabled{
     opacity:.7;

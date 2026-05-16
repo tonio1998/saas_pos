@@ -119,6 +119,15 @@
     }
 }
 
+.navbar{
+    height:64px;
+    padding-top: 25px;
+    /*background:var(--theme-bg) !important;*/
+    border-bottom:1px solid var(--theme-bg) !important;
+    background:#ffffff;
+}
+
+
 
 /* SIDEBAR */
 

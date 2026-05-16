@@ -83,7 +83,7 @@ class RoleController extends Controller
     public function update(Request $request, $id)
     {
         $role = Role::findOrFail(decrypt($id));
-
+//        dd($request->all());
         $data = $request->validate([
             'name' => [
                 'required',
