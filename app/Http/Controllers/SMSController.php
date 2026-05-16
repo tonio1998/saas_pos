@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\SMS;
+use App\Models\SmsQueuingModel;
 use App\Traits\TCommonFunctions;
 use Illuminate\Http\Request;
 
@@ -17,7 +17,7 @@ class SMSController extends Controller
 
     public function ajaxData(Request $request)
     {
-        $query = SMS::query();
+        $query = SmsQueuingModel::query();
 
         return datatables()
             ->eloquent($query)

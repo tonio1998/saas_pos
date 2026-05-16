@@ -95,6 +95,21 @@ class SettingsController extends Controller
                 'mimes:jpg,jpeg,png,webp',
                 'max:10000'
             ],
+            'cacert_path' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+            'port_com' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+            'python_path' => [
+                'nullable',
+                'string',
+                'max:100'
+            ]
         ]);
 
 //        dd($validated);
@@ -138,7 +153,6 @@ class SettingsController extends Controller
         $setting->Address = $validated['Address'];
         $setting->ContactNumber = $validated['ContactNumber'];
         $setting->EmailAddress = $validated['EmailAddress'];
-
         $setting->PrincipalID = $validated['PrincipalID'] ?? null;
         $setting->RegistrarID = $validated['RegistrarID'] ?? null;
 
@@ -154,8 +168,10 @@ class SettingsController extends Controller
         $setting->EnableNFC = $validated['EnableNFC'];
         $setting->EnableQR = $validated['EnableQR'];
         $setting->EnableOfflineAttendance = $validated['EnableOfflineAttendance'];
-
         $setting->ThemeColor = $validated['ThemeColor'];
+        $setting->cacert_path = $validated['cacert_path'];
+        $setting->python_path = $validated['python_path'];
+        $setting->port_com = $validated['port_com'];
 
         $setting->save();
 
