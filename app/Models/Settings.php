@@ -29,6 +29,12 @@ class Settings extends Model
         'EnableOfflineAttendance',
         'CurrentSchoolYearID',
         'ThemeColor',
+        'cacert_path',
+        'port_com',
+        'python_path',
+        'sms_failed_count',
+        'sms_low_balance',
+        'sms_last_failed_at'
     ];
 
     protected $casts = [

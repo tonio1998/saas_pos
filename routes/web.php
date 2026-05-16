@@ -46,7 +46,6 @@ Route::middleware('auth')->group(function(){
         Route::get('/data', [DashboardController::class, 'data'])->name('data');
     });
 
-
     Route::prefix('users')->name('users.')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('index');
         Route::get('data', [UserController::class, 'users_data'])->name('data');
@@ -210,4 +209,5 @@ Route::middleware('auth')->group(function(){
 Route::post('/scan',[ScanController::class,'scan'])->name('scan');
 Route::prefix('scanner')->name('scanner.')->group(function(){
     Route::get('/', [ScannerController::class, 'index'])->name('index');
+    Route::post('/send-sms', [ScannerController::class, 'send']);
 });
