@@ -1,180 +1,117 @@
 @extends('layouts.app')
-
 @section('title','Dashboard')
-
 @section('content')
-
     <x-page-header
         title="Smart Campus Dashboard"
         subtitle="Real-time monitoring and school operations overview"
     />
 
     <div class="row g-4 mb-4">
-
         <div class="col-12 col-sm-6 col-xl-3">
-
             <div class="dashboard-card primary">
-
                 <div class="dashboard-glow"></div>
-
                 <div class="card-top">
-
                     <div>
-
                         <div class="card-label">
                             TOTAL STUDENTS
                         </div>
-
-                        <div
-                            class="card-value"
-                            id="students-count"
-                        >
-                            0
-                        </div>
-
+                        <div class="card-value" id="students-count">0</div>
                         <div class="card-trend">
                             <i class="bi bi-mortarboard-fill"></i>
                             Registered Students
                         </div>
-
                     </div>
-
                     <div class="card-icon">
                         <i class="bi bi-mortarboard-fill"></i>
                     </div>
-
                 </div>
-
             </div>
-
         </div>
 
         <div class="col-12 col-sm-6 col-xl-3">
-
             <div class="dashboard-card success">
-
                 <div class="dashboard-glow"></div>
-
                 <div class="card-top">
-
                     <div>
-
                         <div class="card-label">
                             TOTAL EMPLOYEES
                         </div>
-
                         <div
                             class="card-value"
                             id="employees-count"
                         >
                             0
                         </div>
-
                         <div class="card-trend">
                             <i class="bi bi-person-badge-fill"></i>
                             Faculty and Staff
                         </div>
-
                     </div>
-
                     <div class="card-icon">
                         <i class="bi bi-person-workspace"></i>
                     </div>
-
                 </div>
-
             </div>
-
         </div>
 
         <div class="col-12 col-sm-6 col-xl-3">
-
             <div class="dashboard-card warning">
-
                 <div class="dashboard-glow"></div>
-
                 <div class="card-top">
-
                     <div>
-
                         <div class="card-label">
                             INSIDE CAMPUS
                         </div>
-
                         <div
                             class="card-value"
                             id="inside-campus-count"
                         >
                             0
                         </div>
-
                         <div class="card-trend">
                             <i class="bi bi-building-check"></i>
                             Active Presence
                         </div>
-
                     </div>
-
                     <div class="card-icon">
                         <i class="bi bi-building"></i>
                     </div>
-
                 </div>
-
             </div>
-
         </div>
 
         <div class="col-12 col-sm-6 col-xl-3">
-
             <div class="dashboard-card dark">
-
                 <div class="dashboard-glow"></div>
-
                 <div class="card-top">
-
                     <div>
-
                         <div class="card-label">
                             LATE STUDENTS
                         </div>
-
                         <div
                             class="card-value"
                             id="late-students-count"
                         >
                             0
                         </div>
-
                         <div class="card-trend">
                             <span class="live-dot"></span>
                             Today's Attendance Alerts
                         </div>
-
                     </div>
-
                     <div class="card-icon">
                         <i class="bi bi-clock-history"></i>
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
 
     <div class="row g-4 mb-4">
-
         <div class="col-xl-8">
-
             <div class="modern-card h-100">
-
                 <div class="section-header">
-
                     <div>
-
                         <h5 class="section-title">
                             Quick Access
                         </h5>
@@ -323,11 +260,69 @@
                     <div class="system-item">
 
                         <div class="system-label">
-                            Scanner Status
+                            SMS Gateway
                         </div>
 
-                        <div class="system-value text-success">
-                            ONLINE
+                        <div class="system-value">
+
+                            @if($schoolSettings?->sms_low_balance)
+
+                                <span class="text-danger fw-bold">
+
+                <i class="bi bi-exclamation-triangle-fill"></i>
+
+                LOW BALANCE / OFFLINE
+
+            </span>
+
+                            @else
+
+                                <span class="text-success fw-bold">
+
+                <i class="bi bi-check-circle-fill"></i>
+
+                ONLINE
+
+            </span>
+
+                            @endif
+
+                        </div>
+
+                    </div>
+
+                    <div class="system-item">
+
+                        <div class="system-label">
+                            SMS Failed Count
+                        </div>
+
+                        <div class="system-value">
+
+                            {{ $schoolSettings?->sms_failed_count ?? 0 }}
+
+                        </div>
+
+                    </div>
+
+                    <div class="system-item">
+
+                        <div class="system-label">
+                            Last SMS Failure
+                        </div>
+
+                        <div class="system-value">
+
+                            @if($schoolSettings?->sms_last_failed_at)
+
+                                {{ \Carbon\Carbon::parse($schoolSettings->sms_last_failed_at)->diffForHumans() }}
+
+                            @else
+
+                                Never
+
+                            @endif
+
                         </div>
 
                     </div>
