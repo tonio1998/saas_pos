@@ -154,14 +154,6 @@
 }
 
 
-/* NAVBAR */
-
-.navbar{
-    height:64px;
-    border-bottom:1px solid var(--theme-border);
-    background:#ffffff;
-}
-
 
 /* BRAND */
 
@@ -339,8 +331,8 @@
 }
 
 .btn-primary:hover{
-    background:var(--theme-hover) !important;
-    border-color:var(--theme-border) !important;
+    background:color-mix(in srgb, var(--theme-bg) 85%, #000 15%) !important;
+    border-color:color-mix(in srgb, var(--theme-border) 85%, #000 15%) !important;
     color:var(--theme-text) !important;
     transform:translateY(-1px);
     box-shadow:0 4px 12px rgba(0,0,0,.06);

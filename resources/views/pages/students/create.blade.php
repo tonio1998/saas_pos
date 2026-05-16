@@ -8,27 +8,6 @@
         $isEdit = isset($student);
     @endphp
 
-    <div class="container-fluid px-0">
-
-        <x-page-header
-            title="{{ $isEdit ? 'Edit Student' : 'Add Student' }}"
-            subtitle="Registrar student management"
-        >
-
-            <x-slot:action>
-
-                <a
-                    href="{{ route('students.index') }}"
-                    class="btn btn-light border"
-                >
-                    <i class="bi bi-arrow-left-short fs-5"></i>
-                    Back
-                </a>
-
-            </x-slot:action>
-
-        </x-page-header>
-
         <form
             method="POST"
             action="{{
@@ -43,241 +22,310 @@
             @if($isEdit)
                 @method('PUT')
             @endif
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                <div class="card-header bg-white border-bottom py-4 px-4">
-                    <div class="d-flex align-items-center gap-3">
-                        <div
-                            class="d-flex align-items-center justify-content-center rounded-circle bg-primary bg-opacity-10"
-                            style="width:56px;height:56px;"
-                        >
-                            <i class="bi bi-person-vcard fs-3 text-primary"></i>
+
+            <div class="page-shell">
+
+                <div class="page-hero">
+
+                    <div class="page-hero-left">
+
+                        <div class="page-hero-icon">
+                            <i class="bi bi-person-vcard"></i>
                         </div>
+
                         <div>
-                            <h4 class="mb-1 fw-bold">
+
+                            <div class="page-hero-title">
                                 {{
                                     $isEdit
                                         ? 'Edit Student Record'
                                         : 'New Student Record'
                                 }}
-                            </h4>
-                            <div class="text-muted">
+                            </div>
+
+                            <div class="page-hero-subtitle">
                                 Manage learner information and registrar records
                             </div>
+
                         </div>
+
                     </div>
+
+                    <div class="page-hero-actions">
+
+                        <div class="page-badge">
+                            <i class="bi bi-circle-fill"></i>
+                            Registrar Module
+                        </div>
+
+                    </div>
+
                 </div>
-                <div class="card-body p-4">
-                    <div class="border rounded-4 p-4 bg-light-subtle mb-4">
-                        <div class="d-flex align-items-center gap-2 mb-4">
-                            <i class="bi bi-person-lines-fill text-primary"></i>
-                            <div class="fw-semibold">
-                                Basic Information
+
+                <div class="card border-0 bg-transparent shadow-none">
+
+                    <div class="card-body p-0">
+
+                        <div class="page-glass-card">
+
+                            <div class="section-header">
+
+                                <div class="section-title-wrap">
+
+                                    <div class="section-icon">
+                                        <i class="bi bi-person-lines-fill"></i>
+                                    </div>
+
+                                    <div>
+
+                                        <div class="section-title">
+                                            Basic Information
+                                        </div>
+
+                                        <div class="section-subtitle">
+                                            Student profile and academic details
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
                             </div>
-                        </div>
-                        <div class="row g-4">
-                            <x-form.group
-                                name="LRN"
-                                label="LRN"
-                                class="col-xl-4 col-md-6"
-                                required
-                            >
-                                <x-form.input
+
+                            <div class="row g-4">
+
+                                <x-form.group
                                     name="LRN"
-                                    value="{{ old('LRN',$student->LRN ?? '') }}"
-                                    placeholder="Enter 12-digit LRN"
-                                    maxlength="12"
-                                />
-                            </x-form.group>
-                            <x-form.group
-                                name="YearLevel"
-                                label="Year Level"
-                                class="col-xl-4 col-md-6"
-                                required
-                            >
-                                <select
+                                    label="LRN"
+                                    class="col-xl-4 col-md-6"
+                                    required
+                                >
+
+                                    <x-form.input
+                                        name="LRN"
+                                        value="{{ old('LRN',$student->LRN ?? '') }}"
+                                        placeholder="Enter 12-digit LRN"
+                                        maxlength="12"
+                                    />
+
+                                </x-form.group>
+
+                                <x-form.group
                                     name="YearLevel"
-                                    class="form-select"
+                                    label="Year Level"
+                                    class="col-xl-4 col-md-6"
+                                    required
                                 >
 
-                                    <option value="">
-                                        Select year level
-                                    </option>
+                                    <select
+                                        name="YearLevel"
+                                        class="form-select"
+                                    >
 
-                                    @foreach([7,8,9,10,11,12] as $year)
-
-                                        <option
-                                            value="{{ $year }}"
-
-                                            {{
-                                                old(
-                                                    'YearLevel',
-                                                    $student->YearLevel ?? ''
-                                                ) == $year
-                                                    ? 'selected'
-                                                    : ''
-                                            }}
-                                        >
-                                            Grade {{ $year }}
+                                        <option value="">
+                                            Select year level
                                         </option>
 
-                                    @endforeach
+                                        @foreach([7,8,9,10,11,12] as $year)
 
-                                </select>
+                                            <option
+                                                value="{{ $year }}"
+                                                {{
+                                                    old(
+                                                        'YearLevel',
+                                                        $student->YearLevel ?? ''
+                                                    ) == $year
+                                                        ? 'selected'
+                                                        : ''
+                                                }}
+                                            >
+                                                Grade {{ $year }}
+                                            </option>
 
-                            </x-form.group>
+                                        @endforeach
 
-                            <x-form.group
-                                name="Strand"
-                                label="Strand"
-                                class="col-xl-4 col-md-12"
-                                required
-                            >
+                                    </select>
 
-                                <x-form.input
+                                </x-form.group>
+
+                                <x-form.group
                                     name="Strand"
-                                    value="{{ old('Strand',$student->Strand ?? '') }}"
-                                    placeholder="Enter strand"
-                                />
-
-                            </x-form.group>
-
-                            <x-form.group
-                                name="FirstName"
-                                label="First Name"
-                                class="col-xl-3 col-md-6"
-                                required
-                            >
-
-                                <x-form.input
-                                    name="FirstName"
-                                    value="{{ old('FirstName',$student->FirstName ?? '') }}"
-                                    placeholder="Enter first name"
-                                />
-
-                            </x-form.group>
-
-                            <x-form.group
-                                name="MiddleName"
-                                label="Middle Name"
-                                class="col-xl-3 col-md-6"
-                            >
-
-                                <x-form.input
-                                    name="MiddleName"
-                                    value="{{ old('MiddleName',$student->MiddleName ?? '') }}"
-                                    placeholder="Enter middle name"
-                                />
-
-                            </x-form.group>
-
-                            <x-form.group
-                                name="LastName"
-                                label="Last Name"
-                                class="col-xl-3 col-md-6"
-                                required
-                            >
-
-                                <x-form.input
-                                    name="LastName"
-                                    value="{{ old('LastName',$student->LastName ?? '') }}"
-                                    placeholder="Enter last name"
-                                />
-
-                            </x-form.group>
-
-                            <x-form.group
-                                name="Suffix"
-                                label="Suffix"
-                                class="col-xl-3 col-md-6"
-                            >
-
-                                <select
-                                    name="Suffix"
-                                    class="form-select"
+                                    label="Strand"
+                                    class="col-xl-4 col-md-12"
+                                    required
                                 >
 
-                                    <option value="">
-                                        Select suffix
-                                    </option>
+                                    <x-form.input
+                                        name="Strand"
+                                        value="{{ old('Strand',$student->Strand ?? '') }}"
+                                        placeholder="Enter strand"
+                                    />
 
-                                    @foreach(['Jr','Sr','III'] as $suffix)
+                                </x-form.group>
 
-                                        <option
-                                            value="{{ $suffix }}"
+                                <x-form.group
+                                    name="FirstName"
+                                    label="First Name"
+                                    class="col-xl-3 col-md-6"
+                                    required
+                                >
 
-                                            {{
-                                                old(
-                                                    'Suffix',
-                                                    $student->Suffix ?? ''
-                                                ) == $suffix
-                                                    ? 'selected'
-                                                    : ''
-                                            }}
-                                        >
-                                            {{ $suffix }}
+                                    <x-form.input
+                                        name="FirstName"
+                                        value="{{ old('FirstName',$student->FirstName ?? '') }}"
+                                        placeholder="Enter first name"
+                                    />
+
+                                </x-form.group>
+
+                                <x-form.group
+                                    name="MiddleName"
+                                    label="Middle Name"
+                                    class="col-xl-3 col-md-6"
+                                >
+
+                                    <x-form.input
+                                        name="MiddleName"
+                                        value="{{ old('MiddleName',$student->MiddleName ?? '') }}"
+                                        placeholder="Enter middle name"
+                                    />
+
+                                </x-form.group>
+
+                                <x-form.group
+                                    name="LastName"
+                                    label="Last Name"
+                                    class="col-xl-3 col-md-6"
+                                    required
+                                >
+
+                                    <x-form.input
+                                        name="LastName"
+                                        value="{{ old('LastName',$student->LastName ?? '') }}"
+                                        placeholder="Enter last name"
+                                    />
+
+                                </x-form.group>
+
+                                <x-form.group
+                                    name="Suffix"
+                                    label="Suffix"
+                                    class="col-xl-3 col-md-6"
+                                >
+
+                                    <select
+                                        name="Suffix"
+                                        class="form-select"
+                                    >
+
+                                        <option value="">
+                                            Select suffix
                                         </option>
 
-                                    @endforeach
+                                        @foreach(['Jr','Sr','III'] as $suffix)
 
-                                </select>
+                                            <option
+                                                value="{{ $suffix }}"
+                                                {{
+                                                    old(
+                                                        'Suffix',
+                                                        $student->Suffix ?? ''
+                                                    ) == $suffix
+                                                        ? 'selected'
+                                                        : ''
+                                                }}
+                                            >
+                                                {{ $suffix }}
+                                            </option>
 
-                            </x-form.group>
+                                        @endforeach
 
-                            <x-form.group
-                                name="PhoneNumber"
-                                label="Phone Number"
-                                class="col-xl-6 col-md-12"
-                                required
-                            >
+                                    </select>
 
-                                <x-form.input
+                                </x-form.group>
+
+                                <x-form.group
                                     name="PhoneNumber"
-                                    value="{{ old('PhoneNumber',$student->PhoneNumber ?? '') }}"
-                                    placeholder="+639XXXXXXXXX"
-                                />
+                                    label="Phone Number"
+                                    class="col-xl-6 col-md-12"
+                                    required
+                                >
 
-                            </x-form.group>
+                                    <x-form.input
+                                        name="PhoneNumber"
+                                        value="{{ old('PhoneNumber',$student->PhoneNumber ?? '') }}"
+                                        placeholder="+639XXXXXXXXX"
+                                    />
 
-                        </div>
+                                </x-form.group>
 
-                    </div>
-
-                    <div class="border rounded-4 p-4 bg-light-subtle">
-
-                        <div class="d-flex align-items-center gap-2 mb-4">
-
-                            <i class="bi bi-people-fill text-primary"></i>
-
-                            <div class="fw-semibold">
-                                Guardian Information
                             </div>
 
                         </div>
 
-                        <div class="row g-4">
+                    </div>
 
-                            <x-form.group
-                                name="GuardianID"
-                                label="Guardian"
-                                class="col-12"
-                            >
+                </div>
 
-                                <x-form.select
+                <div class="card border-0 bg-transparent shadow-none">
+
+                    <div class="card-body p-0">
+
+                        <div class="page-glass-card">
+
+                            <div class="section-header">
+
+                                <div class="section-title-wrap">
+
+                                    <div class="section-icon">
+                                        <i class="bi bi-people-fill"></i>
+                                    </div>
+
+                                    <div>
+
+                                        <div class="section-title">
+                                            Guardian Information
+                                        </div>
+
+                                        <div class="section-subtitle">
+                                            Linked parent or guardian account
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="row g-4">
+
+                                <x-form.group
                                     name="GuardianID"
-                                    ajax="{{ route('select2.guardians') }}"
-                                    value="{{ old('GuardianID',$student->GuardianID ?? '') }}"
-                                    text="{{ ($student->guardian->FirstName ?? '').' '.($student->guardian->LastName ?? '') }}"
-                                    placeholder="Search guardian"
-                                />
+                                    label="Guardian"
+                                    class="col-12"
+                                >
 
-                            </x-form.group>
+                                    <x-form.select
+                                        name="GuardianID"
+                                        ajax="{{ route('select2.guardians') }}"
+                                        value="{{ old('GuardianID',$student->GuardianID ?? '') }}"
+                                        text="{{ ($student->guardian->FirstName ?? '').' '.($student->guardian->LastName ?? '') }}"
+                                        placeholder="Search guardian"
+                                    />
+
+                                </x-form.group>
+
+                            </div>
 
                         </div>
+
                     </div>
-                    <div
-                        class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top sticky-bottom bg-white"
-                        style="z-index:10;"
-                    >
+
+                </div>
+
+                <div class="page-glass-card sticky-bottom">
+
+                    <div class="d-flex justify-content-end gap-2">
 
                         <a
                             href="{{ route('students.index') }}"
@@ -291,7 +339,7 @@
                             class="btn btn-primary px-4"
                         >
 
-                            <i class="bi bi-check-circle"></i>
+                            <i class="bi bi-check-circle me-1"></i>
 
                             {{
                                 $isEdit
@@ -302,13 +350,12 @@
                         </button>
 
                     </div>
+
                 </div>
 
             </div>
 
         </form>
-
-    </div>
 
 @endsection
 
@@ -316,30 +363,14 @@
 
     <style>
 
-        .card{
-            transition:.2s ease;
-        }
-
-        .form-control,
-        .form-select{
-            border-radius:12px;
-            min-height:48px;
-            border-color:#dbe1ea;
-        }
-
-        .form-control:focus,
-        .form-select:focus{
-            box-shadow:none;
-            border-color:#0d6efd;
-        }
-
-        .bg-light-subtle{
-            background:#f8fafc;
-        }
-
         .sticky-bottom{
             position:sticky;
             bottom:0;
+            z-index:10;
+        }
+
+        .is-invalid{
+            border-color:#dc3545 !important;
         }
 
     </style>

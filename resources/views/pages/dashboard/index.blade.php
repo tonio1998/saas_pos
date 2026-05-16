@@ -524,443 +524,443 @@
 
     </div>
 
-    <style>
-        .dashboard-card{
-            position:relative;
-            overflow:hidden;
+{{--    <style>--}}
+{{--        .dashboard-card{--}}
+{{--            position:relative;--}}
+{{--            overflow:hidden;--}}
 
-            border-radius:20px;
+{{--            border-radius:20px;--}}
 
-            padding:18px;
+{{--            padding:18px;--}}
 
-            min-height:125px;
+{{--            min-height:125px;--}}
 
-            color:#fff;
+{{--            color:#fff;--}}
 
-            transition:.2s ease;
+{{--            transition:.2s ease;--}}
 
-            box-shadow:0 8px 20px rgba(0,0,0,.08);
-        }
+{{--            box-shadow:0 8px 20px rgba(0,0,0,.08);--}}
+{{--        }--}}
 
-        .dashboard-card:hover{
-            transform:translateY(-2px);
-        }
+{{--        .dashboard-card:hover{--}}
+{{--            transform:translateY(-2px);--}}
+{{--        }--}}
 
-        .dashboard-card.primary{
-            background:linear-gradient(135deg,#2563eb,#1d4ed8);
-        }
+{{--        .dashboard-card.primary{--}}
+{{--            background:linear-gradient(135deg,#2563eb,#1d4ed8);--}}
+{{--        }--}}
 
-        .dashboard-card.success{
-            background:linear-gradient(135deg,#16a34a,#15803d);
-        }
+{{--        .dashboard-card.success{--}}
+{{--            background:linear-gradient(135deg,#16a34a,#15803d);--}}
+{{--        }--}}
 
-        .dashboard-card.warning{
-            background:linear-gradient(135deg,#f59e0b,#d97706);
-        }
+{{--        .dashboard-card.warning{--}}
+{{--            background:linear-gradient(135deg,#f59e0b,#d97706);--}}
+{{--        }--}}
 
-        .dashboard-card.dark{
-            background:linear-gradient(135deg,#111827,#1f2937);
-        }
+{{--        .dashboard-card.dark{--}}
+{{--            background:linear-gradient(135deg,#111827,#1f2937);--}}
+{{--        }--}}
 
-        .dashboard-glow{
-            position:absolute;
+{{--        .dashboard-glow{--}}
+{{--            position:absolute;--}}
 
-            width:120px;
-            height:120px;
+{{--            width:120px;--}}
+{{--            height:120px;--}}
 
-            border-radius:50%;
+{{--            border-radius:50%;--}}
 
-            background:rgba(255,255,255,.08);
+{{--            background:rgba(255,255,255,.08);--}}
 
-            top:-40px;
-            right:-40px;
-        }
+{{--            top:-40px;--}}
+{{--            right:-40px;--}}
+{{--        }--}}
 
-        .card-top{
-            position:relative;
-            z-index:2;
+{{--        .card-top{--}}
+{{--            position:relative;--}}
+{{--            z-index:2;--}}
 
-            display:flex;
-            justify-content:space-between;
-            align-items:flex-start;
-        }
+{{--            display:flex;--}}
+{{--            justify-content:space-between;--}}
+{{--            align-items:flex-start;--}}
+{{--        }--}}
 
-        .card-label{
-            font-size:11px;
-            font-weight:800;
-            letter-spacing:.8px;
+{{--        .card-label{--}}
+{{--            font-size:11px;--}}
+{{--            font-weight:800;--}}
+{{--            letter-spacing:.8px;--}}
 
-            opacity:.8;
+{{--            opacity:.8;--}}
 
-            margin-bottom:6px;
-        }
+{{--            margin-bottom:6px;--}}
+{{--        }--}}
 
-        .card-value{
-            font-size:34px;
-            font-weight:1000;
-            line-height:1;
+{{--        .card-value{--}}
+{{--            font-size:34px;--}}
+{{--            font-weight:1000;--}}
+{{--            line-height:1;--}}
 
-            margin-bottom:8px;
-        }
+{{--            margin-bottom:8px;--}}
+{{--        }--}}
 
-        .card-trend{
-            display:flex;
-            align-items:center;
-            gap:6px;
+{{--        .card-trend{--}}
+{{--            display:flex;--}}
+{{--            align-items:center;--}}
+{{--            gap:6px;--}}
 
-            font-size:12px;
-            font-weight:600;
+{{--            font-size:12px;--}}
+{{--            font-weight:600;--}}
 
-            opacity:.9;
-        }
+{{--            opacity:.9;--}}
+{{--        }--}}
 
-        .card-icon{
-            width:52px;
-            height:52px;
+{{--        .card-icon{--}}
+{{--            width:52px;--}}
+{{--            height:52px;--}}
 
-            border-radius:16px;
+{{--            border-radius:16px;--}}
 
-            background:rgba(255,255,255,.12);
+{{--            background:rgba(255,255,255,.12);--}}
 
-            display:flex;
-            align-items:center;
-            justify-content:center;
+{{--            display:flex;--}}
+{{--            align-items:center;--}}
+{{--            justify-content:center;--}}
 
-            font-size:22px;
-        }
+{{--            font-size:22px;--}}
+{{--        }--}}
 
-        .modern-card{
-            background:#fff;
+{{--        .modern-card{--}}
+{{--            background:#fff;--}}
 
-            border-radius:20px;
+{{--            border-radius:20px;--}}
 
-            padding:18px;
+{{--            padding:18px;--}}
 
-            box-shadow:0 6px 18px rgba(0,0,0,.04);
+{{--            box-shadow:0 6px 18px rgba(0,0,0,.04);--}}
 
-            border:1px solid #eef2f7;
-        }
+{{--            border:1px solid #eef2f7;--}}
+{{--        }--}}
 
-        .section-header{
-            margin-bottom:16px;
-        }
+{{--        .section-header{--}}
+{{--            margin-bottom:16px;--}}
+{{--        }--}}
 
-        .section-title{
-            font-size:17px;
-            font-weight:900;
+{{--        .section-title{--}}
+{{--            font-size:17px;--}}
+{{--            font-weight:900;--}}
 
-            margin-bottom:2px;
-        }
+{{--            margin-bottom:2px;--}}
+{{--        }--}}
 
-        .section-subtitle{
-            color:#6b7280;
-            font-size:12px;
-        }
+{{--        .section-subtitle{--}}
+{{--            color:#6b7280;--}}
+{{--            font-size:12px;--}}
+{{--        }--}}
 
-        .quick-grid{
-            display:grid;
+{{--        .quick-grid{--}}
+{{--            display:grid;--}}
 
-            grid-template-columns:
-        repeat(auto-fit,minmax(180px,1fr));
+{{--            grid-template-columns:--}}
+{{--        repeat(auto-fit,minmax(180px,1fr));--}}
 
-            gap:12px;
-        }
+{{--            gap:12px;--}}
+{{--        }--}}
 
-        .quick-item{
-            display:flex;
-            align-items:center;
-            gap:12px;
+{{--        .quick-item{--}}
+{{--            display:flex;--}}
+{{--            align-items:center;--}}
+{{--            gap:12px;--}}
 
-            padding:14px;
+{{--            padding:14px;--}}
 
-            border-radius:16px;
+{{--            border-radius:16px;--}}
 
-            text-decoration:none;
+{{--            text-decoration:none;--}}
 
-            background:#f8fafc;
+{{--            background:#f8fafc;--}}
 
-            border:1px solid #e5e7eb;
+{{--            border:1px solid #e5e7eb;--}}
 
-            transition:.2s ease;
-        }
+{{--            transition:.2s ease;--}}
+{{--        }--}}
 
-        .quick-item:hover{
-            transform:translateY(-2px);
+{{--        .quick-item:hover{--}}
+{{--            transform:translateY(-2px);--}}
 
-            box-shadow:0 8px 18px rgba(0,0,0,.06);
-        }
+{{--            box-shadow:0 8px 18px rgba(0,0,0,.06);--}}
+{{--        }--}}
 
-        .quick-icon{
-            width:46px;
-            height:46px;
+{{--        .quick-icon{--}}
+{{--            width:46px;--}}
+{{--            height:46px;--}}
 
-            border-radius:14px;
+{{--            border-radius:14px;--}}
 
-            display:flex;
-            align-items:center;
-            justify-content:center;
+{{--            display:flex;--}}
+{{--            align-items:center;--}}
+{{--            justify-content:center;--}}
 
-            color:#fff;
+{{--            color:#fff;--}}
 
-            font-size:18px;
+{{--            font-size:18px;--}}
 
-            flex-shrink:0;
-        }
+{{--            flex-shrink:0;--}}
+{{--        }--}}
 
-        .quick-icon.primary{
-            background:#2563eb;
-        }
+{{--        .quick-icon.primary{--}}
+{{--            background:#2563eb;--}}
+{{--        }--}}
 
-        .quick-icon.success{
-            background:#16a34a;
-        }
+{{--        .quick-icon.success{--}}
+{{--            background:#16a34a;--}}
+{{--        }--}}
 
-        .quick-icon.warning{
-            background:#f59e0b;
-        }
+{{--        .quick-icon.warning{--}}
+{{--            background:#f59e0b;--}}
+{{--        }--}}
 
-        .quick-icon.dark{
-            background:#111827;
-        }
+{{--        .quick-icon.dark{--}}
+{{--            background:#111827;--}}
+{{--        }--}}
 
-        .quick-title{
-            font-size:14px;
-            font-weight:800;
+{{--        .quick-title{--}}
+{{--            font-size:14px;--}}
+{{--            font-weight:800;--}}
 
-            color:#111827;
+{{--            color:#111827;--}}
 
-            margin-bottom:2px;
-        }
+{{--            margin-bottom:2px;--}}
+{{--        }--}}
 
-        .quick-subtitle{
-            font-size:11px;
+{{--        .quick-subtitle{--}}
+{{--            font-size:11px;--}}
 
-            color:#6b7280;
-        }
+{{--            color:#6b7280;--}}
+{{--        }--}}
 
-        .system-list{
-            display:flex;
-            flex-direction:column;
-        }
+{{--        .system-list{--}}
+{{--            display:flex;--}}
+{{--            flex-direction:column;--}}
+{{--        }--}}
 
-        .system-item{
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
+{{--        .system-item{--}}
+{{--            display:flex;--}}
+{{--            justify-content:space-between;--}}
+{{--            align-items:center;--}}
 
-            padding:10px 0;
+{{--            padding:10px 0;--}}
 
-            border-bottom:1px solid #f1f5f9;
-        }
+{{--            border-bottom:1px solid #f1f5f9;--}}
+{{--        }--}}
 
-        .system-label{
-            color:#6b7280;
+{{--        .system-label{--}}
+{{--            color:#6b7280;--}}
 
-            font-size:12px;
-            font-weight:600;
-        }
+{{--            font-size:12px;--}}
+{{--            font-weight:600;--}}
+{{--        }--}}
 
-        .system-value{
-            font-size:13px;
-            font-weight:800;
+{{--        .system-value{--}}
+{{--            font-size:13px;--}}
+{{--            font-weight:800;--}}
 
-            color:#111827;
-        }
+{{--            color:#111827;--}}
+{{--        }--}}
 
-        .activity-grid{
-            display:grid;
+{{--        .activity-grid{--}}
+{{--            display:grid;--}}
 
-            grid-template-columns:
-        repeat(auto-fit,minmax(180px,1fr));
+{{--            grid-template-columns:--}}
+{{--        repeat(auto-fit,minmax(180px,1fr));--}}
 
-            gap:12px;
-        }
+{{--            gap:12px;--}}
+{{--        }--}}
 
-        .activity-box{
-            padding:14px;
+{{--        .activity-box{--}}
+{{--            padding:14px;--}}
 
-            border-radius:18px;
+{{--            border-radius:18px;--}}
 
-            background:#f8fafc;
+{{--            background:#f8fafc;--}}
 
-            border:1px solid #e5e7eb;
+{{--            border:1px solid #e5e7eb;--}}
 
-            display:flex;
-            align-items:center;
-            gap:12px;
-        }
+{{--            display:flex;--}}
+{{--            align-items:center;--}}
+{{--            gap:12px;--}}
+{{--        }--}}
 
-        .activity-icon{
-            width:46px;
-            height:46px;
+{{--        .activity-icon{--}}
+{{--            width:46px;--}}
+{{--            height:46px;--}}
 
-            border-radius:14px;
+{{--            border-radius:14px;--}}
 
-            display:flex;
-            align-items:center;
-            justify-content:center;
+{{--            display:flex;--}}
+{{--            align-items:center;--}}
+{{--            justify-content:center;--}}
 
-            color:#fff;
+{{--            color:#fff;--}}
 
-            font-size:18px;
+{{--            font-size:18px;--}}
 
-            flex-shrink:0;
-        }
+{{--            flex-shrink:0;--}}
+{{--        }--}}
 
-        .activity-icon.primary{
-            background:#2563eb;
-        }
+{{--        .activity-icon.primary{--}}
+{{--            background:#2563eb;--}}
+{{--        }--}}
 
-        .activity-icon.success{
-            background:#16a34a;
-        }
+{{--        .activity-icon.success{--}}
+{{--            background:#16a34a;--}}
+{{--        }--}}
 
-        .activity-icon.warning{
-            background:#f59e0b;
-        }
+{{--        .activity-icon.warning{--}}
+{{--            background:#f59e0b;--}}
+{{--        }--}}
 
-        .activity-icon.dark{
-            background:#111827;
-        }
+{{--        .activity-icon.dark{--}}
+{{--            background:#111827;--}}
+{{--        }--}}
 
-        .activity-label{
-            font-size:11px;
-            font-weight:700;
+{{--        .activity-label{--}}
+{{--            font-size:11px;--}}
+{{--            font-weight:700;--}}
 
-            color:#6b7280;
+{{--            color:#6b7280;--}}
 
-            margin-bottom:4px;
-        }
+{{--            margin-bottom:4px;--}}
+{{--        }--}}
 
-        .activity-value{
-            font-size:22px;
-            font-weight:1000;
+{{--        .activity-value{--}}
+{{--            font-size:22px;--}}
+{{--            font-weight:1000;--}}
 
-            color:#111827;
+{{--            color:#111827;--}}
 
-            line-height:1;
-        }
+{{--            line-height:1;--}}
+{{--        }--}}
 
-        .feed-list{
-            display:flex;
-            flex-direction:column;
+{{--        .feed-list{--}}
+{{--            display:flex;--}}
+{{--            flex-direction:column;--}}
 
-            gap:10px;
+{{--            gap:10px;--}}
 
-            max-height:420px;
+{{--            max-height:420px;--}}
 
-            overflow:auto;
-        }
+{{--            overflow:auto;--}}
+{{--        }--}}
 
-        .feed-item{
-            display:flex;
-            align-items:center;
-            gap:10px;
+{{--        .feed-item{--}}
+{{--            display:flex;--}}
+{{--            align-items:center;--}}
+{{--            gap:10px;--}}
 
-            padding:12px;
+{{--            padding:12px;--}}
 
-            border-radius:16px;
+{{--            border-radius:16px;--}}
 
-            background:#f8fafc;
+{{--            background:#f8fafc;--}}
 
-            border:1px solid #eef2f7;
-        }
+{{--            border:1px solid #eef2f7;--}}
+{{--        }--}}
 
-        .feed-avatar{
-            width:42px;
-            height:42px;
+{{--        .feed-avatar{--}}
+{{--            width:42px;--}}
+{{--            height:42px;--}}
 
-            border-radius:50%;
+{{--            border-radius:50%;--}}
 
-            background:#2563eb;
+{{--            background:#2563eb;--}}
 
-            color:#fff;
+{{--            color:#fff;--}}
 
-            display:flex;
-            align-items:center;
-            justify-content:center;
+{{--            display:flex;--}}
+{{--            align-items:center;--}}
+{{--            justify-content:center;--}}
 
-            font-size:16px;
+{{--            font-size:16px;--}}
 
-            flex-shrink:0;
-        }
+{{--            flex-shrink:0;--}}
+{{--        }--}}
 
-        .feed-content{
-            flex:1;
-        }
+{{--        .feed-content{--}}
+{{--            flex:1;--}}
+{{--        }--}}
 
-        .feed-name{
-            font-size:13px;
-            font-weight:800;
+{{--        .feed-name{--}}
+{{--            font-size:13px;--}}
+{{--            font-weight:800;--}}
 
-            color:#111827;
+{{--            color:#111827;--}}
 
-            margin-bottom:2px;
-        }
+{{--            margin-bottom:2px;--}}
+{{--        }--}}
 
-        .feed-meta{
-            font-size:11px;
+{{--        .feed-meta{--}}
+{{--            font-size:11px;--}}
 
-            color:#6b7280;
-        }
+{{--            color:#6b7280;--}}
+{{--        }--}}
 
-        .feed-status{
-            color:#16a34a;
+{{--        .feed-status{--}}
+{{--            color:#16a34a;--}}
 
-            font-size:16px;
-        }
+{{--            font-size:16px;--}}
+{{--        }--}}
 
-        .empty-feed{
-            padding:30px 10px;
+{{--        .empty-feed{--}}
+{{--            padding:30px 10px;--}}
 
-            text-align:center;
+{{--            text-align:center;--}}
 
-            color:#9ca3af;
-        }
+{{--            color:#9ca3af;--}}
+{{--        }--}}
 
-        .live-dot{
-            width:8px;
-            height:8px;
+{{--        .live-dot{--}}
+{{--            width:8px;--}}
+{{--            height:8px;--}}
 
-            border-radius:50%;
+{{--            border-radius:50%;--}}
 
-            background:#22c55e;
+{{--            background:#22c55e;--}}
 
-            display:inline-block;
+{{--            display:inline-block;--}}
 
-            animation:pulse 1.3s infinite;
-        }
+{{--            animation:pulse 1.3s infinite;--}}
+{{--        }--}}
 
-        @keyframes pulse{
+{{--        @keyframes pulse{--}}
 
-            0%{
-                opacity:1;
-            }
+{{--            0%{--}}
+{{--                opacity:1;--}}
+{{--            }--}}
 
-            50%{
-                opacity:.3;
-            }
+{{--            50%{--}}
+{{--                opacity:.3;--}}
+{{--            }--}}
 
-            100%{
-                opacity:1;
-            }
+{{--            100%{--}}
+{{--                opacity:1;--}}
+{{--            }--}}
 
-        }
+{{--        }--}}
 
-        @media(max-width:768px){
+{{--        @media(max-width:768px){--}}
 
-            .card-value{
-                font-size:28px;
-            }
+{{--            .card-value{--}}
+{{--                font-size:28px;--}}
+{{--            }--}}
 
-            .quick-grid,
-            .activity-grid{
-                grid-template-columns:1fr;
-            }
+{{--            .quick-grid,--}}
+{{--            .activity-grid{--}}
+{{--                grid-template-columns:1fr;--}}
+{{--            }--}}
 
-        }
+{{--        }--}}
 
-    </style>
+{{--    </style>--}}
 
     <script>
 
