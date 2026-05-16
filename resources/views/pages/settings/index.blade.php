@@ -246,8 +246,49 @@
 
                     </div>
 
-                </div>
 
+                </div>
+                <div class="col-12">
+                    <div class="border-bottom pb-2 mb-2 mt-2">
+                        <h5 class="mb-0">
+                            SMS Gateway Settings
+                        </h5>
+                    </div>
+                </div>
+                <x-form.group
+                    name="cacert_path"
+                    label="Cacert Path"
+                    class="col-md-4"
+                >
+                    <x-form.input
+                        name="cacert_path"
+                        value="{{ old('cacert_path',$setting->cacert_path ?? '') }}"
+                        placeholder=""
+                    />
+                </x-form.group>
+                <x-form.group
+                    name="python_path"
+                    label="Python Path"
+                    class="col-md-4"
+                >
+                    <x-form.input
+                        name="python_path"
+                        value="{{ old('python_path',$setting->python_path ?? '') }}"
+                        placeholder="C:\Python313\python.exe"
+                    />
+                </x-form.group>
+
+                <x-form.group
+                    name="port_com"
+                    label="COM Port"
+                    class="col-md-3"
+                >
+                    <x-form.input
+                        name="port_com"
+                        value="{{ old('port_com',$setting->port_com ?? '') }}"
+                        placeholder="COM3"
+                    />
+                </x-form.group>
             </div>
 
             <div class="d-flex justify-content-end">
