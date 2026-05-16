@@ -1,6 +1,6 @@
 -- --------------------------------------------------------
 -- Host:                         127.0.0.1
--- Server version:               5.7.36 - MySQL Community Server (GPL)
+-- Server version:               9.1.0 - MySQL Community Server - GPL
 -- Server OS:                    Win64
 -- HeidiSQL Version:             12.1.0.6537
 -- --------------------------------------------------------
@@ -14,17 +14,22 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
+
+-- Dumping database structure for tnhs-new
+CREATE DATABASE IF NOT EXISTS `tnhs-new` /*!40100 DEFAULT CHARACTER SET utf8mb3 */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `tnhs-new`;
+
 -- Dumping structure for table tnhs-new.attendance_risk_scores
 DROP TABLE IF EXISTS `attendance_risk_scores`;
 CREATE TABLE IF NOT EXISTS `attendance_risk_scores` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `student_id` bigint(20) unsigned NOT NULL,
-  `total_lates` int(11) DEFAULT '0',
-  `total_absences` int(11) DEFAULT '0',
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `student_id` bigint unsigned NOT NULL,
+  `total_lates` int DEFAULT '0',
+  `total_absences` int DEFAULT '0',
   `risk_level` enum('low','medium','high') DEFAULT 'low',
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 
 -- Dumping data for table tnhs-new.attendance_risk_scores: 0 rows
 DELETE FROM `attendance_risk_scores`;
@@ -34,26 +39,26 @@ DELETE FROM `attendance_risk_scores`;
 -- Dumping structure for table tnhs-new.audits
 DROP TABLE IF EXISTS `audits`;
 CREATE TABLE IF NOT EXISTS `audits` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `user_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `user_id` bigint(20) unsigned DEFAULT NULL,
-  `event` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `auditable_type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `auditable_id` bigint(20) unsigned NOT NULL,
-  `old_values` text COLLATE utf8mb4_unicode_ci,
-  `new_values` text COLLATE utf8mb4_unicode_ci,
-  `url` text COLLATE utf8mb4_unicode_ci,
-  `ip_address` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `user_agent` varchar(1023) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `tags` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user_type` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_id` bigint unsigned DEFAULT NULL,
+  `event` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `auditable_type` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `auditable_id` bigint unsigned NOT NULL,
+  `old_values` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `new_values` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `url` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `ip_address` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_agent` varchar(1023) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tags` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `audits_auditable_type_auditable_id_index` (`auditable_type`,`auditable_id`),
   KEY `audits_user_id_user_type_index` (`user_id`,`user_type`)
-) ENGINE=InnoDB AUTO_INCREMENT=1468 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1471 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.audits: ~1,072 rows (approximately)
+-- Dumping data for table tnhs-new.audits: ~1,063 rows (approximately)
 DELETE FROM `audits`;
 INSERT INTO `audits` (`id`, `user_type`, `user_id`, `event`, `auditable_type`, `auditable_id`, `old_values`, `new_values`, `url`, `ip_address`, `user_agent`, `tags`, `created_at`, `updated_at`) VALUES
 	(396, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 50, '{"remember_token":null}', '{"remember_token":"LwskNOAXifbMFhMGmiGSgBrmtigOsqLN58o52bHavimosh5axVFYw7Nk5vbZ"}', 'http://tnhs.dev.com/login', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-07-24 19:14:20', '2025-07-24 19:14:20'),
@@ -1127,26 +1132,32 @@ INSERT INTO `audits` (`id`, `user_type`, `user_id`, `event`, `auditable_type`, `
 	(1464, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 100031, '[]', '{"UserID":1449,"Mode":1,"VerificationCode":"M2GWMKVVSATGLNSQ","created_by":1449,"updated_by":1449,"status":"active","archived":0,"scan_type":"nfc","direction":"entry","attendance_status":"present","id":100031}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-13 09:33:01', '2026-05-13 09:33:01'),
 	(1465, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 100032, '[]', '{"UserID":1511,"Mode":1,"VerificationCode":"J9CNK7QQKCXIC9MO","created_by":1511,"updated_by":1511,"status":"active","archived":0,"scan_type":"nfc","direction":"entry","attendance_status":"present","id":100032}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-13 09:33:05', '2026-05-13 09:33:05'),
 	(1466, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 100033, '[]', '{"UserID":1855,"Mode":1,"VerificationCode":"VYCBO4HYHGOPIQ59","created_by":1855,"updated_by":1855,"status":"active","archived":0,"scan_type":"nfc","direction":"entry","attendance_status":"present","id":100033}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-13 09:33:09', '2026-05-13 09:33:09'),
-	(1467, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 100034, '[]', '{"UserID":1679,"Mode":1,"VerificationCode":"PIMSMNRRA7OQGOTM","created_by":1679,"updated_by":1679,"status":"active","archived":0,"scan_type":"nfc","direction":"entry","attendance_status":"present","id":100034}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-13 09:33:13', '2026-05-13 09:33:13');
+	(1467, 'App\\Models\\User', 1, 'created', 'App\\Models\\ScanLogs', 100034, '[]', '{"UserID":1679,"Mode":1,"VerificationCode":"PIMSMNRRA7OQGOTM","created_by":1679,"updated_by":1679,"status":"active","archived":0,"scan_type":"nfc","direction":"entry","attendance_status":"present","id":100034}', 'http://saaskit.dev.com/scan', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', NULL, '2026-05-13 09:33:13', '2026-05-13 09:33:13'),
+	(1468, 'App\\Models\\User', 1, 'created', 'App\\Models\\Parents', 101, '[]', '{"FirstName":"bus","MiddleName":null,"LastName":"bus","Suffix":null,"PhoneNumber":"+639128941731","Address":"Espina St","created_by":1,"updated_by":1,"status":"active","archived":0,"id":101}', 'http://saaskit.dev.com/parents/create', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0', NULL, '2026-05-16 13:31:27', '2026-05-16 13:31:27'),
+	(1469, 'App\\Models\\User', 1, 'created', 'App\\Models\\Students', 301, '[]', '{"LRN":"455454hghfdg","FirstName":"ANTONIO JR.","MiddleName":"LUIB","LastName":"PILOTON","Suffix":null,"PhoneNumber":"+639128941731","GuardianID":"4","YearLevel":"8","Strand":"hfgh","created_by":1,"updated_by":1,"status":"active","archived":0,"id":301}', 'http://saaskit.dev.com/students/create', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0', NULL, '2026-05-16 13:33:30', '2026-05-16 13:33:30'),
+	(1470, 'App\\Models\\User', 1, 'created', 'App\\Models\\Employees', 101, '[]', '{"FirstName":"ANTONIO JR.","MiddleName":"LUIB","LastName":"PILOTON","Suffix":null,"PhoneNumber":"+639128941731","Address":"Purok Mabungahon, Brgy. Washington, Surigao City, Surigao del Norte, Philippines","created_by":1,"updated_by":1,"status":"active","archived":0,"id":101}', 'http://saaskit.dev.com/employees/create', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0', NULL, '2026-05-16 13:34:57', '2026-05-16 13:34:57');
 
 -- Dumping structure for table tnhs-new.cache
 DROP TABLE IF EXISTS `cache`;
 CREATE TABLE IF NOT EXISTS `cache` (
-  `key` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `value` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `expiration` int(11) NOT NULL,
+  `key` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `value` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `expiration` int NOT NULL,
   PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.cache: ~1 rows (approximately)
+-- Dumping data for table tnhs-new.cache: ~0 rows (approximately)
 DELETE FROM `cache`;
+INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
+	('safetrack-cache-school_settings', 'O:19:"App\\Models\\Settings":33:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:8:"settings";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:35:{s:2:"id";i:1;s:11:"SystemTitle";s:53:"SAFETRACK: A QR & NFC-Based Student Monitoring System";s:10:"SchoolName";s:28:"TUBAJON NATIONAL HIGH SCHOOL";s:10:"SchoolCode";s:6:"304854";s:14:"EducationLevel";s:10:"INTEGRATED";s:6:"Region";s:6:"CARAGA";s:8:"Division";s:15:"Dinagat Islands";s:7:"Address";s:9:"Espina St";s:13:"ContactNumber";s:13:"+639128941731";s:12:"EmailAddress";s:19:"jhambre@ssct.edu.ph";s:11:"PrincipalID";i:2;s:11:"RegistrarID";i:1;s:4:"Logo";N;s:14:"OfficialTimeIn";s:8:"07:00:00";s:15:"OfficialTimeOut";s:8:"17:00:00";s:16:"LateGraceMinutes";i:15;s:9:"EnableNFC";i:1;s:8:"EnableQR";i:1;s:23:"EnableOfflineAttendance";i:1;s:19:"CurrentSchoolYearID";N;s:10:"ThemeColor";s:7:"#0a9400";s:10:"created_by";i:1;s:10:"updated_by";i:1;s:10:"created_at";s:19:"2026-05-16 22:01:12";s:10:"updated_at";s:19:"2026-05-16 22:07:51";s:6:"status";s:6:"active";s:11:"cacert_path";s:49:"C:\\wamp64\\bin\\php\\php8.4.15\\extras\\ssl\\cacert.pem";s:11:"python_path";s:65:"C:\\Users\\apilo\\AppData\\Local\\Programs\\Python\\Python313\\python.exe";s:8:"port_com";s:4:"COM3";s:16:"sms_failed_count";i:57;s:15:"sms_low_balance";i:1;s:10:"total_sent";i:0;s:18:"sms_last_failed_at";s:19:"2026-05-16 22:07:51";s:8:"archived";i:0;s:10:"deleted_at";N;}s:11:"\0*\0original";a:35:{s:2:"id";i:1;s:11:"SystemTitle";s:53:"SAFETRACK: A QR & NFC-Based Student Monitoring System";s:10:"SchoolName";s:28:"TUBAJON NATIONAL HIGH SCHOOL";s:10:"SchoolCode";s:6:"304854";s:14:"EducationLevel";s:10:"INTEGRATED";s:6:"Region";s:6:"CARAGA";s:8:"Division";s:15:"Dinagat Islands";s:7:"Address";s:9:"Espina St";s:13:"ContactNumber";s:13:"+639128941731";s:12:"EmailAddress";s:19:"jhambre@ssct.edu.ph";s:11:"PrincipalID";i:2;s:11:"RegistrarID";i:1;s:4:"Logo";N;s:14:"OfficialTimeIn";s:8:"07:00:00";s:15:"OfficialTimeOut";s:8:"17:00:00";s:16:"LateGraceMinutes";i:15;s:9:"EnableNFC";i:1;s:8:"EnableQR";i:1;s:23:"EnableOfflineAttendance";i:1;s:19:"CurrentSchoolYearID";N;s:10:"ThemeColor";s:7:"#0a9400";s:10:"created_by";i:1;s:10:"updated_by";i:1;s:10:"created_at";s:19:"2026-05-16 22:01:12";s:10:"updated_at";s:19:"2026-05-16 22:07:51";s:6:"status";s:6:"active";s:11:"cacert_path";s:49:"C:\\wamp64\\bin\\php\\php8.4.15\\extras\\ssl\\cacert.pem";s:11:"python_path";s:65:"C:\\Users\\apilo\\AppData\\Local\\Programs\\Python\\Python313\\python.exe";s:8:"port_com";s:4:"COM3";s:16:"sms_failed_count";i:57;s:15:"sms_low_balance";i:1;s:10:"total_sent";i:0;s:18:"sms_last_failed_at";s:19:"2026-05-16 22:07:51";s:8:"archived";i:0;s:10:"deleted_at";N;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:5:{s:9:"EnableNFC";s:7:"boolean";s:8:"EnableQR";s:7:"boolean";s:23:"EnableOfflineAttendance";s:7:"boolean";s:14:"OfficialTimeIn";s:12:"datetime:H:i";s:15:"OfficialTimeOut";s:12:"datetime:H:i";}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:2:{s:9:"principal";O:20:"App\\Models\\Employees":41:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:9:"employees";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:15:{s:2:"id";i:2;s:6:"UserID";i:1803;s:11:"PhoneNumber";s:11:"09552710773";s:9:"FirstName";s:4:"Thad";s:10:"MiddleName";s:4:"Wiza";s:8:"LastName";s:11:"Oberbrunner";s:6:"Suffix";s:3:"Jr.";s:7:"Address";s:49:"55859 Maureen Unions\nPercivalburgh, AL 89230-5056";s:10:"created_by";i:1;s:10:"updated_by";i:1;s:10:"created_at";s:19:"2026-02-24 17:18:41";s:10:"updated_at";s:19:"2026-05-13 17:18:42";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:11:"\0*\0original";a:15:{s:2:"id";i:2;s:6:"UserID";i:1803;s:11:"PhoneNumber";s:11:"09552710773";s:9:"FirstName";s:4:"Thad";s:10:"MiddleName";s:4:"Wiza";s:8:"LastName";s:11:"Oberbrunner";s:6:"Suffix";s:3:"Jr.";s:7:"Address";s:49:"55859 Maureen Unions\nPercivalburgh, AL 89230-5056";s:10:"created_by";i:1;s:10:"updated_by";i:1;s:10:"created_at";s:19:"2026-02-24 17:18:41";s:10:"updated_at";s:19:"2026-05-13 17:18:42";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:1:{s:10:"deleted_at";s:8:"datetime";}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:0:{}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:14:{i:0;s:6:"UserID";i:1;s:11:"PhoneNumber";i:2;s:9:"FirstName";i:3;s:10:"MiddleName";i:4;s:8:"LastName";i:5;s:6:"Suffix";i:6;s:7:"Address";i:7;s:9:"YearLevel";i:8;s:10:"created_by";i:9;s:10:"updated_by";i:10;s:7:"Address";i:11;s:10:"created_at";i:12;s:6:"status";i:13;s:8:"archived";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}s:8:"\0*\0dates";a:3:{i:0;s:10:"deleted_at";i:1;s:10:"created_at";i:2;s:10:"updated_at";}s:16:"\0*\0forceDeleting";b:0;s:21:"\0*\0excludedAttributes";a:0:{}s:10:"auditEvent";N;s:14:"auditCustomOld";N;s:14:"auditCustomNew";N;s:13:"isCustomEvent";b:0;s:21:"preloadedResolverData";a:0:{}}s:9:"registrar";O:20:"App\\Models\\Employees":41:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:9:"employees";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:15:{s:2:"id";i:1;s:6:"UserID";i:1802;s:11:"PhoneNumber";s:11:"09577863939";s:9:"FirstName";s:7:"Destini";s:10:"MiddleName";s:6:"Hamill";s:8:"LastName";s:5:"Ferry";s:6:"Suffix";N;s:7:"Address";s:50:"846 Nikki Trace Suite 339\nPort Carlofurt, CA 53048";s:10:"created_by";i:1;s:10:"updated_by";i:1;s:10:"created_at";s:19:"2025-06-25 17:18:41";s:10:"updated_at";s:19:"2026-05-13 17:18:41";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:11:"\0*\0original";a:15:{s:2:"id";i:1;s:6:"UserID";i:1802;s:11:"PhoneNumber";s:11:"09577863939";s:9:"FirstName";s:7:"Destini";s:10:"MiddleName";s:6:"Hamill";s:8:"LastName";s:5:"Ferry";s:6:"Suffix";N;s:7:"Address";s:50:"846 Nikki Trace Suite 339\nPort Carlofurt, CA 53048";s:10:"created_by";i:1;s:10:"updated_by";i:1;s:10:"created_at";s:19:"2025-06-25 17:18:41";s:10:"updated_at";s:19:"2026-05-13 17:18:41";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:1:{s:10:"deleted_at";s:8:"datetime";}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:0:{}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:14:{i:0;s:6:"UserID";i:1;s:11:"PhoneNumber";i:2;s:9:"FirstName";i:3;s:10:"MiddleName";i:4;s:8:"LastName";i:5;s:6:"Suffix";i:6;s:7:"Address";i:7;s:9:"YearLevel";i:8;s:10:"created_by";i:9;s:10:"updated_by";i:10;s:7:"Address";i:11;s:10:"created_at";i:12;s:6:"status";i:13;s:8:"archived";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}s:8:"\0*\0dates";a:3:{i:0;s:10:"deleted_at";i:1;s:10:"created_at";i:2;s:10:"updated_at";}s:16:"\0*\0forceDeleting";b:0;s:21:"\0*\0excludedAttributes";a:0:{}s:10:"auditEvent";N;s:14:"auditCustomOld";N;s:14:"auditCustomNew";N;s:13:"isCustomEvent";b:0;s:21:"preloadedResolverData";a:0:{}}}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:27:{i:0;s:11:"SystemTitle";i:1;s:10:"SchoolName";i:2;s:10:"SchoolCode";i:3;s:14:"EducationLevel";i:4;s:6:"Region";i:5;s:8:"Division";i:6;s:7:"Address";i:7;s:13:"ContactNumber";i:8;s:12:"EmailAddress";i:9;s:11:"PrincipalID";i:10;s:11:"RegistrarID";i:11;s:4:"Logo";i:12;s:14:"OfficialTimeIn";i:13;s:15:"OfficialTimeOut";i:14;s:16:"LateGraceMinutes";i:15;s:9:"EnableNFC";i:16;s:8:"EnableQR";i:17;s:23:"EnableOfflineAttendance";i:18;s:19:"CurrentSchoolYearID";i:19;s:10:"ThemeColor";i:20;s:11:"cacert_path";i:21;s:8:"port_com";i:22;s:11:"python_path";i:23;s:16:"sms_failed_count";i:24;s:15:"sms_low_balance";i:25;s:18:"sms_last_failed_at";i:26;s:10:"total_sent";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}}', 2094300471),
+	('safetrack-cache-spatie.permission.cache', 'a:3:{s:5:"alias";a:5:{s:1:"a";s:2:"id";s:1:"b";s:4:"name";s:1:"c";s:7:"details";s:1:"d";s:10:"guard_name";s:1:"r";s:5:"roles";}s:11:"permissions";a:18:{i:0;a:5:{s:1:"a";i:6;s:1:"b";s:6:"scanQR";s:1:"c";s:16:"User can scan QR";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:3;i:1;i:4;}}i:1;a:5:{s:1:"a";i:7;s:1:"b";s:12:"manage users";s:1:"c";s:12:"manage users";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:4;}}i:2;a:5:{s:1:"a";i:8;s:1:"b";s:10:"view users";s:1:"c";s:10:"view users";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:4;}}i:3;a:5:{s:1:"a";i:9;s:1:"b";s:10:"view roles";s:1:"c";s:10:"view roles";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:4;}}i:4;a:5:{s:1:"a";i:10;s:1:"b";s:16:"view permissions";s:1:"c";s:16:"view permissions";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:4;}}i:5;a:5:{s:1:"a";i:11;s:1:"b";s:18:"teacher management";s:1:"c";s:18:"teacher management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:4;}}i:6;a:5:{s:1:"a";i:12;s:1:"b";s:11:"add teacher";s:1:"c";s:11:"add teacher";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:5;}}i:7;a:5:{s:1:"a";i:13;s:1:"b";s:13:"view teachers";s:1:"c";s:13:"view teachers";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:4;}}i:8;a:5:{s:1:"a";i:14;s:1:"b";s:19:"guardian management";s:1:"c";s:19:"guardian management";s:1:"d";s:3:"web";s:1:"r";a:3:{i:0;i:3;i:1;i:4;i:2;i:5;}}i:9;a:5:{s:1:"a";i:15;s:1:"b";s:12:"add guardian";s:1:"c";s:12:"add guardian";s:1:"d";s:3:"web";s:1:"r";a:3:{i:0;i:3;i:1;i:4;i:2;i:5;}}i:10;a:5:{s:1:"a";i:16;s:1:"b";s:13:"view guardian";s:1:"c";s:13:"view guardian";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:3;i:1;i:4;}}i:11;a:5:{s:1:"a";i:17;s:1:"b";s:18:"student management";s:1:"c";s:18:"student management";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:3;i:1;i:4;}}i:12;a:5:{s:1:"a";i:18;s:1:"b";s:11:"add student";s:1:"c";s:11:"add student";s:1:"d";s:3:"web";s:1:"r";a:3:{i:0;i:3;i:1;i:4;i:2;i:5;}}i:13;a:5:{s:1:"a";i:19;s:1:"b";s:14:"view residents";s:1:"c";s:14:"view residents";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:4;}}i:14;a:5:{s:1:"a";i:20;s:1:"b";s:15:"logs management";s:1:"c";s:15:"logs management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:4;}}i:15;a:5:{s:1:"a";i:21;s:1:"b";s:9:"view logs";s:1:"c";s:9:"view logs";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:4;}}i:16;a:5:{s:1:"a";i:22;s:1:"b";s:10:"my student";s:1:"c";s:10:"my student";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:3;i:1;i:4;}}i:17;a:4:{s:1:"a";i:23;s:1:"b";s:6:"hgdfgh";s:1:"c";s:6:"fghfgh";s:1:"d";s:3:"web";}}s:5:"roles";a:3:{i:0;a:4:{s:1:"a";i:3;s:1:"b";s:9:"employees";s:1:"c";s:9:"employees";s:1:"d";s:3:"web";}i:1;a:4:{s:1:"a";i:4;s:1:"b";s:5:"admin";s:1:"c";s:5:"admin";s:1:"d";s:3:"web";}i:2;a:4:{s:1:"a";i:5;s:1:"b";s:16:"new role HAHAHAH";s:1:"c";s:20:"new role HAHAHAHvvvv";s:1:"d";s:3:"web";}}}', 1779026086);
 
 -- Dumping structure for table tnhs-new.cache_locks
 DROP TABLE IF EXISTS `cache_locks`;
 CREATE TABLE IF NOT EXISTS `cache_locks` (
-  `key` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `owner` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `expiration` int(11) NOT NULL,
+  `key` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `owner` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `expiration` int NOT NULL,
   PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1158,23 +1169,23 @@ INSERT INTO `cache_locks` (`key`, `owner`, `expiration`) VALUES
 -- Dumping structure for table tnhs-new.classes
 DROP TABLE IF EXISTS `classes`;
 CREATE TABLE IF NOT EXISTS `classes` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `Semester` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `AYFrom` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `AYTo` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `GradeLevelID` bigint(20) unsigned NOT NULL,
-  `StrandID` bigint(20) unsigned DEFAULT NULL,
-  `AdviserID` bigint(20) unsigned DEFAULT NULL,
-  `SectionName` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Capacity` int(11) DEFAULT '50',
-  `Room` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `Semester` bigint unsigned NOT NULL DEFAULT '0',
+  `AYFrom` bigint unsigned NOT NULL DEFAULT '0',
+  `AYTo` bigint unsigned NOT NULL DEFAULT '0',
+  `GradeLevelID` bigint unsigned NOT NULL,
+  `StrandID` bigint unsigned DEFAULT NULL,
+  `AdviserID` bigint unsigned DEFAULT NULL,
+  `SectionName` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Capacity` int DEFAULT '50',
+  `Room` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `IsActive` tinyint(1) NOT NULL DEFAULT '1',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `created_by` bigint(20) unsigned DEFAULT NULL,
-  `updated_by` bigint(20) unsigned DEFAULT NULL,
-  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `created_by` bigint unsigned DEFAULT NULL,
+  `updated_by` bigint unsigned DEFAULT NULL,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1202,10 +1213,10 @@ INSERT INTO `classes` (`id`, `Semester`, `AYFrom`, `AYTo`, `GradeLevelID`, `Stra
 -- Dumping structure for table tnhs-new.class_schedules
 DROP TABLE IF EXISTS `class_schedules`;
 CREATE TABLE IF NOT EXISTS `class_schedules` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `SubjectID` bigint(20) NOT NULL,
-  `SectionID` bigint(20) NOT NULL,
-  `TeacherID` bigint(20) NOT NULL,
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `SubjectID` bigint NOT NULL,
+  `SectionID` bigint NOT NULL,
+  `TeacherID` bigint NOT NULL,
   `DayOfWeek` enum('MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY') DEFAULT NULL,
   `StartTime` time DEFAULT NULL,
   `EndTime` time DEFAULT NULL,
@@ -1213,7 +1224,7 @@ CREATE TABLE IF NOT EXISTS `class_schedules` (
   `created_at` timestamp NULL DEFAULT NULL,
   `created_by` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 
 -- Dumping data for table tnhs-new.class_schedules: 0 rows
 DELETE FROM `class_schedules`;
@@ -1223,23 +1234,23 @@ DELETE FROM `class_schedules`;
 -- Dumping structure for table tnhs-new.employees
 DROP TABLE IF EXISTS `employees`;
 CREATE TABLE IF NOT EXISTS `employees` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `UserID` int(11) NOT NULL DEFAULT '0',
-  `PhoneNumber` varchar(13) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `FirstName` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
-  `MiddleName` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `LastName` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `Suffix` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `Address` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
-  `updated_by` int(11) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `UserID` int NOT NULL DEFAULT '0',
+  `PhoneNumber` varchar(13) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `FirstName` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
+  `MiddleName` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `LastName` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Suffix` varchar(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_by` int NOT NULL,
+  `updated_by` int NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=101 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=102 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table tnhs-new.employees: 100 rows
 DELETE FROM `employees`;
@@ -1344,29 +1355,30 @@ INSERT INTO `employees` (`id`, `UserID`, `PhoneNumber`, `FirstName`, `MiddleName
 	(97, 1898, '09791862168', 'Nico', 'Metz', 'Hessel', 'III', '376 Jaylon Bypass\nArielleport, IN 94331-0744', 1, 1, '2025-07-21 17:18:59', '2026-05-13 09:18:59', 'active', 0, NULL),
 	(98, 1899, '09132405396', 'Nash', 'Hartmann', 'D\'Amore', NULL, '72928 Winona Islands\nGreenfeldertown, OR 38421-5036', 1, 1, '2025-07-13 17:18:59', '2026-05-13 09:18:59', 'active', 0, NULL),
 	(99, 1900, '09079267329', 'Emmet', 'Gottlieb', 'Boyle', NULL, '90439 Julianne Rapid\nNew Manley, KY 96979', 1, 1, '2026-04-22 17:18:59', '2026-05-13 09:18:59', 'active', 0, NULL),
-	(100, 1901, '09487585810', 'Karson', 'Halvorson', 'Hilpert', 'Sr.', '481 Block Tunnel Suite 133\nCareyside, MO 78057-3558', 1, 1, '2025-07-20 17:18:59', '2026-05-13 09:18:59', 'active', 0, NULL);
+	(100, 1901, '09487585810', 'Karson', 'Halvorson', 'Hilpert', 'Sr.', '481 Block Tunnel Suite 133\nCareyside, MO 78057-3558', 1, 1, '2025-07-20 17:18:59', '2026-05-13 09:18:59', 'active', 0, NULL),
+	(101, 0, '+639128941731', 'ANTONIO JR.', 'LUIB', 'PILOTON', NULL, 'Purok Mabungahon, Brgy. Washington, Surigao City, Surigao del Norte, Philippines', 1, 1, '2026-05-16 21:34:57', '2026-05-16 13:34:57', 'active', 0, NULL);
 /*!40000 ALTER TABLE `employees` ENABLE KEYS */;
 
 -- Dumping structure for table tnhs-new.enrollments
 DROP TABLE IF EXISTS `enrollments`;
 CREATE TABLE IF NOT EXISTS `enrollments` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `StudentID` bigint(20) unsigned DEFAULT NULL,
-  `AYFrom` year(4) DEFAULT NULL,
-  `AYTo` year(4) DEFAULT NULL,
-  `Semester` tinyint(4) DEFAULT NULL,
-  `GradeLevelID` bigint(20) unsigned DEFAULT NULL,
-  `StrandID` bigint(20) unsigned DEFAULT NULL,
-  `ClassID` bigint(20) unsigned DEFAULT NULL,
-  `EnrollmentStatus` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT 'ENROLLED',
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `StudentID` bigint unsigned DEFAULT NULL,
+  `AYFrom` year DEFAULT NULL,
+  `AYTo` year DEFAULT NULL,
+  `Semester` tinyint DEFAULT NULL,
+  `GradeLevelID` bigint unsigned DEFAULT NULL,
+  `StrandID` bigint unsigned DEFAULT NULL,
+  `ClassID` bigint unsigned DEFAULT NULL,
+  `EnrollmentStatus` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'ENROLLED',
   `EnrollmentDate` date DEFAULT NULL,
-  `Remarks` text COLLATE utf8mb4_unicode_ci,
-  `created_by` int(11) NOT NULL,
-  `updated_by` int(11) NOT NULL,
+  `Remarks` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `created_by` int NOT NULL,
+  `updated_by` int NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_grade` (`GradeLevelID`),
@@ -1379,12 +1391,12 @@ DELETE FROM `enrollments`;
 -- Dumping structure for table tnhs-new.failed_jobs
 DROP TABLE IF EXISTS `failed_jobs`;
 CREATE TABLE IF NOT EXISTS `failed_jobs` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `uuid` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `connection` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `queue` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `exception` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `uuid` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `connection` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `queue` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `exception` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `failed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `failed_jobs_uuid_unique` (`uuid`)
@@ -1396,19 +1408,19 @@ DELETE FROM `failed_jobs`;
 -- Dumping structure for table tnhs-new.grades
 DROP TABLE IF EXISTS `grades`;
 CREATE TABLE IF NOT EXISTS `grades` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `EnrollmentID` bigint(20) NOT NULL,
-  `SubjectID` bigint(20) NOT NULL,
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `EnrollmentID` bigint NOT NULL,
+  `SubjectID` bigint NOT NULL,
   `Quarter` enum('1ST','2ND','3RD','4TH') DEFAULT NULL,
   `InitialGrade` decimal(5,2) DEFAULT NULL,
   `FinalGrade` decimal(5,2) DEFAULT NULL,
   `Remarks` enum('PASSED','FAILED') DEFAULT NULL,
-  `TeacherID` bigint(20) DEFAULT NULL,
+  `TeacherID` bigint DEFAULT NULL,
   `IsSubmitted` tinyint(1) DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
   `created_by` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 
 -- Dumping data for table tnhs-new.grades: 0 rows
 DELETE FROM `grades`;
@@ -1418,20 +1430,20 @@ DELETE FROM `grades`;
 -- Dumping structure for table tnhs-new.grade_levels
 DROP TABLE IF EXISTS `grade_levels`;
 CREATE TABLE IF NOT EXISTS `grade_levels` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `GradeLevel` varchar(50) DEFAULT NULL,
   `EducationLevel` enum('JHS','SHS') DEFAULT NULL,
   `HasSemester` tinyint(1) DEFAULT '0',
   `IsActive` tinyint(1) DEFAULT '0',
-  `created_by` int(11) NOT NULL,
-  `updated_by` int(11) NOT NULL,
+  `created_by` int NOT NULL,
+  `updated_by` int NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `archived` tinyint NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb3;
 
 -- Dumping data for table tnhs-new.grade_levels: 6 rows
 DELETE FROM `grade_levels`;
@@ -1448,13 +1460,13 @@ INSERT INTO `grade_levels` (`id`, `GradeLevel`, `EducationLevel`, `HasSemester`,
 -- Dumping structure for table tnhs-new.jobs
 DROP TABLE IF EXISTS `jobs`;
 CREATE TABLE IF NOT EXISTS `jobs` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `queue` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `attempts` tinyint(3) unsigned NOT NULL,
-  `reserved_at` int(10) unsigned DEFAULT NULL,
-  `available_at` int(10) unsigned NOT NULL,
-  `created_at` int(10) unsigned NOT NULL,
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `queue` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `attempts` tinyint unsigned NOT NULL,
+  `reserved_at` int unsigned DEFAULT NULL,
+  `available_at` int unsigned NOT NULL,
+  `created_at` int unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `jobs_queue_index` (`queue`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1465,16 +1477,16 @@ DELETE FROM `jobs`;
 -- Dumping structure for table tnhs-new.job_batches
 DROP TABLE IF EXISTS `job_batches`;
 CREATE TABLE IF NOT EXISTS `job_batches` (
-  `id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `total_jobs` int(11) NOT NULL,
-  `pending_jobs` int(11) NOT NULL,
-  `failed_jobs` int(11) NOT NULL,
-  `failed_job_ids` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `options` mediumtext COLLATE utf8mb4_unicode_ci,
-  `cancelled_at` int(11) DEFAULT NULL,
-  `created_at` int(11) NOT NULL,
-  `finished_at` int(11) DEFAULT NULL,
+  `id` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `total_jobs` int NOT NULL,
+  `pending_jobs` int NOT NULL,
+  `failed_jobs` int NOT NULL,
+  `failed_job_ids` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `options` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `cancelled_at` int DEFAULT NULL,
+  `created_at` int NOT NULL,
+  `finished_at` int DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1484,9 +1496,9 @@ DELETE FROM `job_batches`;
 -- Dumping structure for table tnhs-new.migrations
 DROP TABLE IF EXISTS `migrations`;
 CREATE TABLE IF NOT EXISTS `migrations` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `migration` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `batch` int(11) NOT NULL,
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `migration` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `batch` int NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1496,9 +1508,9 @@ DELETE FROM `migrations`;
 -- Dumping structure for table tnhs-new.model_has_permissions
 DROP TABLE IF EXISTS `model_has_permissions`;
 CREATE TABLE IF NOT EXISTS `model_has_permissions` (
-  `permission_id` bigint(20) unsigned NOT NULL,
-  `model_type` varchar(125) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `model_id` bigint(20) unsigned NOT NULL,
+  `permission_id` bigint unsigned NOT NULL,
+  `model_type` varchar(125) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `model_id` bigint unsigned NOT NULL,
   PRIMARY KEY (`permission_id`,`model_id`,`model_type`) USING BTREE,
   KEY `model_has_permissions_model_id_model_type_index` (`model_id`,`model_type`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1509,9 +1521,9 @@ DELETE FROM `model_has_permissions`;
 -- Dumping structure for table tnhs-new.model_has_roles
 DROP TABLE IF EXISTS `model_has_roles`;
 CREATE TABLE IF NOT EXISTS `model_has_roles` (
-  `role_id` bigint(20) unsigned NOT NULL,
-  `model_type` varchar(125) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `model_id` bigint(20) unsigned NOT NULL,
+  `role_id` bigint unsigned NOT NULL,
+  `model_type` varchar(125) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `model_id` bigint unsigned NOT NULL,
   PRIMARY KEY (`role_id`,`model_id`,`model_type`) USING BTREE,
   KEY `model_has_roles_model_id_model_type_index` (`model_id`,`model_type`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -2603,18 +2615,18 @@ INSERT INTO `model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES
 -- Dumping structure for table tnhs-new.nfc_codes
 DROP TABLE IF EXISTS `nfc_codes`;
 CREATE TABLE IF NOT EXISTS `nfc_codes` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `UserID` int(11) DEFAULT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `UserID` int DEFAULT NULL,
   `nf_codes` varchar(50) DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
-  `updated_by` int(11) NOT NULL,
+  `created_by` int NOT NULL,
+  `updated_by` int NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `archived` tinyint NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb3;
 
 -- Dumping data for table tnhs-new.nfc_codes: 6 rows
 DELETE FROM `nfc_codes`;
@@ -2631,23 +2643,23 @@ INSERT INTO `nfc_codes` (`id`, `UserID`, `nf_codes`, `created_by`, `updated_by`,
 -- Dumping structure for table tnhs-new.parents
 DROP TABLE IF EXISTS `parents`;
 CREATE TABLE IF NOT EXISTS `parents` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `UserID` int(11) NOT NULL DEFAULT '0',
-  `FirstName` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
-  `MiddleName` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `LastName` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `Suffix` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `PhoneNumber` varchar(13) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `Address` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
-  `updated_by` int(11) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `UserID` int NOT NULL DEFAULT '0',
+  `FirstName` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
+  `MiddleName` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `LastName` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Suffix` varchar(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `PhoneNumber` varchar(13) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_by` int NOT NULL,
+  `updated_by` int NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=102 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table tnhs-new.parents: ~100 rows (approximately)
 DELETE FROM `parents`;
@@ -2751,13 +2763,14 @@ INSERT INTO `parents` (`id`, `UserID`, `FirstName`, `MiddleName`, `LastName`, `S
 	(97, 1498, 'Stanton', 'Murphy', 'Will', 'Sr.', '09009152259', '4440 Taylor Loaf Apt. 585\nMurrayshire, NV 63832-8406', 1, 1, '2026-02-19 17:15:25', '2026-05-13 09:15:26', 'active', 0, NULL),
 	(98, 1499, 'Frederik', 'Ernser', 'Lueilwitz', NULL, '09515097771', '67400 Mayer Row\nNew Grahamside, NH 51981', 1, 1, '2026-03-10 17:15:26', '2026-05-13 09:15:26', 'active', 0, NULL),
 	(99, 1500, 'Joan', 'Lesch', 'Yundt', 'Sr.', '09281965620', '43429 Schuster Throughway\nEvelineshire, FL 61036-7206', 1, 1, '2026-03-31 17:15:26', '2026-05-13 09:15:26', 'active', 0, NULL),
-	(100, 1501, 'Jarrell', 'Schulist', 'Lehner', NULL, '09282715443', '35219 Ruthe Stravenue Apt. 021\nIdaport, NM 73311-3559', 1, 1, '2026-05-01 17:15:26', '2026-05-13 09:15:26', 'active', 0, NULL);
+	(100, 1501, 'Jarrell', 'Schulist', 'Lehner', NULL, '09282715443', '35219 Ruthe Stravenue Apt. 021\nIdaport, NM 73311-3559', 1, 1, '2026-05-01 17:15:26', '2026-05-13 09:15:26', 'active', 0, NULL),
+	(101, 0, 'bus', NULL, 'bus', NULL, '+639128941731', 'Espina St', 1, 1, '2026-05-16 21:31:27', '2026-05-16 13:31:27', 'active', 0, NULL);
 
 -- Dumping structure for table tnhs-new.password_reset_tokens
 DROP TABLE IF EXISTS `password_reset_tokens`;
 CREATE TABLE IF NOT EXISTS `password_reset_tokens` (
-  `email` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `token` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -2768,15 +2781,15 @@ DELETE FROM `password_reset_tokens`;
 -- Dumping structure for table tnhs-new.permissions
 DROP TABLE IF EXISTS `permissions`;
 CREATE TABLE IF NOT EXISTS `permissions` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(125) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `details` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `guard_name` varchar(125) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'web',
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(125) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `details` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `guard_name` varchar(125) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'web',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `permissions_name_guard_name_unique` (`name`,`guard_name`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table tnhs-new.permissions: ~17 rows (approximately)
 DELETE FROM `permissions`;
@@ -2797,17 +2810,18 @@ INSERT INTO `permissions` (`id`, `name`, `details`, `guard_name`, `created_at`, 
 	(19, 'view residents', 'view residents', 'web', '2025-08-05 11:45:58', '2025-08-05 11:45:58'),
 	(20, 'logs management', 'logs management', 'web', '2025-08-05 11:48:07', '2025-08-05 11:48:07'),
 	(21, 'view logs', 'view logs', 'web', '2025-08-05 11:48:21', '2025-08-05 11:48:21'),
-	(22, 'my student', 'my student', 'web', '2025-08-05 11:56:44', '2025-08-05 11:56:44');
+	(22, 'my student', 'my student', 'web', '2025-08-05 11:56:44', '2025-08-05 11:56:44'),
+	(23, 'hgdfgh', 'fghfgh', 'web', '2026-05-16 13:37:54', '2026-05-16 13:37:54');
 
 -- Dumping structure for table tnhs-new.personal_access_tokens
 DROP TABLE IF EXISTS `personal_access_tokens`;
 CREATE TABLE IF NOT EXISTS `personal_access_tokens` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `tokenable_type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `tokenable_id` bigint(20) unsigned NOT NULL,
-  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `token` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `abilities` text COLLATE utf8mb4_unicode_ci,
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `tokenable_type` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tokenable_id` bigint unsigned NOT NULL,
+  `name` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `abilities` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `last_used_at` timestamp NULL DEFAULT NULL,
   `expires_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
@@ -2863,16 +2877,16 @@ INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `n
 -- Dumping structure for table tnhs-new.qr_codes
 DROP TABLE IF EXISTS `qr_codes`;
 CREATE TABLE IF NOT EXISTS `qr_codes` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `prefix` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `UserID` int(11) DEFAULT NULL,
-  `last_number` int(11) DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
-  `updated_by` int(11) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `prefix` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `UserID` int DEFAULT NULL,
+  `last_number` int DEFAULT NULL,
+  `created_by` int NOT NULL,
+  `updated_by` int NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -2891,15 +2905,15 @@ INSERT INTO `qr_codes` (`id`, `prefix`, `UserID`, `last_number`, `created_by`, `
 -- Dumping structure for table tnhs-new.roles
 DROP TABLE IF EXISTS `roles`;
 CREATE TABLE IF NOT EXISTS `roles` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(125) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `details` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `guard_name` varchar(125) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(125) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `details` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `guard_name` varchar(125) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `roles_name_guard_name_unique` (`name`,`guard_name`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table tnhs-new.roles: ~4 rows (approximately)
 DELETE FROM `roles`;
@@ -2907,13 +2921,14 @@ INSERT INTO `roles` (`id`, `name`, `details`, `guard_name`, `created_at`, `updat
 	(1, 'students', 'students', 'web', '2025-07-16 15:55:56', '2025-07-16 15:55:56'),
 	(2, 'parents', 'parents', 'web', '2025-07-16 15:56:01', '2025-07-16 15:56:01'),
 	(3, 'employees', 'employees', 'web', '2025-07-16 15:56:06', '2025-07-16 15:56:06'),
-	(4, 'admin', 'admin', 'web', '2025-07-16 15:56:12', '2025-07-16 15:56:12');
+	(4, 'admin', 'admin', 'web', '2025-07-16 15:56:12', '2025-07-16 15:56:12'),
+	(5, 'new role HAHAHAH', 'new role HAHAHAHvvvv', 'web', '2026-05-16 13:44:01', '2026-05-16 13:44:01');
 
 -- Dumping structure for table tnhs-new.role_has_permissions
 DROP TABLE IF EXISTS `role_has_permissions`;
 CREATE TABLE IF NOT EXISTS `role_has_permissions` (
-  `permission_id` bigint(20) unsigned NOT NULL,
-  `role_id` bigint(20) unsigned NOT NULL,
+  `permission_id` bigint unsigned NOT NULL,
+  `role_id` bigint unsigned NOT NULL,
   PRIMARY KEY (`permission_id`,`role_id`) USING BTREE,
   KEY `role_has_permissions_role_id_foreign` (`role_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -2945,6 +2960,10 @@ INSERT INTO `role_has_permissions` (`permission_id`, `role_id`) VALUES
 	(20, 4),
 	(21, 4),
 	(22, 4),
+	(12, 5),
+	(14, 5),
+	(15, 5),
+	(18, 5),
 	(18, 16),
 	(22, 16),
 	(6, 17),
@@ -2968,28 +2987,28 @@ INSERT INTO `role_has_permissions` (`permission_id`, `role_id`) VALUES
 -- Dumping structure for table tnhs-new.scan_logs
 DROP TABLE IF EXISTS `scan_logs`;
 CREATE TABLE IF NOT EXISTS `scan_logs` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `VerificationCode` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
-  `UserID` int(11) DEFAULT '0',
-  `Mode` int(11) DEFAULT '0',
+  `id` int NOT NULL AUTO_INCREMENT,
+  `VerificationCode` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
+  `UserID` int DEFAULT '0',
+  `Mode` int DEFAULT '0',
   `lat` decimal(10,6) DEFAULT NULL,
   `lng` decimal(10,6) DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
-  `updated_by` int(11) NOT NULL,
+  `created_by` int NOT NULL,
+  `updated_by` int NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
-  `scan_type` enum('qr','nfc') COLLATE utf8mb4_unicode_ci DEFAULT 'qr',
-  `direction` enum('entry','exit') COLLATE utf8mb4_unicode_ci DEFAULT 'entry',
-  `attendance_status` enum('present','late','flagged') COLLATE utf8mb4_unicode_ci DEFAULT 'present',
-  `gate_name` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `remarks` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `scan_type` enum('qr','nfc') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'qr',
+  `direction` enum('entry','exit') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'entry',
+  `attendance_status` enum('present','late','flagged') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'present',
+  `gate_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `remarks` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=100035 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.scan_logs: ~100,034 rows (approximately)
+-- Dumping data for table tnhs-new.scan_logs: ~99,773 rows (approximately)
 DELETE FROM `scan_logs`;
 INSERT INTO `scan_logs` (`id`, `VerificationCode`, `UserID`, `Mode`, `lat`, `lng`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`, `scan_type`, `direction`, `attendance_status`, `gate_name`, `remarks`) VALUES
 	(1, 'VC-97223', 997, 3, 9.619636, 125.462491, 1, 1, '2026-05-07 20:34:42', '2026-05-13 09:00:09', 'unlocked', 0, NULL, 'qr', 'exit', 'flagged', 'East Gate', 'Flagged by guard'),
@@ -103045,25 +103064,51 @@ INSERT INTO `scan_logs` (`id`, `VerificationCode`, `UserID`, `Mode`, `lat`, `lng
 	(100033, 'VYCBO4HYHGOPIQ59', 1855, 1, NULL, NULL, 1855, 1855, '2026-05-13 17:33:09', '2026-05-13 09:33:09', 'active', 0, NULL, 'nfc', 'entry', 'present', NULL, NULL),
 	(100034, 'PIMSMNRRA7OQGOTM', 1679, 1, NULL, NULL, 1679, 1679, '2026-05-13 17:33:13', '2026-05-13 09:33:13', 'active', 0, NULL, 'nfc', 'entry', 'present', NULL, NULL);
 
--- Dumping structure for table tnhs-new.school_years
-DROP TABLE IF EXISTS `school_years`;
-CREATE TABLE IF NOT EXISTS `school_years` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `Semester` int(11) NOT NULL DEFAULT '0',
-  `AYFrom` year(4) DEFAULT NULL,
-  `AYTo` year(4) DEFAULT NULL,
-  `StartDate` date DEFAULT NULL,
-  `EndDate` date DEFAULT NULL,
-  `IsActive` tinyint(1) DEFAULT '0',
-  `created_by` int(11) NOT NULL,
-  `updated_by` int(11) NOT NULL,
+-- Dumping structure for table tnhs-new.school
+DROP TABLE IF EXISTS `school`;
+CREATE TABLE IF NOT EXISTS `school` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `SchoolID` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
+  `SchoolName` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
+  `SchoolAddress` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `SchoolRegion` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `District` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Principal` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `PrincipalPosition` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_by` int NOT NULL,
+  `updated_by` int NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `archived` tinyint NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table tnhs-new.school: 0 rows
+DELETE FROM `school`;
+/*!40000 ALTER TABLE `school` DISABLE KEYS */;
+/*!40000 ALTER TABLE `school` ENABLE KEYS */;
+
+-- Dumping structure for table tnhs-new.school_years
+DROP TABLE IF EXISTS `school_years`;
+CREATE TABLE IF NOT EXISTS `school_years` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `Semester` int NOT NULL DEFAULT '0',
+  `AYFrom` year DEFAULT NULL,
+  `AYTo` year DEFAULT NULL,
+  `StartDate` date DEFAULT NULL,
+  `EndDate` date DEFAULT NULL,
+  `IsActive` tinyint(1) DEFAULT '0',
+  `created_by` int NOT NULL,
+  `updated_by` int NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3;
 
 -- Dumping data for table tnhs-new.school_years: 4 rows
 DELETE FROM `school_years`;
@@ -103078,29 +103123,27 @@ INSERT INTO `school_years` (`id`, `Semester`, `AYFrom`, `AYTo`, `StartDate`, `En
 -- Dumping structure for table tnhs-new.sessions
 DROP TABLE IF EXISTS `sessions`;
 CREATE TABLE IF NOT EXISTS `sessions` (
-  `id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `user_id` bigint(20) unsigned DEFAULT NULL,
-  `ip_address` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `user_agent` text COLLATE utf8mb4_unicode_ci,
-  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `last_activity` int(11) NOT NULL,
+  `id` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` bigint unsigned DEFAULT NULL,
+  `ip_address` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_agent` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `payload` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `last_activity` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `sessions_user_id_index` (`user_id`),
   KEY `sessions_last_activity_index` (`last_activity`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.sessions: ~3 rows (approximately)
+-- Dumping data for table tnhs-new.sessions: ~4 rows (approximately)
 DELETE FROM `sessions`;
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-	('By453whBLth087PNYp95jOsIVFnZnzPsS9E0eItC', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoieDVXUTRlc2NnWTRZSDl0OEZ6Z2RicmhMZGpVN0hvejRTOEZWMUlzYiI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mzc6Imh0dHA6Ly9zYWFza2l0LmRldi5jb20vZGFzaGJvYXJkL2RhdGEiO3M6NToicm91dGUiO3M6MTQ6ImRhc2hib2FyZC5kYXRhIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MTt9', 1778906514),
-	('PR05tD9Hz7IjCicg10FpaRt8aSvvgZ64FJ5msSls', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiaFI0U05HOHBVZ25kVFhUYTI1Zm01NmlyWkxPaHZ4UU4zQkxsaHRXVyI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czozMjoiaHR0cDovL3NhYXNraXQuZGV2LmNvbS9kYXNoYm9hcmQiO31zOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czozNzoiaHR0cDovL3NhYXNraXQuZGV2LmNvbS9zdHVkZW50cy9pbmRleCI7czo1OiJyb3V0ZSI7czoxNDoic3R1ZGVudHMuaW5kZXgiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToxO30=', 1778750541),
-	('SDjJ8TSCmc34TLQsqqXtdXIU6CE5I7iTmRPp4Zk1', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiVEV2WkltdER0bXE4b04zRWJEaVBCTHBzZlRHdThnaXFpZ0VtdVpXWiI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czozMjoiaHR0cDovL3NhYXNraXQuZGV2LmNvbS9kYXNoYm9hcmQiO31zOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czozMjoiaHR0cDovL3NhYXNraXQuZGV2LmNvbS9kYXNoYm9hcmQiO3M6NToicm91dGUiO3M6MTU6ImRhc2hib2FyZC5pbmRleCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1778750101),
-	('xFJK4zHsI1RGyRRojwyex8IrQeyBYlHHtErVLouK', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiNzNMcU8xaXpzRjJrbEI4VU5MWDJ1QUZlc001enk0bktaRjZrY0RJUCI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czozNzoiaHR0cDovL3NhYXNraXQuZGV2LmNvbS9kYXNoYm9hcmQvZGF0YSI7fXM6OToiX3ByZXZpb3VzIjthOjI6e3M6MzoidXJsIjtzOjM3OiJodHRwOi8vc2Fhc2tpdC5kZXYuY29tL2Rhc2hib2FyZC9kYXRhIjtzOjU6InJvdXRlIjtzOjE0OiJkYXNoYm9hcmQuZGF0YSI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1778750101);
+	('JPRkdtdeLTqFaSfoyewf7sazAmYsdLBWudRo6iVe', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiQUhXVXBocXpHelBHUFNHYVp6cERucER4WE80UFlEUW5KQ1VvY1hLaSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjI6e3M6MzoidXJsIjtzOjM3OiJodHRwOi8vc2Fhc2tpdC5kZXYuY29tL2Rhc2hib2FyZC9kYXRhIjtzOjU6InJvdXRlIjtzOjE0OiJkYXNoYm9hcmQuZGF0YSI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7fQ==', 1778940482);
 
 -- Dumping structure for table tnhs-new.settings
 DROP TABLE IF EXISTS `settings`;
 CREATE TABLE IF NOT EXISTS `settings` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `SystemTitle` varchar(150) NOT NULL DEFAULT '0',
   `SchoolName` varchar(255) NOT NULL,
   `SchoolCode` varchar(100) DEFAULT NULL,
   `EducationLevel` enum('JHS','SHS','INTEGRATED') DEFAULT 'INTEGRATED',
@@ -103109,53 +103152,54 @@ CREATE TABLE IF NOT EXISTS `settings` (
   `Address` text,
   `ContactNumber` varchar(20) DEFAULT NULL,
   `EmailAddress` varchar(150) DEFAULT NULL,
-  `PrincipalID` int(11) DEFAULT NULL,
-  `RegistrarID` bigint(20) DEFAULT NULL,
+  `PrincipalID` int DEFAULT NULL,
+  `RegistrarID` bigint DEFAULT NULL,
   `Logo` varchar(255) DEFAULT NULL,
   `OfficialTimeIn` time DEFAULT '07:00:00',
   `OfficialTimeOut` time DEFAULT '17:00:00',
-  `LateGraceMinutes` int(11) DEFAULT '15',
+  `LateGraceMinutes` int DEFAULT '15',
   `EnableNFC` tinyint(1) DEFAULT '1',
   `EnableQR` tinyint(1) DEFAULT '1',
   `EnableOfflineAttendance` tinyint(1) DEFAULT '1',
-  `CurrentSchoolYearID` bigint(20) DEFAULT NULL,
+  `CurrentSchoolYearID` bigint DEFAULT NULL,
   `ThemeColor` varchar(20) DEFAULT '#004D1A',
-  `created_by` int(11) NOT NULL,
-  `updated_by` int(11) NOT NULL,
+  `created_by` int NOT NULL,
+  `updated_by` int NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `cacert_path` longtext,
   `python_path` longtext,
   `port_com` varchar(20) DEFAULT NULL,
-  `sms_failed_count` int(11) DEFAULT NULL,
-  `sms_low_balance` int(11) DEFAULT '0',
+  `sms_failed_count` int DEFAULT NULL,
+  `sms_low_balance` int DEFAULT '0',
+  `total_sent` int DEFAULT '0',
   `sms_last_failed_at` datetime DEFAULT NULL,
-  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `archived` tinyint NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3;
 
 -- Dumping data for table tnhs-new.settings: 1 rows
 DELETE FROM `settings`;
 /*!40000 ALTER TABLE `settings` DISABLE KEYS */;
-INSERT INTO `settings` (`id`, `SchoolName`, `SchoolCode`, `EducationLevel`, `Region`, `Division`, `Address`, `ContactNumber`, `EmailAddress`, `PrincipalID`, `RegistrarID`, `Logo`, `OfficialTimeIn`, `OfficialTimeOut`, `LateGraceMinutes`, `EnableNFC`, `EnableQR`, `EnableOfflineAttendance`, `CurrentSchoolYearID`, `ThemeColor`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `cacert_path`, `python_path`, `port_com`, `sms_failed_count`, `sms_low_balance`, `sms_last_failed_at`, `archived`, `deleted_at`) VALUES
-	(1, 'TUBAJON NATIONAL HIGH SCHOOL', '304854', 'INTEGRATED', 'CARAGA', 'Dinagat Islands', 'Espina St', '+639128941731', 'jhambre@ssct.edu.ph', 2, 1, 'school/logo/WJwLBWWdb9pvY89pEVEuKnN4K5NQRV7FnGFK7C1a.png', '07:00:00', '17:00:00', 15, 1, 1, 1, 3, '#0091ff', 1, 1, '2026-05-11 17:21:46', '2026-05-16 04:41:55', 'active', 'C:\\wamp64\\bin\\php\\php8.4.15\\extras\\ssl\\cacert.pem', 'C:/Users/USER/AppData/Local/Programs/Python/Python313/python.exe', 'COM3', 47, 1, '2026-05-16 12:41:55', 0, NULL);
+INSERT INTO `settings` (`id`, `SystemTitle`, `SchoolName`, `SchoolCode`, `EducationLevel`, `Region`, `Division`, `Address`, `ContactNumber`, `EmailAddress`, `PrincipalID`, `RegistrarID`, `Logo`, `OfficialTimeIn`, `OfficialTimeOut`, `LateGraceMinutes`, `EnableNFC`, `EnableQR`, `EnableOfflineAttendance`, `CurrentSchoolYearID`, `ThemeColor`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `cacert_path`, `python_path`, `port_com`, `sms_failed_count`, `sms_low_balance`, `total_sent`, `sms_last_failed_at`, `archived`, `deleted_at`) VALUES
+	(1, 'SAFETRACK: A QR & NFC-Based Student Monitoring System', 'TUBAJON NATIONAL HIGH SCHOOL', '304854', 'INTEGRATED', 'CARAGA', 'Dinagat Islands', 'Espina St', '+639128941731', 'jhambre@ssct.edu.ph', 2, 1, NULL, '07:00:00', '17:00:00', 15, 1, 1, 1, NULL, '#0a9400', 1, 1, '2026-05-16 22:01:12', '2026-05-16 14:07:51', 'active', 'C:\\wamp64\\bin\\php\\php8.4.15\\extras\\ssl\\cacert.pem', 'C:\\Users\\apilo\\AppData\\Local\\Programs\\Python\\Python313\\python.exe', 'COM3', 57, 1, 0, '2026-05-16 22:07:51', 0, NULL);
 /*!40000 ALTER TABLE `settings` ENABLE KEYS */;
 
 -- Dumping structure for table tnhs-new.sms_queues
 DROP TABLE IF EXISTS `sms_queues`;
 CREATE TABLE IF NOT EXISTS `sms_queues` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `PhoneNumber` varchar(13) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `Message` longtext COLLATE utf8mb4_unicode_ci,
-  `remark` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT 'pending',
-  `created_by` int(11) DEFAULT NULL,
-  `updated_by` int(11) DEFAULT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `PhoneNumber` varchar(13) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Message` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `remark` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'pending',
+  `created_by` int DEFAULT NULL,
+  `updated_by` int DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
-  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `archived` tinyint NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -103163,29 +103207,29 @@ CREATE TABLE IF NOT EXISTS `sms_queues` (
 -- Dumping data for table tnhs-new.sms_queues: ~6 rows (approximately)
 DELETE FROM `sms_queues`;
 INSERT INTO `sms_queues` (`id`, `PhoneNumber`, `Message`, `remark`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
-	(1, '09206936551', 'Zula West just entered TUBAJON NATIONAL HIGH SCHOOL @ May 13, 2026 05:32:46 PM. Code: V4XTV4CIGMB2ITGW', 'failed', 0, 0, '2026-05-13 17:32:46', '2026-05-16 04:41:51', 'active', 0, NULL),
-	(2, '09307733712', 'Zoey King just entered TUBAJON NATIONAL HIGH SCHOOL @ May 13, 2026 05:32:53 PM. Code: 7BKDSVVMP7JOG3SY', 'failed', 0, 0, '2026-05-13 17:32:53', '2026-05-16 04:41:55', 'active', 0, NULL),
-	(3, '09319372971', 'Yasmeen O\'Connell just entered TUBAJON NATIONAL HIGH SCHOOL @ May 13, 2026 05:33:01 PM. Code: M2GWMKVVSATGLNSQ', 'processing', 0, 0, '2026-05-13 17:33:01', '2026-05-16 04:41:55', 'active', 0, NULL),
-	(4, '09386919987', 'Yvette Mante just entered TUBAJON NATIONAL HIGH SCHOOL @ May 13, 2026 05:33:05 PM. Code: J9CNK7QQKCXIC9MO', 'failed', 0, 0, '2026-05-13 17:33:05', '2026-05-16 04:41:28', 'active', 0, NULL),
-	(5, '09456829313', 'Zackery Smith just entered TUBAJON NATIONAL HIGH SCHOOL @ May 13, 2026 05:33:09 PM. Code: VYCBO4HYHGOPIQ59', 'failed', 0, 0, '2026-05-13 17:33:09', '2026-05-16 04:41:32', 'active', 0, NULL),
-	(6, '09548266042', 'Zetta Moen just entered TUBAJON NATIONAL HIGH SCHOOL @ May 13, 2026 05:33:13 PM. Code: PIMSMNRRA7OQGOTM', 'failed', 0, 0, '2026-05-13 17:33:13', '2026-05-16 04:41:36', 'active', 0, NULL);
+	(1, '09206936551', 'Zula West just entered TUBAJON NATIONAL HIGH SCHOOL @ May 13, 2026 05:32:46 PM. Code: V4XTV4CIGMB2ITGW', 'processing', 0, 0, '2026-05-13 17:32:46', '2026-05-16 14:08:01', 'active', 0, NULL),
+	(2, '09307733712', 'Zoey King just entered TUBAJON NATIONAL HIGH SCHOOL @ May 13, 2026 05:32:53 PM. Code: 7BKDSVVMP7JOG3SY', 'failed', 0, 0, '2026-05-13 17:32:53', '2026-05-16 14:07:34', 'active', 0, NULL),
+	(3, '09319372971', 'Yasmeen O\'Connell just entered TUBAJON NATIONAL HIGH SCHOOL @ May 13, 2026 05:33:01 PM. Code: M2GWMKVVSATGLNSQ', 'failed', 0, 0, '2026-05-13 17:33:01', '2026-05-16 14:07:38', 'active', 0, NULL),
+	(4, '09386919987', 'Yvette Mante just entered TUBAJON NATIONAL HIGH SCHOOL @ May 13, 2026 05:33:05 PM. Code: J9CNK7QQKCXIC9MO', 'failed', 0, 0, '2026-05-13 17:33:05', '2026-05-16 14:07:42', 'active', 0, NULL),
+	(5, '09456829313', 'Zackery Smith just entered TUBAJON NATIONAL HIGH SCHOOL @ May 13, 2026 05:33:09 PM. Code: VYCBO4HYHGOPIQ59', 'failed', 0, 0, '2026-05-13 17:33:09', '2026-05-16 14:07:47', 'active', 0, NULL),
+	(6, '09548266042', 'Zetta Moen just entered TUBAJON NATIONAL HIGH SCHOOL @ May 13, 2026 05:33:13 PM. Code: PIMSMNRRA7OQGOTM', 'failed', 0, 0, '2026-05-13 17:33:13', '2026-05-16 14:07:51', 'active', 0, NULL);
 
 -- Dumping structure for table tnhs-new.strands
 DROP TABLE IF EXISTS `strands`;
 CREATE TABLE IF NOT EXISTS `strands` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `StrandCode` varchar(20) DEFAULT NULL,
   `StrandName` varchar(100) DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
-  `updated_by` int(11) NOT NULL,
+  `created_by` int NOT NULL,
+  `updated_by` int NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `archived` tinyint NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `StrandCode` (`StrandCode`)
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb3;
 
 -- Dumping data for table tnhs-new.strands: 9 rows
 DELETE FROM `strands`;
@@ -103205,33 +103249,33 @@ INSERT INTO `strands` (`id`, `StrandCode`, `StrandName`, `created_by`, `updated_
 -- Dumping structure for table tnhs-new.students
 DROP TABLE IF EXISTS `students`;
 CREATE TABLE IF NOT EXISTS `students` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `GuardianID` int(11) DEFAULT NULL,
-  `UserID` int(11) DEFAULT NULL,
-  `LRN` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
-  `FirstName` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
-  `MiddleName` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `LastName` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `Suffix` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `Sex` enum('Male','Female') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `Section` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `PhoneNumber` varchar(13) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `filepath` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `Strand` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `CurrentStatus` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `YearLevel` int(11) DEFAULT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `GuardianID` int DEFAULT NULL,
+  `UserID` int DEFAULT NULL,
+  `LRN` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
+  `FirstName` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
+  `MiddleName` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `LastName` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Suffix` varchar(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Sex` enum('Male','Female') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Section` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `PhoneNumber` varchar(13) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `filepath` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Strand` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `CurrentStatus` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `YearLevel` int DEFAULT NULL,
   `BirthDate` date DEFAULT NULL,
-  `BirthPlace` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `Religion` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
-  `updated_by` int(11) NOT NULL,
+  `BirthPlace` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Religion` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_by` int NOT NULL,
+  `updated_by` int NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=301 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=302 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table tnhs-new.students: ~300 rows (approximately)
 DELETE FROM `students`;
@@ -103535,54 +103579,102 @@ INSERT INTO `students` (`id`, `GuardianID`, `UserID`, `LRN`, `FirstName`, `Middl
 	(297, 97, 1798, '058018367009', 'Kari', 'Connelly', 'Powlowski', 'III', NULL, NULL, '09307742919', NULL, NULL, NULL, 10, NULL, NULL, NULL, 1, 1, '2026-02-15 17:18:11', '2026-05-13 09:18:12', 'active', 0, NULL),
 	(298, 21, 1799, '533326121281', 'Janie', 'Spinka', 'Greenfelder', NULL, NULL, NULL, '09771038705', NULL, NULL, NULL, 10, NULL, NULL, NULL, 1, 1, '2025-06-08 17:18:12', '2026-05-13 09:18:12', 'active', 0, NULL),
 	(299, 78, 1800, '770823495397', 'Denis', 'Shields', 'Erdman', NULL, NULL, NULL, '09168326658', NULL, NULL, NULL, 8, NULL, NULL, NULL, 1, 1, '2025-12-18 17:18:12', '2026-05-13 09:18:12', 'active', 0, NULL),
-	(300, 46, 1801, '774104069332', 'Alexandra', 'Braun', 'Jaskolski', NULL, NULL, NULL, '09382508576', NULL, NULL, NULL, 9, NULL, NULL, NULL, 1, 1, '2025-12-17 17:18:12', '2026-05-13 09:18:12', 'active', 0, NULL);
+	(300, 46, 1801, '774104069332', 'Alexandra', 'Braun', 'Jaskolski', NULL, NULL, NULL, '09382508576', NULL, NULL, NULL, 9, NULL, NULL, NULL, 1, 1, '2025-12-17 17:18:12', '2026-05-13 09:18:12', 'active', 0, NULL),
+	(301, 4, NULL, '455454hghfdg', 'ANTONIO JR.', 'LUIB', 'PILOTON', NULL, NULL, NULL, '+639128941731', NULL, 'hfgh', NULL, 8, NULL, NULL, NULL, 1, 1, '2026-05-16 21:33:30', '2026-05-16 13:33:30', 'active', 0, NULL);
+
+-- Dumping structure for table tnhs-new.students_contact_person
+DROP TABLE IF EXISTS `students_contact_person`;
+CREATE TABLE IF NOT EXISTS `students_contact_person` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `StudentID` int NOT NULL DEFAULT '0',
+  `UserID` int NOT NULL DEFAULT '0',
+  `created_by` int NOT NULL,
+  `updated_by` int NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table tnhs-new.students_contact_person: 0 rows
+DELETE FROM `students_contact_person`;
+/*!40000 ALTER TABLE `students_contact_person` DISABLE KEYS */;
+/*!40000 ALTER TABLE `students_contact_person` ENABLE KEYS */;
 
 -- Dumping structure for table tnhs-new.subjects
 DROP TABLE IF EXISTS `subjects`;
 CREATE TABLE IF NOT EXISTS `subjects` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `SubjectCode` varchar(50) DEFAULT NULL,
   `SubjectName` varchar(255) DEFAULT NULL,
-  `GradeLevelID` bigint(20) NOT NULL,
-  `StrandID` bigint(20) DEFAULT NULL,
-  `SemesterID` bigint(20) DEFAULT NULL,
+  `GradeLevelID` bigint NOT NULL,
+  `StrandID` bigint DEFAULT NULL,
+  `SemesterID` bigint DEFAULT NULL,
   `IsCore` tinyint(1) DEFAULT '1',
   `created_at` timestamp NULL DEFAULT NULL,
   `created_by` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 
 -- Dumping data for table tnhs-new.subjects: 0 rows
 DELETE FROM `subjects`;
 /*!40000 ALTER TABLE `subjects` DISABLE KEYS */;
 /*!40000 ALTER TABLE `subjects` ENABLE KEYS */;
 
+-- Dumping structure for table tnhs-new.teachers
+DROP TABLE IF EXISTS `teachers`;
+CREATE TABLE IF NOT EXISTS `teachers` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `UserID` int NOT NULL DEFAULT '0',
+  `FirstName` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
+  `MiddleName` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `LastName` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Suffix` varchar(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Address` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_by` int NOT NULL,
+  `updated_by` int NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `PhoneNumber` varchar(13) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table tnhs-new.teachers: 0 rows
+DELETE FROM `teachers`;
+/*!40000 ALTER TABLE `teachers` DISABLE KEYS */;
+/*!40000 ALTER TABLE `teachers` ENABLE KEYS */;
+
 -- Dumping structure for table tnhs-new.users
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE IF NOT EXISTS `users` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `filepath` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
-  `qr_code` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
-  `nfc_code` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `conn_id` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `user_type` int(10) unsigned NOT NULL DEFAULT '0',
-  `SchoolID` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `filepath` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
+  `qr_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
+  `nfc_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `conn_id` bigint unsigned NOT NULL DEFAULT '0',
+  `user_type` int unsigned NOT NULL DEFAULT '0',
+  `SchoolID` bigint unsigned NOT NULL DEFAULT '0',
+  `name` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `email_verified_at` timestamp NULL DEFAULT NULL,
-  `avatar` longtext COLLATE utf8mb4_unicode_ci,
-  `fcm_token` longtext COLLATE utf8mb4_unicode_ci,
-  `profile_pic` longtext COLLATE utf8mb4_unicode_ci,
-  `password` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `remember_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `google_id` longtext COLLATE utf8mb4_unicode_ci,
-  `verified` int(11) DEFAULT NULL,
-  `created_by` int(11) DEFAULT NULL,
-  `updated_by` int(11) DEFAULT NULL,
+  `avatar` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `fcm_token` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `profile_pic` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `password` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `remember_token` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `google_id` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `verified` int DEFAULT NULL,
+  `created_by` int DEFAULT NULL,
+  `updated_by` int DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `archived` tinyint NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_email_unique` (`email`)
@@ -103692,7 +103784,7 @@ INSERT INTO `users` (`id`, `filepath`, `qr_code`, `nfc_code`, `conn_id`, `user_t
 	(1806, '0', '1RNKHPLZRKDJVEI', NULL, 5, 0, 1, 'Nico Farrell', 'arrell1@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$HvB2OnYoF.IuyV0wJDiCAufTQYOPcvwrlXf8Fm2RegZ3Tq87NNVTu', NULL, NULL, NULL, NULL, NULL, '2026-05-13 17:18:42', '2026-05-13 09:18:42', NULL, 0, NULL),
 	(1804, '0', 'FPMBNRU7HMSIIGP', NULL, 3, 0, 1, 'Ambrose Kris', 'ris@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$YlYDVGElra9orqBshwNR9O9q8Hmn0lzkkgYg0qV4obaMrExBr5sj.', NULL, NULL, NULL, NULL, NULL, '2026-05-13 17:18:42', '2026-05-13 09:18:42', NULL, 0, NULL),
 	(1803, '0', 'QKZQFOYRJLK0TUH', NULL, 2, 0, 1, 'Thad Oberbrunner', 'berbrunner@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$fvrZVb3rGW7emNSMinSgPuM0FcK6z7YilDe9o7P4.WAZavFLZufBW', NULL, NULL, NULL, NULL, NULL, '2026-05-13 17:18:42', '2026-05-13 09:18:42', NULL, 0, NULL),
-	(1802, '0', '0EBO5YNMH6SNSOW', NULL, 1, 0, 1, 'Destini Ferry', 'erry1@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$zn8QrgLnr8qaDkH/ewrup.dFlXM5AaeoGwuOPd23BENcOZrSdYwxS', NULL, NULL, NULL, NULL, NULL, '2026-05-13 17:18:41', '2026-05-13 09:18:41', NULL, 0, NULL),
+	(1802, '0', '0EBO5YNMH6SNSOW', NULL, 1, 0, 1, 'Destini Ferry', 'erry1@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$Wh1ufdexmXrV42iq0DqoteTVkuG9mgkjd1flgEiiPJu5oMCpXKCUa', NULL, NULL, NULL, NULL, NULL, '2026-05-13 17:18:41', '2026-05-16 12:53:43', NULL, 0, NULL),
 	(1800, '0', 'G1WJ8HFJ1FP1JLM', NULL, 299, 0, 1, 'Denis Erdman', 'rdman@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$r0.Tg2F6ZmPx.XIHQ.EEuOqUI1oK7AOOvGvnzt2fjw7lbGREVVtae', NULL, NULL, NULL, NULL, NULL, '2026-05-13 17:18:12', '2026-05-13 09:18:12', NULL, 0, NULL),
 	(1801, '0', 'WDINRATKUQXIDII', NULL, 300, 0, 1, 'Alexandra Jaskolski', 'askolski@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$a7XJBqYSaUIokTONv9pJwOwS3LsoUc2LBoqSdS7LzIz52/v6Q4u76', NULL, NULL, NULL, NULL, NULL, '2026-05-13 17:18:12', '2026-05-13 09:18:12', NULL, 0, NULL),
 	(1799, '0', 'CFLJDRJQAWBYHYI', NULL, 298, 0, 1, 'Janie Greenfelder', 'reenfelder@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$.BXuJTb2tXxeX.ZyuZJgiOSUPoy1dv2IwJiBJxedwyDD2LGLGtLo.', NULL, NULL, NULL, NULL, NULL, '2026-05-13 17:18:12', '2026-05-13 09:18:12', NULL, 0, NULL),
@@ -104095,20 +104187,41 @@ INSERT INTO `users` (`id`, `filepath`, `qr_code`, `nfc_code`, `conn_id`, `user_t
 	(1451, '0', '85BUVHWFP9HBPAK', NULL, 50, 0, 1, 'Lia Johnston', 'ohnston@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$GKzWgHhXKdTVhyvB2wSlI.5cJZgu1gDybXpswbApw5e/JcLSRqzSi', NULL, NULL, NULL, NULL, NULL, '2026-05-13 17:15:17', '2026-05-13 09:15:17', NULL, 0, NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 
--- Dumping structure for table tnhs-new.year_level
-DROP TABLE IF EXISTS `year_level`;
-CREATE TABLE IF NOT EXISTS `year_level` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `YearLevel` int(11) NOT NULL DEFAULT '0',
-  `created_by` int(11) NOT NULL,
-  `updated_by` int(11) NOT NULL,
+-- Dumping structure for table tnhs-new.user_phones
+DROP TABLE IF EXISTS `user_phones`;
+CREATE TABLE IF NOT EXISTS `user_phones` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `phone_number` varchar(13) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
+  `UserID` varchar(13) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
+  `created_by` int NOT NULL,
+  `updated_by` int NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `archived` tinyint NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table tnhs-new.user_phones: 0 rows
+DELETE FROM `user_phones`;
+/*!40000 ALTER TABLE `user_phones` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_phones` ENABLE KEYS */;
+
+-- Dumping structure for table tnhs-new.year_level
+DROP TABLE IF EXISTS `year_level`;
+CREATE TABLE IF NOT EXISTS `year_level` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `YearLevel` int NOT NULL DEFAULT '0',
+  `created_by` int NOT NULL,
+  `updated_by` int NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 
 -- Dumping data for table tnhs-new.year_level: 0 rows
 DELETE FROM `year_level`;
