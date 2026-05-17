@@ -129,7 +129,7 @@
     padding: 14px;
     border-radius: 14px;
     border: none;
-    background: #007aff;
+    background:var(--theme-bg) !important;
     color: #fff;
     font-weight: 600;
     font-size: 15px;
@@ -137,7 +137,29 @@
 }
 
 .ios-button:hover {
-    background: #0063d1;
+    background:color-mix(in srgb, var(--theme-bg) 100%, #000 50%) !important;
+}
+
+.ios-google-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 14px;
+    border: 1px solid #e5e5ea;
+    background:color-mix(in srgb, var(--theme-bg) 10%, #000 0.5%) !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--theme-bg);
+    transition: 0.2s;
+}
+
+.ios-google-btn:hover {
+    background:color-mix(in srgb, var(--theme-bg) 60%, #000 50%) !important;
+    color: #FFFFFF !important;
 }
 
 .auth-error {
@@ -167,27 +189,6 @@
 
 .auth-divider span {
     margin: 0 10px;
-}
-
-.ios-google-btn {
-    width: 100%;
-    padding: 12px;
-    border-radius: 14px;
-    border: 1px solid #e5e5ea;
-    background: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    font-size: 14px;
-    font-weight: 500;
-    text-decoration: none;
-    color: #000;
-    transition: 0.2s;
-}
-
-.ios-google-btn:hover {
-    background: #f9f9f9;
 }
 
 .google-icon {

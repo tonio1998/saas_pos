@@ -29,21 +29,11 @@ class ParentsController extends Controller
         return view('pages.parents.create', compact('parent'));
     }
 
-    public function update(Request $request, $id)
+    public function store(Request $request)
     {
-        try {
-            $id = decrypt($id);
-        } catch (\Exception $e) {
-            abort(404);
-        }
+        $data = $request->validate(
 
-        DB::beginTransaction();
-
-        try {
-
-            $parent = Parents::findOrFail($id);
-
-            $data = $request->validate([
+            [
                 'FirstName' => ['required','string','max:255'],
                 'MiddleName' => ['nullable','string','max:255'],
                 'LastName' => ['required','string','max:255'],
@@ -51,7 +41,113 @@ class ParentsController extends Controller
                 'PhoneNumber' => ['required','regex:/^\+639\d{9}$/'],
                 'Address' => ['required','string','max:255'],
                 'UserID' => ['nullable','integer']
-            ]);
+            ],
+
+            [
+                'FirstName.required' => 'First Name is required.',
+                'LastName.required' => 'Last Name is required.',
+                'PhoneNumber.required' => 'Phone Number is required.',
+                'PhoneNumber.regex' => 'Phone Number is not valid.',
+                'Address.required' => 'Address is required.',
+            ]
+
+        );
+
+        DB::beginTransaction();
+
+        try {
+
+            $parent = new Parents();
+
+            $parent->FirstName = $data['FirstName'];
+            $parent->MiddleName = $data['MiddleName'] ?? null;
+            $parent->LastName = $data['LastName'];
+            $parent->Suffix = $data['Suffix'] ?? null;
+            $parent->PhoneNumber = $data['PhoneNumber'];
+            $parent->Address = $data['Address'];
+
+            $this->setCommonFields($parent);
+
+            $parent->save();
+
+            if (!empty($data['UserID'])) {
+
+                $user = User::find($data['UserID']);
+
+                if ($user) {
+
+                    $roleName = 'parents';
+
+                    if (!$user->hasRole($roleName)) {
+
+                        $user->assignRole($roleName);
+
+                    }
+
+                    $parent->UserID = $user->id;
+
+                    $parent->save();
+
+                }
+            }
+
+            DB::commit();
+
+            return redirect()
+                ->route('parents.index')
+                ->with('success','Parent created successfully');
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return back()
+                ->withErrors([
+                    'general' => $e->getMessage()
+                ])
+                ->withInput();
+
+        }
+    }
+    public function update(Request $request, $id)
+    {
+        try {
+
+            $id = decrypt($id);
+
+        } catch (\Exception $e) {
+
+            abort(404);
+
+        }
+
+        $data = $request->validate(
+
+            [
+                'FirstName' => ['required','string','max:255'],
+                'MiddleName' => ['nullable','string','max:255'],
+                'LastName' => ['required','string','max:255'],
+                'Suffix' => ['nullable','string','max:255'],
+                'PhoneNumber' => ['required','regex:/^\+639\d{9}$/'],
+                'Address' => ['required','string','max:255'],
+                'UserID' => ['nullable','integer']
+            ],
+
+            [
+                'FirstName.required' => 'First Name is required.',
+                'LastName.required' => 'Last Name is required.',
+                'PhoneNumber.required' => 'Phone Number is required.',
+                'PhoneNumber.regex' => 'Phone Number is not valid.',
+                'Address.required' => 'Address is required.',
+            ]
+
+        );
+
+        DB::beginTransaction();
+
+        try {
+
+            $parent = Parents::findOrFail($id);
 
             $parent->update($data);
 
@@ -64,12 +160,17 @@ class ParentsController extends Controller
                     $roleName = 'parents';
 
                     if (!$user->hasRole($roleName)) {
+
                         $user->assignRole($roleName);
+
                     }
 
                     if ($parent->UserID != $user->id) {
+
                         $parent->UserID = $user->id;
+
                         $parent->save();
+
                     }
                 }
             }
@@ -84,72 +185,18 @@ class ParentsController extends Controller
 
             DB::rollBack();
 
-            return back()->withErrors($e->getMessage())->withInput();
+            return back()
+                ->withErrors([
+                    'general' => $e->getMessage()
+                ])
+                ->withInput();
+
         }
     }
 
     public function create()
     {
         return view('pages.parents.create');
-    }
-
-    public function store(Request $request)
-    {
-        DB::beginTransaction();
-
-        try {
-            $data = $request->validate(
-                [
-                    'FirstName' => ['required','string','max:255'],
-                    'MiddleName' => ['nullable','string','max:255'],
-                    'LastName' => ['required','string','max:255'],
-                    'Suffix' => ['nullable','string','max:255'],
-                    'PhoneNumber' => ['required','regex:/^\+639\d{9}$/'],
-                    'Address' => ['required','string','max:255'],
-                    'UserID' => ['nullable','integer']
-                ]
-            );
-
-
-            $parent = new Parents();
-            $parent->FirstName = $data['FirstName'];
-            $parent->MiddleName = $data['MiddleName'];
-            $parent->LastName = $data['LastName'];
-            $parent->Suffix = $data['Suffix'];
-            $parent->PhoneNumber = $data['PhoneNumber'];
-            $parent->Address = $data['Address'];
-            $this->setCommonFields($parent);
-            $parent->save();
-
-            if (!empty($data['UserID'])) {
-
-                $user = User::find($data['UserID']);
-
-                if ($user) {
-
-                    $roleName = 'parents';
-
-                    if (!$user->hasRole($roleName)) {
-                        $user->assignRole($roleName);
-                    }
-
-                    $parent->UserID = $user->id;
-                    $parent->save();
-                }
-            }
-
-            DB::commit();
-
-            return redirect()
-                ->route('parents.index')
-                ->with('success','Parent created successfully');
-
-        } catch (\Exception $e) {
-
-            DB::rollBack();
-
-            return back()->withErrors($e->getMessage())->withInput();
-        }
     }
 
     public function ajaxData(Request $request)

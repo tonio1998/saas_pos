@@ -30,6 +30,8 @@
 
         </div>
 
+        <div id="live-clock"></div>
+
         <div class="scanner-body">
 
             <div class="scanner-card">
@@ -156,6 +158,18 @@
 
         </div>
 
+        <audio
+            id="success-sound"
+            src="{{ asset('sounds/success.mp3') }}"
+            preload="auto"
+        ></audio>
+
+        <audio
+            id="error-sound"
+            src="{{ asset('sounds/error.mp3') }}"
+            preload="auto"
+        ></audio>
+
         <input
             type="text"
             id="scan-input"
@@ -232,6 +246,32 @@
                 transform:translateY(0px) rotate(360deg);
             }
 
+        }
+
+        #live-clock{
+            position:absolute;
+            top:24px;
+            right:30px;
+            z-index:20;
+
+            padding:14px 22px;
+
+            border-radius:18px;
+
+            background:rgba(255,255,255,.08);
+
+            border:1px solid rgba(255,255,255,.12);
+
+            backdrop-filter:blur(18px);
+
+            color:#fff;
+
+            font-size:32px;
+            font-weight:1000;
+            letter-spacing:2px;
+
+            box-shadow:
+                0 10px 35px rgba(0,0,0,.25);
         }
 
         .status-bar{
@@ -443,6 +483,68 @@
             animation:rotateRingReverse 14s linear infinite;
         }
 
+        .photo-wrap{
+            position:relative;
+
+            width:260px;
+            height:260px;
+
+            border-radius:50%;
+
+            overflow:hidden;
+
+            border:7px solid #facc15;
+
+            background:#111827;
+
+            box-shadow:
+                0 15px 40px rgba(0,0,0,.45);
+        }
+
+        .photo-wrap::after{
+
+            content:'';
+
+            position:absolute;
+
+            left:0;
+            top:0;
+
+            width:100%;
+            height:4px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    #00ff7f,
+                    transparent
+                );
+
+            box-shadow:
+                0 0 20px rgba(0,255,127,.8);
+
+            animation:scanLine 2s linear infinite;
+        }
+
+        @keyframes scanLine{
+
+            0%{
+                transform:translateY(0);
+            }
+
+            100%{
+                transform:translateY(256px);
+            }
+
+        }
+
+        .photo-wrap img{
+            width:100%;
+            height:100%;
+            object-fit:cover;
+        }
+
         @keyframes rotateRing{
 
             from{
@@ -465,28 +567,6 @@
                 transform:rotate(0deg);
             }
 
-        }
-
-        .photo-wrap{
-            width:260px;
-            height:260px;
-
-            border-radius:50%;
-
-            overflow:hidden;
-
-            border:7px solid #facc15;
-
-            background:#111827;
-
-            box-shadow:
-                0 15px 40px rgba(0,0,0,.45);
-        }
-
-        .photo-wrap img{
-            width:100%;
-            height:100%;
-            object-fit:cover;
         }
 
         .scanner-chip{
@@ -552,25 +632,6 @@
                 0 0 20px rgba(250,204,21,.45);
 
             animation:greetPulse 1.5s infinite;
-        }
-
-        @keyframes greetPulse{
-
-            0%{
-                opacity:1;
-                transform:scale(1);
-            }
-
-            50%{
-                opacity:.7;
-                transform:scale(1.03);
-            }
-
-            100%{
-                opacity:1;
-                transform:scale(1);
-            }
-
         }
 
         .name-text{
@@ -678,6 +739,46 @@
             animation:pulseDot 1.2s infinite;
         }
 
+        .success-flash{
+            animation:successFlash .45s ease;
+        }
+
+        .error-flash{
+            animation:errorFlash .45s ease;
+        }
+
+        @keyframes successFlash{
+
+            0%{
+                background-color:rgba(34,197,94,0);
+            }
+
+            50%{
+                background-color:rgba(34,197,94,.20);
+            }
+
+            100%{
+                background-color:rgba(34,197,94,0);
+            }
+
+        }
+
+        @keyframes errorFlash{
+
+            0%{
+                background-color:rgba(239,68,68,0);
+            }
+
+            50%{
+                background-color:rgba(239,68,68,.22);
+            }
+
+            100%{
+                background-color:rgba(239,68,68,0);
+            }
+
+        }
+
         #scan-input{
             position:absolute;
             opacity:0;
@@ -757,6 +858,11 @@
                         'greeting-text'
                     );
 
+                const liveClock =
+                    document.getElementById(
+                        'live-clock'
+                    );
+
                 let processing = false;
 
                 let scanMode = 'TIME_IN';
@@ -767,40 +873,12 @@
 
                 setMode(scanMode);
 
+                startClock();
+
                 document.addEventListener(
                     'click',
                     () => {
-
                         input.focus();
-
-                    }
-                );
-
-                document.addEventListener(
-                    'keydown',
-                    function(e){
-
-                        if(
-                            document.activeElement?.id === 'scan-input'
-                        ){
-                            return;
-                        }
-
-                        if(e.key === 1){
-                            e.preventDefault();
-
-                            setMode('TIME_IN');
-
-                        }
-
-                        if(e.key === 0){
-
-                            e.preventDefault();
-
-                            setMode('TIME_OUT');
-
-                        }
-
                     }
                 );
 
@@ -820,6 +898,34 @@
                     );
 
                 });
+
+                function startClock(){
+
+                    function update(){
+
+                        const now =
+                            new Date();
+
+                        liveClock.innerText =
+                            now.toLocaleTimeString(
+                                [],
+                                {
+                                    hour:'2-digit',
+                                    minute:'2-digit',
+                                    second:'2-digit'
+                                }
+                            );
+
+                    }
+
+                    update();
+
+                    setInterval(
+                        update,
+                        1000
+                    );
+
+                }
 
                 function setMode(mode){
 
@@ -924,8 +1030,11 @@
                 );
 
                 function processScan(code){
+
                     fetch('/scan',{
+
                         method:'POST',
+
                         headers:{
                             'Content-Type':
                                 'application/json',
@@ -935,25 +1044,39 @@
                                 'meta[name="csrf-token"]'
                             ).content
                         },
+
                         body:JSON.stringify({
                             code,
                             mode:scanMode
                         })
+
                     })
                         .then(async response => {
-                            const data = await response.json();
+
+                            const data =
+                                await response.json();
+
                             if(!response.ok){
                                 throw data;
                             }
+
                             updateScannerUI(data);
+
                             addLog(data);
+
                             processing = false;
+
                         })
                         .catch(error => {
+
                             showErrorState();
+
                             processing = false;
+
                             console.error(error);
+
                         });
+
                 }
 
                 function updateScannerUI(data){
@@ -983,6 +1106,10 @@
 
                     if(data.status === 'success'){
 
+                        playSuccessSound();
+
+                        flashSuccess();
+
                         if(scanMode === 'TIME_IN'){
 
                             greetingText.innerText =
@@ -1006,6 +1133,10 @@
                                 data.message
                                 ||
                                 'Have a great day!';
+
+                            speakMessage(
+                                `Welcome ${fullName}`
+                            );
 
                         }else{
 
@@ -1031,6 +1162,10 @@
                                 ||
                                 'See you again!';
 
+                            speakMessage(
+                                `Goodbye ${fullName}`
+                            );
+
                         }
 
                     }else{
@@ -1049,6 +1184,14 @@
 
                 function showErrorState(){
 
+                    playErrorSound();
+
+                    flashError();
+
+                    speakMessage(
+                        'Access denied'
+                    );
+
                     greetingText.innerText =
                         '⚠ ACCESS';
 
@@ -1059,7 +1202,7 @@
                         'ACCESS DENIED';
 
                     personRole.innerText =
-                        'INVALID QR / RFID';
+                        'INVALID QR OR RFID';
 
                     personPhoto.src =
                         '/images/avatar.png';
@@ -1110,9 +1253,132 @@
 
                 }
 
+                function speakMessage(message){
+
+                    try{
+
+                        if(!('speechSynthesis' in window)){
+                            return;
+                        }
+
+                        window.speechSynthesis.cancel();
+
+                        const speech =
+                            new SpeechSynthesisUtterance();
+
+                        speech.text = message;
+
+                        const voices =
+                            window.speechSynthesis.getVoices();
+
+                        const preferredVoice =
+                            voices.find(v =>
+                                v.lang === 'fil-PH'
+                            )
+                            ||
+                            voices.find(v =>
+                                v.name.includes('Microsoft')
+                            )
+                            ||
+                            voices.find(v =>
+                                v.lang === 'en-US'
+                            );
+
+                        if(preferredVoice){
+                            speech.voice = preferredVoice;
+                        }
+
+                        speech.lang = 'fil-PH';
+
+                        speech.rate = 0.90;
+                        speech.pitch = 0.95;
+                        speech.volume = 1;
+
+                        window.speechSynthesis.speak(
+                            speech
+                        );
+
+                    }catch(error){
+
+                        console.error(
+                            'Speech error:',
+                            error
+                        );
+
+                    }
+
+                }
+
+                function playSuccessSound(){
+
+                    const audio =
+                        document.getElementById(
+                            'success-sound'
+                        );
+
+                    if(!audio){
+                        return;
+                    }
+
+                    audio.currentTime = 0;
+
+                    audio.play().catch(() => {});
+
+                }
+
+                function playErrorSound(){
+
+                    const audio =
+                        document.getElementById(
+                            'error-sound'
+                        );
+
+                    if(!audio){
+                        return;
+                    }
+
+                    audio.currentTime = 0;
+
+                    audio.play().catch(() => {});
+
+                }
+
+                function flashSuccess(){
+
+                    document.body.classList.add(
+                        'success-flash'
+                    );
+
+                    setTimeout(() => {
+
+                        document.body.classList.remove(
+                            'success-flash'
+                        );
+
+                    },450);
+
+                }
+
+                function flashError(){
+
+                    document.body.classList.add(
+                        'error-flash'
+                    );
+
+                    setTimeout(() => {
+
+                        document.body.classList.remove(
+                            'error-flash'
+                        );
+
+                    },450);
+
+                }
+
                 function getTodayKey(){
 
-                    const d = new Date();
+                    const d =
+                        new Date();
 
                     return (
                         'scan_logs_' +
