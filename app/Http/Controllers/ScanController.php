@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ScanLogs;
 use App\Models\SchoolSetting;
+use App\Models\Settings;
 use App\Models\SmsQueuingModel;
 use App\Models\User;
 use Carbon\Carbon;
@@ -19,8 +20,15 @@ class ScanController extends Controller
 
             $request->validate([
                 'code' => 'required|string|max:255',
-                'mode' => 'required|string'
+                'mode' => 'required|string|in:TIME_IN,TIME_OUT'
             ]);
+
+            $settings = Cache::rememberForever(
+                'school_settings',
+                function () {
+                    return Settings::first();
+                }
+            );
 
             $input = trim($request->code);
 
@@ -32,8 +40,11 @@ class ScanController extends Controller
             ]);
 
             if (ctype_digit($input)) {
+
                 $normalizedInput = ltrim($input, '0');
+
                 $query->where(function ($q) use ($input, $normalizedInput) {
+
                     $q->where('qr_code', $input)
                         ->orWhere('id', $input)
                         ->orWhereRaw('CAST(nfc_code AS UNSIGNED) = ?', [$normalizedInput ?: 0]);
@@ -49,6 +60,7 @@ class ScanController extends Controller
             }
 
             $user = $query->first();
+
             if (!$user) {
 
                 return response()->json([
@@ -63,37 +75,128 @@ class ScanController extends Controller
 
             $roles = $user->getRoleNames();
 
-            $lastLog = ScanLogs::where('UserID', $user->id)
-                ->latest('id')
-                ->first();
-
-//            $mode = ($lastLog && (int) $lastLog->Mode === 1) ? 0 : 1;
             $mode = $request->mode === 'TIME_IN' ? 1 : 0;
 
             $direction = $mode === 1 ? 'entry' : 'exit';
 
-            do {
+            $attendanceStatus = 'present';
 
-                $verificationCode = strtoupper(Str::random(16));
+            $lateGraceMinutes = (int) ($settings?->LateGraceMinutes ?? 15);
 
-            } while (
-                ScanLogs::where('VerificationCode', $verificationCode)->exists()
+            $now = now();
+
+            $morningInTime = Carbon::today()->setTimeFromTimeString(
+                $settings?->OfficialTimeIn ?? '07:00:00'
             );
 
-            $attendanceStatus = 'present';
+            $lunchOutTime = Carbon::today()->setTime(12, 0);
+
+            $afternoonInTime = Carbon::today()->setTime(13, 0);
+
+            $finalOutTime = Carbon::today()->setTimeFromTimeString(
+                $settings?->OfficialTimeOut ?? '17:00:00'
+            );
+
+            $todayLogs = ScanLogs::whereDate('created_at', today())
+                ->where('UserID', $user->id);
+
+            if ($mode === 1) {
+
+                $isMorningSession = $now->lt($lunchOutTime);
+
+                if ($isMorningSession) {
+
+                    $alreadyMorningIn = (clone $todayLogs)
+                        ->where('Mode', 1)
+                        ->whereTime('created_at', '<', '12:00:00')
+                        ->exists();
+
+                    if (!$alreadyMorningIn) {
+
+                        $lateLimit = $morningInTime
+                            ->copy()
+                            ->addMinutes($lateGraceMinutes);
+
+                        if ($now->greaterThan($lateLimit)) {
+                            $attendanceStatus = 'late';
+                        }
+                    }
+
+                } else {
+
+                    $alreadyAfternoonIn = (clone $todayLogs)
+                        ->where('Mode', 1)
+                        ->whereTime('created_at', '>=', '12:00:00')
+                        ->exists();
+
+                    if (!$alreadyAfternoonIn) {
+
+                        $lateLimit = $afternoonInTime
+                            ->copy()
+                            ->addMinutes($lateGraceMinutes);
+
+                        if ($now->greaterThan($lateLimit)) {
+                            $attendanceStatus = 'late';
+                        }
+                    }
+                }
+            }
+
+            if ($mode === 0) {
+
+                $isLunchOut = $now->lt($afternoonInTime);
+
+                if ($isLunchOut) {
+
+                    $alreadyLunchOut = (clone $todayLogs)
+                        ->where('Mode', 0)
+                        ->whereTime('created_at', '<', '13:00:00')
+                        ->exists();
+
+                    if (!$alreadyLunchOut) {
+
+                        if ($now->lessThan($lunchOutTime)) {
+                            $attendanceStatus = 'early_out';
+                        }
+                    }
+
+                } else {
+
+                    $alreadyFinalOut = (clone $todayLogs)
+                        ->where('Mode', 0)
+                        ->whereTime('created_at', '>=', '13:00:00')
+                        ->exists();
+
+                    if (!$alreadyFinalOut) {
+
+                        if ($now->lessThan($finalOutTime)) {
+                            $attendanceStatus = 'early_out';
+                        }
+                    }
+                }
+            }
 
             $scanLog = ScanLogs::create([
                 'UserID' => $user->id,
                 'Mode' => $mode,
-                'VerificationCode' => $verificationCode,
                 'created_by' => $user->id,
                 'updated_by' => $user->id,
                 'status' => 'active',
                 'archived' => 0,
                 'scan_type' => 'nfc',
-                'direction' => $mode === 1 ? 'entry' : 'exit',
+                'direction' => $direction,
                 'attendance_status' => $attendanceStatus,
             ]);
+
+            $verificationCode = "VC-" . str_pad(
+                    $scanLog->id,
+                    10,
+                    '0',
+                    STR_PAD_LEFT
+                );
+
+            $scanLog->VerificationCode = $verificationCode;
+            $scanLog->save();
 
             $schoolName = $settings['school_name']
                 ?? env('SCHOOL_NAME', 'School');
@@ -102,16 +205,18 @@ class ScanController extends Controller
                 ? 'entered'
                 : 'left';
 
-            $lateText = $attendanceStatus === 'late'
-                ? ' (LATE)'
-                : '';
+            $attendanceLabel = match ($attendanceStatus) {
+                'late' => ' (LATE)',
+                'early_out' => ' (EARLY OUT)',
+                default => ''
+            };
 
             $message = $user->name
                 . ' just '
                 . $entryText
                 . ' '
                 . $schoolName
-                . $lateText
+                . $attendanceLabel
                 . ' @ '
                 . now()->format('M d, Y h:i:s A')
                 . '. Code: '
@@ -136,17 +241,24 @@ class ScanController extends Controller
             );
 
             $smsEnabled = (int) ($settings['sms_enabled'] ?? 0);
-            if (true) {
-//                dd($user);
+
+            if ($smsEnabled === 1) {
+
                 foreach ($phoneNumbers as $number) {
+
                     $cleanNumber = preg_replace('/[^0-9]/', '', $number);
-//                    dd($cleanNumber);
+
                     if (strlen($cleanNumber) >= 10) {
+
                         try {
-//                            dd($cleanNumber, $message);
-                            $this->queueSMSSend($cleanNumber, $message);
+
+                            $this->queueSMSSend(
+                                $cleanNumber,
+                                $message
+                            );
+
                         } catch (\Throwable $smsError) {
-//                            dd($smsError);
+
                             report($smsError);
                         }
                     }

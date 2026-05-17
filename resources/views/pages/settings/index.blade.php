@@ -10,7 +10,7 @@
 
     <div class="page-shell">
 
-        <div class="page-hero settings-hero">
+        <div class="page-hero settings-hero page-glass-card">
 
             <div class="page-hero-left">
 

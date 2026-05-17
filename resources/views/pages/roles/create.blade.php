@@ -324,21 +324,6 @@
             gap:.8rem;
         }
 
-        .page-glass-card{
-            padding:1rem 1.05rem;
-
-            border-radius:18px;
-
-            background:rgba(255,255,255,.76);
-
-            border:1px solid rgba(226,232,240,.8);
-
-            backdrop-filter:blur(18px);
-
-            box-shadow:
-                0 8px 24px rgba(15,23,42,.04);
-        }
-
         .role-hero{
             display:flex;
             align-items:center;

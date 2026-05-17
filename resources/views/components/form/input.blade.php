@@ -11,7 +11,9 @@
     id="{{ $name }}"
     value="{{ old($name,$value) }}"
     placeholder="{{ $placeholder }}"
-    {{ $attributes->merge([
-        'class' => 'form-control form-control-lg '.($errors->has($name) ? 'is-invalid' : '')
+    {{ $attributes->class([
+        'form-control',
+        'form-control-lg',
+        'is-invalid' => $errors->has($name)
     ]) }}
 >
