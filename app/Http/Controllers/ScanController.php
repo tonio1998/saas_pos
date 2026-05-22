@@ -32,6 +32,10 @@ class ScanController extends Controller
 
             $input = trim($request->code);
 
+            if (str_contains($input, '@')) {
+                $input = explode('@', $input)[0];
+            }
+
             $query = User::with([
                 'roles',
                 'studentInfo.guardian',
@@ -198,30 +202,6 @@ class ScanController extends Controller
             $scanLog->VerificationCode = $verificationCode;
             $scanLog->save();
 
-            $schoolName = $settings['school_name']
-                ?? env('SCHOOL_NAME', 'School');
-
-            $entryText = $direction === 'entry'
-                ? 'entered'
-                : 'left';
-
-            $attendanceLabel = match ($attendanceStatus) {
-                'late' => ' (LATE)',
-                'early_out' => ' (EARLY OUT)',
-                default => ''
-            };
-
-            $message = $user->name
-                . ' just '
-                . $entryText
-                . ' '
-                . $schoolName
-                . $attendanceLabel
-                . ' @ '
-                . now()->format('M d, Y h:i:s A')
-                . '. Code: '
-                . $verificationCode;
-
             $phoneNumbers = [];
 
             if ($roles->contains('students')) {
@@ -240,25 +220,49 @@ class ScanController extends Controller
                 array_filter($phoneNumbers)
             );
 
-            $smsEnabled = (int) ($settings['sms_enabled'] ?? 0);
+            $schoolName = $settings['school_name']
+                ?? env('SCHOOL_NAME', 'School');
+
+            $entryText = $direction === 'entry'
+                ? 'entered'
+                : 'left';
+
+            $attendanceLabel = match ($attendanceStatus) {
+                'late' => ' (LATE)',
+                'early_out' => ' (EARLY OUT)',
+                default => ''
+            };
+
+//            dd($user->guardianInfo);
+
+            $message = ($user->studentInfo?->guardian?->LastName
+                    ? 'Dear Mr/Mrs. ' . $user->studentInfo->guardian->LastName . ", \n"
+                    : '')
+                . $user->name
+                . ' just '
+                . $entryText
+                . ' '
+                . $schoolName
+                . $attendanceLabel
+                . ' @ '
+                . now()->format('M d, Y h:i:s A')
+                . '. Code: '
+                . $verificationCode;
+
+            $smsEnabled = (int) ($settings['sms_enabled'] ?? 1);
+
+//            dd($smsEnabled);
 
             if ($smsEnabled === 1) {
-
                 foreach ($phoneNumbers as $number) {
-
                     $cleanNumber = preg_replace('/[^0-9]/', '', $number);
-
                     if (strlen($cleanNumber) >= 10) {
-
                         try {
-
                             $this->queueSMSSend(
                                 $cleanNumber,
                                 $message
                             );
-
                         } catch (\Throwable $smsError) {
-
                             report($smsError);
                         }
                     }
