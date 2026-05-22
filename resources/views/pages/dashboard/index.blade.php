@@ -2,7 +2,7 @@
 @section('title','Dashboard')
 @section('content')
     <x-page-header
-        title="Smart Campus Dashboard"
+        title="Dashboard"
         subtitle="Real-time monitoring and school operations overview"
     />
 

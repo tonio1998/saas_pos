@@ -362,7 +362,7 @@ class SendQueuedSms extends Command
 
                             $schoolSettings->sms_last_failed_at =
                                 now();
-
+                            $schoolSettings->sms_low_balance = 1;
                             $schoolSettings->save();
 
                             Cache::forget('school_settings');

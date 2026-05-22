@@ -3,36 +3,51 @@
 
 @section('content')
     <style>
+        :root{
+            --id-width:220px;
+            --id-ratio:638 / 1013;
+        }
+
         .id-canvas{
-            width:220px;
-            aspect-ratio: 638 / 1013;
+            width:320px;
+            height:auto;
+            aspect-ratio:638 / 1013;
             border:1px solid #ccc;
             border-radius:12px;
-            box-shadow:0 4px 12px rgba(0,0,0,0.15);
+            box-shadow:0 4px 12px rgba(0,0,0,.15);
             background:#fff;
-            zoom:1.3;
+            display:block;
+            object-fit:contain;
+            image-rendering:auto;
         }
 
         .canvas-container{
             display:flex;
             gap:20px;
             flex-wrap:wrap;
+            justify-content:center;
+            align-items:flex-start;
         }
 
         @media print{
-            .canvas-container{ gap:0; }
+
+            body{
+                margin:0;
+                padding:0;
+            }
+
+            .canvas-container{
+                gap:0;
+            }
 
             .id-canvas{
                 width:2.125in !important;
                 height:3.375in !important;
-                border:none;
-                box-shadow:none;
+                border:none !important;
+                border-radius:0 !important;
+                box-shadow:none !important;
                 page-break-inside:avoid;
             }
-        }
-
-        canvas{
-            max-height:100vh;
         }
     </style>
 

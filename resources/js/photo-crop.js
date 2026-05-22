@@ -1,14 +1,15 @@
 import $ from 'jquery'
+
 window.$ = window.jQuery = $
 
-const WIDTH = 413
-const HEIGHT = 531
+const FRAME_WIDTH = 260
+const FRAME_HEIGHT = 330
 
 const canvas = document.getElementById('photoCanvas')
 const ctx = canvas.getContext('2d')
 
-canvas.width = WIDTH
-canvas.height = HEIGHT
+canvas.width = FRAME_WIDTH
+canvas.height = FRAME_HEIGHT
 
 const upload = document.getElementById('uploadPhoto')
 const zoomIn = document.getElementById('zoomIn')
@@ -17,50 +18,84 @@ const resetBtn = document.getElementById('resetPhoto')
 const saveBtn = document.getElementById('saveBtn')
 const croppedInput = document.getElementById('croppedPhoto')
 
-const currentPhoto = document.getElementById('currentPhoto')?.value
+const currentPhoto = document.getElementById('currentPhoto')?.value || ''
 
 let img = new Image()
+
 let scale = 1
 let minScale = 1
+
 let posX = 0
 let posY = 0
+
 let isDragging = false
 let startX = 0
 let startY = 0
 
-function draw() {
-    ctx.clearRect(0, 0, WIDTH, HEIGHT)
-
-    if (!img.src) return
-
-    const w = img.width * scale
-    const h = img.height * scale
-
-    ctx.drawImage(img, posX, posY, w, h)
-}
-
 function fitImage() {
     if (!img.width || !img.height) return
 
-    const scaleX = WIDTH / img.width
-    const scaleY = HEIGHT / img.height
+    const imageRatio = img.width / img.height
+    const frameRatio = FRAME_WIDTH / FRAME_HEIGHT
 
-    minScale = Math.max(scaleX, scaleY)
-    scale = minScale
+    if (imageRatio > frameRatio) {
+        scale = FRAME_HEIGHT / img.height
+    } else {
+        scale = FRAME_WIDTH / img.width
+    }
 
-    const w = img.width * scale
-    const h = img.height * scale
+    minScale = scale
 
-    posX = (WIDTH - w) / 2
-    posY = (HEIGHT - h) / 2
+    const width = img.width * scale
+    const height = img.height * scale
+
+    posX = (FRAME_WIDTH - width) / 2
+    posY = (FRAME_HEIGHT - height) / 2
 
     draw()
+}
+
+function clampPosition() {
+    const width = img.width * scale
+    const height = img.height * scale
+
+    if (width <= FRAME_WIDTH) {
+        posX = (FRAME_WIDTH - width) / 2
+    } else {
+        const minX = FRAME_WIDTH - width
+        const maxX = 0
+
+        posX = Math.min(maxX, Math.max(minX, posX))
+    }
+
+    if (height <= FRAME_HEIGHT) {
+        posY = (FRAME_HEIGHT - height) / 2
+    } else {
+        const minY = FRAME_HEIGHT - height
+        const maxY = 0
+
+        posY = Math.min(maxY, Math.max(minY, posY))
+    }
+}
+
+function draw() {
+    ctx.clearRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT)
+
+    if (!img.src) return
+
+    clampPosition()
+
+    const width = img.width * scale
+    const height = img.height * scale
+
+    ctx.drawImage(img, posX, posY, width, height)
 }
 
 function loadImage(src) {
     if (!src) return
 
     const temp = new Image()
+
     temp.crossOrigin = 'anonymous'
 
     temp.onload = () => {
@@ -69,25 +104,42 @@ function loadImage(src) {
     }
 
     temp.onerror = () => {
-        console.error('Image load failed')
+        console.error('Failed to load image')
+        alert('Failed to load image')
     }
 
     temp.src = src
 }
 
-/* =========================
-   INIT (LOAD CURRENT PHOTO)
-========================= */
+function applyZoom(factor) {
+    const newScale = scale * factor
+
+    if (newScale < minScale) return
+
+    const centerX = FRAME_WIDTH / 2
+    const centerY = FRAME_HEIGHT / 2
+
+    posX = centerX - (centerX - posX) * (newScale / scale)
+    posY = centerY - (centerY - posY) * (newScale / scale)
+
+    scale = newScale
+
+    draw()
+}
+
 if (currentPhoto) {
     loadImage(currentPhoto)
 }
 
-/* =========================
-   FILE UPLOAD
-========================= */
 upload.addEventListener('change', e => {
-    const file = e.target.files[0]
+    const file = e.target.files?.[0]
+
     if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+        alert('Please select a valid image')
+        return
+    }
 
     const reader = new FileReader()
 
@@ -95,14 +147,18 @@ upload.addEventListener('change', e => {
         loadImage(ev.target.result)
     }
 
+    reader.onerror = () => {
+        alert('Failed to read image')
+    }
+
     reader.readAsDataURL(file)
 })
 
-/* =========================
-   DRAG
-========================= */
 canvas.addEventListener('mousedown', e => {
+    if (!img.src) return
+
     isDragging = true
+
     startX = e.offsetX - posX
     startY = e.offsetY - posY
 })
@@ -116,61 +172,73 @@ canvas.addEventListener('mousemove', e => {
     draw()
 })
 
-canvas.addEventListener('mouseup', () => isDragging = false)
-canvas.addEventListener('mouseleave', () => isDragging = false)
-
-/* =========================
-   ZOOM
-========================= */
-function applyZoom(factor) {
-    const newScale = scale * factor
-    if (newScale < minScale) return
-
-    const centerX = WIDTH / 2
-    const centerY = HEIGHT / 2
-
-    posX = centerX - (centerX - posX) * (newScale / scale)
-    posY = centerY - (centerY - posY) * (newScale / scale)
-
-    scale = newScale
-    draw()
-}
-
-zoomIn.addEventListener('click', () => applyZoom(1.1))
-zoomOut.addEventListener('click', () => applyZoom(0.9))
-
-canvas.addEventListener('wheel', e => {
-    e.preventDefault()
-    applyZoom(e.deltaY < 0 ? 1.05 : 0.95)
+canvas.addEventListener('mouseup', () => {
+    isDragging = false
 })
 
-/* =========================
-   RESET
-========================= */
+canvas.addEventListener('mouseleave', () => {
+    isDragging = false
+})
+
+canvas.addEventListener(
+    'wheel',
+    e => {
+        e.preventDefault()
+
+        if (!img.src) return
+
+        applyZoom(e.deltaY < 0 ? 1.05 : 0.95)
+    },
+    { passive: false }
+)
+
+zoomIn.addEventListener('click', () => {
+    if (!img.src) return
+
+    applyZoom(1.1)
+})
+
+zoomOut.addEventListener('click', () => {
+    if (!img.src) return
+
+    applyZoom(0.9)
+})
+
 resetBtn.addEventListener('click', () => {
     if (currentPhoto) {
         loadImage(currentPhoto)
-    } else {
-        ctx.clearRect(0, 0, WIDTH, HEIGHT)
+        return
     }
+
+    ctx.clearRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT)
+
+    img = new Image()
+
+    scale = 1
+    minScale = 1
+
+    posX = 0
+    posY = 0
 })
 
-/* =========================
-   SAVE
-========================= */
 saveBtn.addEventListener('click', e => {
     if (!img.src) {
         e.preventDefault()
-        alert('Please upload or use a photo first')
+
+        alert('Please upload a photo first')
+
         return
     }
 
     try {
-        const data = canvas.toDataURL('image/jpeg', 0.9)
-        croppedInput.value = data
+        const cropped = canvas.toDataURL('image/jpeg', 1)
+
+        croppedInput.value = cropped
     } catch (err) {
         e.preventDefault()
+
         console.error(err)
+
         alert('Failed to process image')
     }
 })

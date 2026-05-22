@@ -80,8 +80,10 @@ class UserController extends Controller
     public function users_data(Request $request)
     {
         $users = User::query()
-            ->with('roles:id,name')
-            ->withCount('logs')
+            ->with([
+                'roles:id,name',
+                'logs'
+            ])
             ->select([
                 'id',
                 'name',
@@ -115,7 +117,7 @@ class UserController extends Controller
                 $query->where('name', 'LIKE', "%{$keyword}%");
             })
 
-            ->addColumn('logs', fn($user) => number_format($user->logs_count))
+            ->addColumn('logs', fn($user) => number_format($user->logs->count()))
 
             ->addColumn('role', function ($user) {
 
@@ -275,13 +277,13 @@ class UserController extends Controller
 
     private function generateQrCode()
     {
-        $prefix = env('SCHOOL_ID');
+        $prefix = cache('school_settings')?->SchoolCode;
 
-        $lastRow = QrCodes::where('prefix', 1)
-            ->orderBy('last_number', 'desc')
+        $lastRow = QrCodes::where('prefix', $prefix)
+            ->orderByDesc('last_number')
             ->first();
 
-        $newNumber = ($lastRow->last_number ?? 0) + 1;
+        $newNumber = ($lastRow?->last_number ?? 0) + 1;
 
         $qrCodeRow = new QrCodes();
         $qrCodeRow->prefix = $prefix;
@@ -333,10 +335,10 @@ class UserController extends Controller
                 }
 
                 $email = $username.env('SCHOOL_EMAIL');
-
+                $prefix = cache('school_settings')?->SchoolCode;
                 $user = new User();
                 $user->conn_id = $UserTypeID;
-                $user->SchoolID = env('SCHOOL_ID');
+                $user->SchoolID = $prefix;
                 $user->name = $UserT->FirstName.' '.$UserT->LastName;
                 $user->email = $email;
                 $user->password = Hash::make($newPassword);
@@ -422,7 +424,8 @@ class UserController extends Controller
         $user = User::find($id);
         if(!$user) return redirect()->route('students.index')->with('error','Generate Password first');
 
-        $student = Students::with(['guardian'])->where('id', $user->conn_id)->firstOrFail();
+        $student = Students::with(['guardian', 'user'])->where('id', $user->conn_id)->firstOrFail();
+//        dd($student);
         $user_type = 'students';
 
         return view('pages.users.print', compact('student', 'user', 'user_type'))

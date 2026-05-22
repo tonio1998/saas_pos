@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employees;
+use App\Models\QrCodes;
 use App\Models\Students;
 use App\Models\User;
 use App\Traits\TCommonFunctions;
@@ -49,23 +50,47 @@ class StudentsController extends Controller
         return view('pages.students.create', compact('student'));
     }
 
+    private function generateQrCode()
+    {
+        $prefix = cache('school_settings')?->SchoolCode;
+
+        $lastRow = QrCodes::where('prefix', $prefix)
+            ->orderByDesc('last_number')
+            ->first();
+
+        $newNumber = ($lastRow?->last_number ?? 0) + 1;
+
+        $qrCodeRow = new QrCodes();
+        $qrCodeRow->prefix = $prefix;
+        $qrCodeRow->last_number = $newNumber;
+        $qrCodeRow->created_by = 0;
+        $qrCodeRow->updated_by = 0;
+        $qrCodeRow->created_at = now();
+        $qrCodeRow->updated_at = now();
+        $qrCodeRow->status = 'active';
+        $qrCodeRow->archived = 0;
+        $qrCodeRow->save();
+
+        return $prefix . str_pad($newNumber, 6, '0', STR_PAD_LEFT);
+    }
+
     public function store(Request $request)
     {
         $data = $request->validate(
 
             [
-                'LRN' => ['required','string','max:12', 'min:12'],
-                'FirstName' => ['required','string','max:255'],
-                'MiddleName' => ['nullable','string','max:255'],
-                'LastName' => ['required','string','max:255'],
-                'Suffix' => ['nullable','string','max:255'],
-                'PhoneNumber' => ['required','regex:/^\+639\d{9}$/'],
-                'GuardianID' => ['nullable','integer'],
-                'UserID' => ['nullable','integer'],
-                'filepath' => ['nullable','image','mimes:jpg,jpeg,png','max:2048'],
-                'Section' => ['nullable','string','max:255'],
-                'YearLevel' => ['required','string','max:255'],
-                'Strand' => ['required','string','max:255']
+                'LRN' => ['required', 'string', 'max:12', 'min:12'],
+                'FirstName' => ['required', 'string', 'max:255'],
+                'MiddleName' => ['nullable', 'string', 'max:255'],
+                'LastName' => ['required', 'string', 'max:255'],
+                'Suffix' => ['nullable', 'string', 'max:255'],
+                'PhoneNumber' => ['required', 'regex:/^\+639\d{9}$/'],
+                'GuardianID' => ['nullable', 'integer'],
+                'UserID' => ['nullable', 'integer'],
+                'filepath' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+                'Section' => ['nullable', 'string', 'max:255'],
+                'YearLevel' => ['required', 'string', 'max:255'],
+                'Strand' => ['required', 'string', 'max:255']
             ],
 
             [
@@ -91,46 +116,73 @@ class StudentsController extends Controller
             if ($request->hasFile('filepath')) {
 
                 $path = $request->file('filepath')
-                    ->store('students','public');
+                    ->store('students', 'public');
 
                 $data['filepath'] = $path;
-
             }
 
             $student = new Students();
-
             $student->fill($data);
 
             $this->setCommonFields($student);
 
             $student->save();
 
-            if (!empty($data['UserID'])) {
+            $schoolSettings = cache('school_settings');
 
-                $user = User::find($data['UserID']);
+            $schoolEmail = $schoolSettings?->EmailAddress
+                ?? env('SCHOOL_EMAIL');
 
-                if ($user) {
+            $schoolCode = $schoolSettings?->SchoolCode;
 
-                    $roleName = 'students';
+            $base = strtolower(
+                substr($student->FirstName, 0, 1)
+                . preg_replace('/\s+/', '', $student->LastName)
+            );
 
-                    if (!$user->hasRole($roleName)) {
+            $username = $base;
+            $counter = 1;
 
-                        $user->assignRole($roleName);
-
-                    }
-
-                    $student->UserID = $user->id;
-
-                    $student->save();
-
-                }
+            while (
+            User::where(
+                'email',
+                $username . $schoolEmail
+            )->exists()
+            ) {
+                $username = $base . $counter;
+                $counter++;
             }
+
+            $generatedPassword = strtoupper(Str::random(6));
+
+            $user = new User();
+            $user->conn_id = $student->id;
+            $user->SchoolID = $schoolCode;
+            $user->name = trim(
+                $student->FirstName . ' ' . $student->LastName
+            );
+            $user->email = $username . $schoolEmail;
+            $user->password = Hash::make($generatedPassword);
+            $user->qr_code = $this->generateQrCode();
+
+            $this->setCommonFields($user);
+
+            $user->save();
+
+            $user->assignRole('students');
+
+            $student->UserID = $user->id;
+            $student->save();
 
             DB::commit();
 
             return redirect()
                 ->route('students.index')
-                ->with('success','Student created successfully');
+                ->with([
+                    'success' => 'Student created successfully.',
+                    'generated_username' => $user->email,
+                    'generated_password' => $generatedPassword
+                ]);
 
         } catch (\Exception $e) {
 
@@ -458,6 +510,12 @@ class StudentsController extends Controller
             })
             ->addColumn('createdBy', function ($student) {
                 return e($student->createdBy?->name ?? '');
+            })
+            ->filterColumn('name', function ($query, $keyword) {
+                $query->where(function ($q) use ($keyword) {
+                    $q->where('FirstName', 'like', "%{$keyword}%")
+                        ->orWhere('LastName', 'like', "%{$keyword}%");
+                });
             })
             ->rawColumns([
                 'actions',

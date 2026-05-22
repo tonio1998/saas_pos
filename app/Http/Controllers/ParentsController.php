@@ -340,6 +340,12 @@ class ParentsController extends Controller
             ->addColumn('createdBy', function ($parent) {
                 return $parent->createdBy?->name;
             })
+            ->filterColumn('name', function ($query, $keyword) {
+                $query->where(function ($q) use ($keyword) {
+                    $q->where('FirstName', 'like', "%{$keyword}%")
+                        ->orWhere('LastName', 'like', "%{$keyword}%");
+                });
+            })
             ->rawColumns(['actions','students', 'name'])
             ->make(true);
     }
