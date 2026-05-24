@@ -53,7 +53,6 @@ class SettingsController extends Controller
 
             'EmailAddress' => [
                 'nullable',
-                'email',
                 'max:150'
             ],
 
