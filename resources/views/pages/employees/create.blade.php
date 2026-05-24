@@ -51,14 +51,14 @@
 
                     </div>
 
-                    <div class="page-hero-actions">
+{{--                    <div class="page-hero-actions">--}}
 
-                        <div class="page-badge">
-                            <i class="bi bi-circle-fill"></i>
-                            Registrar Module
-                        </div>
+{{--                        <div class="page-badge">--}}
+{{--                            <i class="bi bi-circle-fill"></i>--}}
+{{--                            Registrar Module--}}
+{{--                        </div>--}}
 
-                    </div>
+{{--                    </div>--}}
 
                 </div>
 

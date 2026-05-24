@@ -205,7 +205,7 @@
                     >
 
                         <x-form.input
-                            type="email"
+                            type="text"
                             name="EmailAddress"
                             value="{{ old('EmailAddress',$setting->EmailAddress ?? '') }}"
                             placeholder="Email address"
