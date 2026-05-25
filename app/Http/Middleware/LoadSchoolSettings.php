@@ -25,16 +25,9 @@ class LoadSchoolSettings
                 function () use ($schoolId) {
 
                     return School::query()
-                        ->select([
-                            'id',
-                            'SchoolName',
-                            'ThemeColor',
-                            'principal_id',
-                            'registrar_id'
-                        ])
                         ->with([
-                            'principal:id,FirstName,LastName',
-                            'registrar:id,FirstName,LastName'
+                            'principal',
+                            'registrar'
                         ])
                         ->find($schoolId);
                 }
