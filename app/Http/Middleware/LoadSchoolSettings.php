@@ -21,7 +21,7 @@ class LoadSchoolSettings
 
             $schoolSettings = Cache::remember(
                 'school_settings_'.$schoolId,
-                now()->addHours(12),
+                now()->addHours(1),
                 function () use ($schoolId) {
 
                     return School::query()
