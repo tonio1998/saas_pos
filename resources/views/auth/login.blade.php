@@ -37,13 +37,13 @@
 
                 <div class="auth-group">
                     <input
-                        type="email"
-                        name="email"
-                        value="{{ old('email') }}"
-                        class="ios-input @error('email') is-invalid @enderror"
-                        placeholder="Email"
+                        type="text"
+                        name="login"
+                        value="{{ old('login') }}"
+                        class="ios-input @error('login') is-invalid @enderror"
+                        placeholder="Email or Phone Number"
                     >
-                    @error('email')
+                    @error('login')
                     <span class="ios-error">{{ $message }}</span>
                     @enderror
                 </div>

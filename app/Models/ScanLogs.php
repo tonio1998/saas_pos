@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 use App\Models\User;
+use App\Traits\Tenantable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
@@ -8,10 +9,12 @@ use OwenIt\Auditing\Auditable;
 class ScanLogs extends Model implements AuditableContract
 {
     use Auditable;
+    use Tenantable;
     protected $table = 'scan_logs';
     use SoftDeletes;
     protected $dates = ['deleted_at'];
     protected $fillable = [
+        'school_id',
         'UserID',
         'Mode',
         'lat',

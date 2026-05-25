@@ -3,25 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Models\SchoolSetting;
-use App\Models\Settings;
+use App\Models\School;
 use App\Traits\TCommonFunctions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
-class SettingsController extends Controller
+class SchoolSettingsController extends Controller
 {
     use TCommonFunctions;
 
     public function index()
     {
-        $setting = Settings::with([
-            'principal',
-            'registrar'
-        ])->first();
-
-        return view('pages.settings.index', compact('setting'));
+        $session = session('school_id');
+        return redirect()->route('schools.edit',[encrypt($session)]);
     }
 
     public function store(Request $request)
@@ -117,11 +113,11 @@ class SettingsController extends Controller
         $validated['EnableQR'] = $request->boolean('EnableQR');
         $validated['EnableOfflineAttendance'] = $request->boolean('EnableOfflineAttendance');
 
-        $setting = Settings::first();
+        $setting = School::first();
 
         if (!$setting) {
 
-            $setting = new Settings();
+            $setting = new School();
 
             $this->setCommonFields($setting);
         }
@@ -174,7 +170,7 @@ class SettingsController extends Controller
 
         $setting->save();
 
-        Cache::forget('school_settings');
+        Cache::forget('school_settings_' . $setting->id);
 
         return redirect()
             ->route('settings.index')

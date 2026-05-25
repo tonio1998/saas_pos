@@ -6,15 +6,24 @@ use App\Models\Employees;
 use App\Models\QrCodes;
 use App\Models\Students;
 use App\Models\User;
+use App\Services\User\UserAccountService;
 use App\Traits\TCommonFunctions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
-class StudentsController extends Controller
+class SchoolStudentsController extends Controller
 {
     use TCommonFunctions;
+    protected UserAccountService $userAccountService;
+
+    public function __construct(
+        UserAccountService $userAccountService
+    ) {
+
+        $this->userAccountService = $userAccountService;
+    }
 
     public function students_search(Request $request)
     {
@@ -35,7 +44,8 @@ class StudentsController extends Controller
     }
     public function index()
     {
-        return view('pages.students.index');
+//        dd(session()->all());
+        return view('pages.schools.students.index');
     }
 
     public function edit($id)
@@ -47,12 +57,14 @@ class StudentsController extends Controller
         }
 
         $student = Students::findOrFail($id);
-        return view('pages.students.create', compact('student'));
+        return view('pages.schools.students.create', compact('student'));
     }
 
     private function generateQrCode()
     {
         $prefix = cache('school_settings')?->SchoolCode;
+        $schoolSettings = cache('school_settings');
+        $schoolCode = $schoolSettings?->id;
 
         $lastRow = QrCodes::where('prefix', $prefix)
             ->orderByDesc('last_number')
@@ -61,6 +73,7 @@ class StudentsController extends Controller
         $newNumber = ($lastRow?->last_number ?? 0) + 1;
 
         $qrCodeRow = new QrCodes();
+        $qrCodeRow->school_id = $schoolCode;
         $qrCodeRow->prefix = $prefix;
         $qrCodeRow->last_number = $newNumber;
         $qrCodeRow->created_by = 0;
@@ -84,7 +97,7 @@ class StudentsController extends Controller
                 'MiddleName' => ['nullable', 'string', 'max:255'],
                 'LastName' => ['required', 'string', 'max:255'],
                 'Suffix' => ['nullable', 'string', 'max:255'],
-                'PhoneNumber' => ['required', 'regex:/^\+639\d{9}$/'],
+                'PhoneNumber' => ['nullable', 'regex:/^\+639\d{9}$/'],
                 'GuardianID' => ['nullable', 'integer'],
                 'UserID' => ['nullable', 'integer'],
                 'filepath' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
@@ -133,37 +146,26 @@ class StudentsController extends Controller
             $schoolEmail = $schoolSettings?->EmailAddress
                 ?? env('SCHOOL_EMAIL');
 
-            $schoolCode = $schoolSettings?->SchoolCode;
+            $schoolCode = $schoolSettings?->id;
 
-            $base = strtolower(
-                substr($student->FirstName, 0, 1)
-                . preg_replace('/\s+/', '', $student->LastName)
-            );
-
-            $username = $base;
-            $counter = 1;
-
-            while (
-            User::where(
-                'email',
-                $username . $schoolEmail
-            )->exists()
-            ) {
-                $username = $base . $counter;
-                $counter++;
-            }
+            $generatedEmail = $this->userAccountService
+                ->generateUsername(
+                    $request->FirstName,
+                    $request->LastName,
+                    $schoolEmail
+                );
 
             $generatedPassword = strtoupper(Str::random(6));
 
             $user = new User();
             $user->conn_id = $student->id;
-            $user->SchoolID = $schoolCode;
+            $user->school_id = $schoolCode;
             $user->name = trim(
-                $student->FirstName . ' ' . $student->LastName
+                $request->FirstName . ' ' . $request->LastName
             );
-            $user->email = $username . $schoolEmail;
+            $user->email = $generatedEmail;
             $user->password = Hash::make($generatedPassword);
-            $user->qr_code = $this->generateQrCode();
+            $user->qr_code = generateQrCode();
 
             $this->setCommonFields($user);
 
@@ -187,7 +189,7 @@ class StudentsController extends Controller
         } catch (\Exception $e) {
 
             DB::rollBack();
-
+            dd($e->getMessage());
             return back()
                 ->withErrors([
                     'general' => $e->getMessage()
@@ -217,7 +219,7 @@ class StudentsController extends Controller
                 'MiddleName' => ['nullable','string','max:255'],
                 'LastName' => ['required','string','max:255'],
                 'Suffix' => ['nullable','string','max:255'],
-                'PhoneNumber' => ['required','regex:/^\+639\d{9}$/'],
+                'PhoneNumber' => ['nullable','regex:/^\+639\d{9}$/'],
                 'GuardianID' => ['nullable','integer'],
                 'UserID' => ['nullable','integer'],
                 'filepath' => ['nullable','image','mimes:jpg,jpeg,png','max:2048'],
@@ -302,7 +304,7 @@ class StudentsController extends Controller
     }
     public function create()
     {
-        return view('pages.students.create');
+        return view('pages.schools.students.create');
     }
 
     public function ajaxData(Request $request)

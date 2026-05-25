@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
-class Settings extends Model
+class School extends Model
 {
-    protected $table = 'settings';
+    protected $table = 'school';
 
     protected $fillable = [
         'SystemTitle',
@@ -50,12 +50,17 @@ class Settings extends Model
     protected static function booted()
     {
         static::saved(function () {
-            Cache::forget('school_settings');
+            Cache::forget('school_settings_' . session('school_id'));
         });
 
         static::deleted(function () {
-            Cache::forget('school_settings');
+            Cache::forget('school_settings_' . session('school_id'));
         });
+    }
+
+    public function users()
+    {
+        return $this->hasMany(User::class, 'school_id');
     }
 
     public static function getSettings()

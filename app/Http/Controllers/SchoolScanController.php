@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ScanLogs;
 use App\Models\SchoolSetting;
-use App\Models\Settings;
+use App\Models\School;
 use App\Models\SmsQueuingModel;
 use App\Models\User;
 use Carbon\Carbon;
@@ -12,24 +12,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
-class ScanController extends Controller
+class SchoolScanController extends Controller
 {
     public function scan(Request $request)
     {
         try {
-
             $request->validate([
                 'code' => 'required|string|max:255',
-                'mode' => 'required|string|in:TIME_IN,TIME_OUT'
             ]);
 
-            $settings = Cache::rememberForever(
-                'school_settings',
-                function () {
-                    return Settings::first();
-                }
-            );
-
+            $schoolId = session('school_id');
+            $settings = cache('school_settings_' . $schoolId);
+            $schoolId = $settings?->id;
             $input = trim($request->code);
 
             if (str_contains($input, '@')) {
@@ -44,20 +38,18 @@ class ScanController extends Controller
             ]);
 
             if (ctype_digit($input)) {
-
                 $normalizedInput = ltrim($input, '0');
-
                 $query->where(function ($q) use ($input, $normalizedInput) {
-
                     $q->where('qr_code', $input)
                         ->orWhere('id', $input)
-                        ->orWhereRaw('CAST(nfc_code AS UNSIGNED) = ?', [$normalizedInput ?: 0]);
+                        ->orWhereRaw(
+                            'CAST(nfc_code AS UNSIGNED) = ?',
+                            [$normalizedInput ?: 0]
+                        );
                 });
 
             } else {
-
                 $query->where(function ($q) use ($input) {
-
                     $q->where('nfc_code', $input)
                         ->orWhere('qr_code', $input);
                 });
@@ -66,7 +58,6 @@ class ScanController extends Controller
             $user = $query->first();
 
             if (!$user) {
-
                 return response()->json([
                     'status' => 'denied',
                     'message' => 'User not found.',
@@ -78,30 +69,49 @@ class ScanController extends Controller
             }
 
             $roles = $user->getRoleNames();
+            $lastLog = ScanLogs::whereDate('created_at', today())
+                ->where('UserID', $user->id)
+                ->latest()
+                ->first();
 
-            $mode = $request->mode === 'TIME_IN' ? 1 : 0;
+            $mode = 1;
 
-            $direction = $mode === 1 ? 'entry' : 'exit';
+            if ($lastLog) {
+                $mode = $lastLog->Mode == 1 ? 0 : 1;
+            }
+
+            $direction = $mode === 1
+                ? 'entry'
+                : 'exit';
 
             $attendanceStatus = 'present';
 
-            $lateGraceMinutes = (int) ($settings?->LateGraceMinutes ?? 15);
+            $lateGraceMinutes = (int) (
+                $settings?->LateGraceMinutes ?? 15
+            );
 
             $now = now();
 
-            $morningInTime = Carbon::today()->setTimeFromTimeString(
-                $settings?->OfficialTimeIn ?? '07:00:00'
-            );
+            $morningInTime = Carbon::today()
+                ->setTimeFromTimeString(
+                    $settings?->OfficialTimeIn ?? '07:00:00'
+                );
 
-            $lunchOutTime = Carbon::today()->setTime(12, 0);
+            $lunchOutTime = Carbon::today()
+                ->setTime(12, 0);
 
-            $afternoonInTime = Carbon::today()->setTime(13, 0);
+            $afternoonInTime = Carbon::today()
+                ->setTime(13, 0);
 
-            $finalOutTime = Carbon::today()->setTimeFromTimeString(
-                $settings?->OfficialTimeOut ?? '17:00:00'
-            );
+            $finalOutTime = Carbon::today()
+                ->setTimeFromTimeString(
+                    $settings?->OfficialTimeOut ?? '17:00:00'
+                );
 
-            $todayLogs = ScanLogs::whereDate('created_at', today())
+            $todayLogs = ScanLogs::whereDate(
+                'created_at',
+                today()
+            )
                 ->where('UserID', $user->id);
 
             if ($mode === 1) {
@@ -190,9 +200,10 @@ class ScanController extends Controller
                 'scan_type' => 'nfc',
                 'direction' => $direction,
                 'attendance_status' => $attendanceStatus,
+                'school_id' => $schoolId,
             ]);
 
-            $verificationCode = "VC-" . str_pad(
+            $verificationCode = 'VC-' . str_pad(
                     $scanLog->id,
                     10,
                     '0',
@@ -220,7 +231,7 @@ class ScanController extends Controller
                 array_filter($phoneNumbers)
             );
 
-            $schoolName = $settings['school_name']
+            $schoolName = $settings?->SchoolName
                 ?? env('SCHOOL_NAME', 'School');
 
             $entryText = $direction === 'entry'
@@ -233,11 +244,13 @@ class ScanController extends Controller
                 default => ''
             };
 
-//            dd($user->guardianInfo);
-
-            $message = ($user->studentInfo?->guardian?->LastName
-                    ? 'Dear Mr/Mrs. ' . $user->studentInfo->guardian->LastName . ", \n"
-                    : '')
+            $message = (
+                $user->studentInfo?->guardian?->LastName
+                    ? 'Dear Mr/Mrs. '
+                    . $user->studentInfo->guardian->LastName
+                    . ",\n"
+                    : ''
+                )
                 . $user->name
                 . ' just '
                 . $entryText
@@ -249,20 +262,31 @@ class ScanController extends Controller
                 . '. Code: '
                 . $verificationCode;
 
-            $smsEnabled = (int) ($settings['sms_enabled'] ?? 1);
-
-//            dd($smsEnabled);
+            $smsEnabled = (int) (
+                $settings?->sms_enabled ?? 1
+            );
 
             if ($smsEnabled === 1) {
+
                 foreach ($phoneNumbers as $number) {
-                    $cleanNumber = preg_replace('/[^0-9]/', '', $number);
+
+                    $cleanNumber = preg_replace(
+                        '/[^0-9]/',
+                        '',
+                        $number
+                    );
+
                     if (strlen($cleanNumber) >= 10) {
+
                         try {
+
                             $this->queueSMSSend(
                                 $cleanNumber,
                                 $message
                             );
+
                         } catch (\Throwable $smsError) {
+
                             report($smsError);
                         }
                     }
@@ -275,6 +299,9 @@ class ScanController extends Controller
                     ? 'Entry recorded successfully.'
                     : 'Exit recorded successfully.',
                 'attendance_status' => $attendanceStatus,
+                'mode' => $mode === 1
+                    ? 'TIME_IN'
+                    : 'TIME_OUT',
                 'name' => $user->name,
                 'role' => $roles
                     ->map(fn($role) => ucfirst($role))
@@ -282,7 +309,8 @@ class ScanController extends Controller
                 'photo' => $user->filepath
                     ? asset('storage/' . $user->filepath)
                     : asset('images/avatar.png'),
-                'time' => $scanLog->created_at->format('h:i A'),
+                'time' => $scanLog->created_at
+                    ->format('h:i A'),
                 'verification_code' => $verificationCode
             ]);
 
@@ -290,7 +318,9 @@ class ScanController extends Controller
 
             return response()->json([
                 'status' => 'denied',
-                'message' => $e->validator->errors()->first(),
+                'message' => $e->validator
+                    ->errors()
+                    ->first(),
                 'errors' => $e->errors(),
                 'name' => 'Validation Error',
                 'role' => [],
@@ -318,6 +348,7 @@ class ScanController extends Controller
     private function queueSMSSend($phoneNumber, $message)
     {
         $queue = new SmsQueuingModel();
+        $queue->school_id = session('school_id');
         $queue->PhoneNumber = $phoneNumber;
         $queue->Message = $message;
         $queue->remark = "pending";

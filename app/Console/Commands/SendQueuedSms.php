@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Settings;
+use App\Models\School;
 use App\Models\SmsQueuingModel;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
@@ -29,23 +29,13 @@ class SendQueuedSms extends Command
                 $message = 'SMS Scheduler Running: ' . now();
 
                 $this->info($message);
-
+                $SchoolID = session('school_id');
                 Log::info($message);
 
-                Cache::forget('school_settings');
+                Cache::forget('school_settings_' . $SchoolID);
 
-                $schoolSettings = Cache::rememberForever(
-                    'school_settings',
-                    function () {
+                $schoolSettings = cache('school_settings_' . $SchoolID);
 
-                        return Settings::query()
-                            ->with([
-                                'principal',
-                                'registrar'
-                            ])
-                            ->first();
-                    }
-                );
 
                 if (!$schoolSettings) {
 
@@ -365,7 +355,7 @@ class SendQueuedSms extends Command
                             $schoolSettings->sms_low_balance = 1;
                             $schoolSettings->save();
 
-                            Cache::forget('school_settings');
+                            Cache::forget('school_settings_' . $SchoolID);
 
                             $message =
                                 "SMS FAILED to {$sms->PhoneNumber}";
@@ -401,7 +391,7 @@ class SendQueuedSms extends Command
 
                         $schoolSettings->save();
 
-                        Cache::forget('school_settings');
+                        Cache::forget('school_settings_' . $SchoolID);
 
                         $message =
                             "SMS SENT to {$sms->PhoneNumber}";
@@ -424,7 +414,7 @@ class SendQueuedSms extends Command
 
                         $schoolSettings->save();
 
-                        Cache::forget('school_settings');
+                        Cache::forget('school_settings_' . $SchoolID);
 
                         $message = $e->getMessage();
 

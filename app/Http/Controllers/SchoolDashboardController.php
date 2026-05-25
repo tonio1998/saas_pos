@@ -4,36 +4,31 @@ namespace App\Http\Controllers;
 
 use App\Models\Parents;
 use App\Models\ScanLogs;
-use App\Models\Settings;
+use App\Models\School;
 use App\Models\Students;
 use App\Models\Employees;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
-class DashboardController extends Controller
+class SchoolDashboardController extends Controller
 {
     public $data = [];
+
     public function index()
     {
-        $teachers = Employees::count();
-        $parents = Parents::count();
-        $students = Students::count();
-
-        $this->data = [
-            'employees' => $teachers,
-            'parents' => $parents,
-            'students' => $students
-        ];
-        return view('pages.dashboard.index', $this->data);
+//        dd(session('school_id'));
+        return view(
+            'pages.schools.dashboard.index',
+            $this->data
+        );
     }
 
     public function data(Request $request)
     {
         $today = Carbon::today();
 
-        $settings = Settings::getSettings();
+        $settings = School::getSettings();
 
         $officialTimeIn = Carbon::parse(
             $settings->OfficialTimeIn
@@ -45,12 +40,10 @@ class DashboardController extends Controller
             $settings->OfficialTimeOut
         );
 
-        $students = DB::table('students')
-            ->whereNull('deleted_at')
+        $students = Students::query()
             ->count();
 
-        $employees = DB::table('employees')
-            ->whereNull('deleted_at')
+        $employees = Employees::query()
             ->count();
 
         $latestLogs = ScanLogs::query()
@@ -63,15 +56,24 @@ class DashboardController extends Controller
                 'attendance_status',
                 'created_at'
             )
-            ->whereDate('created_at', $today)
-            ->whereIn('id', function ($query) use ($today) {
+            ->whereDate(
+                'created_at',
+                $today
+            )
+            ->whereIn(
+                'id',
+                function ($query) use ($today) {
 
-                $query->selectRaw('MAX(id)')
-                    ->from('scan_logs')
-                    ->whereDate('created_at', $today)
-                    ->groupBy('UserID');
+                    $query->selectRaw('MAX(id)')
+                        ->from('scan_logs')
+                        ->whereDate(
+                            'created_at',
+                            $today
+                        )
+                        ->groupBy('UserID');
 
-            })
+                }
+            )
             ->get();
 
         $insideCampus = $latestLogs
@@ -119,50 +121,88 @@ class DashboardController extends Controller
                 'Mode',
                 'created_at'
             )
-            ->whereDate('created_at', $today)
-            ->whereHas('user.roles', function ($q) {
+            ->whereDate(
+                'created_at',
+                $today
+            )
+            ->whereHas(
+                'user.roles',
+                function ($q) {
 
-                $q->where('name', 'students');
+                    $q->where(
+                        'name',
+                        'students'
+                    );
 
-            })
+                }
+            )
             ->orderBy('created_at')
             ->get()
             ->groupBy('UserID');
 
         $lateStudents = 0;
+
         $earlyOutStudents = 0;
+
         foreach ($studentLogs as $logs) {
+
             $firstEntry = null;
+
             $lastExit = null;
+
             foreach ($logs as $log) {
-                if ($log->Mode == 1 && !$firstEntry) {
+
+                if (
+                    $log->Mode == 1 &&
+                    !$firstEntry
+                ) {
+
                     $firstEntry = $log;
+
                 }
+
                 if ($log->Mode == 0) {
+
                     $lastExit = $log;
+
                 }
+
             }
 
-            if ($firstEntry &&
+            if (
+                $firstEntry &&
                 Carbon::parse(
                     $firstEntry->created_at
                 )->gt($officialTimeIn)
             ) {
+
                 $lateStudents++;
+
             }
 
-            if ($lastExit &&
+            if (
+                $lastExit &&
                 Carbon::parse(
                     $lastExit->created_at
                 )->lt($officialTimeOut)
             ) {
+
                 $earlyOutStudents++;
+
             }
+
         }
 
         $visitors = ScanLogs::query()
-            ->whereDate('created_at', $today)
-            ->where('remarks', 'LIKE', '%visitor%')
+            ->whereDate(
+                'created_at',
+                $today
+            )
+            ->where(
+                'remarks',
+                'LIKE',
+                '%visitor%'
+            )
             ->distinct('UserID')
             ->count('UserID');
 
@@ -205,17 +245,29 @@ class DashboardController extends Controller
             });
 
         return response()->json([
+
             'students' => $students,
+
             'employees' => $employees,
+
             'insideCampus' => $insideCampus,
+
             'outsideCampus' => $outsideCampus,
+
             'lateStudents' => $lateStudents,
+
             'earlyOutStudents' => $earlyOutStudents,
+
             'studentEntries' => $studentEntries,
+
             'studentExits' => $studentExits,
+
             'employeesPresent' => $employeesPresent,
+
             'visitors' => $visitors,
+
             'recentLogs' => $recentLogs,
+
         ]);
     }
 }

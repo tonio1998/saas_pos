@@ -1,19 +1,19 @@
 @extends('layouts.app')
 
-@section('title','Student Management')
+@section('title','Parent Management')
 
 @section('content')
 
     @php
-        $isEdit = isset($student);
+        $isEdit = isset($parent);
     @endphp
 
         <form
             method="POST"
             action="{{
                 $isEdit
-                    ? route('students.update',encrypt($student->id))
-                    : route('students.store')
+                    ? route('parents.update',encrypt($parent->id))
+                    : route('parents.store')
             }}"
         >
 
@@ -30,7 +30,7 @@
                     <div class="page-hero-left">
 
                         <div class="page-hero-icon">
-                            <i class="bi bi-person-vcard"></i>
+                            <i class="bi bi-people-fill"></i>
                         </div>
 
                         <div>
@@ -38,13 +38,13 @@
                             <div class="page-hero-title">
                                 {{
                                     $isEdit
-                                        ? 'Edit Student Record'
-                                        : 'New Student Record'
+                                        ? 'Edit Parent Record'
+                                        : 'New Parent Record'
                                 }}
                             </div>
 
                             <div class="page-hero-subtitle">
-                                Manage learner information and registrar records
+                                Manage parent and guardian information
                             </div>
 
                         </div>
@@ -79,11 +79,11 @@
                                     <div>
 
                                         <div class="section-title">
-                                            Basic Information
+                                            Parent Information
                                         </div>
 
                                         <div class="section-subtitle">
-                                            Student profile and academic details
+                                            Parent and guardian profile details
                                         </div>
 
                                     </div>
@@ -95,75 +95,6 @@
                             <div class="row g-4">
 
                                 <x-form.group
-                                    name="LRN"
-                                    label="LRN"
-                                    class="col-xl-4 col-md-6"
-                                    required
-                                >
-
-                                    <x-form.input
-                                        name="LRN"
-                                        value="{{ old('LRN',$student->LRN ?? '') }}"
-                                        placeholder="Enter 12-digit LRN"
-                                        maxlength="12"
-                                    />
-
-                                </x-form.group>
-
-                                <x-form.group
-                                    name="YearLevel"
-                                    label="Year Level"
-                                    class="col-xl-4 col-md-6"
-                                    required
-                                >
-
-                                    <select
-                                        name="YearLevel"
-                                        class="form-select"
-                                    >
-
-                                        <option value="">
-                                            Select year level
-                                        </option>
-
-                                        @foreach([7,8,9,10,11,12] as $year)
-
-                                            <option
-                                                value="{{ $year }}"
-                                                {{
-                                                    old(
-                                                        'YearLevel',
-                                                        $student->YearLevel ?? ''
-                                                    ) == $year
-                                                        ? 'selected'
-                                                        : ''
-                                                }}
-                                            >
-                                                Grade {{ $year }}
-                                            </option>
-
-                                        @endforeach
-
-                                    </select>
-
-                                </x-form.group>
-
-                                <x-form.group
-                                    name="Strand"
-                                    label="Strand"
-                                    class="col-xl-4 col-md-12"
-                                    required
-                                >
-
-                                    <x-form.input
-                                        name="Strand"
-                                        value="{{ old('Strand',$student->Strand ?? '') }}"
-                                        placeholder="Enter strand"
-                                    />
-
-                                </x-form.group>
-
-                                <x-form.group
                                     name="FirstName"
                                     label="First Name"
                                     class="col-xl-3 col-md-6"
@@ -172,7 +103,7 @@
 
                                     <x-form.input
                                         name="FirstName"
-                                        value="{{ old('FirstName',$student->FirstName ?? '') }}"
+                                        value="{{ old('FirstName',$parent->FirstName ?? '') }}"
                                         placeholder="Enter first name"
                                     />
 
@@ -186,7 +117,7 @@
 
                                     <x-form.input
                                         name="MiddleName"
-                                        value="{{ old('MiddleName',$student->MiddleName ?? '') }}"
+                                        value="{{ old('MiddleName',$parent->MiddleName ?? '') }}"
                                         placeholder="Enter middle name"
                                     />
 
@@ -201,7 +132,7 @@
 
                                     <x-form.input
                                         name="LastName"
-                                        value="{{ old('LastName',$student->LastName ?? '') }}"
+                                        value="{{ old('LastName',$parent->LastName ?? '') }}"
                                         placeholder="Enter last name"
                                     />
 
@@ -229,7 +160,7 @@
                                                 {{
                                                     old(
                                                         'Suffix',
-                                                        $student->Suffix ?? ''
+                                                        $parent->Suffix ?? ''
                                                     ) == $suffix
                                                         ? 'selected'
                                                         : ''
@@ -253,64 +184,22 @@
 
                                     <x-form.input
                                         name="PhoneNumber"
-                                        value="{{ old('PhoneNumber',$student->PhoneNumber ?? '') }}"
+                                        value="{{ old('PhoneNumber',$parent->PhoneNumber ?? '') }}"
                                         placeholder="+639XXXXXXXXX"
                                     />
 
                                 </x-form.group>
 
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="card border-0 bg-transparent shadow-none">
-
-                    <div class="card-body p-0">
-
-                        <div class="page-glass-card">
-
-                            <div class="section-header">
-
-                                <div class="section-title-wrap">
-
-                                    <div class="section-icon">
-                                        <i class="bi bi-people-fill"></i>
-                                    </div>
-
-                                    <div>
-
-                                        <div class="section-title">
-                                            Guardian Information
-                                        </div>
-
-                                        <div class="section-subtitle">
-                                            Linked parent or guardian account
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                            <div class="row g-4">
-
                                 <x-form.group
-                                    name="GuardianID"
-                                    label="Guardian"
-                                    class="col-12"
+                                    name="Address"
+                                    label="Address"
+                                    class="col-xl-6 col-md-12"
                                 >
 
-                                    <x-form.select
-                                        name="GuardianID"
-                                        ajax="{{ route('select2.guardians') }}"
-                                        value="{{ old('GuardianID',$student->GuardianID ?? '') }}"
-                                        text="{{ ($student->guardian->FirstName ?? '').' '.($student->guardian->LastName ?? '') }}"
-                                        placeholder="Search guardian"
+                                    <x-form.input
+                                        name="Address"
+                                        value="{{ old('Address',$parent->Address ?? '') }}"
+                                        placeholder="Enter address"
                                     />
 
                                 </x-form.group>
@@ -328,7 +217,7 @@
                     <div class="d-flex justify-content-end gap-2">
 
                         <a
-                            href="{{ route('students.index') }}"
+                            href="{{ route('parents.index') }}"
                             class="btn btn-light border px-4"
                         >
                             Cancel
@@ -343,8 +232,8 @@
 
                             {{
                                 $isEdit
-                                    ? 'Update Student'
-                                    : 'Save Student'
+                                    ? 'Update Parent'
+                                    : 'Save Parent'
                             }}
 
                         </button>
@@ -356,7 +245,6 @@
             </div>
 
         </form>
-
 @endsection
 
 @section('styles')
@@ -376,3 +264,4 @@
     </style>
 
 @endsection
+

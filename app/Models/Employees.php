@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Tenantable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
@@ -10,10 +11,13 @@ class Employees extends Model implements AuditableContract
 {
     use SoftDeletes;
     use Auditable;
+    use Tenantable;
 
     protected $table = 'employees';
 
     protected $fillable = [
+        'EmailAddress',
+        'school_id',
         'UserID',
         'PhoneNumber',
         'FirstName',

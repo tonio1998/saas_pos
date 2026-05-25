@@ -3,23 +3,18 @@
 @section('title','Users')
 
 @section('content')
-    <x-page-header title="User Masterlist">
-        <x-slot name="description">
-            Manage all users in the system.
-        </x-slot>
+    <x-page-header title="Users" subtitle="Manage system users">
     </x-page-header>
     <x-card>
         <x-datatable
             id="usersTable"
-            :columns="['Actions','Photo','NFC','Name','Email', 'School','Logs','Role']"
-            :ajax="route('users.data')"
+            :columns="['Actions','Photo','NFC','Email', 'Logs','Role']"
+            :ajax="route('school-users.data')"
             :datatableColumns="[
                 ['data'=>'actions','orderable'=>false,'searchable'=>false],
                 ['data'=>'filepath'],
                 ['data' => 'nfc_code'],
-                ['data'=>'name'],
                 ['data'=>'email'],
-                ['data'=>'school'],
                 ['data'=>'logs'],
                 ['data'=>'role'],
             ]"

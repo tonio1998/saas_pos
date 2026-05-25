@@ -5,16 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\ScanLogs;
 use Illuminate\Http\Request;
 
-class LogsController extends Controller
+class SchoolLogsController extends Controller
 {
     public function index()
     {
-        return view('pages.logs.index');
+        return view('pages.schools.logs.index');
     }
 
     public function users()
     {
-        return view('pages.logs.users');
+        return view('pages.schools.logs.users');
     }
 
     public function users_data(Request $request)

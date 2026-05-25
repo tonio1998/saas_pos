@@ -179,7 +179,6 @@
                                     name="PhoneNumber"
                                     label="Phone Number"
                                     class="col-xl-6 col-md-12"
-                                    required
                                 >
 
                                     <x-form.input
@@ -194,6 +193,7 @@
                                     name="Address"
                                     label="Address"
                                     class="col-xl-6 col-md-12"
+                                    required
                                 >
 
                                     <x-form.input

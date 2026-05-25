@@ -20,16 +20,20 @@ function queueSMSSend($phoneNumber, $message)
 
 function generateQrCode()
 {
-    $prefix = env('SCHOOL_ID');
+    $prefix = cache('school_settings_' . session('school_id'))?->SchoolCode;
+    $schoolSettings = cache('school_settings_' . session('school_id'));
+    $schoolCode = $schoolSettings?->id;
 
-    $lastRow = QrCodes::where('prefix', 1)
-        ->orderBy('last_number', 'desc')
+    $lastRow = QrCodes::where('prefix', $prefix)
+        ->orderByDesc('last_number')
         ->first();
 
-    $newNumber = ($lastRow->last_number ?? 0) + 1;
+    $newNumber = ($lastRow?->last_number ?? 0) + 1;
 
     $qrCodeRow = new QrCodes();
+    $qrCodeRow->school_id = $schoolCode;
     $qrCodeRow->prefix = $prefix;
+//    $qrCodeRow->UserID = 0;
     $qrCodeRow->last_number = $newNumber;
     $qrCodeRow->created_by = 0;
     $qrCodeRow->updated_by = 0;

@@ -31,6 +31,8 @@
     justify-content:center;
 }
 
+
+
 @media (min-width:768px){
     .brand-logo{
         width:50px !important;
@@ -136,13 +138,23 @@
     background:var(--theme-bg);
     border-right:1px solid var(--theme-border);
     padding:14px 10px;
-    height:100vh;
+    height:calc(100vh - 64px);
     position:fixed;
     left:-260px;
     top:64px;
     overflow-y:auto;
     transition:.25s ease;
     z-index:1050;
+}
+
+.sidebar-inner {
+    height: 100%;
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 10px;
 }
 
 /* show sidebar */

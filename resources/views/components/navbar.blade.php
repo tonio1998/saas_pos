@@ -46,11 +46,11 @@
                 <div class="brand-info d-none d-sm-flex">
 
                     <div class="system-name">
-                        <?= $schoolSettings?->SystemTitle ?? 'SAFETRACK' ?>
+                        <?= $schoolSettings?->SystemTitle ?? 'SAFETRACK: A QR & NFC-Based Student Monitoring and Alert System' ?>
                     </div>
 
                     <div class="school-name">
-                        {{ $schoolSettings?->SchoolName ?? 'School Name' }}
+                        {{ $schoolSettings?->SchoolName ?? 'SURIGAO DEL NORTE STATE UNIVERSITY' }}
                     </div>
 
                 </div>
@@ -60,6 +60,68 @@
         </div>
 
         <div class="d-flex align-items-center gap-2 gap-md-3">
+
+            @if(session('school_id') && auth()->user()->hasRole('SA'))
+
+                <div class="dropdown">
+
+                    <button
+                        class="btn btn-light border d-flex align-items-center gap-2 dropdown-toggle"
+                        data-bs-toggle="dropdown"
+                    >
+
+                        <i class="bi bi-buildings"></i>
+
+                        <span class="d-none d-md-inline">
+                            {{ session('school_name') }}
+                        </span>
+
+                    </button>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+
+                        <li class="px-3 py-2">
+
+                            <div class="fw-semibold">
+                                {{ session('school_name') }}
+                            </div>
+
+                            <div class="small text-muted">
+                                Active School Context
+                            </div>
+
+                        </li>
+
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li>
+
+                            <form
+                                method="POST"
+                                action="{{ route('schools.close-context') }}"
+                            >
+
+                                @csrf
+
+                                <button
+                                    type="submit"
+                                    class="dropdown-item text-danger"
+                                >
+                                    <i class="bi bi-x-circle me-2"></i>
+                                    Close School
+                                </button>
+
+                            </form>
+
+                        </li>
+
+                    </ul>
+
+                </div>
+
+            @endif
 
             <button class="nav-icon position-relative">
                 <i class="bi bi-bell"></i>
@@ -139,213 +201,3 @@
     </div>
 
 </nav>
-
-<div
-    class="modal fade"
-    id="academicContextModal"
-    tabindex="-1"
->
-
-    <div class="modal-dialog modal-dialog-centered">
-
-        <div class="modal-content border-0 shadow">
-
-            <form
-                method="POST"
-                action="{{ route('academic-context.store') }}"
-            >
-
-                @csrf
-
-                <div class="modal-header border-0">
-
-                    <div>
-
-                        <h5 class="modal-title fw-semibold">
-                            Academic Context
-                        </h5>
-
-                        <div class="text-muted small">
-                            Switch academic year and semester
-                        </div>
-
-                    </div>
-
-                    <button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                    ></button>
-
-                </div>
-
-                <div class="modal-body">
-
-                    <div class="row g-3">
-
-                        <div class="col-12">
-
-                            <label class="form-label">
-                                Semester
-                            </label>
-
-                            <select
-                                name="Semester"
-                                class="form-select"
-                                required
-                            >
-
-                                @foreach($semesterNames as $key => $value)
-
-                                    <option
-                                        value="{{ $key }}"
-
-                                        {{
-                                            session(
-                                                'Semester',
-                                                1
-                                            ) == $key
-                                                ? 'selected'
-                                                : ''
-                                        }}
-                                    >
-                                        {{ $value }}
-                                    </option>
-
-                                @endforeach
-
-                            </select>
-
-                        </div>
-
-                        <div class="col-md-6">
-
-                            <label class="form-label">
-                                AY From
-                            </label>
-
-                            <select
-                                name="AYFrom"
-                                id="AYFrom"
-                                class="form-select"
-                                required
-                            >
-
-                                @for($i = 0; $i < 5; $i++)
-
-                                    @php
-                                        $year = $currentYear - $i;
-                                    @endphp
-
-                                    <option
-                                        value="{{ $year }}"
-
-                                        {{
-                                            session(
-                                                'AYFrom',
-                                                $currentYear
-                                            ) == $year
-                                                ? 'selected'
-                                                : ''
-                                        }}
-                                    >
-                                        {{ $year }}
-                                    </option>
-
-                                @endfor
-
-                            </select>
-
-                        </div>
-
-                        <div class="col-md-6">
-
-                            <label class="form-label">
-                                AY To
-                            </label>
-
-                            <input
-                                type="text"
-                                name="AYTo"
-                                id="AYTo"
-                                class="form-control bg-light"
-                                readonly
-
-                                value="{{
-                                    session(
-                                        'AYTo',
-                                        $currentYear + 1
-                                    )
-                                }}"
-                            >
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="modal-footer border-0">
-
-                    <button
-                        type="button"
-                        class="btn btn-light"
-                        data-bs-dismiss="modal"
-                    >
-                        Cancel
-                    </button>
-
-                    <button
-                        type="submit"
-                        class="btn btn-primary"
-                    >
-                        <i class="bi bi-check"></i>
-                        Apply Context
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
-
-    </div>
-
-</div>
-
-<script>
-
-    document.addEventListener(
-        'DOMContentLoaded',
-        function(){
-
-            const ayFrom =
-                document.getElementById(
-                    'AYFrom'
-                );
-
-            const ayTo =
-                document.getElementById(
-                    'AYTo'
-                );
-
-            function updateAYTo(){
-
-                ayTo.value =
-                    parseInt(
-                        ayFrom.value
-                    ) + 1;
-
-            }
-
-            updateAYTo();
-
-            ayFrom.addEventListener(
-                'change',
-                updateAYTo
-            );
-
-        }
-    );
-
-</script>

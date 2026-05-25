@@ -3,17 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\Parents;
+use App\Models\Employees;
 use App\Models\User;
+use App\Services\User\UserAccountService;
 use App\Traits\TCommonFunctions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
-class ParentsController extends Controller
+class SchoolEmployeesController extends Controller
 {
     use TCommonFunctions;
+    protected UserAccountService $userAccountService;
+
+    public function __construct(
+        UserAccountService $userAccountService
+    ) {
+
+        $this->userAccountService = $userAccountService;
+    }
+
+    public function employees_search(Request $request)
+    {
+        $search = $request->search;
+        $employees = Employees::query()
+            ->when($search,function($q) use ($search){
+                $q->where('FirstName', 'like', "%{$search}%")
+                    ->orWhere('LastName', 'like', "%{$search}%");
+            })
+            ->limit(10)
+            ->get();
+        return $employees->map(function($employee){
+            return [
+                'id'=>$employee->id,
+                'text'=>$employee->FirstName.' '.$employee->LastName
+            ];
+        });
+    }
     public function index()
     {
-        return view('pages.parents.index');
+//        dd(cache('school_settings'));
+        return view('pages.schools.employees.index');
     }
 
     public function edit($id)
@@ -24,91 +55,11 @@ class ParentsController extends Controller
             abort(404);
         }
 
-        $parent = Parents::findOrFail($id);
+        $teacher = Employees::findOrFail($id);
 
-        return view('pages.parents.create', compact('parent'));
+        return view('pages.schools.employees.create', compact('teacher'));
     }
 
-    public function store(Request $request)
-    {
-        $data = $request->validate(
-
-            [
-                'FirstName' => ['required','string','max:255'],
-                'MiddleName' => ['nullable','string','max:255'],
-                'LastName' => ['required','string','max:255'],
-                'Suffix' => ['nullable','string','max:255'],
-                'PhoneNumber' => ['required','regex:/^\+639\d{9}$/'],
-                'Address' => ['required','string','max:255'],
-                'UserID' => ['nullable','integer']
-            ],
-
-            [
-                'FirstName.required' => 'First Name is required.',
-                'LastName.required' => 'Last Name is required.',
-                'PhoneNumber.required' => 'Phone Number is required.',
-                'PhoneNumber.regex' => 'Phone Number is not valid.',
-                'Address.required' => 'Address is required.',
-            ]
-
-        );
-
-        DB::beginTransaction();
-
-        try {
-
-            $parent = new Parents();
-
-            $parent->FirstName = $data['FirstName'];
-            $parent->MiddleName = $data['MiddleName'] ?? null;
-            $parent->LastName = $data['LastName'];
-            $parent->Suffix = $data['Suffix'] ?? null;
-            $parent->PhoneNumber = $data['PhoneNumber'];
-            $parent->Address = $data['Address'];
-
-            $this->setCommonFields($parent);
-
-            $parent->save();
-
-            if (!empty($data['UserID'])) {
-
-                $user = User::find($data['UserID']);
-
-                if ($user) {
-
-                    $roleName = 'parents';
-
-                    if (!$user->hasRole($roleName)) {
-
-                        $user->assignRole($roleName);
-
-                    }
-
-                    $parent->UserID = $user->id;
-
-                    $parent->save();
-
-                }
-            }
-
-            DB::commit();
-
-            return redirect()
-                ->route('parents.index')
-                ->with('success','Parent created successfully');
-
-        } catch (\Exception $e) {
-
-            DB::rollBack();
-
-            return back()
-                ->withErrors([
-                    'general' => $e->getMessage()
-                ])
-                ->withInput();
-
-        }
-    }
     public function update(Request $request, $id)
     {
         try {
@@ -125,10 +76,9 @@ class ParentsController extends Controller
 
             [
                 'FirstName' => ['required','string','max:255'],
-                'MiddleName' => ['nullable','string','max:255'],
                 'LastName' => ['required','string','max:255'],
                 'Suffix' => ['nullable','string','max:255'],
-                'PhoneNumber' => ['required','regex:/^\+639\d{9}$/'],
+                'PhoneNumber' => ['nullable','regex:/^\+639\d{9}$/'],
                 'Address' => ['required','string','max:255'],
                 'UserID' => ['nullable','integer']
             ],
@@ -137,7 +87,7 @@ class ParentsController extends Controller
                 'FirstName.required' => 'First Name is required.',
                 'LastName.required' => 'Last Name is required.',
                 'PhoneNumber.required' => 'Phone Number is required.',
-                'PhoneNumber.regex' => 'Phone Number is not valid.',
+                'PhoneNumber.regex' => 'Phone Number is not valid. It should start with +63',
                 'Address.required' => 'Address is required.',
             ]
 
@@ -147,9 +97,9 @@ class ParentsController extends Controller
 
         try {
 
-            $parent = Parents::findOrFail($id);
+            $teacher = Employees::findOrFail($id);
 
-            $parent->update($data);
+            $teacher->update($data);
 
             if (!empty($data['UserID'])) {
 
@@ -157,7 +107,7 @@ class ParentsController extends Controller
 
                 if ($user) {
 
-                    $roleName = 'parents';
+                    $roleName = 'employees';
 
                     if (!$user->hasRole($roleName)) {
 
@@ -165,11 +115,11 @@ class ParentsController extends Controller
 
                     }
 
-                    if ($parent->UserID != $user->id) {
+                    if ($teacher->UserID != $user->id) {
 
-                        $parent->UserID = $user->id;
+                        $teacher->UserID = $user->id;
 
-                        $parent->save();
+                        $teacher->save();
 
                     }
                 }
@@ -178,8 +128,8 @@ class ParentsController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('parents.index')
-                ->with('success','Parent updated successfully');
+                ->route('employees.index')
+                ->with('success','Teacher updated successfully');
 
         } catch (\Exception $e) {
 
@@ -196,40 +146,131 @@ class ParentsController extends Controller
 
     public function create()
     {
-        return view('pages.parents.create');
+        return view('pages.schools.employees.create');
+    }
+
+    public function store(Request $request)
+    {
+        $schoolSettings = cache('school_settings_' . session('school_id'));
+        $schoolCode = $schoolSettings?->SchoolCode;
+        $schoolEmail = $schoolSettings?->EmailAddress
+            ?? env('SCHOOL_EMAIL', '@school.local');
+
+        $data = $request->validate(
+            [
+                'FirstName' => ['required','string','max:255'],
+                'MiddleName' => ['nullable','string','max:255'],
+                'LastName' => ['required','string','max:255'],
+                'Suffix' => ['nullable','string','max:255'],
+                'PhoneNumber' => ['nullable','regex:/^\+639\d{9}$/'],
+                'Address' => ['required','string','max:255'],
+            ],
+            [
+                'FirstName.required' => 'First Name is required.',
+                'MiddleName.string' => 'Middle Name must be a valid text.',
+                'LastName.required' => 'Last Name is required.',
+                'PhoneNumber.required' => 'Phone Number is required.',
+                'PhoneNumber.regex' => 'Phone Number is not valid.',
+                'Address.required' => 'Address is required.',
+            ]
+        );
+
+
+        DB::beginTransaction();
+
+        try {
+
+            $employee = new Employees();
+
+            $employee->fill([
+                ...$data,
+                'school_id' => $schoolSettings?->id
+            ]);
+
+            $this->setCommonFields($employee);
+
+            $employee->save();
+
+            $generatedEmail = $this->userAccountService
+                ->generateUsername(
+                    $data['FirstName'],
+                    $data['LastName'],
+                    $schoolEmail
+                );
+
+//            dd($generatedEmail);
+
+            $generatedPassword = strtoupper(Str::random(6));
+
+            $user = new User();
+            $user->conn_id = $employee->id;
+            $user->school_id = $schoolSettings?->id;
+            $user->name = strtoupper(trim($request->FirstName . ' ' . $request->LastName));
+            $user->email = $generatedEmail;
+            $user->password = Hash::make($generatedPassword);
+            $user->qr_code = generateQrCode();
+
+            $this->setCommonFields($user);
+
+            $user->save();
+
+            $user->assignRole('employees');
+            $employee->UserID = $user->id;
+            $employee->save();
+
+            DB::commit();
+
+            return redirect()
+                ->route('employees.index')
+                ->with([
+                    'success' => 'Teacher created successfully',
+                    'generated_username' => $user->email,
+                    'generated_password' => $generatedPassword
+                ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            dd($e);
+            return back()
+                ->withErrors([
+                    'general' => $e->getMessage()
+                ])
+                ->withInput();
+
+        }
     }
 
     public function ajaxData(Request $request)
     {
-        $query = Parents::with(['createdBy', 'parentUser']);
+        $query = Employees::with(['createdBy', 'teacherUser']);
 
         return datatables()
             ->eloquent($query)
-            ->addColumn('actions', function ($parent) {
+            ->addColumn('actions', function ($teacher) {
 
                 $editUrl = route(
-                    'parents.edit',
-                    encrypt($parent->id)
+                    'employees.edit',
+                    encrypt($teacher->id)
                 );
 
                 $passwordUrl = route(
                     'users.password',
                     [
-                        'parents',
-                        $parent->id,
-                        $parent->UserID ?? 0
+                        'employees',
+                        $teacher->id,
+                        $teacher->UserID ?? 0
                     ]
                 );
 
-                $passwordType = $parent->parentUser
+                $passwordType = $teacher->teacherUser
                     ? 'regenerate'
                     : 'generate';
 
-                $passwordLabel = $parent->parentUser
+                $passwordLabel = $teacher->teacherUser
                     ? 'Update Password'
                     : 'Generate Password';
 
-                $modalId = 'parentActionModal' . $parent->id;
+                $modalId = 'teacherActionModal' . $teacher->id;
 
                 $button = '
                     <button
@@ -253,7 +294,7 @@ class ParentsController extends Controller
                             class="btn btn-light text-start"
                         >
                             <i class="bi bi-pencil me-2 text-primary"></i>
-                            Edit Parent
+                            Edit Employee
                         </a>
                     ';
                             }
@@ -286,7 +327,7 @@ class ParentsController extends Controller
 
                                 <div class="modal-header">
                                     <h5 class="modal-title">
-                                        Parent Actions
+                                        Employee Actions
                                     </h5>
 
                                     <button
@@ -317,53 +358,23 @@ class ParentsController extends Controller
                     </div>
                 ';
             })
-            ->addColumn('name', function ($parent) {
-                $a = "<div class='fw-bold'>" . $parent->FirstName . ' ' . $parent->LastName . "</div>";
+            ->addColumn('name', function ($teacher) {
+                $a = "<div class='fw-bold text-uppercase'>" . $teacher->FirstName . ' ' . $teacher->LastName . "</div>";
                 return $a;
             })
-            ->addColumn('phone_number', function ($parent) {
-                return $parent->PhoneNumber;
+            ->addColumn('phone_number', function ($teacher) {
+                return $teacher->PhoneNumber;
             })
-            ->addColumn('address', function ($parent) {
-                return $parent->Address;
+            ->addColumn('address', function ($teacher) {
+                return $teacher->Address;
             })
-            ->addColumn('students', function ($parent) {
-                $a = '';
-                foreach ($parent->students as $student) {
-                    $a .= "<div class='text-muted'>" . $student->FirstName . ' ' . $student->LastName . "</div>";
-                }
-                return $a;
+            ->editColumn('created_at', function ($teacher) {
+                return $teacher->created_at->format('M d, Y h:i A');
             })
-            ->editColumn('created_at', function ($parent) {
-                return $parent->created_at->format('M d, Y h:i A');
-            })
-            ->addColumn('createdBy', function ($parent) {
-                return $parent->createdBy?->name;
-            })
-            ->filterColumn('name', function ($query, $keyword) {
-                $query->where(function ($q) use ($keyword) {
-                    $q->where('FirstName', 'like', "%{$keyword}%")
-                        ->orWhere('LastName', 'like', "%{$keyword}%");
-                });
+            ->addColumn('createdBy', function ($teacher) {
+                return $teacher->createdBy?->name;
             })
             ->rawColumns(['actions','students', 'name'])
             ->make(true);
-    }
-    public function parents_search(Request $request)
-    {
-        $search = $request->search;
-        $parents = Parents::query()
-            ->when($search,function($q) use ($search){
-                $q->where('FirstName', 'like', "%{$search}%")
-                    ->orWhere('LastName', 'like', "%{$search}%");
-            })
-            ->limit(10)
-            ->get();
-        return $parents->map(function($parent){
-            return [
-                'id'=>$parent->id,
-                'text'=>$parent->FirstName.' '.$parent->LastName
-            ];
-        });
     }
 }

@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Employees;
 use App\Models\NFCCodes;
 use App\Models\Parents;
 use App\Models\QrCodes;
+use App\Models\SchoolUsers;
 use App\Models\Students;
-use App\Models\Employees;
 use App\Models\User;
 use App\Services\User\UserAccountService;
 use App\Traits\TCommonFunctions;
@@ -19,8 +20,11 @@ use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Yajra\DataTables\DataTables;
 
-class UserController extends Controller
+class SchoolUsersController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
     use TCommonFunctions;
 
     protected UserAccountService $userAccountService;
@@ -33,17 +37,14 @@ class UserController extends Controller
     }
     public function index()
     {
-
-        $users = User::latest()->paginate(10);
-
-        return view('pages.users.index', compact('users'));
+        return view('pages.schools.users.index');
 
     }
 
     public function users_search(Request $request)
     {
         $search = $request->search;
-        $users = User::query()
+        $users = SchoolUsers::query()
             ->when($search,function($q) use ($search){
                 $q->where('name','like',"%{$search}%");
             })
@@ -59,19 +60,21 @@ class UserController extends Controller
 
     public function editRoles(Request $request)
     {
-        $user = User::findOrFail(decrypt($request->segment(2)));
-        $roles = Role::all();
+        $user = SchoolUsers::findOrFail(decrypt($request->segment(2)));
+        $roles = Role::query()
+            ->where('name', '!=', 'SA')
+            ->get();
         return view('pages.schools.users.roles',compact('user','roles'));
     }
 
     public function editPermissions(Request $request)
     {
-        $user = User::findOrFail(decrypt($request->segment(2)));
+        $user = SchoolUsers::findOrFail(decrypt($request->segment(2)));
         $permissions = Permission::all();
         return view('pages.schools.users.permissions',compact('user','permissions'));
     }
 
-    public function updateRoles(Request $request, User $user)
+    public function updateRoles(Request $request, SchoolUsers $user)
     {
         $roles = $request->roles ?? [];
         $user->syncRoles($roles);
@@ -79,7 +82,7 @@ class UserController extends Controller
         return redirect()->back()->with('success','Roles updated successfully.');
     }
 
-    public function updatePermissions(Request $request, User $user)
+    public function updatePermissions(Request $request, SchoolUsers $user)
     {
         $permissions = $request->permissions ?? [];
         $user->syncPermissions($permissions);
@@ -89,19 +92,19 @@ class UserController extends Controller
 
     public function users_data(Request $request)
     {
-        $users = User::query()
+        $users = SchoolUsers::query()
             ->with([
                 'roles:id,name',
-                'logs',
-                'school'
             ])
+            ->withCount('logs')
+            ->where('school_id', '!=', 0)
             ->select([
                 'id',
+                'school_id',
                 'name',
                 'email',
                 'filepath',
                 'nfc_code',
-                'school_id'
             ]);
 
         return DataTables::of($users)
@@ -122,8 +125,8 @@ class UserController extends Controller
                         onerror="this.onerror=null;this.src=\'' . $fallback . '\';"
                         class="rounded-circle border shadow-sm"
                         style="
-                            width:46px;
-                            height:46px;
+                            width:48px;
+                            height:48px;
                             object-fit:cover;
                         "
                     >
@@ -137,52 +140,38 @@ class UserController extends Controller
                         <div class="small text-muted text-truncate">
                             ' . e($user->email) . '
                         </div>
+
                     </div>
 
                 </div>
             ';
             })
-            ->addColumn('school', function ($user) {
-                if (!$user->school) {
+            ->addColumn('role', function ($user) {
+
+                if ($user->roles->isEmpty()) {
+
                     return '
-                        <span class="badge bg-light text-secondary border">
-                            No School
-                        </span>
-                    ';
+            <span class="badge bg-secondary-subtle text-secondary border">
+                No Role
+            </span>
+        ';
                 }
 
-                return '
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-buildings text-primary"></i>
-                        <span class="fs-8 text-dark">
-                            ' . e($user?->school?->SchoolName) . '
-                        </span>
-                    </div>
-                ';
-            })
-            ->addColumn('role', function ($user) {
-                $roles = $user->roles
-                    ->pluck('name')
+                return $user->roles
                     ->map(function ($role) {
 
                         return '
-                        <span class="badge bg-primary-subtle text-primary border fw-medium">
-                            ' . e($role) . '
-                        </span>
-                    ';
+                <span class="badge bg-primary-subtle text-primary border me-1 mb-1">
+                    ' . e(ucfirst($role->name)) . '
+                </span>
+            ';
                     })
-                    ->implode(' ');
-                return '<div class="mt-1 d-flex flex-wrap gap-1">
-                            ' . $roles . '
-                        </div>';
+                    ->implode('');
             })
             ->filterColumn('name', function ($query, $keyword) {
 
-                $query->where(
-                    'name',
-                    'LIKE',
-                    "%{$keyword}%"
-                );
+                $query->where('name', 'LIKE', "%{$keyword}%")
+                    ->orWhere('email', 'LIKE', "%{$keyword}%");
             })
 
             ->addColumn('logs', function ($user) {
@@ -190,13 +179,13 @@ class UserController extends Controller
                 return '
                 <div class="text-center">
 
-                    <div class="fw-bold fs-6 text-dark">
-                        ' . number_format($user->logs->count()) . '
+                    <div class="fw-bold text-success fs-6">
+                        ' . number_format($user->logs_count) . '
                     </div>
 
-                    <small class="text-muted">
+                    <div class="small text-muted">
                         Scan Logs
-                    </small>
+                    </div>
 
                 </div>
             ';
@@ -207,29 +196,28 @@ class UserController extends Controller
                 if (!$user->nfc_code) {
 
                     return '
-                    <span class="badge bg-light text-secondary border px-3 py-2 fw-medium">
-                        <i class="bi bi-x-circle me-1"></i>
-                        No NFC
-                    </span>
+                    <div class="text-center">
+                        <span class="badge rounded-pill bg-secondary-subtle text-secondary border px-3 py-2">
+                            <i class="bi bi-x-circle me-1"></i>
+                            No NFC
+                        </span>
+                    </div>
                 ';
                 }
 
                 return '
-                <span class="badge bg-success-subtle text-success border px-3 py-2 fw-medium">
-
-                    <i class="bi bi-credit-card-2-front me-1"></i>
-
-                    ' . e($user->nfc_code) . '
-
-                </span>
+                <div class="text-center">
+                    <span class="badge rounded-pill bg-success-subtle text-success border px-3 py-2">
+                        <i class="bi bi-credit-card-2-front me-1"></i>
+                        ' . e($user->nfc_code) . '
+                    </span>
+                </div>
             ';
             })
 
             ->addColumn('actions', function ($user) {
 
-                $encryptedId = encrypt(
-                    $user->id
-                );
+                $encryptedId = encrypt($user->id);
 
                 $permissionsUrl = route(
                     'users.permissions',
@@ -242,7 +230,7 @@ class UserController extends Controller
                 );
 
                 $nfcUrl = route(
-                    'users.nfc',
+                    'school-users.nfc',
                     $encryptedId
                 );
 
@@ -251,102 +239,49 @@ class UserController extends Controller
                     : 'Assign NFC';
 
                 return '
-                <div class="d-flex justify-content-center">
+                <div class="dropdown text-center">
 
-                    <div class="dropdown">
+                    <button
+                        class="btn btn-light btn-sm"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                    >
+                        <i class="bi bi-three-dots"></i>
+                    </button>
 
-                        <button
-                            class="
-                                btn
-                                btn-light
-                                btn-sm
-                                border
-                                shadow-sm
-                                rounded-pill
-                                px-3
-                            "
-                            type="button"
-                            data-bs-toggle="dropdown"
-                        >
+                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-4 p-2">
 
-                            <i class="bi bi-three-dots"></i>
+                        <li>
+                            <a
+                                href="' . $permissionsUrl . '"
+                                class="dropdown-item rounded-3 py-2"
+                            >
+                                <i class="bi bi-shield-lock me-2 text-primary"></i>
+                                Permissions
+                            </a>
+                        </li>
 
-                        </button>
+                        <li>
+                            <a
+                                href="' . $rolesUrl . '"
+                                class="dropdown-item rounded-3 py-2"
+                            >
+                                <i class="bi bi-person-badge me-2 text-warning"></i>
+                                Roles
+                            </a>
+                        </li>
 
-                        <ul
-                            class="
-                                dropdown-menu
-                                dropdown-menu-end
-                                border-0
-                                shadow-lg
-                                rounded-4
-                                p-2
-                            "
-                            style="
-                                min-width:220px;
-                            "
-                        >
+                        <li>
+                            <a
+                                href="' . $nfcUrl . '"
+                                class="dropdown-item rounded-3 py-2"
+                            >
+                                <i class="bi bi-credit-card-2-front me-2 text-success"></i>
+                                ' . $assignText . '
+                            </a>
+                        </li>
 
-                            <li>
-
-                                <a
-                                    href="' . $permissionsUrl . '"
-                                    class="
-                                        dropdown-item
-                                        rounded-3
-                                        py-2
-                                    "
-                                >
-
-                                    <i class="bi bi-key-fill me-2 text-primary"></i>
-
-                                    Assign Permissions
-
-                                </a>
-
-                            </li>
-
-                            <li>
-
-                                <a
-                                    href="' . $rolesUrl . '"
-                                    class="
-                                        dropdown-item
-                                        rounded-3
-                                        py-2
-                                    "
-                                >
-
-                                    <i class="bi bi-person-badge-fill me-2 text-warning"></i>
-
-                                    Assign Roles
-
-                                </a>
-
-                            </li>
-
-                            <li>
-
-                                <a
-                                    href="' . $nfcUrl . '"
-                                    class="
-                                        dropdown-item
-                                        rounded-3
-                                        py-2
-                                    "
-                                >
-
-                                    <i class="bi bi-credit-card-2-front-fill me-2 text-success"></i>
-
-                                    ' . $assignText . '
-
-                                </a>
-
-                            </li>
-
-                        </ul>
-
-                    </div>
+                    </ul>
 
                 </div>
             ';
@@ -358,7 +293,6 @@ class UserController extends Controller
                 'nfc_code',
                 'actions',
                 'role',
-                'school'
             ])
 
             ->make(true);
@@ -493,7 +427,7 @@ class UserController extends Controller
                 $user = new User();
                 $user->conn_id = $UserT->id;
                 $user->school_id = $schoolCode;
-                $user->name = strtoupper(trim($UserT->FirstName . ' ' . $UserT->LastName));
+                $user->name = trim($UserT->FirstName . ' ' . $UserT->LastName);
                 $user->email = $generatedEmail;
                 $user->password = Hash::make($generatedPassword);
                 $user->qr_code = generateQrCode();
@@ -503,7 +437,12 @@ class UserController extends Controller
                 $email = $user->email;
 
             }else{
+                $user->conn_id = $UserTypeID;
+                $user->name = $UserT->FirstName.' '.$UserT->LastName;
                 $user->password = Hash::make($newPassword);
+                if(empty($user->qr_code) || $user->qr_code == '0'){
+                    $user->qr_code = $this->generateQrCode();
+                }
                 $user->save();
 
                 $email = $user->email;
@@ -598,7 +537,6 @@ class UserController extends Controller
             $user = User::find($validated['userID']);
 
             if (!$user) {
-
                 return redirect()
                     ->route('users.index')
                     ->with('error', 'User not found.');
@@ -609,7 +547,6 @@ class UserController extends Controller
                 ->first();
 
             if ($nfcOwner) {
-
                 return redirect()
                     ->back()
                     ->withInput()
@@ -617,7 +554,6 @@ class UserController extends Controller
             }
 
             if ($user->nfc_code && !$request->has('force_replace')) {
-
                 return redirect()
                     ->back()
                     ->withInput()
@@ -635,8 +571,12 @@ class UserController extends Controller
                 'nfc_code' => trim($validated['nfc_uid'])
             ]);
 
+            $settings = cache('school_settings');
+            $schoolId = $settings?->id;
+
             $newNFC = new NFCCodes();
             $newNFC->UserID = $user->id;
+            $newNFC->school_id = $schoolId;
             $newNFC->nf_codes = trim($validated['nfc_uid']);
             $this->setCommonFields($newNFC);
             $newNFC->save();
@@ -650,16 +590,13 @@ class UserController extends Controller
                 ->with('success', $message);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
-
             return redirect()
                 ->back()
                 ->withErrors($e->validator)
                 ->withInput();
 
         } catch (\Throwable $e) {
-
             report($e);
-
             return redirect()
                 ->back()
                 ->withInput()
@@ -713,5 +650,4 @@ class UserController extends Controller
             ->back()
             ->with('success', 'User photo updated successfully');
     }
-
 }

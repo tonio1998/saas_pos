@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Parents;
 use App\Models\SchoolYear;
-use App\Models\Settings;
+use App\Models\School;
 use App\Traits\TCommonFunctions;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -121,7 +121,7 @@ class SchoolYearController extends Controller
 
         if ($i->IsActive) {
 
-            $settings = Settings::query()->first();
+            $settings = School::query()->first();
 
             if ($settings) {
 
@@ -197,7 +197,7 @@ class SchoolYearController extends Controller
 
         if ($schoolYear->IsActive) {
 
-            $settings = Settings::query()->first();
+            $settings = School::query()->first();
 
             if ($settings) {
 

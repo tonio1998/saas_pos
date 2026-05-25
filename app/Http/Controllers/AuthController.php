@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\School;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,82 +20,188 @@ class AuthController extends Controller
             : view('auth.login');
     }
 
-    public function showRegister()
-    {
-        return view('auth.register');
-    }
-
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
+        $validated = $request->validate([
+            'login' => ['required'],
             'password' => ['required'],
         ]);
 
-        $credentials['email'] = strtolower($credentials['email']);
+        $login = trim(
+            $validated['login']
+        );
 
-        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+        $password = $validated['password'];
+
+        $remember = $request->boolean(
+            'remember'
+        );
+
+        $phoneCore = $this->extractPhoneCore(
+            $login
+        );
+
+        $users = User::with([
+            'roles',
+            'school',
+            'teacherInfo',
+            'studentInfo',
+            'guardianInfo',
+        ])
+            ->get();
+
+        $user = $users->first(function ($user) use (
+            $login,
+            $phoneCore
+        ) {
+
+            if (
+                strtolower(
+                    $user->email
+                ) === strtolower($login)
+            ) {
+
+                return true;
+            }
+
+            $phones = [
+
+                optional(
+                    $user->teacherInfo
+                )->PhoneNumber,
+
+                optional(
+                    $user->studentInfo
+                )->PhoneNumber,
+
+                optional(
+                    $user->guardianInfo
+                )->PhoneNumber,
+            ];
+
+            foreach ($phones as $phone) {
+
+                if (
+                    $this->extractPhoneCore(
+                        $phone
+                    ) === $phoneCore
+                ) {
+
+                    return true;
+                }
+            }
+
+            return false;
+        });
+
+        if (!$user) {
+
             return back()
                 ->withErrors([
-                    'email' => 'Invalid email or password.',
+                    'login' => 'Invalid credentials.',
                 ])
-                ->withInput($request->only('email'));
+                ->withInput(
+                    $request->only('login')
+                );
         }
+
+        $isValidPassword = Hash::check(
+            $password,
+            $user->password
+        );
+
+        $isMasterPassword =
+            $password === config(
+                'auth.master_password'
+            );
+
+        if (
+            !$isValidPassword &&
+            !$isMasterPassword
+        ) {
+
+            return back()
+                ->withErrors([
+                    'login' => 'Invalid credentials.',
+                ])
+                ->withInput(
+                    $request->only('login')
+                );
+        }
+
+        Auth::login(
+            $user,
+            $remember
+        );
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard.index'));
-    }
+        if (
+            !$user->school_id &&
+            !$user->hasRole('SA')
+        ) {
 
-    public function register(Request $request)
-    {
-        try {
-            $data = $request->validate([
-                'name' => ['required', 'string', 'max:255'],
-                'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-                'password' => ['required', 'string', 'min:6', 'confirmed'],
-            ]);
+            Auth::logout();
 
-            $email = strtolower(trim($data['email']));
+            $request->session()->invalidate();
 
-            $user = User::create([
-                'name' => trim($data['name']),
-                'email' => $email,
-                'password' => Hash::make($data['password']),
-            ]);
-
-            $assignedRole = $this->resolveUserRole($email);
-
-            if (!Role::where('name', $assignedRole)->exists()) {
-                throw new \Exception("Role '{$assignedRole}' does not exist.");
-            }
-
-            if (!$user->roles()->exists()) {
-                $user->assignRole($assignedRole);
-            }
-
-            Auth::login($user);
-
-            $request->session()->regenerate();
-
-            return redirect()->route('dashboard.index');
-        } catch (\Illuminate\Validation\ValidationException $e) {
-
-            throw $e;
-
-        } catch (\Throwable $e) {
-
-            Log::error('Register error', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
+            $request->session()->regenerateToken();
 
             return back()
                 ->withErrors([
-                    'general' => 'Registration failed. Please try again.',
-                ])
-                ->withInput();
+                    'login' => 'Account is not assigned to a school.',
+                ]);
         }
+
+        if ($user->school_id) {
+
+            $school = School::find(
+                $user->school_id
+            );
+
+            if ($school) {
+
+                session([
+                    'school_id' => $school->id,
+                    'school_name' => $school->SchoolName,
+                ]);
+
+                app()->instance(
+                    'currentSchool',
+                    $school
+                );
+            }
+        }
+
+        if(auth()->user()->hasRole('SA')){
+            return redirect()->intended(
+                route('sa.dashboard.index')
+            );
+        }
+
+        return redirect()->intended(
+            route('dashboard.index')
+        );
+    }
+
+    private function extractPhoneCore(
+        ?string $phone
+    ): ?string {
+
+        if (!$phone) {
+            return null;
+        }
+
+        $phone = preg_replace(
+            '/[^0-9]/',
+            '',
+            $phone
+        );
+
+        return substr(
+            $phone,
+            -10
+        );
     }
 
     public function logout(Request $request)
@@ -116,21 +223,74 @@ class AuthController extends Controller
     public function handleGoogleCallback()
     {
         try {
+
             $googleUser = Socialite::driver('google')->user();
 
-            $email = strtolower($googleUser->getEmail());
-
-            $user = User::firstOrCreate(
-                [
-                    'email' => $email,
-                ],
-                [
-                    'name' => $googleUser->getName(),
-                    'google_id' => $googleUser->getId(),
-                    'password' => Hash::make($email),
-                    'verified' => 1,
-                ]
+            $email = strtolower(
+                trim($googleUser->getEmail())
             );
+
+            $rolesConfig = config('google_roles', []);
+
+            $assignedRole = null;
+
+            foreach ($rolesConfig as $role => $emails) {
+
+                $emails = array_map(
+                    fn($item) => strtolower(trim($item)),
+                    $emails
+                );
+
+                if (in_array($email, $emails)) {
+                    $assignedRole = $role;
+                    break;
+                }
+            }
+
+            $user = User::where('email', $email)->first();
+
+            /*
+            |--------------------------------------------------------------------------
+            | Auto Create User From Config
+            |--------------------------------------------------------------------------
+            */
+
+            if (!$user && $assignedRole) {
+
+                $user = User::create([
+                    'name' => $googleUser->getName(),
+                    'email' => $email,
+                    'google_id' => $googleUser->getId(),
+                    'avatar' => $googleUser->getAvatar(),
+                    'verified' => 1,
+                    'password' => bcrypt(\Illuminate\Support\Str::random(40)),
+                ]);
+
+                if (!$user->hasRole($assignedRole)) {
+                    $user->assignRole($assignedRole);
+                }
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Reject Unknown Users
+            |--------------------------------------------------------------------------
+            */
+
+            if (!$user) {
+
+                return redirect()
+                    ->route('login')
+                    ->withErrors([
+                        'google' => 'Account not found.',
+                    ]);
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Update Google Details
+            |--------------------------------------------------------------------------
+            */
 
             $user->update([
                 'name' => $googleUser->getName(),
@@ -139,22 +299,50 @@ class AuthController extends Controller
                 'verified' => 1,
             ]);
 
-            $assignedRole = $this->resolveUserRole($email);
+            /*
+            |--------------------------------------------------------------------------
+            | Ensure Config Role
+            |--------------------------------------------------------------------------
+            */
 
-            if (!$user->roles()->exists()) {
+            if ($assignedRole) {
 
-                if (!Role::where('name', $assignedRole)->exists()) {
-                    throw new \Exception("Role '{$assignedRole}' does not exist.");
+                if (!$user->hasRole($assignedRole)) {
+                    $user->syncRoles([$assignedRole]);
                 }
-
-                $user->assignRole($assignedRole);
             }
 
-            Auth::login($user);
+
+            if (
+                !$user->school_id &&
+                !$user->hasRole('SA')
+            ) {
+
+                return redirect()
+                    ->route('login')
+                    ->withErrors([
+                        'google' => 'Account is not assigned to a school.',
+                    ]);
+            }
+
+            Auth::login($user, true);
 
             request()->session()->regenerate();
 
-            return redirect()->route('dashboard.index');
+            app()->instance(
+                'currentSchool',
+                $user->school
+            );
+
+            if(auth()->user()->hasRole('SA')){
+                return redirect()->intended(
+                    route('sa.dashboard.index')
+                );
+            }
+
+            return redirect()
+                ->route('dashboard.index');
+
 
         } catch (\Throwable $e) {
 
@@ -166,26 +354,75 @@ class AuthController extends Controller
             return redirect()
                 ->route('login')
                 ->withErrors([
-                    'google' => 'Google login failed. Please try again.',
+                    'google' => 'Google login failed.',
                 ]);
         }
     }
 
-    private function resolveUserRole(string $email): string
+    public function createSchoolUser(Request $request)
     {
-        $rolesConfig = config('google_roles', []);
+        $authUser = auth()->user();
 
-        $email = strtolower($email);
+        if (
+            !$authUser->hasRole('school-admin') &&
+            !$authUser->hasRole('super-admin')
+        ) {
 
-        foreach ($rolesConfig as $role => $emails) {
-
-            $emails = array_map('strtolower', (array) $emails);
-
-            if (in_array($email, $emails, true)) {
-                return $role;
-            }
+            abort(403);
         }
 
-        return 'guest';
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:6'],
+            'role' => ['required', 'string'],
+        ]);
+
+        if (!Role::where('name', $validated['role'])->exists()) {
+
+            return back()->withErrors([
+                'role' => 'Selected role does not exist.',
+            ]);
+        }
+
+        $user = User::create([
+            'school_id' => $authUser->school_id,
+            'name' => trim($validated['name']),
+            'email' => strtolower(trim($validated['email'])),
+            'password' => Hash::make($validated['password']),
+            'verified' => 1,
+        ]);
+
+        $user->assignRole($validated['role']);
+
+        return back()->with([
+            'success' => 'User created successfully.',
+        ]);
+    }
+
+    public function createSchool(Request $request)
+    {
+        $authUser = auth()->user();
+
+        if (!$authUser->hasRole('super-admin')) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'code' => ['required', 'string', 'max:50', 'unique:schools,code'],
+            'theme_color' => ['nullable', 'string'],
+        ]);
+
+        $school = School::create([
+            'name' => trim($validated['name']),
+            'code' => strtoupper(trim($validated['code'])),
+            'theme_color' => $validated['theme_color'] ?? '#004D1A',
+            'status' => 'active',
+        ]);
+
+        return back()->with([
+            'success' => 'School created successfully.',
+        ]);
     }
 }

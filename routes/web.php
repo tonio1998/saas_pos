@@ -1,24 +1,27 @@
 <?php
 
 use App\Http\Controllers\AcademicContextController;
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SADashboardController;
+use App\Http\Controllers\SchoolDashboardController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\GradeLevelController;
-use App\Http\Controllers\LogsController;
-use App\Http\Controllers\ParentsController;
+use App\Http\Controllers\SchoolLogsController;
+use App\Http\Controllers\SchoolParentsController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\ScanController;
-use App\Http\Controllers\ScannerController;
+use App\Http\Controllers\SchoolScanController;
+use App\Http\Controllers\SchoolScannerController;
+use App\Http\Controllers\SchoolController;
+use App\Http\Controllers\SchoolUsersController;
 use App\Http\Controllers\SchoolYearController;
 use App\Http\Controllers\ClassesController;
 use App\Http\Controllers\SemestersController;
-use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\SchoolSettingsController;
 use App\Http\Controllers\SMSController;
 use App\Http\Controllers\StrandsController;
-use App\Http\Controllers\StudentsController;
-use App\Http\Controllers\EmployeesController;
+use App\Http\Controllers\SchoolStudentsController;
+use App\Http\Controllers\SchoolEmployeesController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -41,9 +44,34 @@ Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('g
 Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 
 Route::middleware('auth')->group(function(){
+    Route::prefix('sa')->name('sa.')->group(function(){
+        Route::prefix('dashboard')->name('dashboard.')->group(function(){
+            Route::get('/', [SADashboardController::class, 'index'])->name('index');
+            Route::get('/data', [SADashboardController::class, 'data'])->name('data');
+        });
+    });
     Route::prefix('dashboard')->name('dashboard.')->group(function(){
-        Route::get('/', [DashboardController::class, 'index'])->name('index');
-        Route::get('/data', [DashboardController::class, 'data'])->name('data');
+        Route::get('/', [SchoolDashboardController::class, 'index'])->name('index');
+        Route::get('/data', [SchoolDashboardController::class, 'data'])->name('data');
+    });
+
+    Route::prefix('school-users')->name('school-users.')->group(function(){
+        Route::get('/', [SchoolUsersController::class, 'index'])->name('index');
+        Route::get('data', [SchoolUsersController::class, 'users_data'])->name('data');
+        Route::get('/create', [SchoolUsersController::class, 'create'])->name('create');
+        Route::post('/', [SchoolUsersController::class, 'store'])->name('store');
+        Route::get('/{user}/edit', [SchoolUsersController::class, 'edit'])->name('edit');
+        Route::put('/{user}', [SchoolUsersController::class, 'update'])->name('update');
+        Route::delete('/{user}', [SchoolUsersController::class, 'destroy'])->name('destroy');
+        Route::get('/{user}/roles', [SchoolUsersController::class,'editRoles'])->name('roles');
+        Route::get('/{user}/permissions', [SchoolUsersController::class,'editPermissions'])->name('permissions');
+        Route::put('/{user}/roles',[SchoolUsersController::class,'updateRoles'])->name('roles.update');
+        Route::put('/{user}/permissions',[SchoolUsersController::class,'updatePermissions'])->name('permissions.update');
+        Route::get('/{user}/change-photo', [SchoolUsersController::class,'changePhoto'])->name('change-photo');
+        Route::post('/upload', [SchoolUsersController::class,'upload'])->name('upload');
+        Route::get('/print-id/{id}', [SchoolUsersController::class, 'printID'])->name('printID');
+        Route::get('/{id}/nfc', [SchoolUsersController::class, 'nfc'])->name('nfc');
+        Route::post('/nfc/assign', [SchoolUsersController::class, 'assignNfc'])->name('nfc.assign');
     });
 
     Route::prefix('users')->name('users.')->group(function () {
@@ -68,37 +96,37 @@ Route::middleware('auth')->group(function(){
     });
 
     Route::prefix('logs')->name('logs.')->group(function(){
-        Route::get('/index', [LogsController::class, 'index'])->name('index');
-        Route::get('/data', [LogsController::class, 'logs_data'])->name('data');
-        Route::get('/users', [LogsController::class, 'users'])->name('users');
-        Route::get('/users/data', [LogsController::class, 'users_data'])->name('users.data');
+        Route::get('/index', [SchoolLogsController::class, 'index'])->name('index');
+        Route::get('/data', [SchoolLogsController::class, 'logs_data'])->name('data');
+        Route::get('/users', [SchoolLogsController::class, 'users'])->name('users');
+        Route::get('/users/data', [SchoolLogsController::class, 'users_data'])->name('users.data');
     });
 
     Route::prefix('students')->name('students.')->group(function(){
-        Route::get('/index', [StudentsController::class, 'index'])->name('index');
-        Route::get('/edit/{id}', [StudentsController::class, 'edit'])->name('edit');
-        Route::put('/update/{id}', [StudentsController::class, 'update'])->name('update');
-        Route::get('/create', [StudentsController::class, 'create'])->name('create');
-        Route::post('/create', [StudentsController::class, 'store'])->name('store');
-        Route::get('/data', [StudentsController::class, 'ajaxData'])->name('data');
+        Route::get('/index', [SchoolStudentsController::class, 'index'])->name('index');
+        Route::get('/edit/{id}', [SchoolStudentsController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [SchoolStudentsController::class, 'update'])->name('update');
+        Route::get('/create', [SchoolStudentsController::class, 'create'])->name('create');
+        Route::post('/create', [SchoolStudentsController::class, 'store'])->name('store');
+        Route::get('/data', [SchoolStudentsController::class, 'ajaxData'])->name('data');
     });
 
     Route::prefix('employees')->name('employees.')->group(function(){
-        Route::get('/index', [EmployeesController::class, 'index'])->name('index');
-        Route::get('/edit/{id}', [EmployeesController::class, 'edit'])->name('edit');
-        Route::put('/update/{id}', [EmployeesController::class, 'update'])->name('update');
-        Route::get('/create', [EmployeesController::class, 'create'])->name('create');
-        Route::post('/create', [EmployeesController::class, 'store'])->name('store');
-        Route::get('/data', [EmployeesController::class, 'ajaxData'])->name('data');
+        Route::get('/index', [SchoolEmployeesController::class, 'index'])->name('index');
+        Route::get('/edit/{id}', [SchoolEmployeesController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [SchoolEmployeesController::class, 'update'])->name('update');
+        Route::get('/create', [SchoolEmployeesController::class, 'create'])->name('create');
+        Route::post('/create', [SchoolEmployeesController::class, 'store'])->name('store');
+        Route::get('/data', [SchoolEmployeesController::class, 'ajaxData'])->name('data');
     });
 
     Route::prefix('parents')->name('parents.')->group(function(){
-        Route::get('/index', [ParentsController::class, 'index'])->name('index');
-        Route::get('/edit/{id}', [ParentsController::class, 'edit'])->name('edit');
-        Route::put('/update/{id}', [ParentsController::class, 'update'])->name('update');
-        Route::get('/create', [ParentsController::class, 'create'])->name('create');
-        Route::post('/create', [ParentsController::class, 'store'])->name('store');
-        Route::get('/data', [ParentsController::class, 'ajaxData'])->name('data');
+        Route::get('/index', [SchoolParentsController::class, 'index'])->name('index');
+        Route::get('/edit/{id}', [SchoolParentsController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [SchoolParentsController::class, 'update'])->name('update');
+        Route::get('/create', [SchoolParentsController::class, 'create'])->name('create');
+        Route::post('/create', [SchoolParentsController::class, 'store'])->name('store');
+        Route::get('/data', [SchoolParentsController::class, 'ajaxData'])->name('data');
     });
 
     Route::prefix('permissions')->name('permissions.')->group(function(){
@@ -120,11 +148,11 @@ Route::middleware('auth')->group(function(){
     });
 
     Route::prefix('settings')->name('settings.')->group(function(){
-        Route::get('', [SettingsController::class, 'index'])->name('index');
-        Route::post('', [SettingsController::class, 'store'])->name('store');
-        Route::get('/edit/{id}', [SettingsController::class, 'edit'])->name('edit');
-        Route::post('/store', [SettingsController::class, 'store'])->name('store');
-        Route::get('/data', [SettingsController::class, 'ajaxData'])->name('data');
+        Route::get('', [SchoolSettingsController::class, 'index'])->name('index');
+        Route::post('', [SchoolSettingsController::class, 'store'])->name('store');
+        Route::get('/edit/{id}', [SchoolSettingsController::class, 'edit'])->name('edit');
+        Route::post('/store', [SchoolSettingsController::class, 'store'])->name('store');
+        Route::get('/data', [SchoolSettingsController::class, 'ajaxData'])->name('data');
     });
 
     Route::prefix('school-years')->name('school_years.')->group(function(){
@@ -194,10 +222,25 @@ Route::middleware('auth')->group(function(){
     Route::prefix('select2')->name('select2.')->group(function(){
         Route::get('roles/search',[RoleController::class,'search'])->name('roles');
         Route::get('users/search',[UserController::class,'users_search'])->name('users');
-        Route::get('guardians/search',[ParentsController::class,'parents_search'])->name('guardians');
-        Route::get('employees/search',[EmployeesController::class,'employees_search'])->name('employees');
-        Route::get('students/search',[StudentsController::class,'students_search'])->name('students');
+        Route::get('guardians/search',[SchoolParentsController::class,'parents_search'])->name('guardians');
+        Route::get('employees/search',[SchoolEmployeesController::class,'employees_search'])->name('employees');
+        Route::get('students/search',[SchoolStudentsController::class,'students_search'])->name('students');
         Route::get('classes/search',[ClassesController::class,'sections_search'])->name('classes');
+    });
+
+    Route::prefix('schools')->name('schools.')->group(function(){
+        Route::get('/', [SchoolController::class, 'index'])->name('index');
+        Route::get('/create', [SchoolController::class, 'create'])->name('create');
+        Route::post('/', [SchoolController::class, 'store'])->name('store');
+        Route::get('/edit/{id}', [SchoolController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [SchoolController::class, 'update'])->name('update');
+        Route::get('/data', [SchoolController::class, 'ajaxData'])->name('data');
+        Route::get('/show/{id}', [SchoolController::class, 'show'])->name('show');
+
+        Route::post(
+            '/close-context',
+            [SchoolController::class, 'closeContext']
+        )->name('close-context');
     });
 
     Route::prefix('academic-context')->name('academic-context.')->group(function(){
@@ -206,8 +249,8 @@ Route::middleware('auth')->group(function(){
 
 });
 
-Route::post('/scan',[ScanController::class,'scan'])->name('scan');
+Route::post('/scan',[SchoolScanController::class,'scan'])->name('scan');
 Route::prefix('scanner')->name('scanner.')->group(function(){
-    Route::get('/', [ScannerController::class, 'index'])->name('index');
-    Route::post('/send-sms', [ScannerController::class, 'send']);
+    Route::get('/', [SchoolScannerController::class, 'index'])->name('index');
+    Route::post('/send-sms', [SchoolScannerController::class, 'send']);
 });

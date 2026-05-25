@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Process\Process;
 
-class ScannerController extends Controller
+class SchoolScannerController extends Controller
 {
     public function index(){
-        return view('pages.scanner.index');
+        return view('pages.schools.scanner.index');
     }
 }

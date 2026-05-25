@@ -1030,45 +1030,30 @@
                 );
 
                 function processScan(code){
-
                     fetch('/scan',{
-
                         method:'POST',
-
                         headers:{
-                            'Content-Type':
-                                'application/json',
-
+                            'Content-Type': 'application/json',
                             'X-CSRF-TOKEN':
                             document.querySelector(
                                 'meta[name="csrf-token"]'
                             ).content
                         },
-
                         body:JSON.stringify({
                             code,
                             mode:scanMode
                         })
-
                     })
                         .then(async response => {
-
-                            const data =
-                                await response.json();
-
+                            const data = await response.json();
                             if(!response.ok){
                                 throw data;
                             }
-
                             updateScannerUI(data);
-
                             addLog(data);
-
                             processing = false;
-
                         })
                         .catch(error => {
-
                             showErrorState();
 
                             processing = false;
@@ -1105,13 +1090,10 @@
                     );
 
                     if(data.status === 'success'){
-
                         playSuccessSound();
-
                         flashSuccess();
 
-                        if(scanMode === 'TIME_IN'){
-
+                        if(data.mode === 'TIME_IN'){
                             greetingText.innerText =
                                 '👋 WELCOME';
 
@@ -1139,7 +1121,6 @@
                             );
 
                         }else{
-
                             greetingText.innerText =
                                 '🚪 GOODBYE';
 
