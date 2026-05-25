@@ -14,27 +14,29 @@ class LoadSchoolSettings
     public function handle(Request $request, Closure $next): Response
     {
         $schoolId = session('school_id');
-//        dd($schoolId);
+
         $schoolSettings = null;
 
         if ($schoolId) {
 
-            $cacheKey = 'school_settings_' . $schoolId;
-
-            $schoolSettings = Cache::rememberForever(
-                $cacheKey,
+            $schoolSettings = Cache::remember(
+                'school_settings_'.$schoolId,
+                now()->addHours(12),
                 function () use ($schoolId) {
 
-                    $school = School::query()
+                    return School::query()
+                        ->select([
+                            'id',
+                            'SchoolName',
+                            'ThemeColor',
+                            'principal_id',
+                            'registrar_id'
+                        ])
                         ->with([
-                            'principal',
-                            'registrar'
+                            'principal:id,FirstName,LastName',
+                            'registrar:id,FirstName,LastName'
                         ])
                         ->find($schoolId);
-
-                    return $school
-                        ? (object) $school->toArray()
-                        : null;
                 }
             );
         }
@@ -71,9 +73,7 @@ class LoadSchoolSettings
                 'border' => $isLight
                     ? 'rgba(0,0,0,0.06)'
                     : 'rgba(255,255,255,0.08)',
-
             ]
-
         ]);
 
         return $next($request);
