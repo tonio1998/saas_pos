@@ -29,6 +29,7 @@ return [
     |
     */
 
+
     'connections' => [
 
         'sqlite' => [
@@ -61,6 +62,51 @@ return [
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 (PHP_VERSION_ID >= 80500 ? \Pdo\Mysql::ATTR_SSL_CA : \PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
+            'dump' => [
+
+                'dump_binary_path' => collect([
+                    'C:\wamp64\bin\mysql',
+                    'C:\xampp\mysql\bin',
+                ])
+
+                    ->filter(fn ($path) =>
+                    is_dir($path)
+                    )
+
+                    ->map(function ($basePath) {
+
+                        if (
+                            str_contains(
+                                strtolower($basePath),
+                                'xampp'
+                            )
+                        ) {
+
+                            return $basePath;
+                        }
+
+                        $folders = collect(
+                            glob($basePath . '\mysql*')
+                        )
+
+                            ->filter(fn ($folder) =>
+                            is_dir($folder)
+                            )
+
+                            ->sortDesc()
+
+                            ->values();
+
+                        return $folders->first()
+                            ? $folders->first() . '\bin'
+                            : null;
+                    })
+
+                    ->filter()
+
+                    ->first(),
+
+            ],
         ],
 
         'mariadb' => [

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\School;
 use App\Models\User;
+use App\Services\SecurityService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -96,6 +97,13 @@ class AuthController extends Controller
 
         if (!$user) {
 
+            app(SecurityService::class)
+                ->logLogin(
+                    $request,
+                    null,
+                    'failed'
+                );
+
             return back()
                 ->withErrors([
                     'login' => 'Invalid credentials.',
@@ -120,6 +128,13 @@ class AuthController extends Controller
             !$isMasterPassword
         ) {
 
+            app(SecurityService::class)
+                ->logLogin(
+                    $request,
+                    $user,
+                    'failed'
+                );
+
             return back()
                 ->withErrors([
                     'login' => 'Invalid credentials.',
@@ -140,6 +155,13 @@ class AuthController extends Controller
             !$user->school_id &&
             !$user->hasRole('SA')
         ) {
+
+            app(SecurityService::class)
+                ->logLogin(
+                    $request,
+                    $user,
+                    'failed'
+                );
 
             Auth::logout();
 
@@ -173,7 +195,17 @@ class AuthController extends Controller
             }
         }
 
-        if(auth()->user()->hasRole('SA')){
+        app(SecurityService::class)
+            ->logLogin(
+                $request,
+                auth()->user(),
+                'success'
+            );
+
+        if (
+            auth()->user()->hasRole('SA')
+        ) {
+
             return redirect()->intended(
                 route('sa.dashboard.index')
             );
@@ -206,6 +238,15 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        if (auth()->check()) {
+
+            app(SecurityService::class)
+                ->logLogout(
+                    $request,
+                    auth()->user()
+                );
+        }
+
         Auth::logout();
 
         $request->session()->invalidate();
@@ -217,45 +258,63 @@ class AuthController extends Controller
 
     public function redirectToGoogle()
     {
-        return Socialite::driver('google')->redirect();
+        return Socialite::driver('google')
+            ->redirect();
     }
 
     public function handleGoogleCallback()
     {
         try {
 
-            $googleUser = Socialite::driver('google')->user();
+            $googleUser = Socialite::driver('google')
+                ->user();
 
             $email = strtolower(
-                trim($googleUser->getEmail())
+                trim(
+                    $googleUser->getEmail()
+                )
             );
 
-            $rolesConfig = config('google_roles', []);
+            $rolesConfig = config(
+                'google_roles',
+                []
+            );
 
             $assignedRole = null;
 
-            foreach ($rolesConfig as $role => $emails) {
+            foreach (
+                $rolesConfig as $role => $emails
+            ) {
 
                 $emails = array_map(
-                    fn($item) => strtolower(trim($item)),
+                    fn ($item) => strtolower(
+                        trim($item)
+                    ),
                     $emails
                 );
 
-                if (in_array($email, $emails)) {
+                if (
+                    in_array(
+                        $email,
+                        $emails
+                    )
+                ) {
+
                     $assignedRole = $role;
+
                     break;
                 }
             }
 
-            $user = User::where('email', $email)->first();
+            $user = User::where(
+                'email',
+                $email
+            )->first();
 
-            /*
-            |--------------------------------------------------------------------------
-            | Auto Create User From Config
-            |--------------------------------------------------------------------------
-            */
-
-            if (!$user && $assignedRole) {
+            if (
+                !$user &&
+                $assignedRole
+            ) {
 
                 $user = User::create([
                     'name' => $googleUser->getName(),
@@ -263,21 +322,31 @@ class AuthController extends Controller
                     'google_id' => $googleUser->getId(),
                     'avatar' => $googleUser->getAvatar(),
                     'verified' => 1,
-                    'password' => bcrypt(\Illuminate\Support\Str::random(40)),
+                    'password' => bcrypt(
+                        \Illuminate\Support\Str::random(40)
+                    ),
                 ]);
 
-                if (!$user->hasRole($assignedRole)) {
-                    $user->assignRole($assignedRole);
+                if (
+                    !$user->hasRole(
+                        $assignedRole
+                    )
+                ) {
+
+                    $user->assignRole(
+                        $assignedRole
+                    );
                 }
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | Reject Unknown Users
-            |--------------------------------------------------------------------------
-            */
-
             if (!$user) {
+
+                app(SecurityService::class)
+                    ->logLogin(
+                        request(),
+                        null,
+                        'failed'
+                    );
 
                 return redirect()
                     ->route('login')
@@ -286,12 +355,6 @@ class AuthController extends Controller
                     ]);
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | Update Google Details
-            |--------------------------------------------------------------------------
-            */
-
             $user->update([
                 'name' => $googleUser->getName(),
                 'google_id' => $googleUser->getId(),
@@ -299,24 +362,31 @@ class AuthController extends Controller
                 'verified' => 1,
             ]);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Ensure Config Role
-            |--------------------------------------------------------------------------
-            */
-
             if ($assignedRole) {
 
-                if (!$user->hasRole($assignedRole)) {
-                    $user->syncRoles([$assignedRole]);
+                if (
+                    !$user->hasRole(
+                        $assignedRole
+                    )
+                ) {
+
+                    $user->syncRoles([
+                        $assignedRole
+                    ]);
                 }
             }
-
 
             if (
                 !$user->school_id &&
                 !$user->hasRole('SA')
             ) {
+
+                app(SecurityService::class)
+                    ->logLogin(
+                        request(),
+                        $user,
+                        'failed'
+                    );
 
                 return redirect()
                     ->route('login')
@@ -327,14 +397,26 @@ class AuthController extends Controller
 
             Auth::login($user, true);
 
-            request()->session()->regenerate();
+            request()
+                ->session()
+                ->regenerate();
 
             app()->instance(
                 'currentSchool',
                 $user->school
             );
 
-            if(auth()->user()->hasRole('SA')){
+            app(SecurityService::class)
+                ->logLogin(
+                    request(),
+                    auth()->user(),
+                    'success'
+                );
+
+            if (
+                auth()->user()->hasRole('SA')
+            ) {
+
                 return redirect()->intended(
                     route('sa.dashboard.index')
                 );
@@ -343,13 +425,22 @@ class AuthController extends Controller
             return redirect()
                 ->route('dashboard.index');
 
-
         } catch (\Throwable $e) {
 
-            Log::error('Google login error', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
+            Log::error(
+                'Google login error',
+                [
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]
+            );
+
+            app(SecurityService::class)
+                ->logLogin(
+                    request(),
+                    null,
+                    'failed'
+                );
 
             return redirect()
                 ->route('login')
@@ -359,26 +450,56 @@ class AuthController extends Controller
         }
     }
 
-    public function createSchoolUser(Request $request)
-    {
+    public function createSchoolUser(
+        Request $request
+    ) {
+
         $authUser = auth()->user();
 
         if (
-            !$authUser->hasRole('school-admin') &&
-            !$authUser->hasRole('super-admin')
+            !$authUser->hasRole(
+                'school-admin'
+            ) &&
+            !$authUser->hasRole(
+                'super-admin'
+            )
         ) {
 
             abort(403);
         }
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:6'],
-            'role' => ['required', 'string'],
+            'name' => [
+                'required',
+                'string',
+                'max:255'
+            ],
+
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                'unique:users,email'
+            ],
+
+            'password' => [
+                'required',
+                'string',
+                'min:6'
+            ],
+
+            'role' => [
+                'required',
+                'string'
+            ],
         ]);
 
-        if (!Role::where('name', $validated['role'])->exists()) {
+        if (
+            !Role::where(
+                'name',
+                $validated['role']
+            )->exists()
+        ) {
 
             return back()->withErrors([
                 'role' => 'Selected role does not exist.',
@@ -387,37 +508,77 @@ class AuthController extends Controller
 
         $user = User::create([
             'school_id' => $authUser->school_id,
-            'name' => trim($validated['name']),
-            'email' => strtolower(trim($validated['email'])),
-            'password' => Hash::make($validated['password']),
+            'name' => trim(
+                $validated['name']
+            ),
+            'email' => strtolower(
+                trim(
+                    $validated['email']
+                )
+            ),
+            'password' => Hash::make(
+                $validated['password']
+            ),
             'verified' => 1,
         ]);
 
-        $user->assignRole($validated['role']);
+        $user->assignRole(
+            $validated['role']
+        );
 
         return back()->with([
             'success' => 'User created successfully.',
         ]);
     }
 
-    public function createSchool(Request $request)
-    {
+    public function createSchool(
+        Request $request
+    ) {
+
         $authUser = auth()->user();
 
-        if (!$authUser->hasRole('super-admin')) {
+        if (
+            !$authUser->hasRole(
+                'super-admin'
+            )
+        ) {
+
             abort(403);
         }
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'code' => ['required', 'string', 'max:50', 'unique:schools,code'],
-            'theme_color' => ['nullable', 'string'],
+            'name' => [
+                'required',
+                'string',
+                'max:255'
+            ],
+            'code' => [
+                'required',
+                'string',
+                'max:50',
+                'unique:schools,code'
+            ],
+            'theme_color' => [
+                'nullable',
+                'string'
+            ],
         ]);
 
-        $school = School::create([
-            'name' => trim($validated['name']),
-            'code' => strtoupper(trim($validated['code'])),
-            'theme_color' => $validated['theme_color'] ?? '#004D1A',
+        School::create([
+            'name' => trim(
+                $validated['name']
+            ),
+
+            'code' => strtoupper(
+                trim(
+                    $validated['code']
+                )
+            ),
+
+            'theme_color' =>
+                $validated['theme_color']
+                ?? '#004D1A',
+
             'status' => 'active',
         ]);
 

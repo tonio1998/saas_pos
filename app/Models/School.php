@@ -10,6 +10,8 @@ class School extends Model
     protected $table = 'school';
 
     protected $fillable = [
+        'alias_name',
+        'code',
         'SystemTitle',
         'SchoolName',
         'SchoolCode',

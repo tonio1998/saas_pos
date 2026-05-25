@@ -551,9 +551,7 @@ class SchoolController extends Controller
                 </div>
             ';
             })
-
             ->addColumn('logo', function ($school) {
-
                 $src = $school->Logo
                     ? asset('storage/' . $school->Logo)
                     : asset('images/default-school.png');
@@ -574,7 +572,6 @@ class SchoolController extends Controller
             })
 
             ->addColumn('school', function ($school) {
-
                 return '
                 <div class="fw-semibold text-uppercase">
                     ' . e($school->SchoolName) . '
@@ -587,7 +584,6 @@ class SchoolController extends Controller
             })
 
             ->addColumn('code', function ($school) {
-
                 return '
                 <div class="fw-medium">
                     ' . e($school->SchoolCode ?? '-') . '

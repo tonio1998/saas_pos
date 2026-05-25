@@ -1,6 +1,11 @@
 <?php
 
 use App\Http\Controllers\AcademicContextController;
+use App\Http\Controllers\ActiveSessionController;
+use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\BackupController;
+use App\Http\Controllers\LoginActivityController;
+use App\Http\Controllers\PlatformAnalyticsController;
 use App\Http\Controllers\SADashboardController;
 use App\Http\Controllers\SchoolDashboardController;
 use App\Http\Controllers\EnrollmentController;
@@ -22,6 +27,9 @@ use App\Http\Controllers\SMSController;
 use App\Http\Controllers\StrandsController;
 use App\Http\Controllers\SchoolStudentsController;
 use App\Http\Controllers\SchoolEmployeesController;
+use App\Http\Controllers\SupportTicketController;
+use App\Http\Controllers\SuspiciousActivityController;
+use App\Http\Controllers\SystemSettingController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -43,13 +51,192 @@ Route::post('/logout',[AuthController::class,'logout'])->name('logout');
 Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('google.redirect');
 Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 
-Route::middleware('auth')->group(function(){
-    Route::prefix('sa')->name('sa.')->group(function(){
-        Route::prefix('dashboard')->name('dashboard.')->group(function(){
-            Route::get('/', [SADashboardController::class, 'index'])->name('index');
-            Route::get('/data', [SADashboardController::class, 'data'])->name('data');
-        });
+Route::prefix('sa')->name('sa.')->middleware([
+    'auth'
+])->group(function () {
+    Route::get('/dashboard', [
+        SADashboardController::class,
+        'index'
+    ])->name('dashboard.index');
+    Route::get('/dashboard/data', [
+        SADashboardController::class,
+        'data'
+    ])->name('.data');
+
+    Route::prefix('backups')->name('backups.')->group(function(){
+        Route::get('/', [BackupController::class, 'index'])
+            ->name('index');
+
+        Route::post('/generate', [BackupController::class, 'generate'])
+            ->name('generate');
+
+        Route::get('/list', [BackupController::class, 'list'])
+            ->name('list');
+
+        Route::get('/download/{file}', [BackupController::class, 'download'])
+            ->name('download');
+
+        Route::delete('/{file}', [BackupController::class, 'destroy'])
+            ->name('destroy');
     });
+
+    Route::prefix('activity-logs')
+        ->name('activity-logs.')
+        ->controller(AuditLogController::class)
+        ->group(function () {
+
+            Route::get('/', 'index')
+                ->name('index');
+
+            Route::get('/data', 'data')
+                ->name('data');
+
+        });
+
+    Route::prefix('security')
+        ->name('security.')
+        ->group(function () {
+
+            Route::prefix('login-activities')
+                ->name('login-activities.')
+                ->controller(LoginActivityController::class)
+                ->group(function () {
+
+                    Route::get(
+                        '/',
+                        'index'
+                    )->name('index');
+
+                    Route::get(
+                        '/data',
+                        'data'
+                    )->name('data');
+
+                });
+
+            Route::prefix('active-sessions')
+                ->name('active-sessions.')
+                ->controller(ActiveSessionController::class)
+                ->group(function () {
+
+                    Route::get(
+                        '/',
+                        'index'
+                    )->name('index');
+
+                    Route::get(
+                        '/data',
+                        'data'
+                    )->name('data');
+
+                    Route::post(
+                        '/revoke/{id}',
+                        'revoke'
+                    )->name('revoke');
+
+                });
+
+            Route::prefix('suspicious-activities')
+                ->name('suspicious-activities.')
+                ->controller(
+                    SuspiciousActivityController::class
+                )
+                ->group(function () {
+
+                    Route::get(
+                        '/',
+                        'index'
+                    )->name('index');
+
+                    Route::get(
+                        '/data',
+                        'data'
+                    )->name('data');
+
+                });
+
+        });
+
+    Route::prefix('platform-analytics')
+        ->name('platform-analytics.')
+        ->group(function () {
+
+            Route::get('/', [PlatformAnalyticsController::class, 'index'])
+                ->name('index');
+
+            Route::get('/overview-data', [PlatformAnalyticsController::class, 'overviewData'])
+                ->name('overview-data');
+
+            Route::get('/login-trends', [PlatformAnalyticsController::class, 'loginTrends'])
+                ->name('login-trends');
+
+            Route::get('/security-trends', [PlatformAnalyticsController::class, 'securityTrends'])
+                ->name('security-trends');
+
+            Route::get('/device-analytics', [PlatformAnalyticsController::class, 'deviceAnalytics'])
+                ->name('device-analytics');
+
+            Route::get('/school-analytics', [PlatformAnalyticsController::class, 'schoolAnalytics'])
+            ->name('school-analytics');
+
+        });
+
+    Route::prefix('system-settings')
+        ->name('system-settings.')
+        ->group(function () {
+
+            Route::get(
+                '/',
+                [SystemSettingController::class, 'index']
+            )->name('index');
+
+            Route::put(
+                '/',
+                [SystemSettingController::class, 'update']
+            )->name('update');
+        });
+
+});
+
+Route::prefix('support-center')
+    ->name('support-center.')
+    ->middleware([
+        'auth',
+    ])
+    ->group(function () {
+
+        Route::get(
+            '/',
+            [SupportTicketController::class, 'index']
+        )->name('index');
+
+        Route::get(
+            '/datatable',
+            [SupportTicketController::class, 'datatable']
+        )->name('datatable');
+
+        Route::post(
+            '/',
+            [SupportTicketController::class, 'store']
+        )->name('store');
+
+        Route::get(
+            '/{ticket}',
+            [SupportTicketController::class, 'show']
+        )->name('show');
+
+        Route::post(
+            '/{ticket}/reply',
+            [SupportTicketController::class, 'reply']
+        )->name('reply');
+
+        Route::put(
+            '/{ticket}/status',
+            [SupportTicketController::class, 'updateStatus']
+        )->name('update-status');
+    });
+
+Route::middleware('auth')->group(function(){
     Route::prefix('dashboard')->name('dashboard.')->group(function(){
         Route::get('/', [SchoolDashboardController::class, 'index'])->name('index');
         Route::get('/data', [SchoolDashboardController::class, 'data'])->name('data');

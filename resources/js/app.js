@@ -19,6 +19,9 @@ import Swal from 'sweetalert2'
 window.Swal = Swal
 import './roles-drag.js'
 import './permissions-drag.js'
+import Chart from 'chart.js/auto';
+
+window.Chart = Chart;
 document.addEventListener("DOMContentLoaded",function(){
     document.querySelectorAll(".password-toggle").forEach(toggle=>{
         toggle.addEventListener("click",function(){

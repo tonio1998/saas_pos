@@ -13,3 +13,6 @@ Artisan::command('inspire', function () {
 Schedule::command('sms:send')
     ->everyMinute()
     ->withoutOverlapping();
+
+Schedule::command('sms:process')
+    ->everyMinute();

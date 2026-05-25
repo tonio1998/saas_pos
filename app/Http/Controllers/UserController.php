@@ -154,7 +154,7 @@ class UserController extends Controller
                 return '
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-buildings text-primary"></i>
-                        <span class="fs-8 text-dark">
+                        <span class="text-dark" style="font-size:0.7rem;">
                             ' . e($user?->school?->SchoolName) . '
                         </span>
                     </div>
@@ -241,15 +241,6 @@ class UserController extends Controller
                     $encryptedId
                 );
 
-                $nfcUrl = route(
-                    'users.nfc',
-                    $encryptedId
-                );
-
-                $assignText = $user->nfc_code
-                    ? 'Update NFC'
-                    : 'Assign NFC';
-
                 return '
                 <div class="d-flex justify-content-center">
 
@@ -320,25 +311,6 @@ class UserController extends Controller
                                     <i class="bi bi-person-badge-fill me-2 text-warning"></i>
 
                                     Assign Roles
-
-                                </a>
-
-                            </li>
-
-                            <li>
-
-                                <a
-                                    href="' . $nfcUrl . '"
-                                    class="
-                                        dropdown-item
-                                        rounded-3
-                                        py-2
-                                    "
-                                >
-
-                                    <i class="bi bi-credit-card-2-front-fill me-2 text-success"></i>
-
-                                    ' . $assignText . '
 
                                 </a>
 

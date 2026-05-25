@@ -3,6 +3,92 @@
 
 use App\Models\QrCodes;
 use App\Models\SmsQueuingModel;
+use App\Models\SystemSetting;
+use Illuminate\Support\Str;
+
+
+if (!function_exists('system_settings')) {
+
+    function system_settings()
+    {
+        return cache()->rememberForever(
+            'system_settings',
+            function () {
+
+                return SystemSetting::first();
+            }
+        );
+    }
+}
+
+function formatAuditMessage(
+    $audit
+): string {
+
+    $user = optional(
+        $audit->user
+    )->name ?? 'System';
+
+    $model = Str::of(
+        class_basename(
+            $audit->auditable_type
+        )
+    )
+        ->snake()
+        ->replace('_', ' ')
+        ->singular()
+        ->lower();
+
+    $article = in_array(
+        substr($model, 0, 1),
+        ['a', 'e', 'i', 'o', 'u']
+    )
+        ? 'an'
+        : 'a';
+
+    return match ($audit->event) {
+
+        'created' =>
+
+            $user .
+            ' created ' .
+            $article .
+            ' ' .
+            $model,
+
+        'updated' =>
+
+            $user .
+            ' updated ' .
+            $article .
+            ' ' .
+            $model,
+
+        'deleted' =>
+
+            $user .
+            ' deleted ' .
+            $article .
+            ' ' .
+            $model,
+
+        'restored' =>
+
+            $user .
+            ' restored ' .
+            $article .
+            ' ' .
+            $model,
+
+        default =>
+
+            $user .
+            ' performed an action on ' .
+            $article .
+            ' ' .
+            $model,
+    };
+}
 
 function queueSMSSend($phoneNumber, $message)
 {

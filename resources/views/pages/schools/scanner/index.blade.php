@@ -4,7 +4,7 @@
 
 @section('content')
 
-    <div class="container-fluid kiosk-wrap p-0">
+    <div class="container-fluid kiosk-wrap p-0" style="background: var(--theme-bg);">
 
         <div class="scanner-bg"></div>
         <div class="scanner-bg scanner-bg-2"></div>
@@ -32,7 +32,7 @@
 
         <div id="live-clock"></div>
 
-        <div class="scanner-body">
+        <div class="scanner-body bg-white">
 
             <div class="scanner-card">
 

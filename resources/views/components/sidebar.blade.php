@@ -1,9 +1,14 @@
 <div class="sidebar d-flex flex-column">
 
     <div class="sidebar-scroll flex-grow-1">
-
-        @role('SA')
+        @if(
+                        auth()->user()->hasRole('SA') &&
+                        !session('school_id')
+                    )
         <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link text-muted">SUPER ADMIN</a>
+            </li>
             <li class="sidebar-item">
                 <a
                     href="{{ route('sa.dashboard.index') }}"
@@ -15,6 +20,57 @@
                 </span>
                 </a>
             </li>
+            @can('schools.view')
+                <li class="sidebar-item">
+                    <a href="{{ route('schools.index') }}" class="sidebar-link {{ request()->routeIs('schools.*') ? 'active' : '' }}">
+                        <i class="bi bi-buildings sidebar-icon"></i>
+                        <span>School Management</span>
+                    </a>
+                </li>
+            @endcan
+            @canany(['permissions.view','roles.view'])
+                <li class="sidebar-item">
+                    <a
+                        class="sidebar-link"
+                        data-bs-toggle="collapse"
+                        href="#rolesMenu"
+                        role="button"
+                    >
+                        <i class="bi bi-shield-check sidebar-icon"></i>
+                        <span>Role & Permission</span>
+                        <i class="bi bi-chevron-down dropdown-icon"></i>
+                    </a>
+
+                    <div
+                        class="collapse sidebar-dropdown"
+                        id="rolesMenu"
+                    >
+
+                        @can('permissions.view')
+                            <a
+                                href="{{ route('permissions.index') }}"
+                                class="sidebar-sublink"
+                            >
+                                <i class="bi bi-key-fill sidebar-subicon"></i>
+                                <span>Permissions</span>
+                            </a>
+                        @endcan
+
+                        @can('roles.view')
+                            <a
+                                href="{{ route('roles.index') }}"
+                                class="sidebar-sublink"
+                            >
+                                <i class="bi bi-person-workspace sidebar-subicon"></i>
+                                <span>Roles</span>
+                            </a>
+                        @endcan
+
+                    </div>
+
+                </li>
+            @endcanany
+
             <li class="sidebar-item">
                 <a class="sidebar-link" data-bs-toggle="collapse" href="#usersMenu" role="button">
                     <i class="bi bi-shield-check sidebar-icon"></i>
@@ -29,7 +85,7 @@
                 </div>
             </li>
         </ul>
-        @endrole
+        @endif
 
         @if(session('school_id'))
             <ul class="sidebar-menu">
@@ -363,86 +419,6 @@
         @endif
 
     </div>
-
-    <div class="sidebar-footer">
-
-        <ul class="sidebar-menu mb-0">
-
-            @if(
-                auth()->user()->hasRole('SA') &&
-                !session('school_id')
-            )
-
-                @canany([
-                    'permissions.view',
-                    'roles.view'
-                ])
-                    <li class="sidebar-item">
-
-                        <a
-                            class="sidebar-link"
-                            data-bs-toggle="collapse"
-                            href="#rolesMenu"
-                            role="button"
-                        >
-                            <i class="bi bi-shield-check sidebar-icon"></i>
-                            <span>Role & Permission</span>
-                            <i class="bi bi-chevron-down dropdown-icon"></i>
-                        </a>
-
-                        <div
-                            class="collapse sidebar-dropdown"
-                            id="rolesMenu"
-                        >
-
-                            @can('permissions.view')
-                                <a
-                                    href="{{ route('permissions.index') }}"
-                                    class="sidebar-sublink"
-                                >
-                                    <i class="bi bi-key-fill sidebar-subicon"></i>
-                                    <span>Permissions</span>
-                                </a>
-                            @endcan
-
-                            @can('roles.view')
-                                <a
-                                    href="{{ route('roles.index') }}"
-                                    class="sidebar-sublink"
-                                >
-                                    <i class="bi bi-person-workspace sidebar-subicon"></i>
-                                    <span>Roles</span>
-                                </a>
-                            @endcan
-
-                        </div>
-
-                    </li>
-                @endcanany
-
-                @can('schools.view')
-                    <li class="sidebar-item">
-
-                        <a
-                            href="{{ route('schools.index') }}"
-                            class="sidebar-link {{ request()->routeIs('schools.*') ? 'active' : '' }}"
-                        >
-
-                            <i class="bi bi-buildings sidebar-icon"></i>
-
-                            <span>
-                                School Management
-                            </span>
-
-                        </a>
-
-                    </li>
-                @endcan
-
-            @endif
-
-        </ul>
-
-    </div>
-
+    @can('support-center.view')
+    @endcan
 </div>

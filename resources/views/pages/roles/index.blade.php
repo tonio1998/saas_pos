@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.sa')
 @section('title','Roles Management')
 @section('content')
     <x-page-header title="Roles Management" subtitle="Manage roles">

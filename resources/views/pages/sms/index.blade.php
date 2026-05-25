@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.sa')
 
 @section('title','SMS Management')
 
