@@ -358,7 +358,6 @@ Route::middleware('auth')->group(function(){
 
     Route::prefix('settings')->name('settings.')->group(function(){
         Route::get('', [SchoolSettingsController::class, 'index'])->name('index');
-        Route::post('', [SchoolSettingsController::class, 'store'])->name('store');
         Route::get('/edit/{id}', [SchoolSettingsController::class, 'edit'])->name('edit');
         Route::post('/store', [SchoolSettingsController::class, 'store'])->name('store');
         Route::get('/data', [SchoolSettingsController::class, 'ajaxData'])->name('data');
