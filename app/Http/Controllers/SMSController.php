@@ -17,7 +17,8 @@ class SMSController extends Controller
 
     public function ajaxData(Request $request)
     {
-        $query = SmsQueuingModel::query();
+        $query = SmsQueuingModel::query()
+        ->orderBy('created_at', 'desc');
 
         return datatables()
             ->eloquent($query)

@@ -304,6 +304,7 @@ class SchoolStudentsController extends Controller
     }
     public function create()
     {
+//        dd(auth()->user()->roles);
         return view('pages.schools.students.create');
     }
 

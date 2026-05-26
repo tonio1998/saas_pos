@@ -2,10 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\Tenantable;
 use Illuminate\Database\Eloquent\Model;
-
-class NFCCodes extends Model
+use OwenIt\Auditing\Auditable;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+class NFCCodes extends Model implements AuditableContract
 {
+    use Tenantable;
+    use Auditable;
+
     protected $table = 'nfc_codes';
     protected $fillable = [
         'school_id',

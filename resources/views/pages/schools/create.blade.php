@@ -13,8 +13,8 @@
         enctype="multipart/form-data"
         action="{{
         $isEdit
-            ? route('schools.update', encrypt($school->id))
-            : route('schools.store')
+            ? route('sa.schools.update', encrypt($school->id))
+            : route('sa.schools.store')
     }}"
     >
 
@@ -405,112 +405,6 @@
 
                 </div>
 
-                <div class="col-12">
-
-                    <div class="page-glass-card">
-
-                        <div class="section-header">
-
-                            <div class="section-title-wrap">
-
-                                <div class="section-icon">
-                                    <i class="bi bi-chat-dots"></i>
-                                </div>
-
-                                <div>
-
-                                    <div class="section-title">
-                                        SMS Configuration
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        <div class="row g-4">
-
-                            <x-form.group
-                                name="sms_provider"
-                                label="SMS Provider"
-                                class="col-xl-4"
-                            >
-
-                                <select
-                                    name="sms_provider"
-                                    class="form-select"
-                                >
-
-                                    @foreach([
-                                        'api',
-                                        'gsm',
-                                        'semaphore'
-                                    ] as $provider)
-
-                                        <option
-                                            value="{{ $provider }}"
-                                            {{
-                                                old(
-                                                    'sms_provider',
-                                                    $school->sms_provider ?? 'api'
-                                                ) == $provider
-                                                    ? 'selected'
-                                                    : ''
-                                            }}
-                                        >
-                                            {{ strtoupper($provider) }}
-                                        </option>
-
-                                    @endforeach
-
-                                </select>
-
-                            </x-form.group>
-
-                            <x-form.group
-                                name="status"
-                                label="Status"
-                                class="col-xl-4"
-                            >
-
-                                <select
-                                    name="status"
-                                    class="form-select"
-                                >
-
-                                    @foreach([
-                                        'active',
-                                        'inactive',
-                                        'locked'
-                                    ] as $status)
-
-                                        <option
-                                            value="{{ $status }}"
-                                            {{
-                                                old(
-                                                    'status',
-                                                    $school->status ?? 'active'
-                                                ) == $status
-                                                    ? 'selected'
-                                                    : ''
-                                            }}
-                                        >
-                                            {{ ucfirst($status) }}
-                                        </option>
-
-                                    @endforeach
-
-                                </select>
-
-                            </x-form.group>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
             </div>
 
             <div class="page-glass-card sticky-bottom mt-4">
@@ -518,7 +412,7 @@
                 <div class="d-flex justify-content-end gap-2">
 
                     <a
-                        href="{{ route('schools.index') }}"
+                        href="{{ route('sa.schools.index') }}"
                         class="btn btn-light border px-4"
                     >
                         Cancel

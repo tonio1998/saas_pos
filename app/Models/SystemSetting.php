@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
-class SystemSetting extends Model
+use OwenIt\Auditing\Auditable;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+class SystemSetting extends Model implements AuditableContract
 {
+    use Auditable;
     protected $table = 'system_settings';
     protected $fillable = [
         'cacert_path',

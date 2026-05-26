@@ -7,7 +7,8 @@
     <title>@yield('title')</title>
 
     @vite(['resources/css/app.css','resources/js/app.js'])
-
+    @include('theme')
+    @include('pages.schools.scanner.style')
 </head>
 <body>
 
@@ -20,7 +21,7 @@
 <x-alerts />
 
 @include('components.footer')
-
+@include('pages.schools.scanner.script')
 @stack('scripts')
 
 </body>

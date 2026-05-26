@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Audit;
 use Illuminate\Http\Request;
-use OwenIt\Auditing\Models\Audit;
 
 class AuditLogService
 {
@@ -11,6 +11,7 @@ class AuditLogService
     {
         return Audit::query()
             ->with('user')
+            ->orderBy('created_at', 'desc')
             ->select([
                 'id',
                 'user_id',
@@ -18,7 +19,9 @@ class AuditLogService
                 'auditable_type',
                 'ip_address',
                 'created_at',
-                'url'
+                'url',
+                'old_values',
+                'new_values'
             ]);
     }
 

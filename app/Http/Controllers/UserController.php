@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\NFCCodes;
 use App\Models\Parents;
 use App\Models\QrCodes;
+use App\Models\SchoolUsers;
 use App\Models\Students;
 use App\Models\Employees;
 use App\Models\User;
@@ -43,16 +44,17 @@ class UserController extends Controller
     public function users_search(Request $request)
     {
         $search = $request->search;
-        $users = User::query()
+        $users = SchoolUsers::query()
             ->when($search,function($q) use ($search){
                 $q->where('name','like',"%{$search}%");
             })
+            ->with('school')
             ->limit(10)
             ->get();
         return $users->map(function($user){
             return [
                 'id'=>$user->id,
-                'text'=>$user->name
+                'text'=>$user->name . '[' . $user->email . ']'
             ];
         });
     }
@@ -61,6 +63,7 @@ class UserController extends Controller
     {
         $user = User::findOrFail(decrypt($request->segment(2)));
         $roles = Role::all();
+//        dd($roles);
         return view('pages.schools.users.roles',compact('user','roles'));
     }
 

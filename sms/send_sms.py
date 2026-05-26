@@ -1,131 +1,306 @@
 import sys
 import serial
 import time
-import serial.tools.list_ports
 
-# === CONFIG ===
 BAUD_RATE = 19200
-DEBUG = True  # Set to False to disable debug output
+DEBUG = True
 
 
 def log(msg):
+
     if DEBUG:
         print(f"[DEBUG] {msg}")
 
 
-def find_serial_port():
-    try:
-        ports = list(serial.tools.list_ports.comports())
-    except Exception as e:
-        print(f"❌ Failed to list COM ports: {e}", file=sys.stderr)
-        sys.exit(1)
-
-    if not ports:
-        print("❌ No serial ports found.", file=sys.stderr)
-        sys.exit(1)
-
-    for port in ports:
-        desc = getattr(port, 'description', '')
-        if "CH340" in desc or "USB-SERIAL" in desc:
-            print(f"✅ Using port: {port.device} - {desc}")
-            return port.device
-
-    print("❌ CH340/USB-SERIAL device not found.", file=sys.stderr)
-    print("➡️ Available ports:")
-    for port in ports:
-        print(f" - {port.device}: {getattr(port, 'description', 'No description')}")
-    sys.exit(1)
-
-
-def run_process_simulation():
-    """
-    Simulate or run your processing logic here.
-    Replace this with actual checks or processing.
-    """
-    log("Running process simulation...")
-    # Simulate success or failure
-    return True  # Change to False to simulate failure
-
-
 def send_sms(port, number, message):
+
     ser = None
+
     try:
-        ser = serial.Serial(port, BAUD_RATE, timeout=5)
-        time.sleep(2)  # Wait for modem to initialize
+
+        ser = serial.Serial(
+            port,
+            BAUD_RATE,
+            timeout=5
+        )
+
+        time.sleep(3)
+
+        ser.reset_input_buffer()
+        ser.reset_output_buffer()
 
         def send_command(cmd, wait=1):
+
             log(f"Sending: {cmd}")
-            ser.write(cmd.encode() + b'\r')
+
+            ser.write(
+                cmd.encode() + b'\r'
+            )
+
             time.sleep(wait)
-            response = ser.read_all().decode(errors='ignore')
+
+            response = ser.read_all().decode(
+                errors='ignore'
+            )
+
             log(f"Response: {response}")
+
             return response
 
-        if "OK" not in send_command("AT"):
-            raise Exception("Modem not responding to 'AT'")
+        at_response = send_command("AT")
 
-        if "OK" not in send_command("AT+CMGF=1"):
-            raise Exception("Failed to set text mode")
+        if "OK" not in at_response:
 
-        response = send_command(f'AT+CMGS="{number}"')
-        if ">" not in response:
-            raise Exception("Modem did not accept message command")
+            time.sleep(2)
+
+            at_response = send_command("AT")
+
+            if "OK" not in at_response:
+
+                raise Exception(
+                    "Modem not responding. "
+                    "Possible causes: modem freeze, "
+                    "USB disconnected, COM port locked, "
+                    "or weak modem power."
+                )
+
+        signal = 0
+
+        for attempt in range(1, 6):
+
+            signal_response = send_command(
+                "AT+CSQ"
+            )
+
+            if "+CSQ:" in signal_response:
+
+                try:
+
+                    signal_raw = signal_response.split(
+                        "+CSQ:"
+                    )[1].split(",")[0].strip()
+
+                    signal = int(signal_raw)
+
+                    log(
+                        f"Signal attempt "
+                        f"{attempt}: {signal}"
+                    )
+
+                    if signal >= 8:
+
+                        break
+
+                except ValueError:
+                    pass
+
+            if attempt < 5:
+
+                log(
+                    "Weak/no signal detected. "
+                    "Retrying in 5 seconds..."
+                )
+
+                time.sleep(5)
+
+        if signal == 99:
+
+            raise Exception(
+                "No network signal detected."
+            )
+
+        if signal < 8:
+
+            raise Exception(
+                f"Weak signal detected ({signal}) "
+                f"after multiple retries."
+            )
+
+        network_response = send_command(
+            "AT+CREG?"
+        )
+
+        if (
+            ",1" not in network_response
+            and
+            ",5" not in network_response
+        ):
+
+            raise Exception(
+                "SIM not registered to GSM network."
+            )
+
+        sim_response = send_command(
+            "AT+CPIN?"
+        )
+
+        if "READY" not in sim_response:
+
+            raise Exception(
+                "SIM card is locked or not ready."
+            )
+
+        smsc_response = send_command(
+            "AT+CSCA?"
+        )
+
+        if "OK" not in smsc_response:
+
+            raise Exception(
+                "SMS Center Number (SMSC) invalid or unavailable."
+            )
+
+        text_mode_response = send_command(
+            "AT+CMGF=1"
+        )
+
+        if "OK" not in text_mode_response:
+
+            raise Exception(
+                "Failed to enable text mode."
+            )
+
+        cmgs_response = send_command(
+            f'AT+CMGS="{number}"',
+            2
+        )
+
+        if ">" not in cmgs_response:
+
+            raise Exception(
+                "Modem rejected recipient number."
+            )
 
         time.sleep(1)
-        ser.write(message.encode() + b"\x1A")
-        time.sleep(5)
 
-        final_response = ser.read_all().decode(errors='ignore')
-        log(f"Final modem response: {final_response}")
+        log(f"Sending SMS to {number}")
 
-        if "+CMGS:" in final_response:
-            print("SMS sent successfully!")
-        elif "ERROR" in final_response:
-            raise Exception(f"Modem error: {final_response.strip()}")
-        else:
-            raise Exception("Unexpected response from modem")
+        ser.write(
+            message.encode(errors='ignore')
+            + b"\x1A"
+        )
+
+        time.sleep(8)
+
+        final_response = ser.read_all().decode(
+            errors='ignore'
+        )
+
+        log(
+            f"Final modem response: "
+            f"{final_response}"
+        )
+
+        upper_response = final_response.upper()
+
+        if "+CMGS:" in upper_response:
+
+            print(
+                "SMS sent successfully!"
+            )
+
+            return
+
+        if "CMS ERROR" in upper_response:
+
+            if "302" in upper_response:
+
+                raise Exception(
+                    "Operation not allowed."
+                )
+
+            if "330" in upper_response:
+
+                raise Exception(
+                    "SIM card not inserted."
+                )
+
+            if "500" in upper_response:
+
+                raise Exception(
+                    "Modem internal failure."
+                )
+
+            raise Exception(
+                f"GSM CMS ERROR: "
+                f"{final_response.strip()}"
+            )
+
+        if "ERROR" in upper_response:
+
+            raise Exception(
+                "SMS sending failed. "
+                "Possible causes: no load, weak signal, "
+                "network rejection, unsupported message content, "
+                "or modem instability."
+            )
+
+        raise Exception(
+            f"Unexpected modem response: "
+            f"{final_response.strip()}"
+        )
 
     except serial.SerialException as e:
-        raise e  # Let the wrapper handle retry
+
+        raise Exception(
+            f"Serial port error: {str(e)}"
+        )
+
     except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
+
+        raise Exception(str(e))
+
     finally:
-        if ser and ser.is_open:
-            log("Closing serial port...")
-            ser.close()
 
+        if ser:
 
-def safe_send_sms(port, number, message, retries=3):
-    for attempt in range(1, retries + 1):
-        try:
-            send_sms(port, number, message)
-            return  # Success
-        except serial.SerialException as e:
-            print(f"Attempt {attempt}: Serial error - {e}")
-            if attempt < retries:
-                time.sleep(2)
-                continue
-            else:
-                print("Failed after multiple attempts.")
-                sys.exit(1)
+            try:
+
+                if ser.is_open:
+
+                    log("Closing serial port...")
+
+                    ser.close()
+
+                    time.sleep(2)
+
+            except Exception:
+                pass
 
 
 if __name__ == "__main__":
+
     try:
-        if len(sys.argv) < 3:
-            print("Usage: python send_sms.py <number> <message> [port]", file=sys.stderr)
+
+        if len(sys.argv) < 4:
+
+            print(
+                "Usage: python send_sms.py "
+                "<number> <message> [port]",
+                file=sys.stderr
+            )
+
             sys.exit(1)
 
         number = sys.argv[1]
         message = sys.argv[2]
-        port = sys.argv[3] if len(sys.argv) >= 4 else find_serial_port()
+        port = sys.argv[3]
 
-        if not run_process_simulation():
-            print("Process failed. SMS will not be sent.", file=sys.stderr)
-            sys.exit(1)
+        log(
+            "Running process simulation..."
+        )
 
-        safe_send_sms(port, number, message)
+        send_sms(
+            port,
+            number,
+            message
+        )
+
     except Exception as e:
-        print(f"Fatal error: {e}", file=sys.stderr)
+
+        print(
+            f"Error: {str(e)}",
+            file=sys.stderr
+        )
+
         sys.exit(1)

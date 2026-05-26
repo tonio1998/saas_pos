@@ -199,7 +199,7 @@
                 <div class="sa-grid">
 
                     <a
-                        href="{{ route('schools.index') }}"
+                        href="{{ route('sa.schools.index') }}"
                         class="sa-quick"
                     >
 
@@ -261,29 +261,6 @@
 
                             <div class="sa-quick-subtitle">
                                 Access control and security
-                            </div>
-
-                        </div>
-
-                    </a>
-
-                    <a
-                        href="{{ route('logs.index') }}"
-                        class="sa-quick"
-                    >
-
-                        <div class="sa-quick-icon dark">
-                            <i class="bi bi-clock-history"></i>
-                        </div>
-
-                        <div>
-
-                            <div class="sa-quick-title">
-                                System Logs
-                            </div>
-
-                            <div class="sa-quick-subtitle">
-                                Platform activity monitoring
                             </div>
 
                         </div>

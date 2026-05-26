@@ -169,40 +169,52 @@
             <x-datatable
                 id="auditLogsTable"
                 :columns="[
-                'Actions',
-                'User',
-                'Event',
-                'Module',
-                'IP Address',
-                'Date'
-            ]"
+                    'Actions',
+                    'User',
+                    'Event',
+                    'Description',
+                    'Module',
+                    'IP Address',
+                    'Date'
+                ]"
                 :ajax="route('sa.activity-logs.data', request()->query())"
                 :datatableColumns="[
-                [
-                    'data' => 'actions',
-                    'orderable' => false,
-                    'searchable' => false
-                ],
-                [
-                    'data' => 'user',
-                    'orderable' => false,
-                    'searchable' => false
-                ],
-                [
-                    'data' => 'event'
-                ],
-                [
-                    'data' => 'module',
-                    'orderable' => false,
-                    'searchable' => false
-                ],
-                [
-                    'data' => 'ip_address'
-                ],
-                [
-                    'data' => 'created_at'
-                ]
-            ]"
+                    [
+                        'data' => 'actions',
+                        'orderable' => false,
+                        'searchable' => false,
+                        'width' => '60px'
+                    ],
+                    [
+                        'data' => 'user',
+                        'orderable' => false,
+                        'searchable' => false,
+                        'width' => '180px'
+                    ],
+                    [
+                        'data' => 'event',
+                        'width' => '120px'
+                    ],
+                    [
+                        'data' => 'description',
+                        'orderable' => false,
+                        'searchable' => false
+                    ],
+                    [
+                        'data' => 'module',
+                        'orderable' => false,
+                        'searchable' => false,
+                        'width' => '140px'
+                    ],
+                    [
+                        'data' => 'ip_address',
+                        'width' => '150px'
+                    ],
+                    [
+                        'data' => 'created_at',
+                        'width' => '170px'
+                    ]
+                ]"
             />
 
         </div>
@@ -210,7 +222,191 @@
     </x-card>
 
     <style>
+        .audit-description{
+            display:flex;
+            flex-direction:column;
+            gap:.35rem;
 
+            max-width:720px;
+        }
+
+        .audit-event-title{
+            font-size:.88rem;
+            font-weight:700;
+        }
+
+        .audit-narrative{
+            font-size:.83rem;
+            line-height:1.75;
+            color:#4b5563;
+        }
+
+        .audit-description.created .audit-event-title{
+            color:#027a48;
+        }
+
+        .audit-description.updated .audit-event-title{
+            color:#b54708;
+        }
+
+        .audit-description.deleted .audit-event-title{
+            color:#b42318;
+        }
+        .audit-description{
+            display:flex;
+            flex-direction:column;
+            gap:.45rem;
+
+            max-width:580px;
+        }
+
+        .audit-description .title{
+            font-size:.9rem;
+            font-weight:700;
+        }
+
+        .audit-paragraph{
+            display:flex;
+            flex-direction:column;
+            gap:.38rem;
+
+            font-size:.82rem;
+            line-height:1.7;
+
+            color:#4b5563;
+        }
+
+        .audit-line strong{
+            color:#111827;
+            font-weight:700;
+        }
+
+        .audit-line .old{
+            color:#b42318;
+            font-weight:600;
+        }
+
+        .audit-line .new{
+            color:#027a48;
+            font-weight:600;
+        }
+
+        .audit-description.created .title{
+            color:#027a48;
+        }
+
+        .audit-description.updated .title{
+            color:#b54708;
+        }
+
+        .audit-description.deleted .title{
+            color:#b42318;
+        }
+        .audit-description{
+            display:flex;
+            flex-direction:column;
+            gap:.7rem;
+            min-width:320px;
+            max-width:520px;
+        }
+
+        .audit-description .title{
+            font-size:.88rem;
+            font-weight:700;
+            color:#111827;
+        }
+
+        .audit-description .changes{
+            display:flex;
+            flex-direction:column;
+            gap:.55rem;
+        }
+
+        .audit-change-row{
+            display:flex;
+            flex-direction:column;
+            gap:.35rem;
+
+            padding:.7rem .85rem;
+
+            border-radius:14px;
+
+            background:#fafafa;
+
+            border:1px solid #f1f1f1;
+        }
+
+        .audit-change-row .field{
+            font-size:.68rem;
+            font-weight:700;
+            text-transform:uppercase;
+            letter-spacing:.05em;
+
+            color:#6b7280;
+        }
+
+        .audit-change-row .values{
+            display:flex;
+            align-items:center;
+            gap:.55rem;
+
+            flex-wrap:wrap;
+        }
+
+        .audit-change-row .old{
+            padding:.2rem .55rem;
+
+            border-radius:999px;
+
+            background:#fef3f2;
+
+            color:#b42318;
+
+            font-size:.75rem;
+            font-weight:600;
+
+            max-width:180px;
+
+            overflow:hidden;
+            text-overflow:ellipsis;
+            white-space:nowrap;
+        }
+
+        .audit-change-row .new{
+            padding:.2rem .55rem;
+
+            border-radius:999px;
+
+            background:#ecfdf3;
+
+            color:#027a48;
+
+            font-size:.75rem;
+            font-weight:600;
+
+            max-width:180px;
+
+            overflow:hidden;
+            text-overflow:ellipsis;
+            white-space:nowrap;
+        }
+
+        .audit-change-row i{
+            font-size:.72rem;
+            color:#9ca3af;
+        }
+
+        .audit-description.deleted .title{
+            color:#b42318;
+        }
+
+        .audit-description.created .title{
+            color:#027a48;
+        }
+
+        .audit-description.updated .title{
+            color:#b54708;
+        }
         .audit-filter-card,
         .audit-table-card{
             border:none !important;

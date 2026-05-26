@@ -26,7 +26,7 @@ class SMSMessageBuilder
             $user->studentInfo?->guardian?->LastName
                 ? 'Dear Mr/Mrs. '
                 . $user->studentInfo->guardian->LastName
-                . ",\n"
+                . ",\n\n"
                 : ''
             )
             . $user->name

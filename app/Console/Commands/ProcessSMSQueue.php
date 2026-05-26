@@ -8,127 +8,306 @@ use Illuminate\Console\Command;
 
 class ProcessSMSQueue extends Command
 {
-    protected $signature = 'sms:process';
+    protected $signature =
+        'sms:process';
 
     protected $description =
         'Process pending SMS queue';
 
-    public function handle(): void
+    public function handle(): int
     {
-        $messages = SmsQueuingModel::query()
+        $this->info(
+            'SMS Queue Worker Started...'
+        );
 
-            ->where('remark', '!=', 'sent')
-
-            ->where('status', 'active')
-
-            ->limit(20)
-
-            ->get();
-
-        if ($messages->isEmpty()) {
-
-            $this->info('No pending SMS.');
-
-            return;
-        }
-
-        foreach ($messages as $sms) {
+        while (true) {
 
             try {
 
-                $this->line('');
+                $messages = SmsQueuingModel::query()
 
-                $this->info(
-                    'Processing SMS ID: '
-                    . $sms->id
-                );
+                    ->where('remark', '!=', 'sent')
 
-                $this->line(
-                    'Phone: '
-                    . $sms->PhoneNumber
-                );
+                    ->where('status', 'active')
 
-                $this->line(
-                    'Message: '
-                    . $sms->Message
-                );
+                    ->limit(20)
 
-                $sms->update([
-                    'remark' => 'processing',
-                ]);
+                    ->get();
 
-                $result = app(SMSManager::class)
-                    ->send(
-                        $sms->PhoneNumber,
-                        $sms->Message
+                if ($messages->isEmpty()) {
+
+                    $this->line(
+                        '['
+                        . now()
+                        . '] No pending SMS.'
                     );
 
-                if ($result) {
+                    sleep(5);
 
-                    $sms->update([
-                        'remark' => 'sent',
-                    ]);
+                    continue;
+                }
 
-                    $this->info(
-                        'SMS SENT SUCCESSFULLY'
-                    );
+                foreach ($messages as $sms) {
 
-                } else {
+                    try {
 
-                    $sms->update([
-                        'remark' => 'failed',
-                    ]);
+                        $this->newLine();
 
-                    $this->error(
-                        'SMS FAILED'
-                    );
+                        $this->info(
+                            'Processing SMS ID: '
+                            . $sms->id
+                        );
+
+                        $this->line(
+                            'Phone: '
+                            . $sms->PhoneNumber
+                        );
+
+                        $this->line(
+                            'Message: '
+                            . $sms->Message
+                        );
+
+                        $sms->update([
+                            'remark' => 'processing',
+                        ]);
+
+                        $result = app(
+                            SMSManager::class
+                        )->send(
+                            $sms->PhoneNumber,
+                            $sms->Message
+                        );
+
+                        if ($result) {
+
+                            $sms->update([
+                                'remark' => 'sent',
+                            ]);
+
+                            $this->info(
+                                'SMS SENT SUCCESSFULLY'
+                            );
+
+                        } else {
+
+                            $sms->update([
+                                'remark' => 'pending',
+                            ]);
+
+                            $this->error(
+                                'SMS FAILED'
+                            );
+                        }
+
+                    } catch (\Throwable $e) {
+
+                        report($e);
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | IMPORTANT
+                        |--------------------------------------------------------------------------
+                        |
+                        | Do NOT permanently fail immediately.
+                        | GSM issues are usually temporary.
+                        |
+                        */
+
+                        $sms->update([
+                            'remark' => 'pending',
+                        ]);
+
+                        $this->newLine();
+
+                        $this->error(
+                            'SMS PROCESSING ERROR'
+                        );
+
+                        $this->line(
+                            'SMS ID: '
+                            . $sms->id
+                        );
+
+                        $this->line(
+                            'Phone: '
+                            . $sms->PhoneNumber
+                        );
+
+                        $this->line(
+                            'Message: '
+                            . $sms->Message
+                        );
+
+                        $this->newLine();
+
+                        $errorMessage =
+                            $e->getMessage();
+
+                        $friendlyError =
+                            'Unknown GSM modem error.';
+
+                        if (
+                            str_contains(
+                                $errorMessage,
+                                'No network signal'
+                            )
+                        ) {
+
+                            $friendlyError =
+                                'No network signal detected.';
+                        }
+
+                        elseif (
+                            str_contains(
+                                $errorMessage,
+                                'Weak signal'
+                            )
+                        ) {
+
+                            $friendlyError =
+                                'Weak GSM signal.';
+                        }
+
+                        elseif (
+                            str_contains(
+                                $errorMessage,
+                                'SIM card is locked'
+                            )
+                        ) {
+
+                            $friendlyError =
+                                'SIM card locked or requires PIN.';
+                        }
+
+                        elseif (
+                            str_contains(
+                                $errorMessage,
+                                'SMS Center Number'
+                            )
+                        ) {
+
+                            $friendlyError =
+                                'Invalid SMSC configuration.';
+                        }
+
+                        elseif (
+                            str_contains(
+                                $errorMessage,
+                                'Modem not responding'
+                            )
+                        ) {
+
+                            $friendlyError =
+                                'Modem disconnected or frozen.';
+                        }
+
+                        elseif (
+                            str_contains(
+                                $errorMessage,
+                                'Serial port error'
+                            )
+                        ) {
+
+                            $friendlyError =
+                                'COM port busy/unavailable.';
+                        }
+
+                        elseif (
+                            str_contains(
+                                $errorMessage,
+                                'no load'
+                            )
+                        ) {
+
+                            $friendlyError =
+                                'SIM may have insufficient load.';
+                        }
+
+                        elseif (
+                            str_contains(
+                                $errorMessage,
+                                'network rejection'
+                            )
+                        ) {
+
+                            $friendlyError =
+                                'Network rejected SMS.';
+                        }
+
+                        $this->error(
+                            'Friendly Error: '
+                            . $friendlyError
+                        );
+
+                        $this->newLine();
+
+                        $this->line(
+                            'Raw Error Message:'
+                        );
+
+                        $this->line(
+                            $errorMessage
+                        );
+
+                        $this->newLine();
+
+                        $this->line(
+                            'File: '
+                            . $e->getFile()
+                        );
+
+                        $this->line(
+                            'Line: '
+                            . $e->getLine()
+                        );
+
+                        $this->newLine();
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | GSM Recovery Cooldown
+                        |--------------------------------------------------------------------------
+                        */
+
+                        sleep(10);
+
+                        continue;
+                    }
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | GSM Modem Cooldown
+                    |--------------------------------------------------------------------------
+                    */
+
+                    sleep(5);
                 }
 
             } catch (\Throwable $e) {
 
                 report($e);
 
-                $sms->update([
-                    'remark' => 'failed',
-                ]);
-
                 $this->newLine();
 
-                $this->error('SMS PROCESSING ERROR');
-
-                $this->line(
-                    'SMS ID: '
-                    . $sms->id
+                $this->error(
+                    'QUEUE LOOP ERROR'
                 );
 
                 $this->line(
-                    'Phone: '
-                    . $sms->PhoneNumber
+                    $e->getMessage()
                 );
 
-                $this->line(
-                    'Error Message: '
-                    . $e->getMessage()
-                );
+                /*
+                |--------------------------------------------------------------------------
+                | Prevent crash loop
+                |--------------------------------------------------------------------------
+                */
 
-                $this->line(
-                    'File: '
-                    . $e->getFile()
-                );
-
-                $this->line(
-                    'Line: '
-                    . $e->getLine()
-                );
-
-                $this->newLine();
-
-                $this->line(
-                    $e->getTraceAsString()
-                );
-
-                $this->newLine();
+                sleep(10);
             }
         }
+
+        return self::SUCCESS;
     }
 }

@@ -3,10 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
-class LoginActivity extends Model
+use OwenIt\Auditing\Auditable;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+class LoginActivity extends Model implements AuditableContract
 {
-
+    use Auditable;
     protected $table = 'login_activities';
     protected $fillable = [
         'user_id',

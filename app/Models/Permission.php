@@ -5,10 +5,12 @@ namespace App\Models;
 use \DateTimeInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
-class Permission extends Model
+use OwenIt\Auditing\Auditable;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+class Permission extends Model implements AuditableContract
 {
     use HasFactory;
+    use Auditable;
 
     public $table = 'permissions';
     public $primaryKey = 'id';

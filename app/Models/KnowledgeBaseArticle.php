@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-
-class KnowledgeBaseArticle extends Model
+use OwenIt\Auditing\Auditable;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+class KnowledgeBaseArticle extends Model implements AuditableContract
 {
+    use Auditable;
     protected $fillable = [
 
         'title',

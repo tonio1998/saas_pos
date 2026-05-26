@@ -78,7 +78,7 @@ class SchoolController extends Controller
         ]);
 
         return redirect()
-            ->route('schools.index')
+            ->route('sa.schools.index')
             ->with(
                 'success',
                 'School context closed successfully.'
@@ -198,17 +198,6 @@ class SchoolController extends Controller
                     'nullable',
                     'integer',
                     'min:0'
-                ],
-
-                'sms_provider' => [
-                    'nullable',
-                    'string',
-                    'max:20'
-                ],
-
-                'status' => [
-                    'required',
-                    'in:active,inactive,locked'
                 ],
 
             ],
@@ -386,17 +375,6 @@ class SchoolController extends Controller
                     'min:0'
                 ],
 
-                'sms_provider' => [
-                    'nullable',
-                    'string',
-                    'max:20'
-                ],
-
-                'status' => [
-                    'required',
-                    'in:active,inactive,locked'
-                ],
-
             ]
 
         );
@@ -435,8 +413,7 @@ class SchoolController extends Controller
 
             DB::commit();
 
-            return redirect()
-                ->route('schools.index')
+            return back()
                 ->with([
                     'success' => 'School updated successfully.'
                 ]);
@@ -466,12 +443,12 @@ class SchoolController extends Controller
             ->addColumn('actions', function ($school) {
 
                 $editUrl = route(
-                    'schools.edit',
+                    'sa.schools.edit',
                     encrypt($school->id)
                 );
 
                 $manageUrl = route(
-                    'schools.show',
+                    'sa.schools.show',
                     [encrypt($school->id)]
                 );
 

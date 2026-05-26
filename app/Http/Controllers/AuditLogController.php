@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\Audit\AuditDescriptionService;
 use App\Services\AuditLogService;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
@@ -10,8 +11,10 @@ use Yajra\DataTables\Facades\DataTables;
 class AuditLogController extends Controller
 {
     public function __construct(
-        protected AuditLogService $auditLogService
-    ) {
+        protected AuditLogService         $auditLogService,
+        protected AuditDescriptionService $auditDescriptionService
+    )
+    {
     }
 
     public function index()
@@ -35,7 +38,6 @@ class AuditLogController extends Controller
             ->query($request);
 
         return DataTables::of($logs)
-
             ->addColumn('actions', function ($log) {
 
                 return '
@@ -48,35 +50,47 @@ class AuditLogController extends Controller
                     </button>
                 ';
             })
-
             ->editColumn('user', function ($log) {
 
                 return '
                     <div class="audit-user">
-                        ' . e($log->user?->name ?? 'System') . '
+                        ' . e(
+                        $log->user?->name ?? 'System'
+                    ) . '
                     </div>
                 ';
             })
-
             ->editColumn('event', function ($log) {
 
                 $severity = $this->auditLogService
                     ->severity($log->event);
 
                 return '
-                    <span class="audit-event ' . $severity . '">
-                        ' . strtoupper($log->event) . '
+                    <span class="audit-event ' . e($severity) . '">
+                        ' . e(
+                        strtoupper($log->event)
+                    ) . '
                     </span>
                 ';
             })
+            ->addColumn('description', function ($log) {
 
+                return $this
+                    ->auditDescriptionService
+                    ->make($log)['html'];
+            })
             ->addColumn('module', function ($log) {
 
-                return class_basename(
-                    $log->auditable_type
-                );
+                return '
+                    <div class="audit-module">
+                        ' . e(
+                        class_basename(
+                            $log->auditable_type
+                        )
+                    ) . '
+                    </div>
+                ';
             })
-
             ->editColumn('ip_address', function ($log) {
 
                 return '
@@ -87,19 +101,17 @@ class AuditLogController extends Controller
                     </div>
                 ';
             })
-
             ->editColumn('created_at', function ($log) {
 
                 return '
                     <div class="audit-date">
                         ' . e(
                         $log->created_at
-                            ->format('M d, Y h:i A')
+                            ?->format('M d, Y h:i A')
                     ) . '
                     </div>
                 ';
             })
-
             ->filter(function ($query) use ($request) {
 
                 if ($request->filled('user_id')) {
@@ -136,16 +148,15 @@ class AuditLogController extends Controller
                     );
                 }
             })
-
             ->rawColumns([
                 'actions',
                 'user',
                 'event',
+                'description',
                 'module',
                 'ip_address',
-                'created_at'
+                'created_at',
             ])
-
             ->make(true);
     }
 }

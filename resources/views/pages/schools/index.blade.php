@@ -14,7 +14,7 @@
             <x-slot:action>
 
                 <a
-                    href="{{ route('schools.create') }}"
+                    href="{{ route('sa.schools.create') }}"
                     class="btn btn-primary"
                 >
                     <i class="bi bi-plus-circle"></i>
@@ -45,7 +45,7 @@
                     'Created At'
                 ]"
 
-                    :ajax="route('schools.data')"
+                    :ajax="route('sa.schools.data')"
 
                     :datatableColumns="[
 

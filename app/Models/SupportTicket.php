@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
-class SupportTicket extends Model
+use OwenIt\Auditing\Auditable;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+class SupportTicket extends Model implements AuditableContract
 {
+    use Auditable;
     protected $fillable = [
 
         'ticket_no',

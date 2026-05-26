@@ -17,7 +17,7 @@ class SchoolSettingsController extends Controller
     public function index()
     {
         $session = session('school_id');
-        return redirect()->route('schools.edit',[encrypt($session)]);
+        return redirect()->route('sa.schools.edit',[encrypt($session)]);
     }
 
     public function store(Request $request)

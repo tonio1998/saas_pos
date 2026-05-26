@@ -10,6 +10,7 @@ use App\Models\Employees;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SchoolDashboardController extends Controller
 {
@@ -17,7 +18,6 @@ class SchoolDashboardController extends Controller
 
     public function index()
     {
-//        dd(session('school_id'));
         return view(
             'pages.schools.dashboard.index',
             $this->data

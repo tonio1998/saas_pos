@@ -118,9 +118,9 @@ class SchoolScanController extends Controller
                 'school_id' => $schoolId,
             ]);
 
-            $verificationCode = 'VC-' . str_pad(
+            $verificationCode = 'VC' . str_pad(
                     $scanLog->id,
-                    10,
+                    5,
                     '0',
                     STR_PAD_LEFT
                 );

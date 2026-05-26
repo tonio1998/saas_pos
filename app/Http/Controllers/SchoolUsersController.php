@@ -64,6 +64,7 @@ class SchoolUsersController extends Controller
         $roles = Role::query()
             ->where('name', '!=', 'SA')
             ->get();
+//        dd($roles);
         return view('pages.schools.users.roles',compact('user','roles'));
     }
 
@@ -220,12 +221,12 @@ class SchoolUsersController extends Controller
                 $encryptedId = encrypt($user->id);
 
                 $permissionsUrl = route(
-                    'users.permissions',
+                    'school-users.permissions',
                     $encryptedId
                 );
 
                 $rolesUrl = route(
-                    'users.roles',
+                    'school-users.roles',
                     $encryptedId
                 );
 
@@ -586,7 +587,7 @@ class SchoolUsersController extends Controller
                 : 'NFC card assigned successfully.';
 
             return redirect()
-                ->route('users.index')
+                ->route('school-users.index')
                 ->with('success', $message);
 
         } catch (\Illuminate\Validation\ValidationException $e) {

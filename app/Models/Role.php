@@ -6,10 +6,13 @@ use \DateTimeInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use OwenIt\Auditing\Auditable;
 use Spatie\Permission\Models\Role as SpatieRole;
-class Role extends SpatieRole
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+class Role extends SpatieRole implements AuditableContract
 {
     use HasFactory;
+    use Auditable;
 
     public $table = 'roles';
     public $primaryKey = 'id';

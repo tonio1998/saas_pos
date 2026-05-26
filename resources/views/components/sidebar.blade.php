@@ -87,7 +87,7 @@
         </ul>
         @endif
 
-        @if(session('school_id'))
+        @if(session('school_id') > 0)
             <ul class="sidebar-menu">
 
                 @can('scanner.view')
@@ -396,24 +396,24 @@
                     </li>
                 @endcan
 
-                @can('settings.view')
-                    <li class="sidebar-item">
+{{--                @can('settings.view')--}}
+{{--                    <li class="sidebar-item">--}}
 
-                        <a
-                            href="{{ route('settings.index') }}"
-                            class="sidebar-link {{ request()->routeIs('settings.index') ? 'active' : '' }}"
-                        >
+{{--                        <a--}}
+{{--                            href="{{ route('settings.index') }}"--}}
+{{--                            class="sidebar-link {{ request()->routeIs('settings.index') ? 'active' : '' }}"--}}
+{{--                        >--}}
 
-                            <i class="bi bi-sliders2-vertical sidebar-icon"></i>
+{{--                            <i class="bi bi-sliders2-vertical sidebar-icon"></i>--}}
 
-                            <span>
-                                Settings
-                            </span>
+{{--                            <span>--}}
+{{--                                Settings--}}
+{{--                            </span>--}}
 
-                        </a>
+{{--                        </a>--}}
 
-                    </li>
-                @endcan
+{{--                    </li>--}}
+{{--                @endcan--}}
 
             </ul>
         @endif

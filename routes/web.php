@@ -52,8 +52,25 @@ Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('g
 Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 
 Route::prefix('sa')->name('sa.')->middleware([
-    'auth'
+    'auth',
+    'role:SA',
 ])->group(function () {
+    Route::prefix('schools')
+        ->name('schools.')->group(function(){
+            Route::get('/', [SchoolController::class, 'index'])->name('index');
+            Route::get('/create', [SchoolController::class, 'create'])->name('create');
+            Route::post('/', [SchoolController::class, 'store'])->name('store');
+            Route::get('/edit/{id}', [SchoolController::class, 'edit'])->name('edit');
+            Route::put('/update/{id}', [SchoolController::class, 'update'])->name('update');
+            Route::get('/data', [SchoolController::class, 'ajaxData'])->name('data');
+            Route::get('/show/{id}', [SchoolController::class, 'show'])->name('show');
+
+            Route::post(
+                '/close-context',
+                [SchoolController::class, 'closeContext']
+            )->name('close-context');
+        });
+
     Route::get('/dashboard', [
         SADashboardController::class,
         'index'
@@ -88,8 +105,7 @@ Route::prefix('sa')->name('sa.')->middleware([
             Route::get('/', 'index')
                 ->name('index');
 
-            Route::get('/data', 'data')
-                ->name('data');
+            Route::get('/data', 'data')->name('data');
 
         });
 
@@ -202,6 +218,7 @@ Route::prefix('support-center')
     ->name('support-center.')
     ->middleware([
         'auth',
+        'role:SA',
     ])
     ->group(function () {
 
@@ -415,20 +432,6 @@ Route::middleware('auth')->group(function(){
         Route::get('classes/search',[ClassesController::class,'sections_search'])->name('classes');
     });
 
-    Route::prefix('schools')->name('schools.')->group(function(){
-        Route::get('/', [SchoolController::class, 'index'])->name('index');
-        Route::get('/create', [SchoolController::class, 'create'])->name('create');
-        Route::post('/', [SchoolController::class, 'store'])->name('store');
-        Route::get('/edit/{id}', [SchoolController::class, 'edit'])->name('edit');
-        Route::put('/update/{id}', [SchoolController::class, 'update'])->name('update');
-        Route::get('/data', [SchoolController::class, 'ajaxData'])->name('data');
-        Route::get('/show/{id}', [SchoolController::class, 'show'])->name('show');
-
-        Route::post(
-            '/close-context',
-            [SchoolController::class, 'closeContext']
-        )->name('close-context');
-    });
 
     Route::prefix('academic-context')->name('academic-context.')->group(function(){
         Route::post('/',[AcademicContextController::class,'store'])->name('store');
