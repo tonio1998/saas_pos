@@ -2,7 +2,6 @@ import './bootstrap'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import $ from 'jquery'
 window.$ = window.jQuery = $
-
 import select2 from 'select2'
 select2($)
 import { Html5QrcodeScanner } from "html5-qrcode"
@@ -20,10 +19,14 @@ window.Swal = Swal
 import './roles-drag.js'
 import './permissions-drag.js'
 import Chart from 'chart.js/auto';
-
 window.Chart = Chart;
+
+import './photo-crop.js'
+import './qrcode.js'
+import './pages/platform_analytics.js'
+
 document.addEventListener("DOMContentLoaded",function(){
-    document.querySelectorAll(".password-toggle").forEach(toggle=>{
+    document.querySelectorAll(".password-toggle").forEach(toggle=> {
         toggle.addEventListener("click",function(){
             const input = this.previousElementSibling
             const type = input.type === "password" ? "text" : "password"
@@ -35,13 +38,10 @@ document.addEventListener("DOMContentLoaded",function(){
 })
 
 $(function(){
-
     $('.select2').each(function(){
-
         let ajaxUrl = $(this).data('ajax')
 
         if(ajaxUrl){
-
             $(this).select2({
                 theme:'bootstrap-5',
                 width:'100%',
@@ -63,20 +63,16 @@ $(function(){
                     }
                 }
             })
-
         }else{
-
             $(this).select2({
                 theme:'bootstrap-5',
                 width:'100%',
                 placeholder:'Select option'
             })
-
         }
-
     })
-
 })
+
 document.addEventListener('DOMContentLoaded', function(){
     const currentUrl = window.location.href;
     document.querySelectorAll('.sidebar-sublink').forEach(link => {
@@ -193,3 +189,4 @@ document.addEventListener("DOMContentLoaded", () => {
         })
     }
 })
+

@@ -342,7 +342,12 @@ Route::middleware('auth')->group(function(){
         Route::get('/data', [PermissionController::class, 'ajaxData'])->name('data');
     });
 
-    Route::prefix('roles')->name('roles.')->group(function(){
+    Route::prefix('roles')->name('roles.')
+        ->middleware([
+            'auth',
+            'role:SA',
+        ])
+        ->group(function(){
         Route::get('/', [RoleController::class, 'index'])->name('index');
         Route::get('/create', [RoleController::class, 'create'])->name('create');
         Route::post('/create', [RoleController::class, 'store'])->name('store');

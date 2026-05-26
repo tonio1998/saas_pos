@@ -6,12 +6,10 @@ const FRAME_WIDTH = 260
 const FRAME_HEIGHT = 330
 
 const canvas = document.getElementById('photoCanvas')
-const ctx = canvas ? canvas.getContext('2d') : null
+const ctx = canvas.getContext('2d')
 
-if (canvas && ctx) {
-    canvas.width = FRAME_WIDTH
-    canvas.height = FRAME_HEIGHT
-}
+canvas.width = FRAME_WIDTH
+canvas.height = FRAME_HEIGHT
 
 const upload = document.getElementById('uploadPhoto')
 const zoomIn = document.getElementById('zoomIn')
@@ -133,127 +131,114 @@ if (currentPhoto) {
     loadImage(currentPhoto)
 }
 
-if (upload) {
-    upload.addEventListener('change', e => {
-        const file = e.target.files?.[0]
+upload.addEventListener('change', e => {
+    const file = e.target.files?.[0]
 
-        if (!file) return
+    if (!file) return
 
-        if (!file.type.startsWith('image/')) {
-            alert('Please select a valid image')
-            return
-        }
+    if (!file.type.startsWith('image/')) {
+        alert('Please select a valid image')
+        return
+    }
 
-        const reader = new FileReader()
+    const reader = new FileReader()
 
-        reader.onload = ev => {
-            loadImage(ev.target.result)
-        }
+    reader.onload = ev => {
+        loadImage(ev.target.result)
+    }
 
-        reader.onerror = () => {
-            alert('Failed to read image')
-        }
+    reader.onerror = () => {
+        alert('Failed to read image')
+    }
 
-        reader.readAsDataURL(file)
-    })
-}
+    reader.readAsDataURL(file)
+})
 
-if (canvas) {
-    canvas.addEventListener('mousedown', e => {
+canvas.addEventListener('mousedown', e => {
+    if (!img.src) return
+
+    isDragging = true
+
+    startX = e.offsetX - posX
+    startY = e.offsetY - posY
+})
+
+canvas.addEventListener('mousemove', e => {
+    if (!isDragging) return
+
+    posX = e.offsetX - startX
+    posY = e.offsetY - startY
+
+    draw()
+})
+
+canvas.addEventListener('mouseup', () => {
+    isDragging = false
+})
+
+canvas.addEventListener('mouseleave', () => {
+    isDragging = false
+})
+
+canvas.addEventListener(
+    'wheel',
+    e => {
+        e.preventDefault()
+
         if (!img.src) return
 
-        isDragging = true
+        applyZoom(e.deltaY < 0 ? 1.05 : 0.95)
+    },
+    { passive: false }
+)
 
-        startX = e.offsetX - posX
-        startY = e.offsetY - posY
-    })
+zoomIn.addEventListener('click', () => {
+    if (!img.src) return
 
-    canvas.addEventListener('mousemove', e => {
-        if (!isDragging) return
+    applyZoom(1.1)
+})
 
-        posX = e.offsetX - startX
-        posY = e.offsetY - startY
+zoomOut.addEventListener('click', () => {
+    if (!img.src) return
 
-        draw()
-    })
+    applyZoom(0.9)
+})
 
-    canvas.addEventListener('mouseup', () => {
-        isDragging = false
-    })
+resetBtn.addEventListener('click', () => {
+    if (currentPhoto) {
+        loadImage(currentPhoto)
+        return
+    }
 
-    canvas.addEventListener('mouseleave', () => {
-        isDragging = false
-    })
+    ctx.clearRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT)
 
-    canvas.addEventListener(
-        'wheel',
-        e => {
-            e.preventDefault()
+    img = new Image()
 
-            if (!img.src) return
+    scale = 1
+    minScale = 1
 
-            applyZoom(e.deltaY < 0 ? 1.05 : 0.95)
-        },
-        { passive: false }
-    )
-}
+    posX = 0
+    posY = 0
+})
 
-if(zoomIn){
-    zoomIn.addEventListener('click', () => {
-        if (!img.src) return
+saveBtn.addEventListener('click', e => {
+    if (!img.src) {
+        e.preventDefault()
 
-        applyZoom(1.1)
-    })
-}
-if(zoomOut){
-    zoomOut.addEventListener('click', () => {
-        if (!img.src) return
+        alert('Please upload a photo first')
 
-        applyZoom(0.9)
-    })
+        return
+    }
 
-}
+    try {
+        const cropped = canvas.toDataURL('image/jpeg', 1)
 
-if(resetBtn){
-    resetBtn.addEventListener('click', () => {
-        if (currentPhoto) {
-            loadImage(currentPhoto)
-            return
-        }
+        croppedInput.value = cropped
+    } catch (err) {
+        e.preventDefault()
 
-        ctx.clearRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT)
+        console.error(err)
 
-        img = new Image()
-
-        scale = 1
-        minScale = 1
-
-        posX = 0
-        posY = 0
-    })
-}
-
-if(saveBtn){
-    saveBtn.addEventListener('click', e => {
-        if (!img.src) {
-            e.preventDefault()
-
-            alert('Please upload a photo first')
-
-            return
-        }
-
-        try {
-            const cropped = canvas.toDataURL('image/jpeg', 1)
-
-            croppedInput.value = cropped
-        } catch (err) {
-            e.preventDefault()
-
-            console.error(err)
-
-            alert('Failed to process image')
-        }
-    })
-
-}
+        alert('Failed to process image')
+    }
+})

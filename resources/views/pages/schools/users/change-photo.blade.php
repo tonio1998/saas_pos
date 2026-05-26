@@ -1,9 +1,9 @@
-@extends('layouts.app')
+@extends('layouts.id')
 
 @section('title','User Photo')
 
 @section('content')
-    @vite('resources/js/photo-crop.js')
+{{--    @vite('resources/js/photo-crop.js')--}}
 
     <div class="row justify-content-center">
         <div class="col-lg-6">

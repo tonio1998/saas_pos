@@ -18,8 +18,6 @@ let uploadedImage = null
 let cropper = null
 let qrData = ''
 
-
-
 function setupCanvas(canvas, ctx){
     const ratio = window.devicePixelRatio || 1
 
@@ -158,12 +156,7 @@ function loadImage(src){
 async function drawFront(){
 
     const canvas = document.getElementById('frontCanvas')
-
-    if (!canvas) return
-
     const ctx = canvas.getContext('2d')
-
-    if (!ctx) return
 
     setupCanvas(canvas, ctx)
 
@@ -226,7 +219,6 @@ async function drawFront(){
         .toUpperCase()
 
     ctx.font = 'italic 18px Arial'
-
     ctx.fillText(
         'Student Signature',
         width / 2,
@@ -357,12 +349,7 @@ function drawAcademicTable(ctx,x,y){
 async function drawBack(){
 
     const canvas = document.getElementById('backCanvas')
-
-    if (!canvas) return
-
     const ctx = canvas.getContext('2d')
-
-    if (!ctx) return
 
     setupCanvas(canvas, ctx)
 

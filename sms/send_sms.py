@@ -101,7 +101,7 @@ def send_sms(port, number, message):
                     "Retrying in 5 seconds..."
                 )
 
-                time.sleep(5)
+                time.sleep(3)
 
         if signal == 99:
 
@@ -180,7 +180,7 @@ def send_sms(port, number, message):
             + b"\x1A"
         )
 
-        time.sleep(8)
+        time.sleep(3)
 
         final_response = ser.read_all().decode(
             errors='ignore'

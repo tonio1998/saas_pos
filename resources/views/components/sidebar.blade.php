@@ -5,86 +5,86 @@
                         auth()->user()->hasRole('SA') &&
                         !session('school_id')
                     )
-        <ul class="sidebar-menu">
-            <li class="sidebar-item">
-                <a href="#" class="sidebar-link text-muted">SUPER ADMIN</a>
-            </li>
-            <li class="sidebar-item">
-                <a
-                    href="{{ route('sa.dashboard.index') }}"
-                    class="sidebar-link {{ request()->routeIs('sa.dashboard.index') ? 'active' : '' }}"
-                >
-                    <i class="bi bi-grid-1x2-fill sidebar-icon"></i>
-                    <span>
-                    Dashboard
-                </span>
-                </a>
-            </li>
-            @can('schools.view')
+            <ul class="sidebar-menu">
                 <li class="sidebar-item">
-                    <a href="{{ route('schools.index') }}" class="sidebar-link {{ request()->routeIs('schools.*') ? 'active' : '' }}">
-                        <i class="bi bi-buildings sidebar-icon"></i>
-                        <span>School Management</span>
-                    </a>
+                    <a href="#" class="sidebar-link text-muted">SUPER ADMIN</a>
                 </li>
-            @endcan
-            @canany(['permissions.view','roles.view'])
                 <li class="sidebar-item">
                     <a
-                        class="sidebar-link"
-                        data-bs-toggle="collapse"
-                        href="#rolesMenu"
-                        role="button"
+                        href="{{ route('sa.dashboard.index') }}"
+                        class="sidebar-link {{ request()->routeIs('sa.dashboard.index') ? 'active' : '' }}"
                     >
+                        <i class="bi bi-grid-1x2-fill sidebar-icon"></i>
+                        <span>
+                    Dashboard
+                </span>
+                    </a>
+                </li>
+                @can('schools.view')
+                    <li class="sidebar-item">
+                        <a href="{{ route('sa.schools.index') }}" class="sidebar-link {{ request()->routeIs('schools.*') ? 'active' : '' }}">
+                            <i class="bi bi-buildings sidebar-icon"></i>
+                            <span>School Management</span>
+                        </a>
+                    </li>
+                @endcan
+                @canany(['permissions.view','roles.view'])
+                    <li class="sidebar-item">
+                        <a
+                            class="sidebar-link"
+                            data-bs-toggle="collapse"
+                            href="#rolesMenu"
+                            role="button"
+                        >
+                            <i class="bi bi-shield-check sidebar-icon"></i>
+                            <span>Role & Permission</span>
+                            <i class="bi bi-chevron-down dropdown-icon"></i>
+                        </a>
+
+                        <div
+                            class="collapse sidebar-dropdown"
+                            id="rolesMenu"
+                        >
+
+                            @can('permissions.view')
+                                <a
+                                    href="{{ route('permissions.index') }}"
+                                    class="sidebar-sublink"
+                                >
+                                    <i class="bi bi-key-fill sidebar-subicon"></i>
+                                    <span>Permissions</span>
+                                </a>
+                            @endcan
+
+                            @can('roles.view')
+                                <a
+                                    href="{{ route('roles.index') }}"
+                                    class="sidebar-sublink"
+                                >
+                                    <i class="bi bi-person-workspace sidebar-subicon"></i>
+                                    <span>Roles</span>
+                                </a>
+                            @endcan
+
+                        </div>
+
+                    </li>
+                @endcanany
+
+                <li class="sidebar-item">
+                    <a class="sidebar-link" data-bs-toggle="collapse" href="#usersMenu" role="button">
                         <i class="bi bi-shield-check sidebar-icon"></i>
-                        <span>Role & Permission</span>
+                        <span>User Management</span>
                         <i class="bi bi-chevron-down dropdown-icon"></i>
                     </a>
-
-                    <div
-                        class="collapse sidebar-dropdown"
-                        id="rolesMenu"
-                    >
-
-                        @can('permissions.view')
-                            <a
-                                href="{{ route('permissions.index') }}"
-                                class="sidebar-sublink"
-                            >
-                                <i class="bi bi-key-fill sidebar-subicon"></i>
-                                <span>Permissions</span>
-                            </a>
-                        @endcan
-
-                        @can('roles.view')
-                            <a
-                                href="{{ route('roles.index') }}"
-                                class="sidebar-sublink"
-                            >
-                                <i class="bi bi-person-workspace sidebar-subicon"></i>
-                                <span>Roles</span>
-                            </a>
-                        @endcan
-
+                    <div class="collapse sidebar-dropdown" id="usersMenu">
+                        <a href="{{ route('users.index') }}" class="sidebar-sublink">
+                            <i class="bi bi-people-fill sidebar-subicon"></i>
+                            <span>Masterlist</span>
+                        </a>
                     </div>
-
                 </li>
-            @endcanany
-
-            <li class="sidebar-item">
-                <a class="sidebar-link" data-bs-toggle="collapse" href="#usersMenu" role="button">
-                    <i class="bi bi-shield-check sidebar-icon"></i>
-                    <span>User Management</span>
-                    <i class="bi bi-chevron-down dropdown-icon"></i>
-                </a>
-                <div class="collapse sidebar-dropdown" id="usersMenu">
-                    <a href="{{ route('users.index') }}" class="sidebar-sublink">
-                        <i class="bi bi-people-fill sidebar-subicon"></i>
-                        <span>Masterlist</span>
-                    </a>
-                </div>
-            </li>
-        </ul>
+            </ul>
         @endif
 
         @if(session('school_id') > 0)
@@ -396,24 +396,24 @@
                     </li>
                 @endcan
 
-{{--                @can('settings.view')--}}
-{{--                    <li class="sidebar-item">--}}
+                {{--                @can('settings.view')--}}
+                {{--                    <li class="sidebar-item">--}}
 
-{{--                        <a--}}
-{{--                            href="{{ route('settings.index') }}"--}}
-{{--                            class="sidebar-link {{ request()->routeIs('settings.index') ? 'active' : '' }}"--}}
-{{--                        >--}}
+                {{--                        <a--}}
+                {{--                            href="{{ route('settings.index') }}"--}}
+                {{--                            class="sidebar-link {{ request()->routeIs('settings.index') ? 'active' : '' }}"--}}
+                {{--                        >--}}
 
-{{--                            <i class="bi bi-sliders2-vertical sidebar-icon"></i>--}}
+                {{--                            <i class="bi bi-sliders2-vertical sidebar-icon"></i>--}}
 
-{{--                            <span>--}}
-{{--                                Settings--}}
-{{--                            </span>--}}
+                {{--                            <span>--}}
+                {{--                                Settings--}}
+                {{--                            </span>--}}
 
-{{--                        </a>--}}
+                {{--                        </a>--}}
 
-{{--                    </li>--}}
-{{--                @endcan--}}
+                {{--                    </li>--}}
+                {{--                @endcan--}}
 
             </ul>
         @endif

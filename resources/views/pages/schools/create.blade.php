@@ -136,7 +136,7 @@
                                 <x-form.input
                                     name="SchoolCode"
                                     value="{{ old('SchoolCode', $school->SchoolCode ?? '') }}"
-                                    placeholder="SNSU"
+                                    placeholder="XXXXXXX"
                                     style="text-transform:uppercase"
                                 />
 

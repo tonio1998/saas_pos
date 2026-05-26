@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.id')
 @section('title','ID Preview')
 
 @section('content')
@@ -76,6 +76,4 @@
         window.student = @json($student);
         window.user = @json($user);
     </script>
-
-    @vite('resources/js/qrcode.js')
 @endsection
