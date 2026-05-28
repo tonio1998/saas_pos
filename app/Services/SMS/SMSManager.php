@@ -6,10 +6,12 @@ use App\Models\SmsQueuingModel;
 use App\Models\SystemSetting;
 use App\Services\SMS\Providers\ApiSMSProvider;
 use App\Services\SMS\Providers\GSMModemProvider;
+use App\Traits\TCommonFunctions;
 use Throwable;
 
 class SMSManager
 {
+    use TCommonFunctions;
     protected $provider;
 
     protected ?SystemSetting $settings = null;
@@ -43,32 +45,18 @@ class SMSManager
         ?int $schoolId = null
     ): void {
 
-        SmsQueuingModel::create([
 
-            'school_id'
-            => $schoolId ?? 0 ,
+        try {
+            $sms = new SmsQueuingModel();
+            $sms->school_id = $schoolId ?? 0;
+            $sms->PhoneNumber = trim($phone);
+            $sms->Message = trim($message);
+            $this->setCommonFields($sms);
+            $sms->save();
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
-            'PhoneNumber'
-            => trim($phone),
-
-            'Message'
-            => trim($message),
-
-            'remark'
-            => 'pending',
-
-            'status'
-            => 'active',
-
-            'archived'
-            => 0,
-
-            'created_by'
-            => 0,
-
-            'updated_by'
-            => 0,
-        ]);
     }
 
     public function send(

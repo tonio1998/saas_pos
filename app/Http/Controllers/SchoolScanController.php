@@ -170,6 +170,8 @@ class SchoolScanController extends Controller
                 $settings?->sms_enabled ?? 1
             );
 
+//            dd($smsEnabled);
+            $sendID = 0;
             if ($smsEnabled === 1) {
 
                 foreach ($phoneNumbers as $number) {
@@ -181,23 +183,21 @@ class SchoolScanController extends Controller
                     );
 
                     if (strlen($cleanNumber) >= 10) {
-
                         try {
-
-                            app(SMSManager::class)
-                                ->queue(
-                                    $cleanNumber,
-                                    $message,
-                                    session('school_id')
-                                );
+                            $sendID = $this->queueSMSSend(
+                                $cleanNumber,
+                                $message
+                            );
 
                         } catch (\Throwable $smsError) {
-
+//                            dd($smsError);
                             report($smsError);
                         }
                     }
                 }
             }
+
+//            dd($sendID);
 
             return response()->json([
                 'status' => 'success',
@@ -272,19 +272,21 @@ class SchoolScanController extends Controller
         }
     }
 
-//    private function queueSMSSend($phoneNumber, $message)
-//    {
-//        $queue = new SmsQueuingModel();
-//        $queue->school_id = session('school_id');
-//        $queue->PhoneNumber = $phoneNumber;
-//        $queue->Message = $message;
-//        $queue->remark = "pending";
-//        $queue->created_at = now();
-//        $queue->updated_at = now();
-//        $queue->status = 'active';
-//        $queue->archived = 0;
-//        $queue->created_by = 0;
-//        $queue->updated_by = 0;
-//        $queue->save();
-//    }
+    private function queueSMSSend($phoneNumber, $message)
+    {
+        $queue = new SmsQueuingModel();
+        $queue->school_id = session('school_id');
+        $queue->PhoneNumber = $phoneNumber;
+        $queue->Message = $message;
+        $queue->remark = "pending";
+        $queue->created_at = now();
+        $queue->updated_at = now();
+        $queue->status = 'active';
+        $queue->archived = 0;
+        $queue->created_by = 0;
+        $queue->updated_by = 0;
+        $queue->save();
+
+        return $queue;
+    }
 }
