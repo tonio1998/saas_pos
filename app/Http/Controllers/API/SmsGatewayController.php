@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 
 class SmsGatewayController extends Controller
 {
@@ -14,14 +15,59 @@ class SmsGatewayController extends Controller
             $request->header('X-API-KEY')
             !== env('SMS_API_KEY')
         ) {
-            abort(403);
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access.',
+            ], 403);
         }
 
-        Artisan::call('sms:process');
+        /*
+        |--------------------------------------------------------------------------
+        | Prevent Multiple Worker Instances
+        |--------------------------------------------------------------------------
+        */
 
-        return response()->json([
-            'success' => true,
-            'message' => 'SMS processing triggered.',
-        ]);
+        if (
+            Cache::has('sms_process_running')
+        ) {
+
+            return response()->json([
+                'success' => true,
+                'triggered' => false,
+                'running' => true,
+                'message' => 'SMS processor is already running.',
+            ]);
+        }
+
+        Cache::put(
+            'sms_process_running',
+            true
+        );
+
+        try {
+
+            Artisan::call('sms:process');
+
+            return response()->json([
+                'success' => true,
+                'triggered' => true,
+                'running' => true,
+                'message' => 'SMS processor started successfully.',
+            ]);
+
+        } catch (\Throwable $e) {
+
+            Cache::forget(
+                'sms_process_running'
+            );
+
+            return response()->json([
+                'success' => false,
+                'triggered' => false,
+                'running' => false,
+                'message' => 'Failed to start SMS processor.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
