@@ -278,11 +278,11 @@
                     'success-flash'
                 );
 
-                speakMessage(
-                    isTimeIn
-                        ? `Welcome ${fullName}`
-                        : `Goodbye ${fullName}`
-                );
+                // speakMessage(
+                //     isTimeIn
+                //         ? `Welcome ${fullName}`
+                //         : `Goodbye ${fullName}`
+                // );
 
                 queueReset();
 
@@ -328,9 +328,9 @@
                     'error-flash'
                 );
 
-                speakMessage(
-                    'Access denied'
-                );
+                // speakMessage(
+                //     'Access denied'
+                // );
 
                 queueReset();
 

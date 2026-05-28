@@ -54,7 +54,7 @@
             </div>
         </div>
 
-        <div class="col-12 col-sm-6 col-xl-2">
+        <div class="col-12 col-sm-6 col-xl-3">
             <div class="dashboard-card warning">
                 <div class="dashboard-glow"></div>
                 <div class="card-top">
@@ -80,7 +80,7 @@
             </div>
         </div>
 
-        <div class="col-12 col-sm-6 col-xl-2">
+        <div class="col-12 col-sm-6 col-xl-3">
             <div class="dashboard-card dark">
                 <div class="dashboard-glow"></div>
                 <div class="card-top">
@@ -97,29 +97,6 @@
                         <div class="card-trend">
                             <span class="live-dot"></span>
                             <div class="text-truncate">Today's Attendance Alerts</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-sm-6 col-xl-2">
-            <div class="dashboard-card primary">
-                <div class="dashboard-glow"></div>
-                <div class="card-top">
-                    <div>
-                        <div class="card-label">
-                           TOTAL SENT SMS
-                        </div>
-                        <div
-                            class="card-value"
-                            id="total-sms-count"
-                        >
-                            {{ number_format($schoolSettings?->total_sent) }}
-                        </div>
-                        <div class="card-trend">
-                            <span class="live-dot"></span>
-                            <div class="text-truncate">Today's Sent Alerts</div>
                         </div>
                     </div>
                 </div>
