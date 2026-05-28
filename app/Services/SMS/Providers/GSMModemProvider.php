@@ -91,26 +91,26 @@ class GSMModemProvider implements SMSProviderInterface
                 $process->getOutput()
             );
 
-//            throw new \Exception(
-//                "GSM SEND FAILED\n\n"
-//                . "PORT: "
-//                . $settings->port_com
-//                . "\n\n"
-//                . "PHONE: "
-//                . $phone
-//                . "\n\n"
-//                . "MESSAGE: "
-//                . $message
-//                . "\n\n"
-//                . "EXIT CODE: "
-//                . $process->getExitCode()
-//                . "\n\n"
-//                . "ERROR OUTPUT:\n"
-//                . ($errorOutput ?: 'EMPTY')
-//                . "\n\n"
-//                . "STANDARD OUTPUT:\n"
-//                . ($standardOutput ?: 'EMPTY')
-//            );
+            throw new \Exception(
+                "GSM SEND FAILED\n\n"
+                . "PORT: "
+                . $settings->port_com
+                . "\n\n"
+                . "PHONE: "
+                . $phone
+                . "\n\n"
+                . "MESSAGE: "
+                . $message
+                . "\n\n"
+                . "EXIT CODE: "
+                . $process->getExitCode()
+                . "\n\n"
+                . "ERROR OUTPUT:\n"
+                . ($errorOutput ?: 'EMPTY')
+                . "\n\n"
+                . "STANDARD OUTPUT:\n"
+                . ($standardOutput ?: 'EMPTY')
+            );
         }
 
         return true;
