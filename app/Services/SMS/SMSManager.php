@@ -55,21 +55,47 @@ class SMSManager
     public function send(
         string $phone,
         string $message
-    ): bool {
+    ): array {
 
         $result = $this->provider
             ->send($phone, $message);
 
-        if (!$result) {
+        if (
+            !($result['success'] ?? false)
+        ) {
 
-            throw new \Exception(
-                'SMS provider returned FALSE.'
-            );
+            $this->markFailed();
+
+            Log::error('SMS SEND FAILED', [
+                'phone' => $phone,
+                'message' => $message,
+                'error' => $result['error'] ?? null,
+                'provider_result' => $result,
+            ]);
+
+            return [
+                'success' => false,
+                'remark' => 'failed',
+                'message' => $result['message']
+                    ?? 'SMS sending failed.',
+                'error' => $result['error']
+                    ?? null,
+            ];
         }
 
         $this->incrementSent();
 
-        return true;
+        Log::info('SMS SEND SUCCESS', [
+            'phone' => $phone,
+            'message' => $message,
+        ]);
+
+        return [
+            'success' => true,
+            'remark' => 'sent',
+            'message' => $result['message']
+                ?? 'SMS sent successfully.',
+        ];
     }
 
     protected function incrementSent(): void

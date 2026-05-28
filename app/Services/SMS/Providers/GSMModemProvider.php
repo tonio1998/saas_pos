@@ -3,6 +3,7 @@
 namespace App\Services\SMS\Providers;
 
 use App\Services\SMS\Contracts\SMSProviderInterface;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\Process\Process;
 
 class GSMModemProvider implements SMSProviderInterface
@@ -10,78 +11,76 @@ class GSMModemProvider implements SMSProviderInterface
     public function send(
         string $phone,
         string $message
-    ): bool {
+    ): array {
 
-        $settings = system_settings();
+        try {
 
-        if (!$settings->python_path) {
+            $settings = system_settings();
 
-            throw new \Exception(
-                'Python path not configured.'
+            if (!$settings->python_path) {
+
+                return [
+                    'success' => false,
+                    'remark' => 'failed',
+                    'message' => 'Python path not configured.',
+                ];
+            }
+
+            if (!$settings->port_com) {
+
+                return [
+                    'success' => false,
+                    'remark' => 'failed',
+                    'message' => 'COM port not configured.',
+                ];
+            }
+
+            $pythonScript = base_path(
+                'sms/send_sms.py'
             );
-        }
 
-        if (!$settings->port_com) {
+            if (!file_exists($pythonScript)) {
 
-            throw new \Exception(
-                'COM port not configured.'
+                return [
+                    'success' => false,
+                    'remark' => 'failed',
+                    'message' => 'send_sms.py not found.',
+                ];
+            }
+
+            $message = iconv(
+                'UTF-8',
+                'ASCII//TRANSLIT//IGNORE',
+                $message
             );
-        }
 
-        $pythonScript = base_path('sms/send_sms.py');
+            $message = trim($message);
 
-        if (!file_exists($pythonScript)) {
-
-            throw new \Exception(
-                'send_sms.py not found.'
+            $message = substr(
+                $message,
+                0,
+                120
             );
-        }
 
-        $message = iconv(
-            'UTF-8',
-            'ASCII//TRANSLIT//IGNORE',
-            $message
-        );
+            Log::info('GSM SEND START', [
+                'phone' => $phone,
+                'message' => $message,
+                'port' => $settings->port_com,
+            ]);
 
-//        $message = str_replace(
-//            ["\r", "\n"],
-//            ' ',
-//            $message
-//        );
-//
-//        $message = preg_replace(
-//            '/[^A-Za-z0-9\s\.\,\-\@\:\(\)]/',
-//            '',
-//            $message
-//        );
-//
-//        $message = preg_replace(
-//            '/\s+/',
-//            ' ',
-//            $message
-//        );
+            $process = new Process([
+                $settings->python_path,
+                $pythonScript,
+                $phone,
+                $message,
+                $settings->port_com,
+            ]);
 
-        $message = trim($message);
+            $process->setTimeout(60);
 
-        $message = substr(
-            $message,
-            0,
-            120
-        );
+            $process->run();
 
-        $process = new Process([
-            $settings->python_path,
-            $pythonScript,
-            $phone,
-            $message,
-            $settings->port_com,
-        ]);
-
-        $process->setTimeout(60);
-
-        $process->run();
-
-        if (!$process->isSuccessful()) {
+            $success = $process->isSuccessful();
 
             $errorOutput = trim(
                 $process->getErrorOutput()
@@ -91,28 +90,45 @@ class GSMModemProvider implements SMSProviderInterface
                 $process->getOutput()
             );
 
-            throw new \Exception(
-                "GSM SEND FAILED\n\n"
-                . "PORT: "
-                . $settings->port_com
-                . "\n\n"
-                . "PHONE: "
-                . $phone
-                . "\n\n"
-                . "MESSAGE: "
-                . $message
-                . "\n\n"
-                . "EXIT CODE: "
-                . $process->getExitCode()
-                . "\n\n"
-                . "ERROR OUTPUT:\n"
-                . ($errorOutput ?: 'EMPTY')
-                . "\n\n"
-                . "STANDARD OUTPUT:\n"
-                . ($standardOutput ?: 'EMPTY')
-            );
-        }
+            Log::info('GSM PROCESS RESULT', [
+                'success' => $success,
+                'output' => $standardOutput,
+                'error' => $errorOutput,
+                'exit_code' => $process->getExitCode(),
+            ]);
 
-        return true;
+            if (!$success) {
+
+                return [
+                    'success' => false,
+                    'remark' => 'failed',
+                    'message' => 'SMS sending failed.',
+                    'error' => $errorOutput ?: $standardOutput,
+                    'exit_code' => $process->getExitCode(),
+                ];
+            }
+
+            return [
+                'success' => true,
+                'remark' => 'sent',
+                'message' => 'SMS sent successfully.',
+                'output' => $standardOutput,
+            ];
+
+        } catch (\Throwable $e) {
+
+            Log::error('GSM SEND EXCEPTION', [
+                'phone' => $phone,
+                'message' => $message,
+                'error' => $e->getMessage(),
+            ]);
+
+            return [
+                'success' => false,
+                'remark' => 'failed',
+                'message' => 'Unexpected GSM exception.',
+                'error' => $e->getMessage(),
+            ];
+        }
     }
 }
