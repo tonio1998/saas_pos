@@ -377,7 +377,7 @@
                     <div>
 
                         <h5 class="sa-title">
-                            Platform Analytics
+                            Platform Analyticss
                         </h5>
 
                         <div class="sa-subtitle">
