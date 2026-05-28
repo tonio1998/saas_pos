@@ -13,9 +13,13 @@ class SystemSetting extends Model implements AuditableContract
     protected $table = 'system_settings';
 
     protected $fillable = [
+
         'cacert_path',
+
         'python_path',
+
         'port_com',
+
         'sms_provider',
 
         'sms_api_url',
@@ -34,13 +38,13 @@ class SystemSetting extends Model implements AuditableContract
 
         'sms_last_error',
 
-        'sms_last_failed_at',
-
         'sms_failed_count',
 
         'sms_low_balance',
 
         'total_sent',
+
+        'sms_last_failed_at',
 
         'remark',
     ];

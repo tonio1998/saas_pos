@@ -11,8 +11,11 @@ use Throwable;
 class SMSManager
 {
     protected $provider;
+
     protected ?SystemSetting $settings = null;
+
     private const MAX_RETRY = 2;
+
     private const RETRY_DELAY_US = 500000;
 
     public function __construct()
@@ -87,6 +90,18 @@ class SMSManager
             => 'processing',
         ]);
 
+        if ($this->settings) {
+
+            $this->settings->update([
+
+                'sms_status'
+                => 'processing',
+
+                'remark'
+                => 'Sending SMS...',
+            ]);
+        }
+
         for (
             $attempt = 1;
             $attempt <= self::MAX_RETRY;
@@ -110,9 +125,10 @@ class SMSManager
                     );
                 }
 
-                $this->settings->update([
+                $sms->update([
 
-                    'remark'=> 'sent',
+                    'remark'
+                    => 'sent',
 
                     'error_message'
                     => null,
@@ -133,7 +149,7 @@ class SMSManager
                         $e->getMessage()
                     );
 
-                $this->settings->update([
+                $sms->update([
 
                     'remark'
                     => 'failed',
@@ -164,55 +180,6 @@ class SMSManager
         );
     }
 
-    protected function friendlyError(
-        string $message
-    ): string {
-
-        $message = strtolower(
-            $message
-        );
-
-        return match (true) {
-
-            str_contains(
-                $message,
-                'weak signal'
-            ) => 'Weak GSM signal',
-
-            str_contains(
-                $message,
-                'network registration'
-            ) => 'Network registration failed',
-
-            str_contains(
-                $message,
-                'modem not responding'
-            ) => 'Modem disconnected',
-
-            str_contains(
-                $message,
-                'serial error'
-            ) => 'COM port unavailable',
-
-            str_contains(
-                $message,
-                'timeout'
-            ) => 'SMS timeout',
-
-            str_contains(
-                $message,
-                'recipient rejected'
-            ) => 'Recipient rejected',
-
-            str_contains(
-                $message,
-                'sim'
-            ) => 'SIM card issue',
-
-            default => 'Unknown GSM error',
-        };
-    }
-
     protected function markSuccess(): void
     {
         if (!$this->settings) {
@@ -236,6 +203,9 @@ class SMSManager
 
             'sms_last_failed_at'
             => null,
+
+            'remark'
+            => 'SMS operational',
         ]);
     }
 
@@ -247,11 +217,6 @@ class SMSManager
             return;
         }
 
-        $signalStatus =
-            $this->detectSignalStatus(
-                $message
-            );
-
         $this->settings->increment(
             'sms_failed_count'
         );
@@ -262,13 +227,18 @@ class SMSManager
             => 'error',
 
             'sms_signal_status'
-            => $signalStatus,
+            => $this->detectSignalStatus(
+                $message
+            ),
 
             'sms_last_error'
             => $message,
 
             'sms_last_failed_at'
             => now(),
+
+            'remark'
+            => $message,
         ]);
     }
 
@@ -277,32 +247,181 @@ class SMSManager
     ): string {
 
         $message = strtolower(
-            $message
+            trim($message)
         );
 
-        return match (true) {
+        if (
+            str_contains(
+                $message,
+                '+creg: 0,0'
+            )
+        ) {
 
+            return 'offline';
+        }
+
+        if (
+            str_contains(
+                $message,
+                '+creg: 0,2'
+            )
+        ) {
+
+            return 'searching';
+        }
+
+        if (
+            str_contains(
+                $message,
+                '+creg: 0,3'
+            )
+        ) {
+
+            return 'denied';
+        }
+
+        if (
             str_contains(
                 $message,
                 'weak signal'
-            ) => 'weak',
+            )
+        ) {
 
-            str_contains(
-                $message,
-                'network registration'
-            ) => 'searching',
+            return 'weak';
+        }
 
-            str_contains(
-                $message,
-                'modem disconnected'
-            ) => 'offline',
-
+        if (
             str_contains(
                 $message,
                 'timeout'
-            ) => 'slow',
+            )
+        ) {
 
-            default => 'unknown',
-        };
+            return 'slow';
+        }
+
+        return 'unknown';
+    }
+
+    protected function friendlyError(
+        string $message
+    ): string {
+
+        $message = strtolower(
+            trim($message)
+        );
+
+        if (
+            str_contains(
+                $message,
+                '+creg: 0,0'
+            )
+        ) {
+
+            return
+                'SIM not connected to GSM network';
+        }
+
+        if (
+            str_contains(
+                $message,
+                '+creg: 0,2'
+            )
+        ) {
+
+            return
+                'Searching GSM network';
+        }
+
+        if (
+            str_contains(
+                $message,
+                '+creg: 0,3'
+            )
+        ) {
+
+            return
+                'GSM network registration denied';
+        }
+
+        if (
+            str_contains(
+                $message,
+                'weak signal'
+            )
+        ) {
+
+            return
+                'Weak GSM signal';
+        }
+
+        if (
+            str_contains(
+                $message,
+                'network registration'
+            )
+        ) {
+
+            return
+                'Network registration failed';
+        }
+
+        if (
+            str_contains(
+                $message,
+                'modem not responding'
+            )
+        ) {
+
+            return
+                'Modem disconnected';
+        }
+
+        if (
+            str_contains(
+                $message,
+                'serial error'
+            )
+        ) {
+
+            return
+                'COM port unavailable';
+        }
+
+        if (
+            str_contains(
+                $message,
+                'timeout'
+            )
+        ) {
+
+            return
+                'SMS timeout';
+        }
+
+        if (
+            str_contains(
+                $message,
+                'recipient rejected'
+            )
+        ) {
+
+            return
+                'Recipient rejected';
+        }
+
+        if (
+            str_contains(
+                $message,
+                'sim'
+            )
+        ) {
+
+            return
+                'SIM card issue';
+        }
+
+        return
+            'Unknown GSM modem error';
     }
 }
