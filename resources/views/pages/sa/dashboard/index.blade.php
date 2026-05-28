@@ -136,7 +136,10 @@
 
         <div class="col-12 col-sm-6 col-xl-3">
 
-            <div class="sa-card sa-dark">
+            <div
+                class="sa-card sa-dark"
+                id="gsm-card"
+            >
 
                 <div class="sa-card-pattern"></div>
 
@@ -145,25 +148,31 @@
                     <div>
 
                         <div class="sa-label">
-                            SYSTEM STATUS
+                            GSM STATUS
                         </div>
 
-                        <div class="sa-value fs-4">
-                            ONLINE
+                        <div
+                            class="sa-value fs-4"
+                            id="gsm-status"
+                        >
+                            UNKNOWN
                         </div>
 
-                        <div class="sa-meta">
+                        <div
+                            class="sa-meta"
+                            id="gsm-meta"
+                        >
 
                             <span class="live-dot"></span>
 
-                            All Services Operational
+                            Waiting for modem...
 
                         </div>
 
                     </div>
 
                     <div class="sa-icon">
-                        <i class="bi bi-shield-check"></i>
+                        <i class="bi bi-router-fill"></i>
                     </div>
 
                 </div>
@@ -366,6 +375,172 @@
 
     </div>
 
+    <div class="row g-4 mb-4">
+
+        <div class="col-12">
+
+            <div class="sa-panel">
+
+                <div class="sa-panel-header">
+
+                    <div>
+
+                        <h5 class="sa-title">
+                            GSM Modem Diagnostics
+                        </h5>
+
+                        <div class="sa-subtitle">
+                            Real-time SMS gateway monitoring
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="row g-4">
+
+                    <div class="col-md-3">
+
+                        <div class="analytics-box">
+
+                            <div class="analytics-icon primary">
+                                <i class="bi bi-broadcast-pin"></i>
+                            </div>
+
+                            <div>
+
+                                <div class="analytics-label">
+                                    Signal
+                                </div>
+
+                                <div
+                                    class="analytics-value"
+                                    id="gsm-signal"
+                                >
+                                    UNKNOWN
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <div class="analytics-box">
+
+                            <div class="analytics-icon warning">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                            </div>
+
+                            <div>
+
+                                <div class="analytics-label">
+                                    Failed SMS
+                                </div>
+
+                                <div
+                                    class="analytics-value"
+                                    id="gsm-failed-count"
+                                >
+                                    0
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <div class="analytics-box">
+
+                            <div class="analytics-icon success">
+                                <i class="bi bi-send-check-fill"></i>
+                            </div>
+
+                            <div>
+
+                                <div class="analytics-label">
+                                    Total Sent
+                                </div>
+
+                                <div
+                                    class="analytics-value"
+                                    id="gsm-total-sent"
+                                >
+                                    0
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <div class="analytics-box">
+
+                            <div class="analytics-icon dark">
+                                <i class="bi bi-cpu-fill"></i>
+                            </div>
+
+                            <div>
+
+                                <div class="analytics-label">
+                                    Provider
+                                </div>
+
+                                <div
+                                    class="analytics-value"
+                                    id="gsm-provider"
+                                >
+                                    GSM
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="mt-4">
+
+                    <div
+                        class="alert alert-warning mb-0"
+                        id="gsm-error-box"
+                    >
+
+                        <strong>
+                            Last Error:
+                        </strong>
+
+                        <span id="gsm-last-error">
+                        No GSM errors detected.
+                    </span>
+
+                        <div
+                            class="small mt-1"
+                            id="gsm-last-failed"
+                        >
+                            --
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
     <div class="row g-4">
 
         <div class="col-xl-7">
@@ -377,7 +552,7 @@
                     <div>
 
                         <h5 class="sa-title">
-                            Platform Analyticss
+                            Platform Analytics
                         </h5>
 
                         <div class="sa-subtitle">
@@ -550,23 +725,132 @@
                 );
         }
 
-        updateClock();
+        function setText(
+            id,
+            value
+        ){
 
-        setInterval(
-            updateClock,
-            1000
-        );
+            const element =
+                document.getElementById(id);
 
-    </script>
+            if(element){
 
-    <script>
+                element.innerText =
+                    value ?? '--';
 
-        loadDashboard();
+            }
 
-        setInterval(
-            loadDashboard,
-            5000
-        );
+        }
+
+        function formatNumber(number){
+
+            return new Intl.NumberFormat()
+                .format(number || 0);
+
+        }
+
+        function updateSMSUI(settings){
+
+            const gsmCard =
+                document.getElementById(
+                    'gsm-card'
+                );
+
+            gsmCard.classList.remove(
+                'sa-dark',
+                'sa-success',
+                'sa-warning',
+                'sa-danger'
+            );
+
+            if(
+                settings?.status
+                === 'online'
+            ){
+
+                gsmCard.classList.add(
+                    'sa-success'
+                );
+
+            }
+
+            else if(
+                settings?.status
+                === 'error'
+            ){
+
+                gsmCard.classList.add(
+                    'sa-danger'
+                );
+
+            }
+
+            else{
+
+                gsmCard.classList.add(
+                    'sa-warning'
+                );
+
+            }
+
+            setText(
+                'gsm-status',
+                (
+                    settings?.status
+                    || 'unknown'
+                ).toUpperCase()
+            );
+
+            setText(
+                'gsm-meta',
+                (
+                    settings?.signal_status
+                    || 'unknown'
+                ).toUpperCase()
+            );
+
+            setText(
+                'gsm-signal',
+                (
+                    settings?.signal_status
+                    || 'unknown'
+                ).toUpperCase()
+            );
+
+            setText(
+                'gsm-failed-count',
+                formatNumber(
+                    settings?.failed_count
+                )
+            );
+
+            setText(
+                'gsm-total-sent',
+                formatNumber(
+                    settings?.total_sent
+                )
+            );
+
+            setText(
+                'gsm-provider',
+                (
+                    settings?.provider
+                    || 'gsm'
+                ).toUpperCase()
+            );
+
+            setText(
+                'gsm-last-error',
+                settings?.last_error
+                || 'No GSM errors detected.'
+            );
+
+            setText(
+                'gsm-last-failed',
+                settings?.last_failed_at
+                || '--'
+            );
+        }
 
         async function loadDashboard(){
 
@@ -637,6 +921,10 @@
                     )
                 );
 
+                updateSMSUI(
+                    data.smsSettings
+                );
+
                 renderFeed(
                     data.recentActivities || []
                 );
@@ -675,7 +963,6 @@
             `;
 
                 return;
-
             }
 
             let html = '';
@@ -701,6 +988,15 @@
                             ${item.description}
                         </div>
 
+                        <div
+                            class="
+                                text-muted
+                                small
+                            "
+                        >
+                            ${item.ip || ''}
+                        </div>
+
                     </div>
 
                     <div class="feed-time">
@@ -714,26 +1010,19 @@
             feed.innerHTML = html;
         }
 
-        function setText(id,value){
+        updateClock();
 
-            const element =
-                document.getElementById(id);
+        setInterval(
+            updateClock,
+            1000
+        );
 
-            if(element){
+        loadDashboard();
 
-                element.innerText =
-                    value;
-
-            }
-
-        }
-
-        function formatNumber(number){
-
-            return new Intl.NumberFormat()
-                .format(number || 0);
-
-        }
+        setInterval(
+            loadDashboard,
+            5000
+        );
 
     </script>
 

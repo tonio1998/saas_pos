@@ -81,6 +81,7 @@ class SmsGatewayController extends Controller
 
             return response()->json([
                 'success' => false,
+                'remark' => 'unauthorized',
                 'message' => 'Unauthorized access.',
             ], 403);
         }
@@ -90,41 +91,189 @@ class SmsGatewayController extends Controller
                 'required',
                 'string',
             ],
+
             'message' => [
                 'required',
                 'string',
             ],
         ]);
 
+        $portName  = fopen(
+            '\\\\.\\COM5',
+            'w+'
+        );
+
+        if (!$portName) {
+
+            return response()->json([
+                'success' => false,
+                'remark' => 'failed',
+                'message' => 'COM port not configured.',
+            ], 500);
+        }
+
         try {
 
-            $result = app(
-                SMSManager::class
-            )->send(
-                $request->number,
+            $phone = preg_replace(
+                '/[^0-9]/',
+                '',
+                $request->number
+            );
+
+            if (
+                str_starts_with($phone, '09')
+            ) {
+
+                $phone = '63'
+                    . substr($phone, 1);
+            }
+
+            $message = trim(
                 $request->message
             );
 
+            $message = substr(
+                $message,
+                0,
+                120
+            );
+
+            $port = fopen(
+                $portName,
+                'w+'
+            );
+
+            if (!$port) {
+
+                return response()->json([
+                    'success' => false,
+                    'remark' => 'failed',
+                    'message' => 'Unable to open COM port.',
+                    'debug' => [
+                        'port' => $portName,
+                    ],
+                ], 500);
+            }
+
+            stream_set_blocking(
+                $port,
+                true
+            );
+
+            fwrite($port, "AT\r");
+
+            sleep(1);
+
+            $atResponse = fread(
+                $port,
+                128
+            );
+
+            fwrite($port, "AT+CMGF=1\r");
+
+            sleep(1);
+
+            $textModeResponse = fread(
+                $port,
+                128
+            );
+
+            fwrite(
+                $port,
+                "AT+CMGS=\"{$phone}\"\r"
+            );
+
+            sleep(2);
+
+            $recipientResponse = fread(
+                $port,
+                128
+            );
+
+            fwrite(
+                $port,
+                $message
+            );
+
+            fwrite(
+                $port,
+                chr(26)
+            );
+
+            sleep(5);
+
+            $finalResponse = fread(
+                $port,
+                1024
+            );
+
+            fclose($port);
+
             return response()->json([
-                'success' => $result['success'] ?? false,
-                'remark' => $result['remark'] ?? null,
-                'message' => $result['message'] ?? null,
-                'error' => $result['error'] ?? null,
-                'result' => $result,
+
+                'success' => str_contains(
+                        $finalResponse,
+                        'OK'
+                    ) || str_contains(
+                        $finalResponse,
+                        '+CMGS'
+                    ),
+
+                'remark' => str_contains(
+                    $finalResponse,
+                    '+CMGS'
+                )
+                    ? 'sent'
+                    : 'failed',
+
+                'message' => str_contains(
+                    $finalResponse,
+                    '+CMGS'
+                )
+                    ? 'SMS sent successfully.'
+                    : 'SMS sending failed.',
+
                 'debug' => [
-                    'provider' => system_settings()->sms_provider,
-                    'python_path' => system_settings()->python_path,
-                    'com_port' => system_settings()->port_com,
-                    'timestamp' => now(),
+
+                    'port' => $portName,
+
+                    'phone' => $phone,
+
+                    'processed_message' => $message,
+
+                    'responses' => [
+
+                        'AT' => $atResponse,
+
+                        'TEXT_MODE' => $textModeResponse,
+
+                        'RECIPIENT' => $recipientResponse,
+
+                        'FINAL' => $finalResponse,
+                    ],
                 ],
-            ], ($result['success'] ?? false) ? 200 : 500);
+
+            ], str_contains(
+                $finalResponse,
+                '+CMGS'
+            ) ? 200 : 500);
 
         } catch (\Throwable $e) {
 
             return response()->json([
+
                 'success' => false,
-                'message' => 'SMS sending failed.',
+
+                'remark' => 'failed',
+
+                'message' => 'Unexpected GSM exception.',
+
                 'error' => $e->getMessage(),
+
+                'debug' => [
+                    'port' => $portName,
+                ],
+
             ], 500);
         }
     }

@@ -6,23 +6,34 @@ use App\Models\SmsQueuingModel;
 use App\Models\SystemSetting;
 use App\Services\SMS\Providers\ApiSMSProvider;
 use App\Services\SMS\Providers\GSMModemProvider;
-use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class SMSManager
 {
     protected $provider;
 
+    protected ?SystemSetting $settings = null;
+
+    private const MAX_RETRY = 2;
+
+    private const RETRY_DELAY_US = 500000;
+
     public function __construct()
     {
-        $settings = system_settings();
+        $this->settings = system_settings();
 
-        $provider = $settings->sms_provider ?? 'api';
+        $provider = $this->settings?->sms_provider
+            ?? 'api';
 
         $this->provider = match ($provider) {
 
-            'gsm' => app(GSMModemProvider::class),
+            'gsm' => app(
+                GSMModemProvider::class
+            ),
 
-            default => app(ApiSMSProvider::class),
+            default => app(
+                ApiSMSProvider::class
+            ),
         };
     }
 
@@ -34,90 +45,268 @@ class SMSManager
 
         SmsQueuingModel::create([
 
-            'school_id' => $schoolId,
+            'school_id'
+            => $schoolId,
 
-            'PhoneNumber' => $phone,
+            'PhoneNumber'
+            => trim($phone),
 
-            'Message' => $message,
+            'Message'
+            => trim($message),
 
-            'remark' => 'pending',
+            'remark'
+            => 'pending',
 
-            'status' => 'active',
+            'status'
+            => 'active',
 
-            'archived' => 0,
+            'archived'
+            => 0,
 
-            'created_by' => 0,
+            'created_by'
+            => 0,
 
-            'updated_by' => 0,
+            'updated_by'
+            => 0,
         ]);
     }
 
     public function send(
-        string $phone,
-        string $message
-    ): array {
+        SmsQueuingModel $sms
+    ): bool {
 
-        $result = $this->provider
-            ->send($phone, $message);
+        $lastException = null;
 
-        if (
-            !($result['success'] ?? false)
-        ) {
+        $sms->increment(
+            'attempt_count'
+        );
 
-            $this->markFailed();
+        $sms->update([
 
-            Log::error('SMS SEND FAILED', [
-                'phone' => $phone,
-                'message' => $message,
-                'error' => $result['error'] ?? null,
-                'provider_result' => $result,
-            ]);
+            'last_attempt_at'
+            => now(),
 
-            return [
-                'success' => false,
-                'remark' => 'failed',
-                'message' => $result['message']
-                    ?? 'SMS sending failed.',
-                'error' => $result['error']
-                    ?? null,
-            ];
-        }
-
-        $this->incrementSent();
-
-        Log::info('SMS SEND SUCCESS', [
-            'phone' => $phone,
-            'message' => $message,
+            'remark'
+            => 'processing',
         ]);
 
-        return [
-            'success' => true,
-            'remark' => 'sent',
-            'message' => $result['message']
-                ?? 'SMS sent successfully.',
-        ];
+        for (
+            $attempt = 1;
+            $attempt <= self::MAX_RETRY;
+            $attempt++
+        ) {
+
+            try {
+
+                $result = $this->provider
+                    ->send(
+                        $sms->PhoneNumber,
+                        trim(
+                            $sms->Message
+                        )
+                    );
+
+                if (!$result) {
+
+                    throw new \Exception(
+                        'SMS provider returned FALSE.'
+                    );
+                }
+
+                $sms->update([
+
+                    'remark'
+                    => 'sent',
+
+                    'error_message'
+                    => null,
+                ]);
+
+                $this->markSuccess();
+
+                return true;
+
+            } catch (Throwable $e) {
+
+                $lastException = $e;
+
+                report($e);
+
+                $friendlyError =
+                    $this->friendlyError(
+                        $e->getMessage()
+                    );
+
+                $sms->update([
+
+                    'remark'
+                    => 'failed',
+
+                    'error_message'
+                    => $friendlyError,
+                ]);
+
+                $this->markFailed(
+                    $friendlyError
+                );
+
+                if (
+                    $attempt
+                    < self::MAX_RETRY
+                ) {
+
+                    usleep(
+                        self::RETRY_DELAY_US
+                    );
+                }
+            }
+        }
+
+        throw new \Exception(
+            $lastException?->getMessage()
+            ?? 'SMS sending failed.'
+        );
     }
 
-    protected function incrementSent(): void
-    {
-        SystemSetting::query()
-            ->first()
-            ?->increment('total_sent');
+    protected function friendlyError(
+        string $message
+    ): string {
+
+        $message = strtolower(
+            $message
+        );
+
+        return match (true) {
+
+            str_contains(
+                $message,
+                'weak signal'
+            ) => 'Weak GSM signal',
+
+            str_contains(
+                $message,
+                'network registration'
+            ) => 'Network registration failed',
+
+            str_contains(
+                $message,
+                'modem not responding'
+            ) => 'Modem disconnected',
+
+            str_contains(
+                $message,
+                'serial error'
+            ) => 'COM port unavailable',
+
+            str_contains(
+                $message,
+                'timeout'
+            ) => 'SMS timeout',
+
+            str_contains(
+                $message,
+                'recipient rejected'
+            ) => 'Recipient rejected',
+
+            str_contains(
+                $message,
+                'sim'
+            ) => 'SIM card issue',
+
+            default => 'Unknown GSM error',
+        };
     }
 
-    protected function markFailed(): void
+    protected function markSuccess(): void
     {
-        $settings = SystemSetting::query()
-            ->first();
-
-        if (!$settings) {
+        if (!$this->settings) {
             return;
         }
 
-        $settings->increment('sms_failed_count');
+        $this->settings->increment(
+            'total_sent'
+        );
 
-        $settings->update([
-            'sms_last_failed_at' => now(),
+        $this->settings->update([
+
+            'sms_status'
+            => 'online',
+
+            'sms_signal_status'
+            => 'good',
+
+            'sms_last_error'
+            => null,
+
+            'sms_last_failed_at'
+            => null,
         ]);
+    }
+
+    protected function markFailed(
+        string $message
+    ): void {
+
+        if (!$this->settings) {
+            return;
+        }
+
+        $signalStatus =
+            $this->detectSignalStatus(
+                $message
+            );
+
+        $this->settings->increment(
+            'sms_failed_count'
+        );
+
+        $this->settings->update([
+
+            'sms_status'
+            => 'error',
+
+            'sms_signal_status'
+            => $signalStatus,
+
+            'sms_last_error'
+            => $message,
+
+            'sms_last_failed_at'
+            => now(),
+        ]);
+    }
+
+    protected function detectSignalStatus(
+        string $message
+    ): string {
+
+        $message = strtolower(
+            $message
+        );
+
+        return match (true) {
+
+            str_contains(
+                $message,
+                'weak signal'
+            ) => 'weak',
+
+            str_contains(
+                $message,
+                'network registration'
+            ) => 'searching',
+
+            str_contains(
+                $message,
+                'modem disconnected'
+            ) => 'offline',
+
+            str_contains(
+                $message,
+                'timeout'
+            ) => 'slow',
+
+            default => 'unknown',
+        };
     }
 }

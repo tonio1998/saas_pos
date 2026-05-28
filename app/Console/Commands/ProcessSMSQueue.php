@@ -21,36 +21,25 @@ class ProcessSMSQueue extends Command
         );
 
         while (true) {
-
             try {
-
                 $messages = SmsQueuingModel::query()
-
                     ->where('remark', '!=', 'sent')
-
                     ->where('status', 'active')
-
                     ->limit(20)
-
                     ->get();
 
                 if ($messages->isEmpty()) {
-
                     $this->line(
                         '['
                         . now()
                         . '] No pending SMS.'
                     );
-
                     sleep(5);
-
                     continue;
                 }
 
                 foreach ($messages as $sms) {
-
                     try {
-
                         $this->newLine();
 
                         $this->info(
@@ -270,7 +259,7 @@ class ProcessSMSQueue extends Command
                         |--------------------------------------------------------------------------
                         */
 
-                        sleep(10);
+                        sleep(3);
 
                         continue;
                     }
@@ -281,7 +270,7 @@ class ProcessSMSQueue extends Command
                     |--------------------------------------------------------------------------
                     */
 
-                    sleep(5);
+                    usleep(500000);
                 }
 
             } catch (\Throwable $e) {
@@ -304,7 +293,7 @@ class ProcessSMSQueue extends Command
                 |--------------------------------------------------------------------------
                 */
 
-                sleep(10);
+                sleep(3);
             }
         }
 

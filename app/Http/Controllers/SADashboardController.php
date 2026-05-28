@@ -7,6 +7,7 @@ use App\Models\ScanLogs;
 use App\Models\School;
 use App\Models\SmsQueuingModel;
 use App\Models\Students;
+use App\Models\SystemSetting;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -25,78 +26,131 @@ class SADashboardController extends Controller
         );
     }
 
-    public function data()
-    {
-        $today = now()->toDateString();
+public function data()
+{
+    $today = now()->toDateString();
 
-        return response()->json([
+    $smsSettings = SystemSetting::query()
+        ->where('sms_enabled', true)
+        ->first();
 
-            'schools' => School::count(),
+    return response()->json([
 
-            'users' => User::count(),
+        'schools' => School::query()
+            ->count(),
 
-            'smsSent' => SmsQueuingModel::whereDate(
+        'users' => User::query()
+            ->count(),
+
+        'smsSent' => SmsQueuingModel::query()
+            ->whereDate(
                 'created_at',
                 $today
             )
-                ->where(
-                    'remark',
-                    'sent'
-                )
-                ->count(),
+            ->where(
+                'remark',
+                'sent'
+            )
+            ->count(),
 
-            'activeSchools' => School::where(
+        'activeSchools' => School::query()
+            ->where(
                 'status',
                 'active'
-            )->count(),
+            )
+            ->count(),
 
-            'onlineUsers' => User::whereNotNull(
+        'onlineUsers' => User::query()
+            ->whereNotNull(
                 'last_activity_at'
             )
-                ->where(
-                    'last_activity_at',
-                    '>=',
-                    now()->subMinutes(15)
-                )
-                ->count(),
+            ->where(
+                'last_activity_at',
+                '>=',
+                now()->subMinutes(15)
+            )
+            ->count(),
 
-            'failedSms' => SmsQueuingModel::where(
+        'failedSms' => SmsQueuingModel::query()
+            ->where(
                 'remark',
                 'failed'
-            )->count(),
+            )
+            ->count(),
 
-            'securityLogs' => ScanLogs::count(),
+        'securityLogs' => ScanLogs::query()
+            ->count(),
 
-            'recentActivities' => Audit::query()
-                ->with('user')
-                ->latest()
-                ->take(10)
-                ->get()
-                ->map(function ($audit) {
-                    $event = match ($audit->event) {
-                        'created' => 'created a record',
-                        'updated' => 'updated a record',
-                        'deleted' => 'deleted a record',
-                        'restored' => 'restored a record',
-                        default => $audit->event,
-                    };
-                    return [
-                        'name' => optional(
-                                $audit->user
-                            )->name ?? 'System',
-                        'description' => $this->formatAuditMessage(
+        'smsSettings' => [
+
+            'enabled'
+                => (bool) (
+                    $smsSettings?->sms_enabled
+                ),
+
+            'provider'
+                => $smsSettings?->sms_provider
+                ?? 'gsm',
+
+            'status'
+                => $smsSettings?->sms_status
+                ?? 'unknown',
+
+            'signal_status'
+                => $smsSettings?->sms_signal_status
+                ?? 'unknown',
+
+            'last_error'
+                => $smsSettings?->sms_last_error,
+
+            'failed_count'
+                => $smsSettings?->sms_failed_count
+                ?? 0,
+
+            'last_failed_at'
+                => $smsSettings?->sms_last_failed_at
+                ?->diffForHumans(),
+
+            'total_sent'
+                => $smsSettings?->total_sent
+                ?? 0,
+        ],
+
+        'recentActivities' => Audit::query()
+            ->with('user')
+            ->latest()
+            ->take(10)
+            ->get()
+            ->map(function ($audit) {
+
+                return [
+
+                    'name'
+                        => optional(
+                            $audit->user
+                        )->name
+                        ?? 'System',
+
+                    'description'
+                        => $this->formatAuditMessage(
                             $audit
                         ),
-                        'time' => $audit->created_at
-                            ->diffForHumans(),
 
-                        'event' => $audit->event,
+                    'time'
+                        => $audit->created_at
+                        ->diffForHumans(),
 
-                        'ip' => $audit->ip_address,
-                    ];
-                }),
-        ]);
-    }
+                    'event'
+                        => $audit->event,
+
+                    'ip'
+                        => $audit->ip_address,
+                ];
+            })
+            ->values(),
+    ]);
+}
+
 
     protected function formatAuditMessage($audit) {
         $user = optional(

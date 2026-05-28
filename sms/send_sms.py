@@ -1,254 +1,401 @@
+import math
 import sys
 import serial
 import time
 
 BAUD_RATE = 19200
-DEBUG = True
+TIMEOUT = 3
+
+DEBUG = False
+
+MIN_SIGNAL = 8
+
+MAX_SIGNAL_ATTEMPTS = 5
+MAX_NETWORK_ATTEMPTS = 10
+MAX_SEND_RETRY = 2
+SIGNAL_DELAY = 1
+NETWORK_DELAY = 2
+
+MODEM_BOOT_DELAY = 2
+
+SMS_SEND_TIMEOUT = 10
+
+MAX_SINGLE_SMS = 160
+MAX_MULTI_SMS = 153
 
 
-def log(msg):
+def log(message):
 
     if DEBUG:
-        print(f"[DEBUG] {msg}")
+        print(f"[DEBUG] {message}")
 
 
-def send_sms(port, number, message):
+def split_message(message):
+
+    if len(message) <= MAX_SINGLE_SMS:
+        return [message]
+
+    parts = []
+
+    total_parts = math.ceil(
+        len(message) / MAX_MULTI_SMS
+    )
+
+    for i in range(total_parts):
+
+        start = i * MAX_MULTI_SMS
+        end = start + MAX_MULTI_SMS
+
+        part = message[start:end]
+
+        prefix = (
+            f"({i + 1}/{total_parts}) "
+        )
+
+        parts.append(
+            prefix + part
+        )
+
+    return parts
+
+
+def send_command(
+    ser,
+    command,
+    wait=0.5
+):
+
+    ser.reset_input_buffer()
+
+    log(
+        f"Sending: {command}"
+    )
+
+    ser.write(
+        (command + "\r").encode()
+    )
+
+    time.sleep(wait)
+
+    response = ""
+
+    start_time = time.time()
+
+    while True:
+
+        if ser.in_waiting:
+
+            response += ser.read(
+                ser.in_waiting
+            ).decode(
+                errors="ignore"
+            )
+
+        if (
+            "OK" in response
+            or
+            "ERROR" in response
+            or
+            ">" in response
+        ):
+
+            break
+
+        if (
+            time.time()
+            - start_time
+        ) >= 2:
+
+            break
+
+        time.sleep(0.1)
+
+    response = response.strip()
+
+    log(
+        f"Response: {response}"
+    )
+
+    return response
+
+
+def wait_for_signal(ser):
+
+    signal = 0
+
+    for _ in range(
+        MAX_SIGNAL_ATTEMPTS
+    ):
+
+        response = send_command(
+            ser,
+            "AT+CSQ",
+            0.5
+        )
+
+        if "+CSQ:" in response:
+
+            try:
+
+                signal = int(
+                    response
+                    .split("+CSQ:")[1]
+                    .split(",")[0]
+                    .strip()
+                )
+
+                log(
+                    f"Signal: {signal}"
+                )
+
+                if signal >= MIN_SIGNAL:
+                    return
+
+            except Exception:
+                pass
+
+        time.sleep(
+            SIGNAL_DELAY
+        )
+
+    raise Exception(
+        f"Weak signal ({signal})"
+    )
+
+def wait_for_network(ser):
+
+    last_response = ""
+
+    for attempt in range(
+        MAX_NETWORK_ATTEMPTS
+    ):
+
+        response = send_command(
+            ser,
+            "AT+CREG?",
+            1
+        )
+
+        last_response = response
+
+        log(
+            f"CREG attempt "
+            f"{attempt + 1}: "
+            f"{response}"
+        )
+
+        if (
+            ",1" in response
+            or
+            ",5" in response
+        ):
+
+            return
+
+        if ",3" in response:
+
+            raise Exception(
+                "Network registration denied."
+            )
+
+        time.sleep(
+            NETWORK_DELAY
+        )
+
+    raise Exception(
+        f"Network registration failed. "
+        f"Last response: "
+        f"{last_response}"
+    )
+
+
+
+def initialize_modem(ser):
+
+    response = send_command(
+        ser,
+        "AT",
+        0.5
+    )
+
+    if "OK" not in response:
+
+        raise Exception(
+            "Modem not responding."
+        )
+
+    send_command(
+        ser,
+        "AT+CMEE=1",
+        0.3
+    )
+
+    send_command(
+        ser,
+        "AT+CMGF=1",
+        0.3
+    )
+
+    wait_for_signal(ser)
+
+    wait_for_network(ser)
+
+
+def send_single_sms(
+    ser,
+    number,
+    message
+):
+
+    response = send_command(
+        ser,
+        f'AT+CMGS="{number}"',
+        1
+    )
+
+    if ">" not in response:
+
+        raise Exception(
+            "Recipient rejected."
+        )
+
+    ser.write(
+        message.encode(
+            errors="ignore"
+        ) + b"\x1A"
+    )
+
+    final_response = ""
+
+    start_time = time.time()
+
+    while True:
+
+        if ser.in_waiting:
+
+            chunk = ser.read(
+                ser.in_waiting
+            ).decode(
+                errors="ignore"
+            )
+
+            final_response += chunk
+
+            upper = (
+                final_response.upper()
+            )
+
+            if "+CMGS:" in upper:
+
+                return True
+
+            if "CMS ERROR" in upper:
+
+                raise Exception(
+                    final_response.strip()
+                )
+
+            if "ERROR" in upper:
+
+                raise Exception(
+                    final_response.strip()
+                )
+
+        if (
+            time.time()
+            - start_time
+        ) >= SMS_SEND_TIMEOUT:
+
+            raise Exception(
+                "SMS timeout."
+            )
+
+        time.sleep(0.2)
+
+
+def send_sms(
+    port,
+    number,
+    message
+):
 
     ser = None
 
     try:
 
         ser = serial.Serial(
-            port,
-            BAUD_RATE,
-            timeout=5
+            port=port,
+            baudrate=BAUD_RATE,
+            timeout=TIMEOUT
         )
 
-        time.sleep(3)
+        time.sleep(
+            MODEM_BOOT_DELAY
+        )
 
-        ser.reset_input_buffer()
-        ser.reset_output_buffer()
+        initialize_modem(ser)
 
-        def send_command(cmd, wait=1):
+        messages = split_message(
+            message
+        )
 
-            log(f"Sending: {cmd}")
+        total_parts = len(messages)
 
-            ser.write(
-                cmd.encode() + b'\r'
-            )
+        for index, part in enumerate(
+            messages,
+            start=1
+        ):
 
-            time.sleep(wait)
+            success = False
 
-            response = ser.read_all().decode(
-                errors='ignore'
-            )
-
-            log(f"Response: {response}")
-
-            return response
-
-        at_response = send_command("AT")
-
-        if "OK" not in at_response:
-
-            time.sleep(2)
-
-            at_response = send_command("AT")
-
-            if "OK" not in at_response:
-
-                raise Exception(
-                    "Modem not responding. "
-                    "Possible causes: modem freeze, "
-                    "USB disconnected, COM port locked, "
-                    "or weak modem power."
-                )
-
-        signal = 0
-
-        for attempt in range(1, 6):
-
-            signal_response = send_command(
-                "AT+CSQ"
-            )
-
-            if "+CSQ:" in signal_response:
+            for _ in range(
+                MAX_SEND_RETRY
+            ):
 
                 try:
 
-                    signal_raw = signal_response.split(
-                        "+CSQ:"
-                    )[1].split(",")[0].strip()
-
-                    signal = int(signal_raw)
-
-                    log(
-                        f"Signal attempt "
-                        f"{attempt}: {signal}"
+                    send_single_sms(
+                        ser,
+                        number,
+                        part
                     )
 
-                    if signal >= 8:
+                    success = True
 
-                        break
+                    break
 
-                except ValueError:
-                    pass
+                except Exception:
 
-            if attempt < 5:
+                    time.sleep(1)
 
-                log(
-                    "Weak/no signal detected. "
-                    "Retrying in 5 seconds..."
-                )
-
-                time.sleep(3)
-
-        if signal == 99:
-
-            raise Exception(
-                "No network signal detected."
-            )
-
-        if signal < 8:
-
-            raise Exception(
-                f"Weak signal detected ({signal}) "
-                f"after multiple retries."
-            )
-
-        network_response = send_command(
-            "AT+CREG?"
-        )
-
-        if (
-            ",1" not in network_response
-            and
-            ",5" not in network_response
-        ):
-
-            raise Exception(
-                "SIM not registered to GSM network."
-            )
-
-        sim_response = send_command(
-            "AT+CPIN?"
-        )
-
-        if "READY" not in sim_response:
-
-            raise Exception(
-                "SIM card is locked or not ready."
-            )
-
-        smsc_response = send_command(
-            "AT+CSCA?"
-        )
-
-        if "OK" not in smsc_response:
-
-            raise Exception(
-                "SMS Center Number (SMSC) invalid or unavailable."
-            )
-
-        text_mode_response = send_command(
-            "AT+CMGF=1"
-        )
-
-        if "OK" not in text_mode_response:
-
-            raise Exception(
-                "Failed to enable text mode."
-            )
-
-        cmgs_response = send_command(
-            f'AT+CMGS="{number}"',
-            2
-        )
-
-        if ">" not in cmgs_response:
-
-            raise Exception(
-                "Modem rejected recipient number."
-            )
-
-        time.sleep(1)
-
-        log(f"Sending SMS to {number}")
-
-        ser.write(
-            message.encode(errors='ignore')
-            + b"\x1A"
-        )
-
-        time.sleep(3)
-
-        final_response = ser.read_all().decode(
-            errors='ignore'
-        )
-
-        log(
-            f"Final modem response: "
-            f"{final_response}"
-        )
-
-        upper_response = final_response.upper()
-
-        if "+CMGS:" in upper_response:
-
-            print(
-                "SMS sent successfully!"
-            )
-
-            return
-
-        if "CMS ERROR" in upper_response:
-
-            if "302" in upper_response:
+            if not success:
 
                 raise Exception(
-                    "Operation not allowed."
+                    f"Failed sending "
+                    f"part "
+                    f"{index}/"
+                    f"{total_parts}"
                 )
 
-            if "330" in upper_response:
+            time.sleep(0.5)
 
-                raise Exception(
-                    "SIM card not inserted."
-                )
-
-            if "500" in upper_response:
-
-                raise Exception(
-                    "Modem internal failure."
-                )
-
-            raise Exception(
-                f"GSM CMS ERROR: "
-                f"{final_response.strip()}"
-            )
-
-        if "ERROR" in upper_response:
-
-            raise Exception(
-                "SMS sending failed. "
-                "Possible causes: no load, weak signal, "
-                "network rejection, unsupported message content, "
-                "or modem instability."
-            )
-
-        raise Exception(
-            f"Unexpected modem response: "
-            f"{final_response.strip()}"
+        print(
+            "SMS sent successfully!"
         )
+
+        return True
 
     except serial.SerialException as e:
 
         raise Exception(
-            f"Serial port error: {str(e)}"
+            f"Serial error: {str(e)}"
         )
 
     except Exception as e:
 
-        raise Exception(str(e))
+        raise Exception(
+            str(e)
+        )
 
     finally:
 
@@ -257,12 +404,7 @@ def send_sms(port, number, message):
             try:
 
                 if ser.is_open:
-
-                    log("Closing serial port...")
-
                     ser.close()
-
-                    time.sleep(2)
 
             except Exception:
                 pass
@@ -275,8 +417,11 @@ if __name__ == "__main__":
         if len(sys.argv) < 4:
 
             print(
-                "Usage: python send_sms.py "
-                "<number> <message> [port]",
+                "Usage: python "
+                "send_sms.py "
+                "<number> "
+                "<message> "
+                "<port>",
                 file=sys.stderr
             )
 
@@ -285,10 +430,6 @@ if __name__ == "__main__":
         number = sys.argv[1]
         message = sys.argv[2]
         port = sys.argv[3]
-
-        log(
-            "Running process simulation..."
-        )
 
         send_sms(
             port,
@@ -299,7 +440,7 @@ if __name__ == "__main__":
     except Exception as e:
 
         print(
-            f"Error: {str(e)}",
+            str(e),
             file=sys.stderr
         )
 

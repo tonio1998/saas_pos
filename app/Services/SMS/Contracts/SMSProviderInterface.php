@@ -7,5 +7,5 @@ interface SMSProviderInterface
     public function send(
         string $phone,
         string $message
-    ): array;
+    ): bool;
 }
