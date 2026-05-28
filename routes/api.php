@@ -17,3 +17,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::post('/process-sms', [SmsGatewayController::class, 'process']);
+Route::post(
+    '/send-sms',
+    [SmsGatewayController::class, 'send']
+);

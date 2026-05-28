@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Services\SMS\SMSManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
@@ -66,6 +67,55 @@ class SmsGatewayController extends Controller
                 'triggered' => false,
                 'running' => false,
                 'message' => 'Failed to start SMS processor.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function send(Request $request)
+    {
+        if (
+            $request->header('X-API-KEY')
+            !== env('SMS_API_KEY')
+        ) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access.',
+            ], 403);
+        }
+
+        $request->validate([
+            'number' => [
+                'required',
+                'string',
+            ],
+            'message' => [
+                'required',
+                'string',
+            ],
+        ]);
+
+        try {
+
+            $result = app(
+                SMSManager::class
+            )->send(
+                $request->number,
+                $request->message
+            );
+
+            return response()->json([
+                'success' => true,
+                'result' => $result,
+                'message' => 'SMS sent successfully.',
+            ]);
+
+        } catch (\Throwable $e) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'SMS sending failed.',
                 'error' => $e->getMessage(),
             ], 500);
         }
