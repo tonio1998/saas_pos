@@ -106,10 +106,18 @@ class SmsGatewayController extends Controller
             );
 
             return response()->json([
-                'success' => true,
+                'success' => $result['success'] ?? false,
+                'remark' => $result['remark'] ?? null,
+                'message' => $result['message'] ?? null,
+                'error' => $result['error'] ?? null,
                 'result' => $result,
-                'message' => 'SMS sent successfully.',
-            ]);
+                'debug' => [
+                    'provider' => system_settings()->sms_provider,
+                    'python_path' => system_settings()->python_path,
+                    'com_port' => system_settings()->port_com,
+                    'timestamp' => now(),
+                ],
+            ], ($result['success'] ?? false) ? 200 : 500);
 
         } catch (\Throwable $e) {
 
