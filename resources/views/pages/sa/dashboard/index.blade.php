@@ -453,60 +453,25 @@
 
                     </div>
 
-                    <div class="col-md-3">
-
-                        <div class="analytics-box">
-
-                            <div class="analytics-icon success">
-                                <i class="bi bi-send-check-fill"></i>
-                            </div>
-
-                            <div>
-
-                                <div class="analytics-label">
-                                    Total Sent
-                                </div>
-
-                                <div
-                                    class="analytics-value"
-                                    id="gsm-total-sent"
-                                >
-                                    0
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
 
                     <div class="col-md-3">
-
                         <div class="analytics-box">
-
                             <div class="analytics-icon dark">
                                 <i class="bi bi-cpu-fill"></i>
                             </div>
-
                             <div>
-
                                 <div class="analytics-label">
                                     Provider
                                 </div>
-
                                 <div
                                     class="analytics-value"
                                     id="gsm-provider"
                                 >
                                     GSM
                                 </div>
-
                             </div>
-
                         </div>
-
                     </div>
-
                 </div>
 
                 <div class="mt-4">
@@ -521,7 +486,7 @@
                         </strong>
 
                         <span id="gsm-last-error">
-                        No GSM errors detected.
+                        ...
                     </span>
 
                         <div
@@ -821,13 +786,6 @@
                 'gsm-failed-count',
                 formatNumber(
                     settings?.failed_count
-                )
-            );
-
-            setText(
-                'gsm-total-sent',
-                formatNumber(
-                    settings?.total_sent
                 )
             );
 

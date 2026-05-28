@@ -110,10 +110,6 @@ public function data()
             'last_failed_at'
                 => $smsSettings?->sms_last_failed_at
                 ?->diffForHumans(),
-
-            'total_sent'
-                => $smsSettings?->total_sent
-                ?? 0,
         ],
 
         'recentActivities' => Audit::query()
