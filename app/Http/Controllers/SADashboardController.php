@@ -10,6 +10,7 @@ use App\Models\Students;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use OwenIt\Auditing\Models\Audit;
 
 class SADashboardController extends Controller
@@ -95,5 +96,71 @@ class SADashboardController extends Controller
                     ];
                 }),
         ]);
+    }
+
+    protected function formatAuditMessage($audit) {
+        $user = optional(
+            $audit->user
+        )->name ?? 'System';
+
+        $model = Str::of(
+            class_basename(
+                $audit->auditable_type
+            )
+        )
+            ->snake()
+            ->replace('_', ' ')
+            ->singular()
+            ->lower();
+
+        $article = in_array(
+            substr($model, 0, 1),
+            ['a', 'e', 'i', 'o', 'u']
+        )
+            ? 'an'
+            : 'a';
+
+        return match ($audit->event) {
+
+            'created' =>
+
+                $user .
+                ' created ' .
+                $article .
+                ' ' .
+                $model,
+
+            'updated' =>
+
+                $user .
+                ' updated ' .
+                $article .
+                ' ' .
+                $model,
+
+            'deleted' =>
+
+                $user .
+                ' deleted ' .
+                $article .
+                ' ' .
+                $model,
+
+            'restored' =>
+
+                $user .
+                ' restored ' .
+                $article .
+                ' ' .
+                $model,
+
+            default =>
+
+                $user .
+                ' performed an action on ' .
+                $article .
+                ' ' .
+                $model,
+        };
     }
 }
