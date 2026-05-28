@@ -233,7 +233,7 @@
                                 <div class="backup-actions">
 
                                     <a
-                                        href="{{ route('sa.backups.download', encrypt($backup['id'])) }}"
+                                        href="{{ route('sa.backups.download', ($backup['id'])) }}"
                                         class="backup-action-btn"
                                     >
                                         <i class="bi bi-download"></i>

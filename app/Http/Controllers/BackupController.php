@@ -132,9 +132,8 @@ class BackupController extends Controller
         Request $request
     ): BinaryFileResponse
     {
-        $id = decrypt(
-            $request->segment(4)
-        );
+
+        $id = decrypt($request->segment(4));
 
         $backup = Backup::findOrFail($id);
 
