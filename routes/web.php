@@ -441,10 +441,10 @@ Route::middleware('auth')->group(function(){
         Route::post('/',[AcademicContextController::class,'store'])->name('store');
     });
 
-});
+    Route::post('/scan',[SchoolScanController::class,'scan'])->name('scan');
+    Route::prefix('scanner')->name('scanner.')->group(function(){
+        Route::get('/', [SchoolScannerController::class, 'index'])->name('index');
+        Route::post('/send-sms', [SchoolScannerController::class, 'send']);
+    });
 
-Route::post('/scan',[SchoolScanController::class,'scan'])->name('scan');
-Route::prefix('scanner')->name('scanner.')->group(function(){
-    Route::get('/', [SchoolScannerController::class, 'index'])->name('index');
-    Route::post('/send-sms', [SchoolScannerController::class, 'send']);
 });

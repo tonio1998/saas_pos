@@ -46,7 +46,7 @@ class SMSManager
         SmsQueuingModel::create([
 
             'school_id'
-            => $schoolId,
+            => $schoolId ?? 0 ,
 
             'PhoneNumber'
             => trim($phone),
