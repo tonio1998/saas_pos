@@ -40,9 +40,20 @@
             const errorAudio =
                 $('error-sound');
 
+            const csrfToken =
+                document.querySelector(
+                    'meta[name="csrf-token"]'
+                )?.content;
+
             let processing = false;
 
             let resetTimeout = null;
+
+            let activeController = null;
+
+            let lastScan = '';
+
+            let lastScanTime = 0;
 
             initialize();
 
@@ -56,7 +67,21 @@
 
                 bindEvents();
 
-                focusInput();
+                preloadAssets();
+
+                requestAnimationFrame(
+                    focusInput
+                );
+
+            }
+
+            function preloadAssets(){
+
+                const img =
+                    new Image();
+
+                img.src =
+                    '/images/avatar.png';
 
             }
 
@@ -64,11 +89,6 @@
 
                 document.addEventListener(
                     'click',
-                    focusInput
-                );
-
-                document.addEventListener(
-                    'keydown',
                     focusInput
                 );
 
@@ -86,7 +106,12 @@
 
             function focusInput(){
 
-                if(!input){
+                if(
+                    !input
+                    ||
+                    document.activeElement
+                    === input
+                ){
                     return;
                 }
 
@@ -96,7 +121,9 @@
 
             function handleScanInput(e){
 
-                if(e.key !== 'Enter'){
+                if(
+                    e.key !== 'Enter'
+                ){
                     return;
                 }
 
@@ -115,7 +142,33 @@
                     return;
                 }
 
+                const now =
+                    Date.now();
+
+                if(
+
+                    lastScan === code
+
+                    &&
+
+                    now - lastScanTime
+                    < 1200
+
+                ){
+
+                    return;
+
+                }
+
+                lastScan = code;
+
+                lastScanTime = now;
+
                 processing = true;
+
+                showProcessingState(
+                    code
+                );
 
                 processScan(code);
 
@@ -129,7 +182,7 @@
 
                 const updateClock = () => {
 
-                    liveClock.innerText =
+                    liveClock.textContent =
                         new Date()
                             .toLocaleTimeString(
                                 [],
@@ -151,9 +204,49 @@
 
             }
 
+            function showProcessingState(code){
+
+                clearResetTimeout();
+
+                personName.textContent =
+                    'PROCESSING...';
+
+                personRole.textContent =
+                    code;
+
+                greetingText.textContent =
+                    '⏳ VERIFYING';
+
+                greetingText.style.color =
+                    '#fde047';
+
+                scanTime.textContent =
+                    getCurrentTime();
+
+                updateStatusBar({
+
+                    className:'idle',
+
+                    title:'VERIFYING ACCESS',
+
+                    subtitle:'Please wait...'
+                });
+
+            }
+
             async function processScan(code){
 
                 try{
+
+                    if(activeController){
+
+                        activeController
+                            .abort();
+
+                    }
+
+                    activeController =
+                        new AbortController();
 
                     const response =
                         await fetch(
@@ -161,14 +254,15 @@
                             {
                                 method:'POST',
 
+                                signal:
+                                activeController.signal,
+
                                 headers:{
                                     'Content-Type':
                                         'application/json',
 
                                     'X-CSRF-TOKEN':
-                                    document.querySelector(
-                                        'meta[name="csrf-token"]'
-                                    )?.content
+                                    csrfToken
                                 },
 
                                 body:JSON.stringify({
@@ -181,14 +275,31 @@
                         await response.json();
 
                     if(!response.ok){
+
                         throw data;
+
                     }
 
                     handleSuccess(data);
 
-                    addLog(data);
+                    requestIdleCallback(
+                        () => {
+
+                            addLog(data);
+
+                        }
+                    );
 
                 }catch(error){
+
+                    if(
+                        error.name
+                        === 'AbortError'
+                    ){
+
+                        return;
+
+                    }
 
                     console.error(error);
 
@@ -198,7 +309,9 @@
 
                     processing = false;
 
-                    focusInput();
+                    requestAnimationFrame(
+                        focusInput
+                    );
 
                 }
 
@@ -209,13 +322,17 @@
                 clearResetTimeout();
 
                 const fullName =
-                    data.name || 'UNKNOWN';
+                    data.name
+                    || 'UNKNOWN';
 
                 const mode =
                     (
-                        data.mode ||
-                        data.type ||
-                        data.action ||
+                        data.mode
+                        ||
+                        data.type
+                        ||
+                        data.action
+                        ||
                         ''
                     )
                         .toUpperCase();
@@ -223,22 +340,40 @@
                 const isTimeIn =
                     mode === 'TIME_IN';
 
-                personName.innerText =
+                personName.textContent =
                     fullName;
 
-                personRole.innerText =
-                    data.role ||
-                    'AUTHORIZED PERSONNEL';
+                personRole.textContent =
+                    data.role
+                    || 'AUTHORIZED PERSONNEL';
 
-                personPhoto.src =
-                    data.photo ||
-                    '/images/avatar.png';
+                if(data.photo){
 
-                scanTime.innerText =
-                    data.time ||
-                    getCurrentTime();
+                    const img =
+                        new Image();
 
-                greetingText.innerText =
+                    img.src =
+                        data.photo;
+
+                    img.onload = () => {
+
+                        personPhoto.src =
+                            data.photo;
+
+                    };
+
+                }else{
+
+                    personPhoto.src =
+                        '/images/avatar.png';
+
+                }
+
+                scanTime.textContent =
+                    data.time
+                    || getCurrentTime();
+
+                greetingText.textContent =
                     isTimeIn
                         ? '👋 WELCOME'
                         : '🚪 GOODBYE';
@@ -261,7 +396,8 @@
                             : 'EXIT RECORDED',
 
                     subtitle:
-                        data.message ||
+                        data.message
+                        ||
                         (
                             isTimeIn
                                 ? 'Access granted'
@@ -278,12 +414,6 @@
                     'success-flash'
                 );
 
-                // speakMessage(
-                //     isTimeIn
-                //         ? `Welcome ${fullName}`
-                //         : `Goodbye ${fullName}`
-                // );
-
                 queueReset();
 
             }
@@ -292,22 +422,22 @@
 
                 clearResetTimeout();
 
-                personName.innerText =
+                personName.textContent =
                     'ACCESS DENIED';
 
-                personRole.innerText =
+                personRole.textContent =
                     'INVALID QR OR RFID';
 
                 personPhoto.src =
                     '/images/avatar.png';
 
-                greetingText.innerText =
+                greetingText.textContent =
                     '⚠ ACCESS DENIED';
 
                 greetingText.style.color =
                     '#fecaca';
 
-                scanTime.innerText =
+                scanTime.textContent =
                     '--:--';
 
                 updateStatusBar({
@@ -327,10 +457,6 @@
                 flash(
                     'error-flash'
                 );
-
-                // speakMessage(
-                //     'Access denied'
-                // );
 
                 queueReset();
 
@@ -360,32 +486,36 @@
                     );
 
                 if(titleEl){
-                    titleEl.innerText =
+
+                    titleEl.textContent =
                         title;
+
                 }
 
                 if(subtitleEl){
-                    subtitleEl.innerText =
+
+                    subtitleEl.textContent =
                         subtitle;
+
                 }
 
             }
 
             function resetScanner(){
 
-                personName.innerText =
+                personName.textContent =
                     'WAITING...';
 
-                personRole.innerText =
+                personRole.textContent =
                     'TAP RFID CARD OR SCAN QR';
 
                 personPhoto.src =
                     '/images/avatar.png';
 
-                scanTime.innerText =
+                scanTime.textContent =
                     '--:--';
 
-                greetingText.innerText =
+                greetingText.textContent =
                     'READY TO SCAN';
 
                 greetingText.style.color =
@@ -401,7 +531,9 @@
 
                 });
 
-                focusInput();
+                requestAnimationFrame(
+                    focusInput
+                );
 
             }
 
@@ -410,7 +542,7 @@
                 resetTimeout =
                     setTimeout(
                         resetScanner,
-                        1800
+                        1200
                     );
 
             }
@@ -452,69 +584,7 @@
                         className
                     );
 
-                },450);
-
-            }
-
-            function speakMessage(message){
-
-                try{
-
-                    if(
-                        !(
-                            'speechSynthesis'
-                            in
-                            window
-                        )
-                    ){
-                        return;
-                    }
-
-                    window
-                        .speechSynthesis
-                        .cancel();
-
-                    const speech =
-                        new SpeechSynthesisUtterance(
-                            message
-                        );
-
-                    const voices =
-                        window
-                            .speechSynthesis
-                            .getVoices();
-
-                    speech.voice =
-                        voices.find(v =>
-                            v.lang === 'fil-PH'
-                        )
-                        ||
-                        voices.find(v =>
-                            v.lang === 'en-US'
-                        )
-                        ||
-                        null;
-
-                    speech.lang = 'fil-PH';
-
-                    speech.rate = 0.92;
-
-                    speech.pitch = 0.96;
-
-                    speech.volume = 1;
-
-                    window
-                        .speechSynthesis
-                        .speak(speech);
-
-                }catch(error){
-
-                    console.error(
-                        'Speech synthesis error:',
-                        error
-                    );
-
-                }
+                },300);
 
             }
 
@@ -544,44 +614,64 @@
 
             function addLog(data){
 
-                const key =
-                    getTodayKey();
+                try{
 
-                const logs =
-                    JSON.parse(
-                        localStorage.getItem(key)
-                        || '[]'
+                    const key =
+                        getTodayKey();
+
+                    const logs =
+                        JSON.parse(
+                            localStorage.getItem(
+                                key
+                            ) || '[]'
+                        );
+
+                    logs.unshift(data);
+
+                    if(
+                        logs.length > 50
+                    ){
+
+                        logs.pop();
+
+                    }
+
+                    localStorage.setItem(
+                        key,
+                        JSON.stringify(logs)
                     );
 
-                logs.unshift(data);
+                    scanCount.textContent =
+                        logs.length;
 
-                if(logs.length > 50){
+                }catch(error){
 
-                    logs.pop();
+                    console.error(error);
 
                 }
-
-                localStorage.setItem(
-                    key,
-                    JSON.stringify(logs)
-                );
-
-                scanCount.innerText =
-                    logs.length;
 
             }
 
             function renderLogs(){
 
-                const logs =
-                    JSON.parse(
-                        localStorage.getItem(
-                            getTodayKey()
-                        ) || '[]'
-                    );
+                try{
 
-                scanCount.innerText =
-                    logs.length;
+                    const logs =
+                        JSON.parse(
+                            localStorage.getItem(
+                                getTodayKey()
+                            ) || '[]'
+                        );
+
+                    scanCount.textContent =
+                        logs.length;
+
+                }catch(error){
+
+                    scanCount.textContent =
+                        '0';
+
+                }
 
             }
 
