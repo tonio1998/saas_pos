@@ -275,14 +275,4 @@
         }
 
     </style>
-
-    <script>
-        window.analyticsRoutes = {
-            overview: "{{ route('sa.platform-analytics.overview-data') }}",
-            login: "{{ route('sa.platform-analytics.login-trends') }}",
-            security: "{{ route('sa.platform-analytics.security-trends') }}",
-            device: "{{ route('sa.platform-analytics.device-analytics') }}",
-            school: "{{ route('sa.platform-analytics.school-analytics') }}"
-        }
-    </script>
 @endsection
