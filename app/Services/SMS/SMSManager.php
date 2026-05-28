@@ -11,11 +11,8 @@ use Throwable;
 class SMSManager
 {
     protected $provider;
-
     protected ?SystemSetting $settings = null;
-
     private const MAX_RETRY = 2;
-
     private const RETRY_DELAY_US = 500000;
 
     public function __construct()
@@ -113,10 +110,9 @@ class SMSManager
                     );
                 }
 
-                $sms->update([
+                $this->settings->update([
 
-                    'remark'
-                    => 'sent',
+                    'remark'=> 'sent',
 
                     'error_message'
                     => null,
@@ -137,7 +133,7 @@ class SMSManager
                         $e->getMessage()
                     );
 
-                $sms->update([
+                $this->settings->update([
 
                     'remark'
                     => 'failed',
