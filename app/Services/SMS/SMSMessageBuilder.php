@@ -9,35 +9,114 @@ class SMSMessageBuilder
         string $direction,
         string $attendanceStatus,
         string $verificationCode,
-        string $schoolName
+        string $schoolName,
+        string $dest
     ): string {
 
-        $entryText = $direction === 'entry'
-            ? 'entered'
-            : 'left';
+        $action = match ($direction) {
 
-        $attendanceLabel = match ($attendanceStatus) {
-            'late' => ' (LATE)',
-            'early_out' => ' (EARLY OUT)',
-            default => ''
+            'entry'
+            => 'TIME IN',
+
+            'exit'
+            => 'TIME OUT',
+
+            default
+            => 'ATTENDANCE',
         };
 
-        return (
-            $user->studentInfo?->guardian?->LastName
-                ? 'Dear Mr/Mrs. '
-                . $user->studentInfo->guardian->LastName
-                . ",\n\n"
-                : ''
-            )
+        $attendanceRemark = match ($attendanceStatus) {
+
+            'late'
+            => ' [LATE]',
+
+            'early_out'
+            => ' [EARLY OUT]',
+
+            default
+            => '',
+        };
+
+        $timestamp = now()
+            ->format(
+                'M d, Y h:i A'
+            );
+
+        if ($dest === 'own') {
+
+            return
+
+                'Good day, '
+
+                . $user->name
+
+                . '. Your '
+
+                . $action
+
+                . ' attendance at '
+
+                . $schoolName
+
+                . ' has been successfully recorded'
+
+                . $attendanceRemark
+
+                . '. '
+
+                . 'Date & Time: '
+
+                . $timestamp
+
+                . '. Ref#: '
+
+                . $verificationCode
+
+                . '.';
+        }
+
+        $guardianLastName =
+            $user->studentInfo
+                ?->guardian
+                ?->LastName;
+
+        $guardianText =
+            $guardianLastName
+                ? 'Dear Mr./Mrs. '
+                . $guardianLastName
+                . ', '
+                : 'Dear Parent/Guardian, ';
+
+        return
+
+            $guardianText
+
+            . 'please be informed that '
+
             . $user->name
-            . ' just '
-            . $entryText
-            . ' '
+
+            . '\'s '
+
+            . $action
+
+            . ' attendance at '
+
             . $schoolName
-            . $attendanceLabel
-            . ' @ '
-            . now()->format('M d, Y h:i:s A')
-            . '. Code: '
-            . $verificationCode;
+
+            . ' has been successfully recorded'
+
+            . $attendanceRemark
+
+            . '. '
+
+            . 'Date & Time: '
+
+            . $timestamp
+
+            . '. Ref#: '
+
+            . $verificationCode
+
+            . '.';
     }
 }

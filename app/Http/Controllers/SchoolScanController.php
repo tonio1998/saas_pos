@@ -131,23 +131,30 @@ class SchoolScanController extends Controller
 
             $phoneNumbers = [];
 
+            $dest = 'guardian';
+
             if ($roles->contains('students')) {
 
                 $phoneNumbers[] =
                     $user->studentInfo?->guardian?->PhoneNumber;
+                $dest = 'guardian';
             }
 
             if ($roles->contains('parents')) {
 
                 $phoneNumbers[] =
                     $user->guardianInfo?->PhoneNumber;
+                $dest = 'own';
             }
 
             if ($roles->contains('employees')) {
 
                 $phoneNumbers[] =
                     $user->teacherInfo?->PhoneNumber;
+                $dest = 'own';
             }
+
+//            dd($phoneNumbers);
 
             $phoneNumbers = array_unique(
                 array_filter($phoneNumbers)
@@ -163,7 +170,8 @@ class SchoolScanController extends Controller
                 $direction,
                 $attendanceStatus,
                 $verificationCode,
-                $schoolName
+                $schoolName,
+                $dest
             );
 
             $smsEnabled = (int) (
