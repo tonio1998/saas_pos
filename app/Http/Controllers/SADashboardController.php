@@ -84,7 +84,7 @@ class SADashboardController extends Controller
                         'name' => optional(
                                 $audit->user
                             )->name ?? 'System',
-                        'description' => formatAuditMessage(
+                        'description' => $this->formatAuditMessage(
                             $audit
                         ),
                         'time' => $audit->created_at
