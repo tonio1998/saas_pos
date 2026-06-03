@@ -36,6 +36,7 @@ class Students extends Model implements AuditableContract
         'created_at',
         'status',
         'archived',
+        'Remark'
     ];
 
     protected $dates = ['deleted_at', 'created_at', 'updated_at'];
