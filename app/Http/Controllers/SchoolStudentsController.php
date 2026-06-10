@@ -45,7 +45,7 @@ class SchoolStudentsController extends Controller
     public function index()
     {
 //        dd(session()->all());
-        return view('pages.schools.students.index');
+        return view('pages.store.students.index');
     }
 
     public function edit($id)
@@ -57,7 +57,7 @@ class SchoolStudentsController extends Controller
         }
 
         $student = Students::findOrFail($id);
-        return view('pages.schools.students.create', compact('student'));
+        return view('pages.store.students.create', compact('student'));
     }
 
     private function generateQrCode()
@@ -305,7 +305,7 @@ class SchoolStudentsController extends Controller
     public function create()
     {
 //        dd(auth()->user()->roles);
-        return view('pages.schools.students.create');
+        return view('pages.store.students.create');
     }
 
     public function ajaxData(Request $request)

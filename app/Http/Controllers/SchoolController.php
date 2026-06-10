@@ -22,7 +22,7 @@ class SchoolController extends Controller
             403
         );
 
-        return view('pages.schools.index');
+        return view('pages.store.index');
     }
 
     public function show($id)
@@ -78,7 +78,7 @@ class SchoolController extends Controller
         ]);
 
         return redirect()
-            ->route('sa.schools.index')
+            ->route('sa.store.index')
             ->with(
                 'success',
                 'School context closed successfully.'
@@ -87,7 +87,7 @@ class SchoolController extends Controller
 
     public function create()
     {
-        return view('pages.schools.create');
+        return view('pages.store.create');
     }
 
     public function edit($id)
@@ -105,7 +105,7 @@ class SchoolController extends Controller
         $school = School::findOrFail($id);
 
         return view(
-            'pages.schools.create',
+            'pages.store.create',
             compact('school')
         );
     }
@@ -235,7 +235,7 @@ class SchoolController extends Controller
             if ($request->hasFile('Logo')) {
 
                 $path = $request->file('Logo')
-                    ->store('schools', 'public');
+                    ->store('store', 'public');
 
                 $data['Logo'] = $path;
             }
@@ -255,7 +255,7 @@ class SchoolController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('schools.index')
+                ->route('store.index')
                 ->with([
                     'success' => 'School created successfully.'
                 ]);
@@ -396,7 +396,7 @@ class SchoolController extends Controller
                 }
 
                 $path = $request->file('Logo')
-                    ->store('schools', 'public');
+                    ->store('store', 'public');
 
                 $data['Logo'] = $path;
             }
@@ -443,12 +443,12 @@ class SchoolController extends Controller
             ->addColumn('actions', function ($school) {
 
                 $editUrl = route(
-                    'sa.schools.edit',
+                    'sa.store.edit',
                     encrypt($school->id)
                 );
 
                 $manageUrl = route(
-                    'sa.schools.show',
+                    'sa.store.show',
                     [encrypt($school->id)]
                 );
 

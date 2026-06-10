@@ -44,7 +44,7 @@ class SchoolEmployeesController extends Controller
     public function index()
     {
 //        dd(cache('school_settings'));
-        return view('pages.schools.employees.index');
+        return view('pages.store.employees.index');
     }
 
     public function edit($id)
@@ -57,7 +57,7 @@ class SchoolEmployeesController extends Controller
 
         $teacher = Employees::findOrFail($id);
 
-        return view('pages.schools.employees.create', compact('teacher'));
+        return view('pages.store.employees.create', compact('teacher'));
     }
 
     public function update(Request $request, $id)
@@ -146,7 +146,7 @@ class SchoolEmployeesController extends Controller
 
     public function create()
     {
-        return view('pages.schools.employees.create');
+        return view('pages.store.employees.create');
     }
 
     public function store(Request $request)

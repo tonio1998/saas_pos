@@ -36,7 +36,7 @@ public function data()
 
     return response()->json([
 
-        'schools' => School::query()
+        'store' => School::query()
             ->count(),
 
         'users' => User::query()

@@ -9,12 +9,12 @@ class SchoolLogsController extends Controller
 {
     public function index()
     {
-        return view('pages.schools.logs.index');
+        return view('pages.store.logs.index');
     }
 
     public function users()
     {
-        return view('pages.schools.logs.users');
+        return view('pages.store.logs.users');
     }
 
     public function users_data(Request $request)

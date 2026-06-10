@@ -11,6 +11,6 @@ use Symfony\Component\Process\Process;
 class SchoolScannerController extends Controller
 {
     public function index(){
-        return view('pages.schools.scanner.index');
+        return view('pages.store.scanner.index');
     }
 }

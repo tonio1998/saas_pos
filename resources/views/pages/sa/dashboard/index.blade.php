@@ -208,7 +208,7 @@
                 <div class="sa-grid">
 
                     <a
-                        href="{{ route('sa.schools.index') }}"
+                        href="{{ route('sa.store.index') }}"
                         class="sa-quick"
                     >
 
@@ -831,7 +831,7 @@
                     await response.json();
 
                 setText(
-                    'schools-count',
+                    'store-count',
                     formatNumber(
                         data.schools
                     )
@@ -852,7 +852,7 @@
                 );
 
                 setText(
-                    'active-schools-count',
+                    'active-store-count',
                     formatNumber(
                         data.activeSchools
                     )

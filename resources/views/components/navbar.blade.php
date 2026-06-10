@@ -100,7 +100,7 @@
 
                             <form
                                 method="POST"
-                                action="{{ route('sa.schools.close-context') }}"
+                                action="{{ route('sa.store.close-context') }}"
                             >
 
                                 @csrf
