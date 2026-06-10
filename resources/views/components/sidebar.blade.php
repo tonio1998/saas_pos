@@ -1,424 +1,387 @@
 <div class="sidebar d-flex flex-column">
 
     <div class="sidebar-scroll flex-grow-1">
-        @if(
-                        auth()->user()->hasRole('SA') &&
-                        !session('school_id')
-                    )
-            <ul class="sidebar-menu">
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link text-muted">SUPER ADMIN</a>
-                </li>
-                <li class="sidebar-item">
-                    <a
-                        href="{{ route('sa.dashboard.index') }}"
-                        class="sidebar-link {{ request()->routeIs('sa.dashboard.index') ? 'active' : '' }}"
-                    >
-                        <i class="bi bi-grid-1x2-fill sidebar-icon"></i>
-                        <span>
-                    Dashboard
-                </span>
-                    </a>
-                </li>
-                @can('schools.view')
-                    <li class="sidebar-item">
-                        <a href="{{ route('sa.schools.index') }}" class="sidebar-link {{ request()->routeIs('schools.*') ? 'active' : '' }}">
-                            <i class="bi bi-buildings sidebar-icon"></i>
-                            <span>School Management</span>
-                        </a>
-                    </li>
-                @endcan
-                @canany(['permissions.view','roles.view'])
-                    <li class="sidebar-item">
-                        <a
-                            class="sidebar-link"
-                            data-bs-toggle="collapse"
-                            href="#rolesMenu"
-                            role="button"
-                        >
-                            <i class="bi bi-shield-check sidebar-icon"></i>
-                            <span>Role & Permission</span>
-                            <i class="bi bi-chevron-down dropdown-icon"></i>
-                        </a>
-
-                        <div
-                            class="collapse sidebar-dropdown"
-                            id="rolesMenu"
-                        >
-
-                            @can('permissions.view')
-                                <a
-                                    href="{{ route('permissions.index') }}"
-                                    class="sidebar-sublink"
-                                >
-                                    <i class="bi bi-key-fill sidebar-subicon"></i>
-                                    <span>Permissions</span>
-                                </a>
-                            @endcan
-
-                            @can('roles.view')
-                                <a
-                                    href="{{ route('roles.index') }}"
-                                    class="sidebar-sublink"
-                                >
-                                    <i class="bi bi-person-workspace sidebar-subicon"></i>
-                                    <span>Roles</span>
-                                </a>
-                            @endcan
-
-                        </div>
-
-                    </li>
-                @endcanany
-
-                <li class="sidebar-item">
-                    <a class="sidebar-link" data-bs-toggle="collapse" href="#usersMenu" role="button">
-                        <i class="bi bi-shield-check sidebar-icon"></i>
-                        <span>User Management</span>
-                        <i class="bi bi-chevron-down dropdown-icon"></i>
-                    </a>
-                    <div class="collapse sidebar-dropdown" id="usersMenu">
-                        <a href="{{ route('users.index') }}" class="sidebar-sublink">
-                            <i class="bi bi-people-fill sidebar-subicon"></i>
-                            <span>Masterlist</span>
-                        </a>
-                    </div>
-                </li>
-            </ul>
-        @endif
-
-        @if(session('school_id') > 0)
-            <ul class="sidebar-menu">
-
-                @can('scanner.view')
-                    <li class="sidebar-item">
-                        <a
-                            href="{{ route('scanner.index') }}"
-                            class="sidebar-link {{ request()->routeIs('scanner.index') ? 'active' : '' }}"
-                        >
-                            <i class="bi bi-upc-scan sidebar-icon"></i>
-                            <span>Scanner</span>
-                        </a>
-                    </li>
-                @endcan
-
-                @can('dashboard.view')
-                    <li class="sidebar-item">
-                        <a
-                            href="{{ route('dashboard.index') }}"
-                            class="sidebar-link {{ request()->routeIs('dashboard.index') ? 'active' : '' }}"
-                        >
-                            <i class="bi bi-grid-1x2-fill sidebar-icon"></i>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
-                @endcan
-
-                @canany([
-                    'logs.view',
-                    'logs.users.view'
-                ])
-                    <li class="sidebar-item">
-
-                        <a
-                            class="sidebar-link"
-                            data-bs-toggle="collapse"
-                            href="#systemMenu"
-                            role="button"
-                        >
-                            <i class="bi bi-clipboard-data sidebar-icon"></i>
-                            <span>Logs Monitoring</span>
-                            <i class="bi bi-chevron-down dropdown-icon"></i>
-                        </a>
-
-                        <div
-                            class="collapse sidebar-dropdown"
-                            id="systemMenu"
-                        >
-
-                            @can('logs.view')
-                                <a
-                                    href="{{ route('logs.index') }}"
-                                    class="sidebar-sublink"
-                                >
-                                    <i class="bi bi-clock-history sidebar-subicon"></i>
-                                    <span>All Logs</span>
-                                </a>
-                            @endcan
-
-                            @can('logs.users.view')
-                                <a
-                                    href="{{ route('logs.users') }}"
-                                    class="sidebar-sublink"
-                                >
-                                    <i class="bi bi-graph-up-arrow sidebar-subicon"></i>
-                                    <span>User Logs</span>
-                                </a>
-                            @endcan
-
-                        </div>
-
-                    </li>
-                @endcanany
-
-                @canany([
-                    'students.create',
-                    'students.view'
-                ])
-                    <li class="sidebar-item">
-
-                        <a
-                            class="sidebar-link"
-                            data-bs-toggle="collapse"
-                            href="#studentMenu"
-                            role="button"
-                        >
-
-                            <i class="bi bi-backpack2-fill sidebar-icon"></i>
-
-                            <span>
-                                Student Management
-                            </span>
-
-                            <i class="bi bi-chevron-down dropdown-icon"></i>
-
-                        </a>
-
-                        <div
-                            class="collapse sidebar-dropdown"
-                            id="studentMenu"
-                        >
-
-                            @can('students.create')
-                                <a
-                                    href="{{ route('students.create') }}"
-                                    class="sidebar-sublink"
-                                >
-                                    <i class="bi bi-person-add sidebar-subicon"></i>
-                                    <span>Add Student</span>
-                                </a>
-                            @endcan
-
-                            @can('students.view')
-                                <a
-                                    href="{{ route('students.index') }}"
-                                    class="sidebar-sublink"
-                                >
-                                    <i class="bi bi-people-fill sidebar-subicon"></i>
-                                    <span>Masterlist</span>
-                                </a>
-                            @endcan
-
-                        </div>
-
-                    </li>
-                @endcanany
-
-                @canany([
-                    'parents.create',
-                    'parents.view'
-                ])
-                    <li class="sidebar-item">
-
-                        <a
-                            class="sidebar-link"
-                            data-bs-toggle="collapse"
-                            href="#guardianMenu"
-                            role="button"
-                        >
-
-                            <i class="bi bi-house-heart-fill sidebar-icon"></i>
-
-                            <span>
-                                Parent Management
-                            </span>
-
-                            <i class="bi bi-chevron-down dropdown-icon"></i>
-
-                        </a>
-
-                        <div
-                            class="collapse sidebar-dropdown"
-                            id="guardianMenu"
-                        >
-
-                            @can('parents.create')
-                                <a
-                                    href="{{ route('parents.create') }}"
-                                    class="sidebar-sublink"
-                                >
-                                    <i class="bi bi-person-add sidebar-subicon"></i>
-                                    <span>Add Parent</span>
-                                </a>
-                            @endcan
-
-                            @can('parents.view')
-                                <a
-                                    href="{{ route('parents.index') }}"
-                                    class="sidebar-sublink"
-                                >
-                                    <i class="bi bi-people-fill sidebar-subicon"></i>
-                                    <span>Masterlist</span>
-                                </a>
-                            @endcan
-
-                        </div>
-
-                    </li>
-                @endcanany
-
-                @canany([
-                    'employees.create',
-                    'employees.view'
-                ])
-                    <li class="sidebar-item">
-
-                        <a
-                            class="sidebar-link"
-                            data-bs-toggle="collapse"
-                            href="#teacherMenu"
-                            role="button"
-                        >
-
-                            <i class="bi bi-briefcase-fill sidebar-icon"></i>
-
-                            <span>
-                                Employee Management
-                            </span>
-
-                            <i class="bi bi-chevron-down dropdown-icon"></i>
-
-                        </a>
-
-                        <div
-                            class="collapse sidebar-dropdown"
-                            id="teacherMenu"
-                        >
-
-                            @can('employees.create')
-                                <a
-                                    href="{{ route('employees.create') }}"
-                                    class="sidebar-sublink"
-                                >
-                                    <i class="bi bi-person-add sidebar-subicon"></i>
-                                    <span>Add Employee</span>
-                                </a>
-                            @endcan
-
-                            @can('employees.view')
-                                <a
-                                    href="{{ route('employees.index') }}"
-                                    class="sidebar-sublink"
-                                >
-                                    <i class="bi bi-person-badge-fill sidebar-subicon"></i>
-                                    <span>Masterlist</span>
-                                </a>
-                            @endcan
-
-                        </div>
-
-                    </li>
-                @endcanany
-
-                @can('sms.view')
-                    <li class="sidebar-item">
-
-                        <a
-                            class="sidebar-link"
-                            data-bs-toggle="collapse"
-                            href="#smsMenu"
-                            role="button"
-                        >
-
-                            <i class="bi bi-chat-dots-fill sidebar-icon"></i>
-
-                            <span>
-                                SMS Management
-                            </span>
-
-                            <i class="bi bi-chevron-down dropdown-icon"></i>
-
-                        </a>
-
-                        <div
-                            class="collapse sidebar-dropdown"
-                            id="smsMenu"
-                        >
-
-                            <a
-                                href="{{ route('sms.index') }}"
-                                class="sidebar-sublink"
-                            >
-                                <i class="bi bi-envelope-paper-fill sidebar-subicon"></i>
-                                <span>SMS Queue</span>
-                            </a>
-
-                        </div>
-
-                    </li>
-                @endcan
-
-                @can('school-users.view')
-                    <li class="sidebar-item">
-
-                        <a
-                            class="sidebar-link"
-                            data-bs-toggle="collapse"
-                            href="#usersMenu"
-                            role="button"
-                        >
-
-                            <i class="bi bi-shield-check sidebar-icon"></i>
-
-                            <span>
-                                User Management
-                            </span>
-
-                            <i class="bi bi-chevron-down dropdown-icon"></i>
-
-                        </a>
-
-                        <div
-                            class="collapse sidebar-dropdown"
-                            id="usersMenu"
-                        >
-
-                            <a
-                                href="{{ route('school-users.index') }}"
-                                class="sidebar-sublink"
-                            >
-                                <i class="bi bi-people-fill sidebar-subicon"></i>
-                                <span>Masterlist</span>
-                            </a>
-
-                        </div>
-
-                    </li>
-                @endcan
-
-                {{--                @can('settings.view')--}}
-                {{--                    <li class="sidebar-item">--}}
-
-                {{--                        <a--}}
-                {{--                            href="{{ route('settings.index') }}"--}}
-                {{--                            class="sidebar-link {{ request()->routeIs('settings.index') ? 'active' : '' }}"--}}
-                {{--                        >--}}
-
-                {{--                            <i class="bi bi-sliders2-vertical sidebar-icon"></i>--}}
-
-                {{--                            <span>--}}
-                {{--                                Settings--}}
-                {{--                            </span>--}}
-
-                {{--                        </a>--}}
-
-                {{--                    </li>--}}
-                {{--                @endcan--}}
-
-            </ul>
-        @endif
+        <ul class="sidebar-menu">
+
+    <li class="sidebar-item">
+        <a
+            href="{{ route('dashboard.index') }}"
+            class="sidebar-link {{ request()->routeIs('dashboard.*') ? 'active' : '' }}"
+        >
+            <i class="bi bi-grid-1x2-fill sidebar-icon"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+
+    <li class="sidebar-item">
+        <a
+            class="sidebar-link"
+            data-bs-toggle="collapse"
+            href="#salesMenu"
+            role="button"
+        >
+            <i class="bi bi-cart-check-fill sidebar-icon"></i>
+            <span>Sales</span>
+            <i class="bi bi-chevron-down dropdown-icon"></i>
+        </a>
+
+        <div class="collapse sidebar-dropdown" id="salesMenu">
+
+            <a
+                href="{{ route('sales.create') }}"
+                class="sidebar-sublink"
+            >
+                <i class="bi bi-plus-circle-fill sidebar-subicon"></i>
+                <span>New Sale</span>
+            </a>
+
+            <a
+                href="{{ route('sales.index') }}"
+                class="sidebar-sublink"
+            >
+                <i class="bi bi-receipt-cutoff sidebar-subicon"></i>
+                <span>Sales History</span>
+            </a>
+
+            <a
+                href="{{ route('returns.index') }}"
+                class="sidebar-sublink"
+            >
+                <i class="bi bi-arrow-return-left sidebar-subicon"></i>
+                <span>Returns</span>
+            </a>
+
+            <a
+                href="{{ route('payments.index') }}"
+                class="sidebar-sublink"
+            >
+                <i class="bi bi-cash-stack sidebar-subicon"></i>
+                <span>Payments</span>
+            </a>
+
+        </div>
+    </li>
+
+    <li class="sidebar-item">
+
+        <a
+            class="sidebar-link  {{ request()->routeIs('products.*') ? 'active' : '' }}"
+            data-bs-toggle="collapse"
+            href="#productsMenu"
+            role="button"
+        >
+            <i class="bi bi-box-seam-fill sidebar-icon"></i>
+            <span>Products</span>
+            <i class="bi bi-chevron-down dropdown-icon"></i>
+        </a>
+
+        <div class="collapse sidebar-dropdown" id="productsMenu">
+
+            <a
+                href="{{ route('products.index') }}"
+                class="sidebar-sublink"
+            >
+                <i class="bi bi-box-fill sidebar-subicon"></i>
+                <span>Product List</span>
+            </a>
+
+            <a
+                href="{{ route('products.categories.index') }}"
+                class="sidebar-sublink"
+            >
+                <i class="bi bi-tags-fill sidebar-subicon"></i>
+                <span>Categories</span>
+            </a>
+
+            <a
+                href="{{ route('products.brands.index') }}"
+                class="sidebar-sublink"
+            >
+                <i class="bi bi-award-fill sidebar-subicon"></i>
+                <span>Brands</span>
+            </a>
+
+            <a
+                href="{{ route('products.units.index') }}"
+                class="sidebar-sublink"
+            >
+                <i class="bi bi-rulers sidebar-subicon"></i>
+                <span>Units</span>
+            </a>
+
+            <a
+                href="{{ route('products.price-history.index') }}"
+                class="sidebar-sublink"
+            >
+                <i class="bi bi-clock-history sidebar-subicon"></i>
+                <span>Price History</span>
+            </a>
+
+        </div>
+
+    </li>
+
+    <li class="sidebar-item">
+
+        <a
+            class="sidebar-link"
+            data-bs-toggle="collapse"
+            href="#inventoryMenu"
+            role="button"
+        >
+            <i class="bi bi-boxes sidebar-icon"></i>
+            <span>Inventory</span>
+            <i class="bi bi-chevron-down dropdown-icon"></i>
+        </a>
+
+        <div class="collapse sidebar-dropdown" id="inventoryMenu">
+
+            <a
+                href="{{ route('stocks.index') }}"
+                class="sidebar-sublink"
+            >
+                <i class="bi bi-boxes sidebar-subicon"></i>
+                <span>Current Stocks</span>
+            </a>
+
+            <a
+                href="{{ route('inventory-movements.index') }}"
+                class="sidebar-sublink"
+            >
+                <i class="bi bi-arrow-left-right sidebar-subicon"></i>
+                <span>Stock Movements</span>
+            </a>
+
+            <a
+                href="{{ route('stocks.adjustments.index') }}"
+                class="sidebar-sublink"
+            >
+                <i class="bi bi-sliders sidebar-subicon"></i>
+                <span>Stock Adjustments</span>
+            </a>
+
+            <a
+                href="{{ route('stocks.low-stocks.index') }}"
+                class="sidebar-sublink"
+            >
+                <i class="bi bi-exclamation-triangle-fill sidebar-subicon"></i>
+                <span>Low Stocks</span>
+            </a>
+
+        </div>
+
+    </li>
+
+    <li class="sidebar-item">
+
+        <a
+            class="sidebar-link"
+            data-bs-toggle="collapse"
+            href="#purchasingMenu"
+            role="button"
+        >
+            <i class="bi bi-cart-plus-fill sidebar-icon"></i>
+            <span>Purchasing</span>
+            <i class="bi bi-chevron-down dropdown-icon"></i>
+        </a>
+
+        <div class="collapse sidebar-dropdown" id="purchasingMenu">
+
+            <a
+                href="{{ route('purchases.index') }}"
+                class="sidebar-sublink"
+            >
+                <i class="bi bi-bag-check-fill sidebar-subicon"></i>
+                <span>Purchases</span>
+            </a>
+
+            <a
+                href="{{ route('suppliers.index') }}"
+                class="sidebar-sublink"
+            >
+                <i class="bi bi-truck sidebar-subicon"></i>
+                <span>Suppliers</span>
+            </a>
+
+        </div>
+
+    </li>
+
+    <li class="sidebar-item">
+
+        <a
+            class="sidebar-link"
+            data-bs-toggle="collapse"
+            href="#customersMenu"
+            role="button"
+        >
+            <i class="bi bi-people-fill sidebar-icon"></i>
+            <span>Customers</span>
+            <i class="bi bi-chevron-down dropdown-icon"></i>
+        </a>
+
+        <div class="collapse sidebar-dropdown" id="customersMenu">
+
+            <a
+                href="{{ route('customers.index') }}"
+                class="sidebar-sublink"
+            >
+                <i class="bi bi-person-lines-fill sidebar-subicon"></i>
+                <span>Customer List</span>
+            </a>
+
+            <a
+                href="{{ route('customers.credit.index') }}"
+                class="sidebar-sublink"
+            >
+                <i class="bi bi-wallet2 sidebar-subicon"></i>
+                <span>Credit Accounts</span>
+            </a>
+
+            <a
+                href="{{ route('customers.collections.index') }}"
+                class="sidebar-sublink"
+            >
+                <i class="bi bi-cash-coin sidebar-subicon"></i>
+                <span>Collections</span>
+            </a>
+
+        </div>
+
+    </li>
+
+    <li class="sidebar-item">
+
+        <a
+            class="sidebar-link"
+            data-bs-toggle="collapse"
+            href="#cashierMenu"
+            role="button"
+        >
+            <i class="bi bi-safe-fill sidebar-icon"></i>
+            <span>Cashiering</span>
+            <i class="bi bi-chevron-down dropdown-icon"></i>
+        </a>
+
+        <div class="collapse sidebar-dropdown" id="cashierMenu">
+
+            <a
+                href="{{ route('cashiering.cash-drawers.index') }}"
+                class="sidebar-sublink"
+            >
+                <i class="bi bi-safe sidebar-subicon"></i>
+                <span>Cash Drawers</span>
+            </a>
+
+            <a
+                href="{{ route('cashiering.cash-transactions.index') }}"
+                class="sidebar-sublink"
+            >
+                <i class="bi bi-cash-stack sidebar-subicon"></i>
+                <span>Cash In/Out</span>
+            </a>
+
+            <a
+                href="{{ route('cashiering.ash-shifts.index') }}"
+                class="sidebar-sublink"
+            >
+                <i class="bi bi-clock-fill sidebar-subicon"></i>
+                <span>Shift History</span>
+            </a>
+
+        </div>
+
+    </li>
+
+    <li class="sidebar-item">
+        <a
+            href="{{ route('expenses.index') }}"
+            class="sidebar-link"
+        >
+            <i class="bi bi-receipt sidebar-icon"></i>
+            <span>Expenses</span>
+        </a>
+    </li>
+
+    <li class="sidebar-item">
+
+        <a
+            class="sidebar-link"
+            data-bs-toggle="collapse"
+            href="#reportsMenu"
+            role="button"
+        >
+            <i class="bi bi-bar-chart-fill sidebar-icon"></i>
+            <span>Reports</span>
+            <i class="bi bi-chevron-down dropdown-icon"></i>
+        </a>
+
+        <div class="collapse sidebar-dropdown" id="reportsMenu">
+
+            <a href="{{ route('reports.sales') }}" class="sidebar-sublink">
+                <i class="bi bi-graph-up sidebar-subicon"></i>
+                <span>Sales Report</span>
+            </a>
+
+            <a href="{{ route('reports.inventory') }}" class="sidebar-sublink">
+                <i class="bi bi-boxes sidebar-subicon"></i>
+                <span>Inventory Report</span>
+            </a>
+
+            <a href="{{ route('reports.purchases') }}" class="sidebar-sublink">
+                <i class="bi bi-bag-check-fill sidebar-subicon"></i>
+                <span>Purchase Report</span>
+            </a>
+
+            <a href="{{ route('reports.expenses') }}" class="sidebar-sublink">
+                <i class="bi bi-receipt sidebar-subicon"></i>
+                <span>Expense Report</span>
+            </a>
+
+            <a href="{{ route('reports.profit') }}" class="sidebar-sublink">
+                <i class="bi bi-currency-dollar sidebar-subicon"></i>
+                <span>Profit Report</span>
+            </a>
+
+        </div>
+
+    </li>
+
+    <li class="sidebar-item">
+
+        <a
+            class="sidebar-link"
+            data-bs-toggle="collapse"
+            href="#usersMenu"
+            role="button"
+        >
+            <i class="bi bi-person-gear sidebar-icon"></i>
+            <span>User Management</span>
+            <i class="bi bi-chevron-down dropdown-icon"></i>
+        </a>
+
+        <div class="collapse sidebar-dropdown" id="usersMenu">
+
+            <a href="{{ route('users.index') }}" class="sidebar-sublink">
+                <i class="bi bi-people-fill sidebar-subicon"></i>
+                <span>Employees</span>
+            </a>
+
+            <a href="{{ route('roles.index') }}" class="sidebar-sublink">
+                <i class="bi bi-person-workspace sidebar-subicon"></i>
+                <span>Roles</span>
+            </a>
+
+            <a href="{{ route('permissions.index') }}" class="sidebar-sublink">
+                <i class="bi bi-key-fill sidebar-subicon"></i>
+                <span>Permissions</span>
+            </a>
+
+        </div>
+
+    </li>
+
+</ul>
 
     </div>
-    @can('support-center.view')
-    @endcan
 </div>

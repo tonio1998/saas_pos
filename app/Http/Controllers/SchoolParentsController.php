@@ -24,7 +24,7 @@ class SchoolParentsController extends Controller
     }
     public function index()
     {
-        return view('pages.schools.parents.index');
+        return view('pages.store.parents.index');
     }
 
     public function edit($id)
@@ -37,7 +37,7 @@ class SchoolParentsController extends Controller
 
         $parent = Parents::findOrFail($id);
 
-        return view('pages.schools.parents.create', compact('parent'));
+        return view('pages.store.parents.create', compact('parent'));
     }
 
     public function store(Request $request)
@@ -220,7 +220,7 @@ class SchoolParentsController extends Controller
 
     public function create()
     {
-        return view('pages.schools.parents.create');
+        return view('pages.store.parents.create');
     }
 
     public function ajaxData(Request $request)

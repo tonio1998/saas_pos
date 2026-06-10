@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\POS\POSTenant;
 use App\Models\School;
 use App\Models\User;
 use App\Services\SecurityService;
@@ -275,84 +276,48 @@ class AuthController extends Controller
                 )
             );
 
-            $rolesConfig = config(
-                'google_roles',
-                []
-            );
-
-            $assignedRole = null;
-
-            foreach (
-                $rolesConfig as $role => $emails
-            ) {
-
-                $emails = array_map(
-                    fn ($item) => strtolower(
-                        trim($item)
-                    ),
-                    $emails
-                );
-
-                if (
-                    in_array(
-                        $email,
-                        $emails
-                    )
-                ) {
-
-                    $assignedRole = $role;
-
-                    break;
-                }
-            }
-
             $user = User::where(
                 'email',
                 $email
             )->first();
 
-            if (
-                !$user &&
-                $assignedRole
-            ) {
+            if (!$user) {
+               $newtenant = new POSTenant();
+                $newtenant->subscription_id = 1;
+                $newtenant->business_name = $googleUser->getName() . "'s Store";
+                $newtenant->business_code = 'TEN-' . strtoupper(
+                        \Illuminate\Support\Str::random(10)
+                    );
+                $newtenant->owner_name = $googleUser->getName();
+                $newtenant->email = $email;
+                $newtenant->subscription_start = now()->toDateString();
+                $this->set
+                $newtenant->save();
 
                 $user = User::create([
+                    'tenant_id' => $newtenant->id,
                     'name' => $googleUser->getName(),
                     'email' => $email,
                     'google_id' => $googleUser->getId(),
                     'avatar' => $googleUser->getAvatar(),
                     'verified' => 1,
-                    'password' => bcrypt(
+                    'password' => Hash::make(
                         \Illuminate\Support\Str::random(40)
                     ),
                 ]);
 
-                if (
-                    !$user->hasRole(
-                        $assignedRole
-                    )
-                ) {
+                $defaultRole = 'tenant-owner';
 
+                if (
+                    Role::where(
+                        'name',
+                        $defaultRole
+                    )->exists()
+                ) {
                     $user->assignRole(
-                        $assignedRole
+                        $defaultRole
                     );
                 }
-            }
-
-            if (!$user) {
-
-                app(SecurityService::class)
-                    ->logLogin(
-                        request(),
-                        null,
-                        'failed'
-                    );
-
-                return redirect()
-                    ->route('login')
-                    ->withErrors([
-                        'google' => 'Account not found.',
-                    ]);
             }
 
             $user->update([
@@ -362,49 +327,31 @@ class AuthController extends Controller
                 'verified' => 1,
             ]);
 
-            if ($assignedRole) {
-
-                if (
-                    !$user->hasRole(
-                        $assignedRole
-                    )
-                ) {
-
-                    $user->syncRoles([
-                        $assignedRole
-                    ]);
-                }
-            }
-
-            if (
-                !$user->school_id &&
-                !$user->hasRole('SA')
-            ) {
-
-                app(SecurityService::class)
-                    ->logLogin(
-                        request(),
-                        $user,
-                        'failed'
-                    );
-
-                return redirect()
-                    ->route('login')
-                    ->withErrors([
-                        'google' => 'Account is not assigned to a school.',
-                    ]);
-            }
-
-            Auth::login($user, true);
+            Auth::login(
+                $user,
+                true
+            );
 
             request()
                 ->session()
                 ->regenerate();
 
-            app()->instance(
-                'currentSchool',
-                $user->school
+            $tenant = POSTenant::find(
+                $user->tenant_id
             );
+
+            if ($tenant) {
+
+                session([
+                    'tenant_id' => $tenant->id,
+                    'tenant_name' => $tenant->business_name,
+                ]);
+
+                app()->instance(
+                    'currentTenant',
+                    $tenant
+                );
+            }
 
             app(SecurityService::class)
                 ->logLogin(
@@ -422,8 +369,9 @@ class AuthController extends Controller
                 );
             }
 
-            return redirect()
-                ->route('dashboard.index');
+            return redirect()->intended(
+                route('dashboard.index')
+            );
 
         } catch (\Throwable $e) {
 
@@ -556,7 +504,7 @@ class AuthController extends Controller
                 'required',
                 'string',
                 'max:50',
-                'unique:schools,code'
+                'unique:store,code'
             ],
             'theme_color' => [
                 'nullable',

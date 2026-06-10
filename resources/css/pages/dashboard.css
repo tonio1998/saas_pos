@@ -1,497 +1,254 @@
-body{
-    background:#f4f7fb;
-}
-
 .dashboard-card{
     position:relative;
     overflow:hidden;
-
-    border-radius:18px;
-
-    padding:16px 18px;
-
-    min-height:112px;
-
+    border:none;
+    border-radius:20px;
+    padding:24px;
     color:#fff;
-
-    transition:.2s ease;
-
-    border:1px solid rgba(255,255,255,.45);
-
-    backdrop-filter:blur(18px);
-    -webkit-backdrop-filter:blur(18px);
-
-    box-shadow:
-        0 8px 24px rgba(15,23,42,.08),
-        inset 0 1px 0 rgba(255,255,255,.25);
+    min-height:130px;
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+    transition:.25s ease;
 }
 
 .dashboard-card:hover{
-    transform:translateY(-2px);
-}
-
-.dashboard-card.primary{
-    background:
-        linear-gradient(
-            135deg,
-            rgba(59,130,246,.88),
-            rgba(37,99,235,.82)
-        );
+    transform:translateY(-4px);
 }
 
 .dashboard-card.success{
-    background:
-        linear-gradient(
-            135deg,
-            rgba(34,197,94,.88),
-            rgba(22,163,74,.82)
-        );
+    background:linear-gradient(135deg,#16a34a,#22c55e);
+}
+
+.dashboard-card.primary{
+    background:linear-gradient(135deg,#2563eb,#3b82f6);
 }
 
 .dashboard-card.warning{
-    background:
-        linear-gradient(
-            135deg,
-            rgba(251,191,36,.92),
-            rgba(245,158,11,.86)
-        );
+    background:linear-gradient(135deg,#d97706,#f59e0b);
+}
+
+.dashboard-card.info{
+    background:linear-gradient(135deg,#0891b2,#06b6d4);
+}
+
+.dashboard-card.danger{
+    background:linear-gradient(135deg,#dc2626,#ef4444);
 }
 
 .dashboard-card.dark{
-    background:
-        linear-gradient(
-            135deg,
-            rgba(51,65,85,.94),
-            rgba(30,41,59,.9)
-        );
-}
-
-.dashboard-card::before{
-    content:'';
-
-    position:absolute;
-
-    top:0;
-    left:0;
-    right:0;
-
-    height:1px;
-
-    background:rgba(255,255,255,.45);
-}
-
-.dashboard-glow{
-    position:absolute;
-
-    width:110px;
-    height:110px;
-
-    border-radius:50%;
-
-    background:rgba(255,255,255,.12);
-
-    filter:blur(6px);
-
-    top:-30px;
-    right:-30px;
-}
-
-.card-top{
-    position:relative;
-    z-index:2;
-
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
+    background:linear-gradient(135deg,#1f2937,#374151);
 }
 
 .card-label{
-    font-size:10px;
+    font-size:.75rem;
     font-weight:700;
-
     letter-spacing:1px;
-
-    opacity:.82;
-
-    margin-bottom:6px;
+    opacity:.85;
 }
 
 .card-value{
-    font-size:30px;
+    font-size:2rem;
     font-weight:800;
-
+    margin-top:10px;
     line-height:1;
-
-    margin-bottom:7px;
 }
 
-.card-trend{
-    display:flex;
-    align-items:center;
-    gap:5px;
-
-    font-size:11px;
-    font-weight:600;
-
+.card-meta{
+    margin-top:12px;
+    font-size:.85rem;
     opacity:.9;
 }
 
-.card-icon{
-    width:48px;
-    height:48px;
-
-    border-radius:14px;
-
-    background:rgba(255,255,255,.16);
-
-    border:1px solid rgba(255,255,255,.18);
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    font-size:19px;
-
-    flex-shrink:0;
-
-    backdrop-filter:blur(10px);
-    -webkit-backdrop-filter:blur(10px);
-}
-
 .modern-card{
-    background:rgba(255,255,255,.72);
-
-    border-radius:18px;
-
-    padding:16px 18px;
-
-    border:1px solid rgba(255,255,255,.6);
-
-    backdrop-filter:blur(20px);
-    -webkit-backdrop-filter:blur(20px);
-
-    box-shadow:
-        0 8px 24px rgba(15,23,42,.05);
+    background:#fff;
+    border:none;
+    border-radius:20px;
+    padding:24px;
+    box-shadow:0 8px 25px rgba(0,0,0,.05);
+    height:100%;
 }
 
 .section-header{
-    margin-bottom:14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:20px;
 }
 
 .section-title{
-    font-size:15px;
+    font-size:1rem;
     font-weight:700;
-
-    color:#0f172a;
-
-    margin-bottom:2px;
+    margin:0;
 }
 
 .section-subtitle{
-    color:#64748b;
+    font-size:.8rem;
+    color:#6b7280;
+}
 
-    font-size:11px;
+.summary-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+}
+
+.summary-box{
+    background:#f8fafc;
+    border-radius:14px;
+    padding:16px;
+}
+
+.summary-box span{
+    display:block;
+    color:#64748b;
+    font-size:.8rem;
+}
+
+.summary-box strong{
+    display:block;
+    font-size:1.3rem;
+    margin-top:5px;
 }
 
 .quick-grid{
     display:grid;
-
-    grid-template-columns:
-    repeat(auto-fit,minmax(180px,1fr));
-
-    gap:10px;
+    grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    gap:15px;
 }
 
-.quick-item{
-    display:flex;
-    align-items:center;
-    gap:10px;
-
-    padding:12px;
-
-    border-radius:15px;
-
+.quick-action{
+    background:#f8fafc;
+    border-radius:16px;
+    padding:20px;
     text-decoration:none;
-
-    background:rgba(255,255,255,.58);
-
-    border:1px solid rgba(226,232,240,.7);
-
-    transition:.2s ease;
+    text-align:center;
+    color:#111827;
+    transition:.25s ease;
 }
 
-.quick-item:hover{
-    transform:translateY(-1px);
-
-    background:#fff;
-}
-
-.quick-icon{
-    width:42px;
-    height:42px;
-
-    border-radius:12px;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
+.quick-action:hover{
+    background:#004D1A;
     color:#fff;
-
-    font-size:17px;
-
-    flex-shrink:0;
+    transform:translateY(-3px);
 }
 
-.quick-icon.primary{
-    background:#3b82f6;
+.quick-action i{
+    display:block;
+    font-size:1.7rem;
+    margin-bottom:10px;
 }
 
-.quick-icon.success{
-    background:#22c55e;
+.quick-action span{
+    font-weight:600;
+    font-size:.9rem;
 }
 
-.quick-icon.warning{
-    background:#f59e0b;
-}
-
-.quick-icon.dark{
-    background:#334155;
-}
-
-.quick-title{
-    font-size:13px;
-    font-weight:700;
-
-    color:#0f172a;
-
-    margin-bottom:2px;
-}
-
-.quick-subtitle{
-    font-size:10px;
-
-    color:#64748b;
-}
-
-.system-list{
+.finance-list{
     display:flex;
     flex-direction:column;
+    gap:14px;
 }
 
-.system-item{
+.finance-item{
     display:flex;
     justify-content:space-between;
     align-items:center;
-
-    padding:10px 0;
-
-    border-bottom:1px solid #edf2f7;
-}
-
-.system-label{
-    color:#64748b;
-
-    font-size:11px;
-    font-weight:600;
-}
-
-.system-value{
-    font-size:12px;
-    font-weight:700;
-
-    color:#0f172a;
-}
-
-.activity-grid{
-    display:grid;
-
-    grid-template-columns:
-    repeat(auto-fit,minmax(180px,1fr));
-
-    gap:10px;
-}
-
-.activity-box{
-    padding:12px;
-
-    border-radius:15px;
-
-    background:rgba(255,255,255,.58);
-
-    border:1px solid rgba(226,232,240,.7);
-
-    display:flex;
-    align-items:center;
-    gap:10px;
-}
-
-.activity-icon{
-    width:42px;
-    height:42px;
-
+    background:#f8fafc;
+    padding:14px 16px;
     border-radius:12px;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    color:#fff;
-
-    font-size:17px;
-
-    flex-shrink:0;
 }
 
-.activity-icon.primary{
-    background:#3b82f6;
-}
-
-.activity-icon.success{
-    background:#22c55e;
-}
-
-.activity-icon.warning{
-    background:#f59e0b;
-}
-
-.activity-icon.dark{
-    background:#334155;
-}
-
-.activity-label{
-    font-size:10px;
-    font-weight:600;
-
+.finance-item span{
     color:#64748b;
-
-    margin-bottom:3px;
 }
 
-.activity-value{
-    font-size:20px;
-    font-weight:800;
-
-    color:#0f172a;
-
-    line-height:1;
+.finance-item strong{
+    font-size:1rem;
 }
 
-.feed-list{
-    display:flex;
-    flex-direction:column;
-
-    gap:8px;
-
-    max-height:390px;
-
-    overflow:auto;
+.timeline{
+    position:relative;
+    padding-left:20px;
 }
 
-.feed-item{
-    display:flex;
-    align-items:center;
-    gap:10px;
-
-    padding:10px 12px;
-
-    border-radius:15px;
-
-    background:rgba(255,255,255,.58);
-
-    border:1px solid rgba(226,232,240,.7);
+.timeline::before{
+    content:'';
+    position:absolute;
+    left:6px;
+    top:0;
+    bottom:0;
+    width:2px;
+    background:#e5e7eb;
 }
 
-.feed-avatar{
-    width:38px;
-    height:38px;
+.timeline-item{
+    position:relative;
+    margin-bottom:20px;
+    padding-left:20px;
+}
 
+.timeline-item::before{
+    content:'';
+    width:12px;
+    height:12px;
+    background:#004D1A;
     border-radius:50%;
-
-    background:#3b82f6;
-
-    color:#fff;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    font-size:15px;
-
-    flex-shrink:0;
+    position:absolute;
+    left:-1px;
+    top:4px;
 }
 
-.feed-content{
-    flex:1;
+.timeline-item strong{
+    display:block;
+    font-size:.85rem;
+    color:#004D1A;
+    margin-bottom:4px;
 }
 
-.feed-name{
-    font-size:12px;
+.table{
+    margin-bottom:0;
+}
+
+.table th{
+    font-size:.85rem;
     font-weight:700;
-
-    color:#0f172a;
-
-    margin-bottom:1px;
+    border-bottom:1px solid #eef2f7;
 }
 
-.feed-meta{
-    font-size:10px;
-
-    color:#64748b;
+.table td{
+    vertical-align:middle;
+    border-color:#f1f5f9;
 }
 
-.feed-status{
-    color:#22c55e;
-
-    font-size:14px;
+.list-group-item{
+    border:none;
+    border-bottom:1px solid #eef2f7;
+    padding:.9rem 0;
 }
 
-.empty-feed{
-    padding:26px 10px;
-
-    text-align:center;
-
-    color:#94a3b8;
+.list-group-item:last-child{
+    border-bottom:none;
 }
 
-.live-dot{
-    width:7px;
-    height:7px;
-
-    border-radius:50%;
-
-    background:#22c55e;
-
-    display:inline-block;
-
-    animation:pulse 1.3s infinite;
+#salesChart{
+    width:100%!important;
+    height:350px!important;
 }
 
-@keyframes pulse{
-
-    0%{
-        opacity:1;
-    }
-
-    50%{
-        opacity:.35;
-    }
-
-    100%{
-        opacity:1;
-    }
-
-}
-
-@media(max-width:768px){
+@media(max-width:991px){
 
     .card-value{
-        font-size:24px;
+        font-size:1.5rem;
     }
 
-    .quick-grid,
-    .activity-grid{
-        grid-template-columns:1fr;
+    .modern-card{
+        padding:18px;
     }
 
+    .quick-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .summary-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
 }

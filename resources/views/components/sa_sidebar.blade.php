@@ -56,7 +56,7 @@
                 >
 
                     <a
-                        href="{{ route('sa.schools.index') }}"
+                        href="{{ route('sa.store.index') }}"
                         class="sidebar-sublink"
                     >
 
@@ -69,7 +69,7 @@
                     </a>
 
                     <a
-                        href="{{ route('sa.schools.create') }}"
+                        href="{{ route('sa.store.create') }}"
                         class="sidebar-sublink"
                     >
 

@@ -64,14 +64,14 @@ class UserController extends Controller
         $user = User::findOrFail(decrypt($request->segment(2)));
         $roles = Role::all();
 //        dd($roles);
-        return view('pages.schools.users.roles',compact('user','roles'));
+        return view('pages.store.users.roles',compact('user','roles'));
     }
 
     public function editPermissions(Request $request)
     {
         $user = User::findOrFail(decrypt($request->segment(2)));
         $permissions = Permission::all();
-        return view('pages.schools.users.permissions',compact('user','permissions'));
+        return view('pages.store.users.permissions',compact('user','permissions'));
     }
 
     public function updateRoles(Request $request, User $user)
@@ -342,7 +342,7 @@ class UserController extends Controller
     public function create()
     {
 
-        return view('pages.schools.users.create');
+        return view('pages.store.users.create');
 
     }
 
@@ -368,7 +368,7 @@ class UserController extends Controller
     public function edit(User $user)
     {
 
-        return view('pages.schools.users.edit', compact('user'));
+        return view('pages.store.users.edit', compact('user'));
 
     }
 
@@ -522,7 +522,7 @@ class UserController extends Controller
             $user = User::findOrFail($id);
             $user_type = $request->q ?? null;
 
-            return view('pages.schools.users.change-photo', compact('user', 'user_type'));
+            return view('pages.store.users.change-photo', compact('user', 'user_type'));
 
         } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
             dd($e->getMessage());
@@ -549,7 +549,7 @@ class UserController extends Controller
 //        dd($student);
         $user_type = 'students';
 
-        return view('pages.schools.users.print', compact('student', 'user', 'user_type'))
+        return view('pages.store.users.print', compact('student', 'user', 'user_type'))
             ->with('success', 'Student ID printed successfully');
     }
 
@@ -558,7 +558,7 @@ class UserController extends Controller
         $id = decrypt($request->segment(2));
         $user = User::find($id);
         if(!$user) return redirect()->route('students.index')->with('error','Generate Password first');
-        return view('pages.schools.users.nfc', compact('user'));
+        return view('pages.store.users.nfc', compact('user'));
     }
 
     public function assignNfc(Request $request)

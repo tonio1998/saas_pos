@@ -15,12 +15,28 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 
--- Dumping database structure for tnhs-new
-DROP DATABASE IF EXISTS `tnhs-new`;
-CREATE DATABASE IF NOT EXISTS `tnhs-new` /*!40100 DEFAULT CHARACTER SET utf8 */;
-USE `tnhs-new`;
+-- Dumping database structure for snsu_safetrack
+CREATE DATABASE IF NOT EXISTS `snsu_safetrack` /*!40100 DEFAULT CHARACTER SET utf8 */;
+USE `snsu_safetrack`;
 
--- Dumping structure for table tnhs-new.audits
+-- Dumping structure for table snsu_safetrack.attendance_risk_scores
+DROP TABLE IF EXISTS `attendance_risk_scores`;
+CREATE TABLE IF NOT EXISTS `attendance_risk_scores` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `student_id` bigint(20) unsigned NOT NULL,
+  `total_lates` int(11) DEFAULT '0',
+  `total_absences` int(11) DEFAULT '0',
+  `risk_level` enum('low','medium','high') DEFAULT 'low',
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- Dumping data for table snsu_safetrack.attendance_risk_scores: 0 rows
+DELETE FROM `attendance_risk_scores`;
+/*!40000 ALTER TABLE `attendance_risk_scores` DISABLE KEYS */;
+/*!40000 ALTER TABLE `attendance_risk_scores` ENABLE KEYS */;
+
+-- Dumping structure for table snsu_safetrack.audits
 DROP TABLE IF EXISTS `audits`;
 CREATE TABLE IF NOT EXISTS `audits` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -40,914 +56,224 @@ CREATE TABLE IF NOT EXISTS `audits` (
   PRIMARY KEY (`id`),
   KEY `audits_auditable_type_auditable_id_index` (`auditable_type`,`auditable_id`),
   KEY `audits_user_id_user_type_index` (`user_id`,`user_type`)
-) ENGINE=MyISAM AUTO_INCREMENT=1265 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.audits: 866 rows
+-- Dumping data for table snsu_safetrack.audits: ~33 rows (approximately)
 DELETE FROM `audits`;
-/*!40000 ALTER TABLE `audits` DISABLE KEYS */;
 INSERT INTO `audits` (`id`, `user_type`, `user_id`, `event`, `auditable_type`, `auditable_id`, `old_values`, `new_values`, `url`, `ip_address`, `user_agent`, `tags`, `created_at`, `updated_at`) VALUES
-	(396, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 50, '{"remember_token":null}', '{"remember_token":"LwskNOAXifbMFhMGmiGSgBrmtigOsqLN58o52bHavimosh5axVFYw7Nk5vbZ"}', 'http://tnhs.dev.com/login', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-07-24 19:14:20', '2025-07-24 19:14:20'),
-	(397, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Employees', 2, '{"FirstName":"KJGHK","MiddleName":"GHJKGH","LastName":"JKGHJK"}', '{"FirstName":"NORVEN","MiddleName":"OLACO","LastName":"ESPINOSA"}', 'http://tnhs.dev.com/employees/2/update', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-07-24 19:23:05', '2025-07-24 19:23:05'),
-	(398, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 87, '{"password":"$2y$12$dC\\/RqbKh.Kxd2Nm9nvGiYOFcqM4QqAxQAtT.jCw8gn.otPFQDcfL6"}', '{"password":"$2y$12$foYtLSGG4DJvgC2abullB.FZmeisQUCkkYdFbTGFdtjINabX4enDC"}', 'http://tnhs.dev.com/users/2/87/employees/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-07-24 19:23:11', '2025-07-24 19:23:11'),
-	(399, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 87, '{"name":"KJGHK JKGHJK","password":"$2y$12$foYtLSGG4DJvgC2abullB.FZmeisQUCkkYdFbTGFdtjINabX4enDC"}', '{"name":"NORVEN ESPINOSA","password":"$2y$12$40JBxhIBM6oXmYiWFX16WO95QTkrBBmuHF7egiDDschxDi3RdFlEK"}', 'http://tnhs.dev.com/users/2/87/employees/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-07-24 19:24:08', '2025-07-24 19:24:08'),
-	(400, NULL, NULL, 'updated', 'App\\Models\\User', 50, '{"fcm_token":"d0XgDDjlRO6cgeB-_6kclV:APA91bHrcSxc1HYLbgf5eVo8SWqoYBJ8wk6YF8W0czNnzdTLV6BlAW10covTTSCkZMJ5ZD1r8BXvePv0V719zEchsJBKmkHrxFjeo-Dejw9D3GG4lGoKPgA"}', '{"fcm_token":"cqrC21H2QVmBzPGCGg7jav:APA91bGlyMogyecG3nxItyY6pQYr1l2Iqp_HlrmOSq3SqWJaQZgBlu35dtFwihVBDTI7lic9n1Ku1pty9STEm4d6Vss-jEBsyzNYTz1TMBay8YIVo_udkxc"}', 'http://10.25.1.130:8000/api/user/save-fcm-token', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:27:50', '2025-07-24 19:27:50'),
-	(401, NULL, NULL, 'created', 'App\\Models\\User', 89, '[]', '{"conn_id":"353","SchoolID":"1","name":"Ibrahim O\'Conner","email":"io\'conner@tnhs.edu.ph","password":"$2y$12$UahGvW46iZOWviILYqi.Ve4IbRY.uBx2KGETTpi\\/e2RKw5kJStzsO","qr_code":"1000000000001","created_by":50,"updated_by":50,"status":"active","archived":0,"id":89}', 'http://10.25.1.130:8000/api/user/353/0/residents/generate-password', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:29:37', '2025-07-24 19:29:37'),
-	(402, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\Residents', 353, '{"UserID":0}', '{"UserID":89}', 'http://10.25.1.130:8000/api/user/353/0/residents/generate-password', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:29:37', '2025-07-24 19:29:37'),
-	(403, NULL, NULL, 'updated', 'App\\Models\\User', 89, '{"nfc_code":"0"}', '{"nfc_code":"04B3A701E30C03"}', 'http://10.25.1.130:8000/api/user/89/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:30:33', '2025-07-24 19:30:33'),
-	(404, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 1, '[]', '{"UserID":"89","nfc_uid":"04B3A701E30C03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":1}', 'http://10.25.1.130:8000/api/user/89/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:30:33', '2025-07-24 19:30:33'),
-	(405, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\Residents', 1553, '[]', '{"LRN":"from-local fsfd","FirstName":"fsdf","MiddleName":"dfsdf","LastName":"fsdf","Suffix":"JR","Classes":"A","YearLevel":"6","PhoneNumber":"+639506345980","created_by":50,"updated_by":50,"status":"active","archived":0,"id":1553}', 'http://10.25.1.130:8000/api/residents', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:40:21', '2025-07-24 19:40:21'),
-	(406, NULL, NULL, 'created', 'App\\Models\\User', 90, '[]', '{"conn_id":"354","SchoolID":"1","name":"Lily Lubowitz","email":"llubowitz@tnhs.edu.ph","password":"$2y$12$k1Ln2sMcBZ2Zstowo2v0suZ7gud5.Py8duFm5a3Q2z3El0SxObWUy","qr_code":"1000000000002","created_by":50,"updated_by":50,"status":"active","archived":0,"id":90}', 'http://10.25.1.130:8000/api/user/354/0/residents/generate-password', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:40:45', '2025-07-24 19:40:45'),
-	(407, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\Residents', 354, '{"UserID":0}', '{"UserID":90}', 'http://10.25.1.130:8000/api/user/354/0/residents/generate-password', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:40:45', '2025-07-24 19:40:45'),
-	(408, NULL, NULL, 'updated', 'App\\Models\\User', 90, '{"nfc_code":"0"}', '{"nfc_code":"04B39201240C03"}', 'http://10.25.1.130:8000/api/user/90/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:41:10', '2025-07-24 19:41:10'),
-	(409, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 2, '[]', '{"UserID":"90","nfc_uid":"04B39201240C03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":2}', 'http://10.25.1.130:8000/api/user/90/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:41:10', '2025-07-24 19:41:10'),
-	(410, NULL, NULL, 'created', 'App\\Models\\User', 91, '[]', '{"conn_id":"356","SchoolID":"1","name":"Darrion Lockman","email":"dlockman@tnhs.edu.ph","password":"$2y$12$GOPGvx3LLTY0JHFxLq59eunpZ96NZL6MCCZ093O6DyXuGxtW1afEu","qr_code":"1000000000003","created_by":50,"updated_by":50,"status":"active","archived":0,"id":91}', 'http://10.25.1.130:8000/api/user/356/0/residents/generate-password', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:47:03', '2025-07-24 19:47:03'),
-	(411, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\Residents', 356, '{"UserID":0}', '{"UserID":91}', 'http://10.25.1.130:8000/api/user/356/0/residents/generate-password', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:47:03', '2025-07-24 19:47:03'),
-	(412, NULL, NULL, 'created', 'App\\Models\\User', 92, '[]', '{"conn_id":"355","SchoolID":"1","name":"Mara Trantow","email":"mtrantow@tnhs.edu.ph","password":"$2y$12$1YT.r23YxtZ3sWELZZ.hROUT1SYMK5bHjLSRReQR89KpqcULHHH7q","qr_code":"1000000000004","created_by":50,"updated_by":50,"status":"active","archived":0,"id":92}', 'http://10.25.1.130:8000/api/user/355/0/residents/generate-password', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:47:09', '2025-07-24 19:47:09'),
-	(413, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\Residents', 355, '{"UserID":0}', '{"UserID":92}', 'http://10.25.1.130:8000/api/user/355/0/residents/generate-password', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:47:09', '2025-07-24 19:47:09'),
-	(414, NULL, NULL, 'updated', 'App\\Models\\User', 92, '{"nfc_code":"0"}', '{"nfc_code":"04B3D4016B0C03"}', 'http://10.25.1.130:8000/api/user/92/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:47:46', '2025-07-24 19:47:46'),
-	(415, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 3, '[]', '{"UserID":"92","nfc_uid":"04B3D4016B0C03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":3}', 'http://10.25.1.130:8000/api/user/92/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:47:46', '2025-07-24 19:47:46'),
-	(416, NULL, NULL, 'created', 'App\\Models\\User', 93, '[]', '{"conn_id":"357","SchoolID":"1","name":"Lilly Littel","email":"llittel@tnhs.edu.ph","password":"$2y$12$VAkiZUDo7h0BWtzNY0DYn.g6aUPyCby0MpCsORPeVOkZ1ElJO3FYK","qr_code":"1000000000005","created_by":50,"updated_by":50,"status":"active","archived":0,"id":93}', 'http://10.25.1.130:8000/api/user/357/0/residents/generate-password', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:49:06', '2025-07-24 19:49:06'),
-	(417, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\Residents', 357, '{"UserID":0}', '{"UserID":93}', 'http://10.25.1.130:8000/api/user/357/0/residents/generate-password', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:49:06', '2025-07-24 19:49:06'),
-	(418, NULL, NULL, 'created', 'App\\Models\\User', 94, '[]', '{"conn_id":"358","SchoolID":"1","name":"Nettie Moore","email":"nmoore@tnhs.edu.ph","password":"$2y$12$Co8dw6EoMbVMfcRqphK\\/1.8nKRiXq2MiNz8uLRCjNO1IjDOYC7TOy","qr_code":"1000000000006","created_by":50,"updated_by":50,"status":"active","archived":0,"id":94}', 'http://10.25.1.130:8000/api/user/358/0/residents/generate-password', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:49:14', '2025-07-24 19:49:14'),
-	(419, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\Residents', 358, '{"UserID":0}', '{"UserID":94}', 'http://10.25.1.130:8000/api/user/358/0/residents/generate-password', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:49:14', '2025-07-24 19:49:14'),
-	(420, NULL, NULL, 'updated', 'App\\Models\\User', 94, '{"nfc_code":"0"}', '{"nfc_code":"04B3FD01AE0C03"}', 'http://10.25.1.130:8000/api/user/94/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:50:01', '2025-07-24 19:50:01'),
-	(421, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 4, '[]', '{"UserID":"94","nfc_uid":"04B3FD01AE0C03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":4}', 'http://10.25.1.130:8000/api/user/94/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:50:01', '2025-07-24 19:50:01'),
-	(422, NULL, NULL, 'updated', 'App\\Models\\User', 93, '{"nfc_code":"0"}', '{"nfc_code":"0472A801914D03"}', 'http://10.25.1.130:8000/api/user/93/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:53:58', '2025-07-24 19:53:58'),
-	(423, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 5, '[]', '{"UserID":"93","nfc_uid":"0472A801914D03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":5}', 'http://10.25.1.130:8000/api/user/93/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:53:58', '2025-07-24 19:53:58'),
-	(424, NULL, NULL, 'created', 'App\\Models\\User', 95, '[]', '{"conn_id":"362","SchoolID":"1","name":"Earnest Baumbach","email":"ebaumbach@tnhs.edu.ph","password":"$2y$12$Y3s4de65JCAIt8O1YEaA.uzphrZjmZBMZ.UWcmOtrDcN5QfBx1fQm","qr_code":"1000000000007","created_by":50,"updated_by":50,"status":"active","archived":0,"id":95}', 'http://10.25.1.130:8000/api/user/362/0/residents/generate-password', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:54:56', '2025-07-24 19:54:56'),
-	(425, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\Residents', 362, '{"UserID":0}', '{"UserID":95}', 'http://10.25.1.130:8000/api/user/362/0/residents/generate-password', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:54:56', '2025-07-24 19:54:56'),
-	(426, NULL, NULL, 'updated', 'App\\Models\\User', 93, '{"nfc_code":"0472A801914D03"}', '{"nfc_code":"04825A01484D03"}', 'http://10.25.1.130:8000/api/user/93/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:55:35', '2025-07-24 19:55:35'),
-	(427, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 6, '[]', '{"UserID":"93","nfc_uid":"04825A01484D03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":6}', 'http://10.25.1.130:8000/api/user/93/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:55:35', '2025-07-24 19:55:35'),
-	(428, NULL, NULL, 'created', 'App\\Models\\User', 96, '[]', '{"conn_id":"359","SchoolID":"1","name":"Brock Murphy","email":"bmurphy@tnhs.edu.ph","password":"$2y$12$DQCwvW4FNZ04v4QMZZ6UBOGTmUPFeb9HdPW45w9ELaOUBC3U2z41m","qr_code":"1000000000008","created_by":50,"updated_by":50,"status":"active","archived":0,"id":96}', 'http://10.25.1.130:8000/api/user/359/0/residents/generate-password', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:55:46', '2025-07-24 19:55:46'),
-	(429, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\Residents', 359, '{"UserID":0}', '{"UserID":96}', 'http://10.25.1.130:8000/api/user/359/0/residents/generate-password', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:55:46', '2025-07-24 19:55:46'),
-	(430, NULL, NULL, 'updated', 'App\\Models\\User', 96, '{"nfc_code":null}', '{"nfc_code":"0472A801914D03"}', 'http://10.25.1.130:8000/api/user/96/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:55:54', '2025-07-24 19:55:54'),
-	(431, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 7, '[]', '{"UserID":"96","nfc_uid":"0472A801914D03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":7}', 'http://10.25.1.130:8000/api/user/96/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 19:55:54', '2025-07-24 19:55:54'),
-	(432, NULL, NULL, 'created', 'App\\Models\\User', 97, '[]', '{"conn_id":"360","SchoolID":"1","name":"Everette Price","email":"eprice@tnhs.edu.ph","password":"$2y$12$wMmldhJQcoPPtDzcHqlhG.Xs288LDidPqX0BwAmq9hPrFr4kIoB66","qr_code":"1000000000009","created_by":50,"updated_by":50,"status":"active","archived":0,"id":97}', 'http://10.25.1.130:8000/api/user/360/0/residents/generate-password', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:00:09', '2025-07-24 20:00:09'),
-	(433, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\Residents', 360, '{"UserID":0}', '{"UserID":97}', 'http://10.25.1.130:8000/api/user/360/0/residents/generate-password', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:00:09', '2025-07-24 20:00:09'),
-	(434, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 8, '[]', '{"UserID":"96","nfc_uid":"0472A801914D03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":8}', 'http://10.25.1.130:8000/api/user/96/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:00:17', '2025-07-24 20:00:17'),
-	(435, NULL, NULL, 'updated', 'App\\Models\\User', 97, '{"nfc_code":null}', '{"nfc_code":"04824801034D03"}', 'http://10.25.1.130:8000/api/user/97/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:11:24', '2025-07-24 20:11:24'),
-	(436, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 9, '[]', '{"UserID":"97","nfc_uid":"04824801034D03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":9}', 'http://10.25.1.130:8000/api/user/97/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:11:24', '2025-07-24 20:11:24'),
-	(437, NULL, NULL, 'updated', 'App\\Models\\User', 97, '{"nfc_code":"04824801034D03"}', '{"nfc_code":"0472A501EE4D03"}', 'http://10.25.1.130:8000/api/user/97/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:11:38', '2025-07-24 20:11:38'),
-	(438, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 10, '[]', '{"UserID":"97","nfc_uid":"0472A501EE4D03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":10}', 'http://10.25.1.130:8000/api/user/97/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:11:38', '2025-07-24 20:11:38'),
-	(439, NULL, NULL, 'updated', 'App\\Models\\User', 89, '{"nfc_code":null}', '{"nfc_code":"04B38501690C03"}', 'http://10.25.1.130:8000/api/user/89/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:15:31', '2025-07-24 20:15:31'),
-	(440, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 11, '[]', '{"UserID":"89","nfc_uid":"04B38501690C03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":11}', 'http://10.25.1.130:8000/api/user/89/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:15:31', '2025-07-24 20:15:31'),
-	(441, NULL, NULL, 'updated', 'App\\Models\\User', 90, '{"nfc_code":null}', '{"nfc_code":"04825A01484D03"}', 'http://10.25.1.130:8000/api/user/90/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:28:29', '2025-07-24 20:28:29'),
-	(442, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 12, '[]', '{"UserID":"90","nfc_uid":"04825A01484D03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":12}', 'http://10.25.1.130:8000/api/user/90/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:28:29', '2025-07-24 20:28:29'),
-	(443, NULL, NULL, 'updated', 'App\\Models\\User', 92, '{"nfc_code":null}', '{"nfc_code":"0472A501EE4D03"}', 'http://10.25.1.130:8000/api/user/92/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:31:12', '2025-07-24 20:31:12'),
-	(444, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 13, '[]', '{"UserID":"92","nfc_uid":"0472A501EE4D03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":13}', 'http://10.25.1.130:8000/api/user/92/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:31:12', '2025-07-24 20:31:12'),
-	(445, NULL, NULL, 'updated', 'App\\Models\\User', 92, '{"nfc_code":"0472A501EE4D03"}', '{"nfc_code":"04B3FD01AE0C03"}', 'http://10.25.1.130:8000/api/user/92/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:32:35', '2025-07-24 20:32:35'),
-	(446, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 14, '[]', '{"UserID":"92","nfc_uid":"04B3FD01AE0C03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":14}', 'http://10.25.1.130:8000/api/user/92/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:32:35', '2025-07-24 20:32:35'),
-	(447, NULL, NULL, 'updated', 'App\\Models\\User', 89, '{"nfc_code":"04B38501690C03"}', '{"nfc_code":"04822201944D03"}', 'http://10.25.1.130:8000/api/user/89/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:34:56', '2025-07-24 20:34:56'),
-	(448, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 15, '[]', '{"UserID":"89","nfc_uid":"04822201944D03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":15}', 'http://10.25.1.130:8000/api/user/89/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:34:56', '2025-07-24 20:34:56'),
-	(449, NULL, NULL, 'updated', 'App\\Models\\User', 89, '{"nfc_code":null}', '{"nfc_code":"04B38501690C03"}', 'http://10.25.1.130:8000/api/user/89/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:36:52', '2025-07-24 20:36:52'),
-	(450, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 1, '[]', '{"UserID":"89","nfc_uid":"04B38501690C03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":1}', 'http://10.25.1.130:8000/api/user/89/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:36:52', '2025-07-24 20:36:52'),
-	(451, NULL, NULL, 'updated', 'App\\Models\\User', 90, '{"nfc_code":null}', '{"nfc_code":"04825A01484D03"}', 'http://10.25.1.130:8000/api/user/90/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:37:16', '2025-07-24 20:37:16'),
-	(452, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 2, '[]', '{"UserID":"90","nfc_uid":"04825A01484D03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":2}', 'http://10.25.1.130:8000/api/user/90/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:37:16', '2025-07-24 20:37:16'),
-	(453, NULL, NULL, 'updated', 'App\\Models\\User', 92, '{"nfc_code":null}', '{"nfc_code":"0472A501EE4D03"}', 'http://10.25.1.130:8000/api/user/92/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:37:26', '2025-07-24 20:37:26'),
-	(454, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 3, '[]', '{"UserID":"92","nfc_uid":"0472A501EE4D03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":3}', 'http://10.25.1.130:8000/api/user/92/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:37:26', '2025-07-24 20:37:26'),
-	(455, NULL, NULL, 'updated', 'App\\Models\\User', 91, '{"nfc_code":null}', '{"nfc_code":"04822201944D03"}', 'http://10.25.1.130:8000/api/user/91/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:37:33', '2025-07-24 20:37:33'),
-	(456, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 4, '[]', '{"UserID":"91","nfc_uid":"04822201944D03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":4}', 'http://10.25.1.130:8000/api/user/91/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:37:33', '2025-07-24 20:37:33'),
-	(457, NULL, NULL, 'updated', 'App\\Models\\User', 93, '{"nfc_code":null}', '{"nfc_code":"04824801034D03"}', 'http://10.25.1.130:8000/api/user/93/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:37:43', '2025-07-24 20:37:43'),
-	(458, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 5, '[]', '{"UserID":"93","nfc_uid":"04824801034D03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":5}', 'http://10.25.1.130:8000/api/user/93/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:37:43', '2025-07-24 20:37:43'),
-	(459, NULL, NULL, 'updated', 'App\\Models\\User', 94, '{"nfc_code":null}', '{"nfc_code":"0472A801914D03"}', 'http://10.25.1.130:8000/api/user/94/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:37:50', '2025-07-24 20:37:50'),
-	(460, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 6, '[]', '{"UserID":"94","nfc_uid":"0472A801914D03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":6}', 'http://10.25.1.130:8000/api/user/94/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:37:50', '2025-07-24 20:37:50'),
-	(461, NULL, NULL, 'updated', 'App\\Models\\User', 96, '{"nfc_code":null}', '{"nfc_code":"04B3D4016B0C03"}', 'http://10.25.1.130:8000/api/user/96/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:37:58', '2025-07-24 20:37:58'),
-	(462, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 7, '[]', '{"UserID":"96","nfc_uid":"04B3D4016B0C03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":7}', 'http://10.25.1.130:8000/api/user/96/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:37:58', '2025-07-24 20:37:58'),
-	(463, NULL, NULL, 'updated', 'App\\Models\\User', 97, '{"nfc_code":null}', '{"nfc_code":"04B39201240C03"}', 'http://10.25.1.130:8000/api/user/97/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:38:06', '2025-07-24 20:38:06'),
-	(464, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 8, '[]', '{"UserID":"97","nfc_uid":"04B39201240C03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":8}', 'http://10.25.1.130:8000/api/user/97/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:38:06', '2025-07-24 20:38:06'),
-	(465, NULL, NULL, 'created', 'App\\Models\\User', 98, '[]', '{"conn_id":"361","SchoolID":"1","name":"Hermina Rodriguez","email":"hrodriguez@tnhs.edu.ph","password":"$2y$12$bO40KJaAunA\\/dlYU1T4wOemCcI8SICw0U2628KcvqAXUMqqa1q4fi","qr_code":"1000000000010","created_by":50,"updated_by":50,"status":"active","archived":0,"id":98}', 'http://10.25.1.130:8000/api/user/361/0/residents/generate-password', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:38:11', '2025-07-24 20:38:11'),
-	(466, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\Residents', 361, '{"UserID":0}', '{"UserID":98}', 'http://10.25.1.130:8000/api/user/361/0/residents/generate-password', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:38:11', '2025-07-24 20:38:11'),
-	(467, NULL, NULL, 'updated', 'App\\Models\\User', 95, '{"nfc_code":null}', '{"nfc_code":"04B3A701E30C03"}', 'http://10.25.1.130:8000/api/user/95/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:38:21', '2025-07-24 20:38:21'),
-	(468, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 9, '[]', '{"UserID":"95","nfc_uid":"04B3A701E30C03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":9}', 'http://10.25.1.130:8000/api/user/95/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:38:21', '2025-07-24 20:38:21'),
-	(469, NULL, NULL, 'updated', 'App\\Models\\User', 98, '{"nfc_code":null}', '{"nfc_code":"04B3FD01AE0C03"}', 'http://10.25.1.130:8000/api/user/98/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:38:37', '2025-07-24 20:38:37'),
-	(470, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 10, '[]', '{"UserID":"98","nfc_uid":"04B3FD01AE0C03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":10}', 'http://10.25.1.130:8000/api/user/98/nfc', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:38:37', '2025-07-24 20:38:37'),
-	(471, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240096, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240096}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:39:35', '2025-07-24 20:39:35'),
-	(472, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240097, '[]', '{"UserID":90,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240097}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:39:38', '2025-07-24 20:39:38'),
-	(473, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240098, '[]', '{"UserID":92,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240098}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:39:40', '2025-07-24 20:39:40'),
-	(474, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240099, '[]', '{"UserID":91,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240099}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:39:43', '2025-07-24 20:39:43'),
-	(475, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240100, '[]', '{"UserID":98,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240100}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:39:45', '2025-07-24 20:39:45'),
-	(476, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240101, '[]', '{"UserID":95,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240101}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:39:48', '2025-07-24 20:39:48'),
-	(477, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240102, '[]', '{"UserID":97,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240102}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:39:50', '2025-07-24 20:39:50'),
-	(478, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240103, '[]', '{"UserID":96,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240103}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:39:52', '2025-07-24 20:39:52'),
-	(479, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240104, '[]', '{"UserID":94,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240104}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:39:55', '2025-07-24 20:39:55'),
-	(480, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240105, '[]', '{"UserID":93,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240105}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:39:57', '2025-07-24 20:39:57'),
-	(481, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240106, '[]', '{"UserID":89,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240106}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:40:05', '2025-07-24 20:40:05'),
-	(482, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240107, '[]', '{"UserID":96,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240107}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:40:12', '2025-07-24 20:40:12'),
-	(483, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240108, '[]', '{"UserID":94,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240108}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:40:15', '2025-07-24 20:40:15'),
-	(484, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240109, '[]', '{"UserID":97,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240109}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:40:18', '2025-07-24 20:40:18'),
-	(485, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240110, '[]', '{"UserID":95,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240110}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:40:22', '2025-07-24 20:40:22'),
-	(486, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240111, '[]', '{"UserID":98,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240111}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:40:25', '2025-07-24 20:40:25'),
-	(487, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240112, '[]', '{"UserID":91,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240112}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:40:29', '2025-07-24 20:40:29'),
-	(488, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240113, '[]', '{"UserID":92,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240113}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:40:32', '2025-07-24 20:40:32'),
-	(489, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240114, '[]', '{"UserID":90,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240114}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:40:35', '2025-07-24 20:40:35'),
-	(490, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240115, '[]', '{"UserID":93,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240115}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:40:37', '2025-07-24 20:40:37'),
-	(491, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240116, '[]', '{"UserID":89,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240116}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:42:39', '2025-07-24 20:42:39'),
-	(492, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240117, '[]', '{"UserID":96,"Mode":0,"lat":9.7873349,"lng":125.4946254,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240117}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:43:14', '2025-07-24 20:43:14'),
-	(493, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240118, '[]', '{"UserID":96,"Mode":1,"lat":9.7873349,"lng":125.4946254,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240118}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:43:23', '2025-07-24 20:43:23'),
-	(494, NULL, NULL, 'updated', 'App\\Models\\User', 65, '{"name":"Abagail Dickinson","avatar":null}', '{"name":"ANTONIO JR. PILOTON","avatar":"https:\\/\\/lh3.googleusercontent.com\\/a\\/ACg8ocKkyDZe64PBZKwzpp0RZycR0EkIrvLozpRb9PuWO14e-MU6Upk=s96-c"}', 'http://10.25.1.130:8000/api/auth/google', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:50:27', '2025-07-24 20:50:27'),
-	(495, NULL, NULL, 'updated', 'App\\Models\\User', 65, '{"fcm_token":null}', '{"fcm_token":"cqrC21H2QVmBzPGCGg7jav:APA91bGlyMogyecG3nxItyY6pQYr1l2Iqp_HlrmOSq3SqWJaQZgBlu35dtFwihVBDTI7lic9n1Ku1pty9STEm4d6Vss-jEBsyzNYTz1TMBay8YIVo_udkxc"}', 'http://10.25.1.130:8000/api/user/save-fcm-token', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:50:28', '2025-07-24 20:50:28'),
-	(496, NULL, NULL, 'updated', 'App\\Models\\User', 65, '{"fcm_token":null}', '{"fcm_token":"cqrC21H2QVmBzPGCGg7jav:APA91bGlyMogyecG3nxItyY6pQYr1l2Iqp_HlrmOSq3SqWJaQZgBlu35dtFwihVBDTI7lic9n1Ku1pty9STEm4d6Vss-jEBsyzNYTz1TMBay8YIVo_udkxc"}', 'http://10.25.1.130:8000/api/user/save-fcm-token', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:50:57', '2025-07-24 20:50:57'),
-	(497, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240119, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240119}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 20:59:28', '2025-07-24 20:59:28'),
-	(498, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240120, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240120}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:03:22', '2025-07-24 21:03:22'),
-	(499, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240121, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240121}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:04:22', '2025-07-24 21:04:22'),
-	(500, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240122, '[]', '{"UserID":93,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240122}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:09:55', '2025-07-24 21:09:55'),
-	(501, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240123, '[]', '{"UserID":93,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240123}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:11:04', '2025-07-24 21:11:04'),
-	(502, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240124, '[]', '{"UserID":93,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240124}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:13:34', '2025-07-24 21:13:34'),
-	(503, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240125, '[]', '{"UserID":93,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240125}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:13:44', '2025-07-24 21:13:44'),
-	(504, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240126, '[]', '{"UserID":93,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240126}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:15:00', '2025-07-24 21:15:00'),
-	(505, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240127, '[]', '{"UserID":93,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240127}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:15:11', '2025-07-24 21:15:11'),
-	(506, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240128, '[]', '{"UserID":93,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240128}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:16:06', '2025-07-24 21:16:06'),
-	(507, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240129, '[]', '{"UserID":93,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240129}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:16:24', '2025-07-24 21:16:24'),
-	(508, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240130, '[]', '{"UserID":93,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240130}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:25:58', '2025-07-24 21:25:58'),
-	(509, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240131, '[]', '{"UserID":93,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240131}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:26:09', '2025-07-24 21:26:09'),
-	(510, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240132, '[]', '{"UserID":93,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240132}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:26:40', '2025-07-24 21:26:40'),
-	(511, NULL, NULL, 'updated', 'App\\Models\\User', 50, '{"fcm_token":null}', '{"fcm_token":"cqrC21H2QVmBzPGCGg7jav:APA91bGlyMogyecG3nxItyY6pQYr1l2Iqp_HlrmOSq3SqWJaQZgBlu35dtFwihVBDTI7lic9n1Ku1pty9STEm4d6Vss-jEBsyzNYTz1TMBay8YIVo_udkxc"}', 'http://10.25.1.130:8000/api/user/save-fcm-token', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:27:48', '2025-07-24 21:27:48'),
-	(512, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240133, '[]', '{"UserID":93,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240133}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:28:07', '2025-07-24 21:28:07'),
-	(513, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240134, '[]', '{"UserID":93,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240134}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:28:44', '2025-07-24 21:28:44'),
-	(514, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240135, '[]', '{"UserID":93,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240135}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:28:55', '2025-07-24 21:28:55'),
-	(515, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240136, '[]', '{"UserID":93,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240136}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:30:11', '2025-07-24 21:30:11'),
-	(516, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240137, '[]', '{"UserID":90,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240137}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:36:42', '2025-07-24 21:36:42'),
-	(517, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240138, '[]', '{"UserID":93,"Mode":1,"lat":9.787323,"lng":125.4946185,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240138}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:37:18', '2025-07-24 21:37:18'),
-	(518, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240139, '[]', '{"UserID":93,"Mode":1,"lat":9.787323,"lng":125.4946185,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240139}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:38:27', '2025-07-24 21:38:27'),
-	(519, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240140, '[]', '{"UserID":93,"Mode":1,"lat":9.787323,"lng":125.4946185,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240140}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:38:34', '2025-07-24 21:38:34'),
-	(520, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240141, '[]', '{"UserID":90,"Mode":1,"lat":9.787323,"lng":125.4946185,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240141}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:39:23', '2025-07-24 21:39:23'),
-	(521, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240142, '[]', '{"UserID":93,"Mode":1,"lat":9.787323,"lng":125.4946185,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240142}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:39:41', '2025-07-24 21:39:41'),
-	(522, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 65, '{"name":"ANTONIO JR. PILOTON","password":"$2y$12$OojA102NifUAc.3KlIAPGuXmENkFNXFc2cDv1d\\/RTD9e4MM0dIt7S"}', '{"name":"Abagail Dickinson","password":"$2y$12$AFZ3xlTjOJkkiIcUiBQj4.Ooa3sKFywnexmcps7N6Tz47B1mBCB9a"}', 'http://tnhs.dev.com/users/615/65/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-07-24 21:43:57', '2025-07-24 21:43:57'),
-	(523, NULL, NULL, 'updated', 'App\\Models\\User', 65, '{"name":"Abagail Dickinson"}', '{"name":"ANTONIO JR. PILOTON"}', 'http://10.25.1.130:8000/api/auth/google', '10.25.1.213', 'okhttp/4.9.2', NULL, '2025-07-24 21:45:01', '2025-07-24 21:45:01'),
-	(524, NULL, NULL, 'updated', 'App\\Models\\User', 65, '{"fcm_token":"cqrC21H2QVmBzPGCGg7jav:APA91bGlyMogyecG3nxItyY6pQYr1l2Iqp_HlrmOSq3SqWJaQZgBlu35dtFwihVBDTI7lic9n1Ku1pty9STEm4d6Vss-jEBsyzNYTz1TMBay8YIVo_udkxc"}', '{"fcm_token":"dV61UevwSzWvHhL0VWF7OY:APA91bFni0Aus9ssgHBVjkrRHiQB8Rbl1vWYSXRYlGrKGjgRVINbQsVEmDEk6n7OdvlgSz6-PTtf4BtP8aoTa_Ujudc2imrRmgIsXQh5Qa9oRt1gNSphzug"}', 'http://10.25.1.130:8000/api/user/save-fcm-token', '10.25.1.213', 'okhttp/4.9.2', NULL, '2025-07-24 21:45:02', '2025-07-24 21:45:02'),
-	(525, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240143, '[]', '{"UserID":90,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240143}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:45:21', '2025-07-24 21:45:21'),
-	(526, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240144, '[]', '{"UserID":93,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240144}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:45:25', '2025-07-24 21:45:25'),
-	(527, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240145, '[]', '{"UserID":91,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240145}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:45:28', '2025-07-24 21:45:28'),
-	(528, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240146, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240146}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:45:31', '2025-07-24 21:45:31'),
-	(529, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240147, '[]', '{"UserID":96,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240147}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:45:44', '2025-07-24 21:45:44'),
-	(530, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 89, '{"password":"$2y$12$UahGvW46iZOWviILYqi.Ve4IbRY.uBx2KGETTpi\\/e2RKw5kJStzsO"}', '{"password":"$2y$12$ErClXHzc.LYx3ZPBjSRe2OUJZ1JndWk07uebbVjo8MonSTGJcF9Em"}', 'http://tnhs.dev.com/users/353/89/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-07-24 21:46:15', '2025-07-24 21:46:15'),
-	(531, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 89, '{"password":"$2y$12$ErClXHzc.LYx3ZPBjSRe2OUJZ1JndWk07uebbVjo8MonSTGJcF9Em"}', '{"password":"$2y$12$5x01ZOJR.jV8GYtPKyy40uxb9jXRDainTFWgkY2uhTouXHn1T54mi"}', 'http://tnhs.dev.com/users/353/89/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-07-24 21:51:53', '2025-07-24 21:51:53'),
-	(532, NULL, NULL, 'updated', 'App\\Models\\User', 89, '{"fcm_token":null}', '{"fcm_token":"dV61UevwSzWvHhL0VWF7OY:APA91bFni0Aus9ssgHBVjkrRHiQB8Rbl1vWYSXRYlGrKGjgRVINbQsVEmDEk6n7OdvlgSz6-PTtf4BtP8aoTa_Ujudc2imrRmgIsXQh5Qa9oRt1gNSphzug"}', 'http://10.25.1.130:8000/api/user/save-fcm-token', '10.25.1.213', 'okhttp/4.9.2', NULL, '2025-07-24 21:52:40', '2025-07-24 21:52:40'),
-	(533, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240148, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240148}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:53:37', '2025-07-24 21:53:37'),
-	(534, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240149, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240149}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:53:57', '2025-07-24 21:53:57'),
-	(535, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240150, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240150}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:54:04', '2025-07-24 21:54:04'),
-	(536, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240151, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240151}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:54:10', '2025-07-24 21:54:10'),
-	(537, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240152, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240152}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:57:48', '2025-07-24 21:57:48'),
-	(538, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240153, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240153}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 21:58:01', '2025-07-24 21:58:01'),
-	(539, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240154, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240154}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 22:47:10', '2025-07-24 22:47:10'),
-	(540, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240155, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240155}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 22:47:33', '2025-07-24 22:47:33'),
-	(541, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240156, '[]', '{"UserID":89,"Mode":1,"lat":9.7873116,"lng":125.4945989,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240156}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 22:49:31', '2025-07-24 22:49:31'),
-	(542, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240157, '[]', '{"UserID":89,"Mode":1,"lat":9.7872829,"lng":125.4945738,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240157}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 22:52:50', '2025-07-24 22:52:50'),
-	(543, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240158, '[]', '{"UserID":89,"Mode":0,"lat":9.7873653,"lng":125.4945298,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240158}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 22:54:20', '2025-07-24 22:54:20'),
-	(544, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240159, '[]', '{"UserID":89,"Mode":0,"lat":9.7872761,"lng":125.4945645,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240159}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 22:59:31', '2025-07-24 22:59:31'),
-	(545, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240159, '{"VerificationCode":null}', '{"VerificationCode":"000000000240159"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 22:59:31', '2025-07-24 22:59:31'),
-	(546, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240160, '[]', '{"UserID":89,"Mode":0,"lat":9.7872761,"lng":125.4945645,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240160}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 23:00:12', '2025-07-24 23:00:12'),
-	(547, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240160, '{"VerificationCode":null}', '{"VerificationCode":"000000000240160"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 23:00:12', '2025-07-24 23:00:12'),
-	(548, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240161, '[]', '{"UserID":89,"Mode":1,"lat":9.7872761,"lng":125.4945645,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240161}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 23:00:14', '2025-07-24 23:00:14'),
-	(549, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240161, '{"VerificationCode":null}', '{"VerificationCode":"000000000240161"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 23:00:14', '2025-07-24 23:00:14'),
-	(550, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240162, '[]', '{"UserID":91,"Mode":1,"lat":9.7872761,"lng":125.4945645,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240162}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 23:01:14', '2025-07-24 23:01:14'),
-	(551, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240162, '{"VerificationCode":null}', '{"VerificationCode":"000000000240162"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 23:01:14', '2025-07-24 23:01:14'),
-	(552, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240163, '[]', '{"UserID":93,"Mode":1,"lat":9.7872761,"lng":125.4945645,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240163}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 23:01:18', '2025-07-24 23:01:18'),
-	(553, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240163, '{"VerificationCode":null}', '{"VerificationCode":"000000000240163"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 23:01:18', '2025-07-24 23:01:18'),
-	(554, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240164, '[]', '{"UserID":89,"Mode":1,"lat":9.7872761,"lng":125.4945645,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240164}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 23:01:27', '2025-07-24 23:01:27'),
-	(555, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240164, '{"VerificationCode":null}', '{"VerificationCode":"000000000240164"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 23:01:27', '2025-07-24 23:01:27'),
-	(556, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240165, '[]', '{"UserID":89,"Mode":1,"lat":9.7872761,"lng":125.4945645,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240165}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 23:05:09', '2025-07-24 23:05:09'),
-	(557, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240165, '{"VerificationCode":null}', '{"VerificationCode":"000000000240165"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 23:05:09', '2025-07-24 23:05:09'),
-	(558, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240166, '[]', '{"UserID":89,"Mode":0,"lat":9.7872761,"lng":125.4945645,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240166}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 23:05:15', '2025-07-24 23:05:15'),
-	(559, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240166, '{"VerificationCode":null}', '{"VerificationCode":"000000000240166"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 23:05:15', '2025-07-24 23:05:15'),
-	(560, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240167, '[]', '{"UserID":89,"Mode":0,"lat":9.7872761,"lng":125.4945645,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240167}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 23:05:58', '2025-07-24 23:05:58'),
-	(561, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240167, '{"VerificationCode":null}', '{"VerificationCode":"000000000240167"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 23:05:58', '2025-07-24 23:05:58'),
-	(562, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 615, '{"filepath":"student_photos\\/615.jpg"}', '{"filepath":"student_photos\\/615.jpeg"}', 'http://tnhs.dev.com/residents/615/upload-picture', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-07-24 23:11:15', '2025-07-24 23:11:15'),
-	(563, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Guardians', 4, '{"PhoneNumber":"+639128941731"}', '{"PhoneNumber":"+639451939591"}', 'http://tnhs.dev.com/guardians/4/update', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-07-24 23:13:57', '2025-07-24 23:13:57'),
-	(564, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240168, '[]', '{"UserID":89,"Mode":0,"lat":9.7872761,"lng":125.4945645,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240168}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 23:14:15', '2025-07-24 23:14:15'),
-	(565, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240168, '{"VerificationCode":null}', '{"VerificationCode":"000000000240168"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-24 23:14:15', '2025-07-24 23:14:15'),
-	(566, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 628, '{"filepath":null}', '{"filepath":"student_photos\\/628.jpg"}', 'http://tnhs.dev.com/residents/628/upload-picture', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-07-24 23:42:27', '2025-07-24 23:42:27'),
-	(567, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\Guardians', 6, '[]', '{"FirstName":"TONIO - LOCAL","MiddleName":"SDFSDF","LastName":"FSDF","Suffix":"ds","PhoneNumber":"+639506345981","Address":"TUBAJON","created_by":50,"updated_by":50,"status":"active","archived":0,"id":6}', 'http://10.25.1.130:8000/api/guardians', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:24:33', '2025-07-25 00:24:33'),
-	(568, NULL, NULL, 'created', 'App\\Models\\User', 99, '[]', '{"conn_id":"6","SchoolID":"1","name":"TONIO - LOCAL FSDF","email":"tfsdf@tnhs.edu.ph","password":"$2y$12$N.TxauIAI5RjB5AA9U9nxeYMaI.u3G513BejxvAEDi7\\/PpD.COKhm","qr_code":"1000000000011","created_by":50,"updated_by":50,"status":"active","archived":0,"id":99}', 'http://10.25.1.130:8000/api/user/6/0/parents/generate-password', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:27:55', '2025-07-25 00:27:55'),
-	(569, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\Guardians', 6, '{"UserID":0}', '{"UserID":99}', 'http://10.25.1.130:8000/api/user/6/0/parents/generate-password', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:27:55', '2025-07-25 00:27:55'),
-	(570, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240169, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240169}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:32:44', '2025-07-25 00:32:44'),
-	(571, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240169, '{"VerificationCode":null}', '{"VerificationCode":"000000000240169"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:32:44', '2025-07-25 00:32:44'),
-	(572, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240170, '[]', '{"UserID":89,"Mode":1,"lat":9.7872896,"lng":125.4945788,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240170}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:35:54', '2025-07-25 00:35:54'),
-	(573, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240170, '{"VerificationCode":null}', '{"VerificationCode":"000000000240170"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:35:54', '2025-07-25 00:35:54'),
-	(574, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240171, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240171}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:38:42', '2025-07-25 00:38:42'),
-	(575, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240171, '{"VerificationCode":null}', '{"VerificationCode":"000000000240171"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:38:42', '2025-07-25 00:38:42'),
-	(576, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240172, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240172}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:38:55', '2025-07-25 00:38:55'),
-	(577, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240172, '{"VerificationCode":null}', '{"VerificationCode":"000000000240172"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:38:55', '2025-07-25 00:38:55'),
-	(578, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240173, '[]', '{"UserID":89,"Mode":1,"lat":9.7873514,"lng":125.4945022,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240173}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:41:11', '2025-07-25 00:41:11'),
-	(579, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240173, '{"VerificationCode":null}', '{"VerificationCode":"000000000240173"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:41:11', '2025-07-25 00:41:11'),
-	(580, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240174, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240174}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:42:20', '2025-07-25 00:42:20'),
-	(581, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240174, '{"VerificationCode":null}', '{"VerificationCode":"000000000240174"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:42:20', '2025-07-25 00:42:20'),
-	(582, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240175, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240175}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:42:24', '2025-07-25 00:42:24'),
-	(583, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240175, '{"VerificationCode":null}', '{"VerificationCode":"000000000240175"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:42:24', '2025-07-25 00:42:24'),
-	(584, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240176, '[]', '{"UserID":96,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240176}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:42:31', '2025-07-25 00:42:31'),
-	(585, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240176, '{"VerificationCode":null}', '{"VerificationCode":"000000000240176"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:42:31', '2025-07-25 00:42:31'),
-	(586, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240177, '[]', '{"UserID":92,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240177}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:42:35', '2025-07-25 00:42:35'),
-	(587, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240177, '{"VerificationCode":null}', '{"VerificationCode":"000000000240177"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:42:35', '2025-07-25 00:42:35'),
-	(588, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240178, '[]', '{"UserID":92,"Mode":1,"lat":9.787279,"lng":125.4945492,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240178}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:43:09', '2025-07-25 00:43:09'),
-	(589, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240178, '{"VerificationCode":null}', '{"VerificationCode":"000000000240178"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:43:09', '2025-07-25 00:43:09'),
-	(590, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240179, '[]', '{"UserID":92,"Mode":1,"lat":9.787272,"lng":125.4945529,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240179}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:43:20', '2025-07-25 00:43:20'),
-	(591, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240179, '{"VerificationCode":null}', '{"VerificationCode":"000000000240179"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:43:20', '2025-07-25 00:43:20'),
-	(592, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240180, '[]', '{"UserID":89,"Mode":1,"lat":9.787272,"lng":125.4945529,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240180}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:43:23', '2025-07-25 00:43:23'),
-	(593, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240180, '{"VerificationCode":null}', '{"VerificationCode":"000000000240180"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:43:23', '2025-07-25 00:43:23'),
-	(594, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240181, '[]', '{"UserID":96,"Mode":1,"lat":9.787272,"lng":125.4945529,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240181}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:43:26', '2025-07-25 00:43:26'),
-	(595, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240181, '{"VerificationCode":null}', '{"VerificationCode":"000000000240181"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:43:26', '2025-07-25 00:43:26'),
-	(596, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240182, '[]', '{"UserID":98,"Mode":1,"lat":9.787272,"lng":125.4945529,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240182}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:43:29', '2025-07-25 00:43:29'),
-	(597, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240182, '{"VerificationCode":null}', '{"VerificationCode":"000000000240182"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:43:29', '2025-07-25 00:43:29'),
-	(598, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240183, '[]', '{"UserID":95,"Mode":1,"lat":9.787272,"lng":125.4945529,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240183}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:43:34', '2025-07-25 00:43:34'),
-	(599, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240183, '{"VerificationCode":null}', '{"VerificationCode":"000000000240183"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:43:34', '2025-07-25 00:43:34'),
-	(600, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240184, '[]', '{"UserID":97,"Mode":1,"lat":9.787272,"lng":125.4945529,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240184}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:43:37', '2025-07-25 00:43:37'),
-	(601, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240184, '{"VerificationCode":null}', '{"VerificationCode":"000000000240184"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:43:37', '2025-07-25 00:43:37'),
-	(602, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240185, '[]', '{"UserID":89,"Mode":1,"lat":9.787272,"lng":125.4945529,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240185}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:56:01', '2025-07-25 00:56:01'),
-	(603, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240185, '{"VerificationCode":null}', '{"VerificationCode":"000000000240185"}', 'http://10.25.1.130:8000/api/logs/store', '10.25.1.139', 'okhttp/4.9.2', NULL, '2025-07-25 00:56:01', '2025-07-25 00:56:01'),
-	(604, NULL, NULL, 'updated', 'App\\Models\\User', 50, '{"fcm_token":"cqrC21H2QVmBzPGCGg7jav:APA91bGlyMogyecG3nxItyY6pQYr1l2Iqp_HlrmOSq3SqWJaQZgBlu35dtFwihVBDTI7lic9n1Ku1pty9STEm4d6Vss-jEBsyzNYTz1TMBay8YIVo_udkxc"}', '{"fcm_token":"cK-CZWMZSqmGn33fyXWHTa:APA91bFkyMbK3UmsGkzm8r7QJYACq-Vrk2rcynQGBgMOioqaQ61a8MzCPX0-DyoUNzLCRCWgyQQDkzkUF7x0XHsehwOcNYCfg9MABuiexDOBDtU6ESk0OL8"}', 'http://10.25.1.110:8000/api/user/save-fcm-token', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:27:45', '2025-08-01 00:27:45'),
-	(605, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240186, '[]', '{"UserID":89,"Mode":1,"lat":9.7873097,"lng":125.4946192,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240186}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:27:57', '2025-08-01 00:27:57'),
-	(606, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240186, '{"VerificationCode":null}', '{"VerificationCode":"000000000240186"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:27:57', '2025-08-01 00:27:57'),
-	(607, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240187, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240187}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:28:32', '2025-08-01 00:28:32'),
-	(608, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240187, '{"VerificationCode":null}', '{"VerificationCode":"000000000240187"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:28:32', '2025-08-01 00:28:32'),
-	(609, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240188, '[]', '{"UserID":89,"Mode":1,"lat":9.787283,"lng":125.4945856,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240188}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:32:34', '2025-08-01 00:32:34'),
-	(610, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240188, '{"VerificationCode":null}', '{"VerificationCode":"000000000240188"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:32:34', '2025-08-01 00:32:34'),
-	(611, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240189, '[]', '{"UserID":89,"Mode":1,"lat":9.787283,"lng":125.4945856,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240189}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:33:34', '2025-08-01 00:33:34'),
-	(612, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240189, '{"VerificationCode":null}', '{"VerificationCode":"000000000240189"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:33:34', '2025-08-01 00:33:34'),
-	(613, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240190, '[]', '{"UserID":89,"Mode":1,"lat":9.787283,"lng":125.4945856,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240190}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:35:31', '2025-08-01 00:35:31'),
-	(614, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240190, '{"VerificationCode":null}', '{"VerificationCode":"000000000240190"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:35:31', '2025-08-01 00:35:31'),
-	(615, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240191, '[]', '{"UserID":89,"Mode":1,"lat":9.7872947,"lng":125.4946086,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240191}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:36:04', '2025-08-01 00:36:04'),
-	(616, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240191, '{"VerificationCode":null}', '{"VerificationCode":"000000000240191"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:36:04', '2025-08-01 00:36:04'),
-	(617, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240192, '[]', '{"UserID":89,"Mode":1,"lat":9.7872641,"lng":125.4945578,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240192}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:36:27', '2025-08-01 00:36:27'),
-	(618, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240192, '{"VerificationCode":null}', '{"VerificationCode":"000000000240192"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:36:27', '2025-08-01 00:36:27'),
-	(619, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240193, '[]', '{"UserID":94,"Mode":1,"lat":9.7872641,"lng":125.4945578,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240193}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:36:30', '2025-08-01 00:36:30'),
-	(620, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240193, '{"VerificationCode":null}', '{"VerificationCode":"000000000240193"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:36:30', '2025-08-01 00:36:30'),
-	(621, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240194, '[]', '{"UserID":94,"Mode":1,"lat":9.7872641,"lng":125.4945578,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240194}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:37:14', '2025-08-01 00:37:14'),
-	(622, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240194, '{"VerificationCode":null}', '{"VerificationCode":"000000000240194"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:37:14', '2025-08-01 00:37:14'),
-	(623, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240195, '[]', '{"UserID":89,"Mode":1,"lat":9.7872641,"lng":125.4945578,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240195}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:39:29', '2025-08-01 00:39:29'),
-	(624, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240195, '{"VerificationCode":null}', '{"VerificationCode":"000000000240195"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:39:29', '2025-08-01 00:39:29'),
-	(625, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240196, '[]', '{"UserID":89,"Mode":1,"lat":9.7872641,"lng":125.4945578,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240196}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:40:19', '2025-08-01 00:40:19'),
-	(626, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240196, '{"VerificationCode":null}', '{"VerificationCode":"000000000240196"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:40:19', '2025-08-01 00:40:19'),
-	(627, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240197, '[]', '{"UserID":89,"Mode":1,"lat":9.7872641,"lng":125.4945578,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240197}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:41:02', '2025-08-01 00:41:02'),
-	(628, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240197, '{"VerificationCode":null}', '{"VerificationCode":"000000000240197"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:41:02', '2025-08-01 00:41:02'),
-	(629, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240198, '[]', '{"UserID":89,"Mode":1,"lat":9.7872641,"lng":125.4945578,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240198}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:43:36', '2025-08-01 00:43:36'),
-	(630, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240198, '{"VerificationCode":null}', '{"VerificationCode":"000000000240198"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:43:36', '2025-08-01 00:43:36'),
-	(631, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240199, '[]', '{"UserID":94,"Mode":1,"lat":9.7872641,"lng":125.4945578,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240199}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:43:40', '2025-08-01 00:43:40'),
-	(632, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240199, '{"VerificationCode":null}', '{"VerificationCode":"000000000240199"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:43:40', '2025-08-01 00:43:40'),
-	(633, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240200, '[]', '{"UserID":98,"Mode":1,"lat":9.7872641,"lng":125.4945578,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240200}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:43:43', '2025-08-01 00:43:43'),
-	(634, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240200, '{"VerificationCode":null}', '{"VerificationCode":"000000000240200"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:43:43', '2025-08-01 00:43:43'),
-	(635, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240201, '[]', '{"UserID":91,"Mode":1,"lat":9.7872641,"lng":125.4945578,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240201}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:43:46', '2025-08-01 00:43:46'),
-	(636, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240201, '{"VerificationCode":null}', '{"VerificationCode":"000000000240201"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:43:46', '2025-08-01 00:43:46'),
-	(637, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240202, '[]', '{"UserID":95,"Mode":1,"lat":9.7872641,"lng":125.4945578,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240202}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:43:49', '2025-08-01 00:43:49'),
-	(638, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240202, '{"VerificationCode":null}', '{"VerificationCode":"000000000240202"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:43:49', '2025-08-01 00:43:49'),
-	(639, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240203, '[]', '{"UserID":92,"Mode":1,"lat":9.7872641,"lng":125.4945578,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240203}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:43:53', '2025-08-01 00:43:53'),
-	(640, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240203, '{"VerificationCode":null}', '{"VerificationCode":"000000000240203"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:43:53', '2025-08-01 00:43:53'),
-	(641, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240204, '[]', '{"UserID":97,"Mode":1,"lat":9.7872641,"lng":125.4945578,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240204}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:43:56', '2025-08-01 00:43:56'),
-	(642, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240204, '{"VerificationCode":null}', '{"VerificationCode":"000000000240204"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:43:56', '2025-08-01 00:43:56'),
-	(643, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240205, '[]', '{"UserID":96,"Mode":1,"lat":9.7872641,"lng":125.4945578,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240205}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:44:00', '2025-08-01 00:44:00'),
-	(644, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240205, '{"VerificationCode":null}', '{"VerificationCode":"000000000240205"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:44:00', '2025-08-01 00:44:00'),
-	(645, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240206, '[]', '{"UserID":90,"Mode":1,"lat":9.7872641,"lng":125.4945578,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240206}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:44:03', '2025-08-01 00:44:03'),
-	(646, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240206, '{"VerificationCode":null}', '{"VerificationCode":"000000000240206"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:44:03', '2025-08-01 00:44:03'),
-	(647, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240207, '[]', '{"UserID":98,"Mode":1,"lat":9.7872641,"lng":125.4945578,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240207}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:44:40', '2025-08-01 00:44:40'),
-	(648, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240207, '{"VerificationCode":null}', '{"VerificationCode":"000000000240207"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:44:40', '2025-08-01 00:44:40'),
-	(649, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240208, '[]', '{"UserID":89,"Mode":1,"lat":9.7872641,"lng":125.4945578,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240208}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:44:48', '2025-08-01 00:44:48'),
-	(650, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240208, '{"VerificationCode":null}', '{"VerificationCode":"000000000240208"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:44:48', '2025-08-01 00:44:48'),
-	(651, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240209, '[]', '{"UserID":89,"Mode":1,"lat":9.7872641,"lng":125.4945578,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240209}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:45:13', '2025-08-01 00:45:13'),
-	(652, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240209, '{"VerificationCode":null}', '{"VerificationCode":"000000000240209"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:45:13', '2025-08-01 00:45:13'),
-	(653, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240210, '[]', '{"UserID":89,"Mode":1,"lat":9.7872641,"lng":125.4945578,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240210}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:46:03', '2025-08-01 00:46:03'),
-	(654, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240210, '{"VerificationCode":null}', '{"VerificationCode":"000000000240210"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:46:08', '2025-08-01 00:46:08'),
-	(655, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240211, '[]', '{"UserID":89,"Mode":1,"lat":9.7872641,"lng":125.4945578,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240211}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:49:35', '2025-08-01 00:49:35'),
-	(656, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240211, '{"VerificationCode":null}', '{"VerificationCode":"000000000240211"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:49:40', '2025-08-01 00:49:40'),
-	(657, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240212, '[]', '{"UserID":89,"Mode":1,"lat":9.7872641,"lng":125.4945578,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240212}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:49:40', '2025-08-01 00:49:40'),
-	(658, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240212, '{"VerificationCode":null}', '{"VerificationCode":"000000000240212"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:49:40', '2025-08-01 00:49:40'),
-	(659, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240213, '[]', '{"UserID":89,"Mode":1,"lat":9.7872641,"lng":125.4945578,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240213}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:50:09', '2025-08-01 00:50:09'),
-	(660, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240213, '{"VerificationCode":null}', '{"VerificationCode":"000000000240213"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:50:12', '2025-08-01 00:50:12'),
-	(661, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240214, '[]', '{"UserID":89,"Mode":1,"lat":9.7872641,"lng":125.4945578,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240214}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:51:00', '2025-08-01 00:51:00'),
-	(662, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240214, '{"VerificationCode":null}', '{"VerificationCode":"000000000240214"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:51:01', '2025-08-01 00:51:01'),
-	(663, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240215, '[]', '{"UserID":89,"Mode":1,"lat":9.7873027,"lng":125.4946287,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240215}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:51:11', '2025-08-01 00:51:11'),
-	(664, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240215, '{"VerificationCode":null}', '{"VerificationCode":"000000000240215"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:51:11', '2025-08-01 00:51:11'),
-	(665, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240216, '[]', '{"UserID":89,"Mode":1,"lat":9.7873027,"lng":125.4946287,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240216}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:52:04', '2025-08-01 00:52:04'),
-	(666, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240216, '{"VerificationCode":null}', '{"VerificationCode":"000000000240216"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:52:04', '2025-08-01 00:52:04'),
-	(667, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240217, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240217}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:52:36', '2025-08-01 00:52:36'),
-	(668, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240217, '{"VerificationCode":null}', '{"VerificationCode":"000000000240217"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:52:36', '2025-08-01 00:52:36'),
-	(669, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240218, '[]', '{"UserID":89,"Mode":1,"lat":9.7872899,"lng":125.4946024,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240218}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:52:39', '2025-08-01 00:52:39'),
-	(670, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240218, '{"VerificationCode":null}', '{"VerificationCode":"000000000240218"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:52:41', '2025-08-01 00:52:41'),
-	(671, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240219, '[]', '{"UserID":89,"Mode":0,"lat":9.7873116,"lng":125.4946065,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240219}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:54:32', '2025-08-01 00:54:32'),
-	(672, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240219, '{"VerificationCode":null}', '{"VerificationCode":"000000000240219"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:54:32', '2025-08-01 00:54:32'),
-	(673, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240220, '[]', '{"UserID":90,"Mode":0,"lat":9.7873036,"lng":125.4945931,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240220}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:54:42', '2025-08-01 00:54:42'),
-	(674, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240220, '{"VerificationCode":null}', '{"VerificationCode":"000000000240220"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:54:42', '2025-08-01 00:54:42'),
-	(675, NULL, NULL, 'created', 'App\\Models\\User', 100, '[]', '{"email":"apiloton@ssct.edu.ph","name":"ANTONIO JR. PILOTON","qr_code":"1000000000012","password":"$2y$12$W6HzY7G1IFft5AVzsUmzpe1h\\/sc4WWB0DFfBkc2a1VVaVJNl1fz2i","avatar":"https:\\/\\/lh3.googleusercontent.com\\/a\\/ACg8ocL3wAymfBAhWbSdEodGOmAd_GQYm5owScFjk3IjUnV-AxNh7o8=s96-c","id":100}', 'http://10.25.1.110:8000/api/auth/google', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:54:54', '2025-08-01 00:54:54'),
-	(676, NULL, NULL, 'updated', 'App\\Models\\User', 100, '{"fcm_token":null}', '{"fcm_token":"cK-CZWMZSqmGn33fyXWHTa:APA91bFkyMbK3UmsGkzm8r7QJYACq-Vrk2rcynQGBgMOioqaQ61a8MzCPX0-DyoUNzLCRCWgyQQDkzkUF7x0XHsehwOcNYCfg9MABuiexDOBDtU6ESk0OL8"}', 'http://10.25.1.110:8000/api/user/save-fcm-token', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:54:54', '2025-08-01 00:54:54'),
-	(677, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240221, '[]', '{"UserID":90,"Mode":1,"lat":9.7873157,"lng":125.4945914,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240221}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:55:05', '2025-08-01 00:55:05'),
-	(678, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240221, '{"VerificationCode":null}', '{"VerificationCode":"000000000240221"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:55:05', '2025-08-01 00:55:05'),
-	(679, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240222, '[]', '{"UserID":90,"Mode":1,"lat":9.7873157,"lng":125.4945914,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240222}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:55:07', '2025-08-01 00:55:07'),
-	(680, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240222, '{"VerificationCode":null}', '{"VerificationCode":"000000000240222"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:55:07', '2025-08-01 00:55:07'),
-	(681, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240223, '[]', '{"UserID":90,"Mode":1,"lat":9.7872966,"lng":125.4945797,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240223}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:56:04', '2025-08-01 00:56:04'),
-	(682, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240223, '{"VerificationCode":null}', '{"VerificationCode":"000000000240223"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:56:04', '2025-08-01 00:56:04'),
-	(683, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240224, '[]', '{"UserID":90,"Mode":1,"lat":9.7872966,"lng":125.4945797,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240224}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:56:15', '2025-08-01 00:56:15'),
-	(684, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240224, '{"VerificationCode":null}', '{"VerificationCode":"000000000240224"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:56:15', '2025-08-01 00:56:15'),
-	(685, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240225, '[]', '{"UserID":90,"Mode":1,"lat":9.7872966,"lng":125.4945797,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240225}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:56:25', '2025-08-01 00:56:25'),
-	(686, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240225, '{"VerificationCode":null}', '{"VerificationCode":"000000000240225"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:56:25', '2025-08-01 00:56:25'),
-	(687, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240226, '[]', '{"UserID":90,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240226}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:56:32', '2025-08-01 00:56:32'),
-	(688, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240226, '{"VerificationCode":null}', '{"VerificationCode":"000000000240226"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:56:32', '2025-08-01 00:56:32'),
-	(689, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240227, '[]', '{"UserID":90,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240227}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:56:45', '2025-08-01 00:56:45'),
-	(690, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240227, '{"VerificationCode":null}', '{"VerificationCode":"000000000240227"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:56:45', '2025-08-01 00:56:45'),
-	(691, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240228, '[]', '{"UserID":90,"Mode":1,"lat":9.7872704,"lng":125.4945564,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240228}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:56:56', '2025-08-01 00:56:56'),
-	(692, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240228, '{"VerificationCode":null}', '{"VerificationCode":"000000000240228"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:56:56', '2025-08-01 00:56:56'),
-	(693, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240229, '[]', '{"UserID":90,"Mode":1,"lat":9.7872704,"lng":125.4945564,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240229}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:57:48', '2025-08-01 00:57:48'),
-	(694, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240229, '{"VerificationCode":null}', '{"VerificationCode":"000000000240229"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:57:49', '2025-08-01 00:57:49'),
-	(695, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240230, '[]', '{"UserID":90,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240230}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:58:39', '2025-08-01 00:58:39'),
-	(696, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240230, '{"VerificationCode":null}', '{"VerificationCode":"000000000240230"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:58:41', '2025-08-01 00:58:41'),
-	(697, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240231, '[]', '{"UserID":90,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240231}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:59:09', '2025-08-01 00:59:09'),
-	(698, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240231, '{"VerificationCode":null}', '{"VerificationCode":"000000000240231"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:59:09', '2025-08-01 00:59:09'),
-	(699, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240232, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240232}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:59:33', '2025-08-01 00:59:33'),
-	(700, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240232, '{"VerificationCode":null}', '{"VerificationCode":"000000000240232"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:59:33', '2025-08-01 00:59:33'),
-	(701, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240233, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240233}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:59:38', '2025-08-01 00:59:38'),
-	(702, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240233, '{"VerificationCode":null}', '{"VerificationCode":"000000000240233"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 00:59:38', '2025-08-01 00:59:38'),
-	(703, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240234, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240234}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 01:00:23', '2025-08-01 01:00:23'),
-	(704, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240234, '{"VerificationCode":null}', '{"VerificationCode":"000000000240234"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 01:00:26', '2025-08-01 01:00:26'),
-	(705, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240235, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240235}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 01:00:59', '2025-08-01 01:00:59'),
-	(706, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240235, '{"VerificationCode":null}', '{"VerificationCode":"000000000240235"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 01:01:02', '2025-08-01 01:01:02'),
-	(707, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240236, '[]', '{"UserID":98,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240236}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 01:01:09', '2025-08-01 01:01:09'),
-	(708, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240236, '{"VerificationCode":null}', '{"VerificationCode":"000000000240236"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 01:01:12', '2025-08-01 01:01:12'),
-	(709, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240237, '[]', '{"UserID":94,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240237}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 01:01:15', '2025-08-01 01:01:15'),
-	(710, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240237, '{"VerificationCode":null}', '{"VerificationCode":"000000000240237"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 01:01:15', '2025-08-01 01:01:15'),
-	(711, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240238, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240238}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 01:01:52', '2025-08-01 01:01:52'),
-	(712, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240238, '{"VerificationCode":null}', '{"VerificationCode":"000000000240238"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 01:01:52', '2025-08-01 01:01:52'),
-	(713, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240239, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240239}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 01:03:12', '2025-08-01 01:03:12'),
-	(714, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240239, '{"VerificationCode":null}', '{"VerificationCode":"000000000240239"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 01:03:14', '2025-08-01 01:03:14'),
-	(715, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240240, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240240}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 01:03:42', '2025-08-01 01:03:42'),
-	(716, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240240, '{"VerificationCode":null}', '{"VerificationCode":"000000000240240"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 01:03:44', '2025-08-01 01:03:44'),
-	(717, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240241, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240241}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 01:05:50', '2025-08-01 01:05:50'),
-	(718, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240241, '{"VerificationCode":null}', '{"VerificationCode":"000000000240241"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 01:05:51', '2025-08-01 01:05:51'),
-	(719, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240242, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240242}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 01:06:13', '2025-08-01 01:06:13'),
-	(720, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240242, '{"VerificationCode":null}', '{"VerificationCode":"000000000240242"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 01:06:17', '2025-08-01 01:06:17'),
-	(721, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240243, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240243}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 01:10:29', '2025-08-01 01:10:29'),
-	(722, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240243, '{"VerificationCode":null}', '{"VerificationCode":"000000000240243"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 01:10:29', '2025-08-01 01:10:29'),
-	(723, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240244, '[]', '{"UserID":89,"Mode":1,"lat":9.7873162,"lng":125.4946384,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240244}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 01:10:46', '2025-08-01 01:10:46'),
-	(724, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240244, '{"VerificationCode":null}', '{"VerificationCode":"000000000240244"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 01:10:46', '2025-08-01 01:10:46'),
-	(725, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 240245, '[]', '{"UserID":89,"Mode":1,"lat":9.7873162,"lng":125.4946384,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":240245}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 01:11:38', '2025-08-01 01:11:38'),
-	(726, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 240245, '{"VerificationCode":null}', '{"VerificationCode":"000000000240245"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 01:11:38', '2025-08-01 01:11:38'),
-	(727, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 1, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":1}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:19:51', '2025-08-01 01:19:51'),
-	(728, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 1, '{"VerificationCode":null}', '{"VerificationCode":"000000000000001"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:19:51', '2025-08-01 01:19:51'),
-	(729, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 2, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":2}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:20:44', '2025-08-01 01:20:44'),
-	(730, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 2, '{"VerificationCode":null}', '{"VerificationCode":"000000000000002"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:20:44', '2025-08-01 01:20:44'),
-	(731, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 3, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":3}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:21:52', '2025-08-01 01:21:52'),
-	(732, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 3, '{"VerificationCode":null}', '{"VerificationCode":"000000000000003"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:21:52', '2025-08-01 01:21:52'),
-	(733, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 4, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":4}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:22:25', '2025-08-01 01:22:25'),
-	(734, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 4, '{"VerificationCode":null}', '{"VerificationCode":"000000000000004"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:22:25', '2025-08-01 01:22:25'),
-	(735, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 5, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":5}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:23:01', '2025-08-01 01:23:01'),
-	(736, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 5, '{"VerificationCode":null}', '{"VerificationCode":"000000000000005"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:23:01', '2025-08-01 01:23:01'),
-	(737, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 6, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":6}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:24:05', '2025-08-01 01:24:05'),
-	(738, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 6, '{"VerificationCode":null}', '{"VerificationCode":"000000000000006"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:24:05', '2025-08-01 01:24:05'),
-	(739, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 7, '[]', '{"UserID":90,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":7}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:24:11', '2025-08-01 01:24:11'),
-	(740, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 7, '{"VerificationCode":null}', '{"VerificationCode":"000000000000007"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:24:11', '2025-08-01 01:24:11'),
-	(741, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 8, '[]', '{"UserID":91,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":8}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:24:24', '2025-08-01 01:24:24'),
-	(742, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 8, '{"VerificationCode":null}', '{"VerificationCode":"000000000000008"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:24:24', '2025-08-01 01:24:24'),
-	(743, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 9, '[]', '{"UserID":91,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":9}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:25:02', '2025-08-01 01:25:02'),
-	(744, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 9, '{"VerificationCode":null}', '{"VerificationCode":"000000000000009"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:25:02', '2025-08-01 01:25:02'),
-	(745, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 10, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":10}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:25:05', '2025-08-01 01:25:05'),
-	(746, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 10, '{"VerificationCode":null}', '{"VerificationCode":"000000000000010"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:25:05', '2025-08-01 01:25:05'),
-	(747, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 11, '[]', '{"UserID":90,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":11}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:25:08', '2025-08-01 01:25:08'),
-	(748, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 11, '{"VerificationCode":null}', '{"VerificationCode":"000000000000011"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:25:08', '2025-08-01 01:25:08'),
-	(749, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 12, '[]', '{"UserID":91,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":12}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:25:11', '2025-08-01 01:25:11'),
-	(750, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 12, '{"VerificationCode":null}', '{"VerificationCode":"000000000000012"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:25:11', '2025-08-01 01:25:11'),
-	(751, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 13, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":13}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:26:03', '2025-08-01 01:26:03'),
-	(752, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 13, '{"VerificationCode":null}', '{"VerificationCode":"000000000000013"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:26:03', '2025-08-01 01:26:03'),
-	(753, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 14, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":14}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:26:35', '2025-08-01 01:26:35'),
-	(754, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 14, '{"VerificationCode":null}', '{"VerificationCode":"000000000000014"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:26:35', '2025-08-01 01:26:35'),
-	(755, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 15, '[]', '{"UserID":90,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":15}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:26:41', '2025-08-01 01:26:41'),
-	(756, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 15, '{"VerificationCode":null}', '{"VerificationCode":"000000000000015"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:26:41', '2025-08-01 01:26:41'),
-	(757, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 16, '[]', '{"UserID":91,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":16}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:26:44', '2025-08-01 01:26:44'),
-	(758, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 16, '{"VerificationCode":null}', '{"VerificationCode":"000000000000016"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:26:44', '2025-08-01 01:26:44'),
-	(759, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 17, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":17}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:36:17', '2025-08-01 01:36:17'),
-	(760, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 17, '{"VerificationCode":null}', '{"VerificationCode":"000000000000017"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:36:17', '2025-08-01 01:36:17'),
-	(761, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 18, '[]', '{"UserID":90,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":18}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:36:23', '2025-08-01 01:36:23'),
-	(762, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 18, '{"VerificationCode":null}', '{"VerificationCode":"000000000000018"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:36:23', '2025-08-01 01:36:23'),
-	(763, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 19, '[]', '{"UserID":91,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":19}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:36:27', '2025-08-01 01:36:27'),
-	(764, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 19, '{"VerificationCode":null}', '{"VerificationCode":"000000000000019"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:36:27', '2025-08-01 01:36:27'),
-	(765, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 20, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":20}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:37:53', '2025-08-01 01:37:53'),
-	(766, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 20, '{"VerificationCode":null}', '{"VerificationCode":"000000000000020"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:37:53', '2025-08-01 01:37:53'),
-	(767, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 21, '[]', '{"UserID":90,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":21}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:37:57', '2025-08-01 01:37:57'),
-	(768, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 21, '{"VerificationCode":null}', '{"VerificationCode":"000000000000021"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:37:57', '2025-08-01 01:37:57'),
-	(769, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 22, '[]', '{"UserID":91,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":22}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:38:00', '2025-08-01 01:38:00'),
-	(770, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 22, '{"VerificationCode":null}', '{"VerificationCode":"000000000000022"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:38:00', '2025-08-01 01:38:00'),
-	(771, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 23, '[]', '{"UserID":92,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":23}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:38:03', '2025-08-01 01:38:03'),
-	(772, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 23, '{"VerificationCode":null}', '{"VerificationCode":"000000000000023"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:38:03', '2025-08-01 01:38:03'),
-	(773, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 24, '[]', '{"UserID":93,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":24}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:38:06', '2025-08-01 01:38:06'),
-	(774, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 24, '{"VerificationCode":null}', '{"VerificationCode":"000000000000024"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:38:06', '2025-08-01 01:38:06'),
-	(775, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 25, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":25}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:39:09', '2025-08-01 01:39:09'),
-	(776, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 25, '{"VerificationCode":null}', '{"VerificationCode":"000000000000025"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:39:09', '2025-08-01 01:39:09'),
-	(777, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 26, '[]', '{"UserID":99,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":26}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:39:13', '2025-08-01 01:39:13'),
-	(778, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 26, '{"VerificationCode":null}', '{"VerificationCode":"000000000000026"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:39:13', '2025-08-01 01:39:13'),
-	(779, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 27, '[]', '{"UserID":90,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":27}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:39:16', '2025-08-01 01:39:16'),
-	(780, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 27, '{"VerificationCode":null}', '{"VerificationCode":"000000000000027"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:39:16', '2025-08-01 01:39:16'),
-	(781, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 28, '[]', '{"UserID":91,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":28}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:39:18', '2025-08-01 01:39:18'),
-	(782, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 28, '{"VerificationCode":null}', '{"VerificationCode":"000000000000028"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:39:18', '2025-08-01 01:39:18'),
-	(783, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 29, '[]', '{"UserID":92,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":29}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:39:21', '2025-08-01 01:39:21'),
-	(784, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 29, '{"VerificationCode":null}', '{"VerificationCode":"000000000000029"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:39:21', '2025-08-01 01:39:21'),
-	(785, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 30, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":30}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:40:02', '2025-08-01 01:40:02'),
-	(786, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 30, '{"VerificationCode":null}', '{"VerificationCode":"000000000000030"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:40:02', '2025-08-01 01:40:02'),
-	(787, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 31, '[]', '{"UserID":90,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":31}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:40:06', '2025-08-01 01:40:06'),
-	(788, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 31, '{"VerificationCode":null}', '{"VerificationCode":"000000000000031"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 01:40:06', '2025-08-01 01:40:06'),
-	(789, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 32, '[]', '{"UserID":90,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":32}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 10:04:18', '2025-08-01 10:04:18'),
-	(790, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 32, '{"VerificationCode":null}', '{"VerificationCode":"000000000000032"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 10:04:18', '2025-08-01 10:04:18'),
-	(791, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 33, '[]', '{"UserID":96,"Mode":1,"lat":9.7872763,"lng":125.494576,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":33}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 10:04:25', '2025-08-01 10:04:25'),
-	(792, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 33, '{"VerificationCode":null}', '{"VerificationCode":"000000000000033"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 10:04:25', '2025-08-01 10:04:25'),
-	(793, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 34, '[]', '{"UserID":97,"Mode":1,"lat":9.7872763,"lng":125.494576,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":34}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 10:04:30', '2025-08-01 10:04:30'),
-	(794, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 34, '{"VerificationCode":null}', '{"VerificationCode":"000000000000034"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 10:04:30', '2025-08-01 10:04:30'),
-	(795, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 35, '[]', '{"UserID":98,"Mode":1,"lat":9.7872763,"lng":125.494576,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":35}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 10:04:35', '2025-08-01 10:04:35'),
-	(796, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 35, '{"VerificationCode":null}', '{"VerificationCode":"000000000000035"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 10:04:35', '2025-08-01 10:04:35'),
-	(797, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 36, '[]', '{"UserID":94,"Mode":1,"lat":9.7872763,"lng":125.494576,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":36}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 10:04:39', '2025-08-01 10:04:39'),
-	(798, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 36, '{"VerificationCode":null}', '{"VerificationCode":"000000000000036"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 10:04:39', '2025-08-01 10:04:39'),
-	(799, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 37, '[]', '{"UserID":92,"Mode":1,"lat":9.7872763,"lng":125.494576,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":37}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 10:04:42', '2025-08-01 10:04:42'),
-	(800, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 37, '{"VerificationCode":null}', '{"VerificationCode":"000000000000037"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 10:04:42', '2025-08-01 10:04:42'),
-	(801, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 38, '[]', '{"UserID":89,"Mode":1,"lat":9.7872763,"lng":125.494576,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":38}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 10:04:45', '2025-08-01 10:04:45'),
-	(802, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 38, '{"VerificationCode":null}', '{"VerificationCode":"000000000000038"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 10:04:45', '2025-08-01 10:04:45'),
-	(803, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 39, '[]', '{"UserID":95,"Mode":1,"lat":9.7872763,"lng":125.494576,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":39}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 10:04:49', '2025-08-01 10:04:49'),
-	(804, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 39, '{"VerificationCode":null}', '{"VerificationCode":"000000000000039"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 10:04:49', '2025-08-01 10:04:49'),
-	(805, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 40, '[]', '{"UserID":91,"Mode":1,"lat":9.7872763,"lng":125.494576,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":40}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 10:04:52', '2025-08-01 10:04:52'),
-	(806, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 40, '{"VerificationCode":null}', '{"VerificationCode":"000000000000040"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 10:04:52', '2025-08-01 10:04:52'),
-	(807, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 41, '[]', '{"UserID":94,"Mode":0,"lat":9.7872763,"lng":125.494576,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":41}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 10:04:58', '2025-08-01 10:04:58'),
-	(808, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 41, '{"VerificationCode":null}', '{"VerificationCode":"000000000000041"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 10:04:58', '2025-08-01 10:04:58'),
-	(809, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 42, '[]', '{"UserID":91,"Mode":0,"lat":9.7873486,"lng":125.4946713,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":42}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 10:08:13', '2025-08-01 10:08:13'),
-	(810, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 42, '{"VerificationCode":null}', '{"VerificationCode":"000000000000042"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 10:08:13', '2025-08-01 10:08:13'),
-	(811, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 43, '[]', '{"UserID":91,"Mode":0,"lat":9.7873486,"lng":125.4946713,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":43}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 10:08:56', '2025-08-01 10:08:56'),
-	(812, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 43, '{"VerificationCode":null}', '{"VerificationCode":"000000000000043"}', 'http://10.25.1.110:8000/api/logs/store', '10.25.1.108', 'okhttp/4.9.2', NULL, '2025-08-01 10:08:56', '2025-08-01 10:08:56'),
-	(813, NULL, NULL, 'updated', 'App\\Models\\User', 65, '{"fcm_token":"dV61UevwSzWvHhL0VWF7OY:APA91bFni0Aus9ssgHBVjkrRHiQB8Rbl1vWYSXRYlGrKGjgRVINbQsVEmDEk6n7OdvlgSz6-PTtf4BtP8aoTa_Ujudc2imrRmgIsXQh5Qa9oRt1gNSphzug"}', '{"fcm_token":"cK-CZWMZSqmGn33fyXWHTa:APA91bFkyMbK3UmsGkzm8r7QJYACq-Vrk2rcynQGBgMOioqaQ61a8MzCPX0-DyoUNzLCRCWgyQQDkzkUF7x0XHsehwOcNYCfg9MABuiexDOBDtU6ESk0OL8"}', 'http://10.12.232.229:8000/api/user/save-fcm-token', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 14:25:00', '2025-08-01 14:25:00'),
-	(814, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 44, '[]', '{"UserID":89,"Mode":1,"lat":9.7746819,"lng":125.4906873,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":44}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 14:26:49', '2025-08-01 14:26:49'),
-	(815, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 44, '{"VerificationCode":null}', '{"VerificationCode":"000000000000044"}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 14:26:49', '2025-08-01 14:26:49'),
-	(816, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 45, '[]', '{"UserID":89,"Mode":1,"lat":9.7746819,"lng":125.4906873,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":45}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 14:28:13', '2025-08-01 14:28:13'),
-	(817, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 45, '{"VerificationCode":null}', '{"VerificationCode":"000000000000045"}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 14:28:13', '2025-08-01 14:28:13'),
-	(818, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 46, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":46}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 14:29:55', '2025-08-01 14:29:55'),
-	(819, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 46, '{"VerificationCode":null}', '{"VerificationCode":"000000000000046"}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 14:29:55', '2025-08-01 14:29:55'),
-	(820, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 47, '[]', '{"UserID":89,"Mode":1,"lat":9.7749357,"lng":125.4910296,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":47}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 14:30:30', '2025-08-01 14:30:30'),
-	(821, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 47, '{"VerificationCode":null}', '{"VerificationCode":"000000000000047"}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 14:30:30', '2025-08-01 14:30:30'),
-	(822, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 48, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":48}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 14:36:34', '2025-08-01 14:36:34'),
-	(823, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 48, '{"VerificationCode":null}', '{"VerificationCode":"000000000000048"}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 14:36:34', '2025-08-01 14:36:34'),
-	(824, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 49, '[]', '{"UserID":89,"Mode":1,"lat":9.7737071,"lng":125.491015,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":49}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 14:36:44', '2025-08-01 14:36:44'),
-	(825, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 49, '{"VerificationCode":null}', '{"VerificationCode":"000000000000049"}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 14:36:44', '2025-08-01 14:36:44'),
-	(826, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 62, '{"password":"$2y$12$sVlHrejUXbUC0dSt\\/U5MfeL3uf.YbTDY8c7.wG6Aj3sQ9QhQBCPZi"}', '{"password":"$2y$12$p7\\/0C8mlPeekYP3Nu9.82epf4MbfZLmDPB2V8frdHqhE\\/qZhn4SEm"}', 'http://tnhs.dev.com/users/744/62/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 14:38:00', '2025-08-01 14:38:00'),
-	(827, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 360, '{"GuardianID":null}', '{"GuardianID":6}', 'http://tnhs.dev.com/guardians/assign-student', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-01 14:39:32', '2025-08-01 14:39:32'),
-	(828, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 50, '[]', '{"UserID":89,"Mode":1,"lat":9.7737071,"lng":125.491015,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":50}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 14:39:43', '2025-08-01 14:39:43'),
-	(829, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 50, '{"VerificationCode":null}', '{"VerificationCode":"000000000000050"}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 14:39:43', '2025-08-01 14:39:43'),
-	(830, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 51, '[]', '{"UserID":89,"Mode":1,"lat":9.7737071,"lng":125.491015,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":51}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 14:44:09', '2025-08-01 14:44:09'),
-	(831, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 51, '{"VerificationCode":null}', '{"VerificationCode":"000000000000051"}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 14:44:09', '2025-08-01 14:44:09'),
-	(832, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 52, '[]', '{"UserID":89,"Mode":1,"lat":9.7737071,"lng":125.491015,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":52}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:00:13', '2025-08-01 15:00:13'),
-	(833, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 52, '{"VerificationCode":null}', '{"VerificationCode":"000000000000052"}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:00:13', '2025-08-01 15:00:13'),
-	(834, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 53, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":53}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:01:23', '2025-08-01 15:01:23'),
-	(835, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 53, '{"VerificationCode":null}', '{"VerificationCode":"000000000000053"}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:01:23', '2025-08-01 15:01:23'),
-	(836, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 54, '[]', '{"UserID":89,"Mode":1,"lat":9.7746819,"lng":125.4906873,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":54}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:01:50', '2025-08-01 15:01:50'),
-	(837, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 54, '{"VerificationCode":null}', '{"VerificationCode":"000000000000054"}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:01:50', '2025-08-01 15:01:50'),
-	(838, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 55, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":55}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:12:43', '2025-08-01 15:12:43'),
-	(839, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 55, '{"VerificationCode":null}', '{"VerificationCode":"000000000000055"}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:12:43', '2025-08-01 15:12:43'),
-	(840, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 56, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":56}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:12:43', '2025-08-01 15:12:43'),
-	(841, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 56, '{"VerificationCode":null}', '{"VerificationCode":"000000000000056"}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:12:43', '2025-08-01 15:12:43'),
-	(842, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 57, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":57}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:12:44', '2025-08-01 15:12:44'),
-	(843, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 57, '{"VerificationCode":null}', '{"VerificationCode":"000000000000057"}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:12:44', '2025-08-01 15:12:44'),
-	(844, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 58, '[]', '{"UserID":89,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":58}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:13:04', '2025-08-01 15:13:04'),
-	(845, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 58, '{"VerificationCode":null}', '{"VerificationCode":"000000000000058"}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:13:04', '2025-08-01 15:13:04'),
-	(846, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 59, '[]', '{"UserID":89,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":59}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:14:53', '2025-08-01 15:14:53'),
-	(847, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 59, '{"VerificationCode":null}', '{"VerificationCode":"000000000000059"}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:14:54', '2025-08-01 15:14:54'),
-	(848, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 60, '[]', '{"UserID":89,"Mode":0,"lat":9.7746819,"lng":125.4906873,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":60}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:15:26', '2025-08-01 15:15:26'),
-	(849, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 60, '{"VerificationCode":null}', '{"VerificationCode":"000000000000060"}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:15:26', '2025-08-01 15:15:26'),
-	(850, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 61, '[]', '{"UserID":90,"Mode":0,"lat":9.7746819,"lng":125.4906873,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":61}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:15:34', '2025-08-01 15:15:34'),
-	(851, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 61, '{"VerificationCode":null}', '{"VerificationCode":"000000000000061"}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:15:34', '2025-08-01 15:15:34'),
-	(852, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 62, '[]', '{"UserID":96,"Mode":0,"lat":9.7746819,"lng":125.4906873,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":62}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:15:36', '2025-08-01 15:15:36'),
-	(853, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 62, '{"VerificationCode":null}', '{"VerificationCode":"000000000000062"}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:15:36', '2025-08-01 15:15:36'),
-	(854, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 63, '[]', '{"UserID":93,"Mode":0,"lat":9.7746819,"lng":125.4906873,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":63}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:15:38', '2025-08-01 15:15:38'),
-	(855, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 63, '{"VerificationCode":null}', '{"VerificationCode":"000000000000063"}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:15:38', '2025-08-01 15:15:38'),
-	(856, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 64, '[]', '{"UserID":89,"Mode":0,"lat":9.7746819,"lng":125.4906873,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":64}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:17:45', '2025-08-01 15:17:45'),
-	(857, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 64, '{"VerificationCode":null}', '{"VerificationCode":"000000000000064"}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:17:45', '2025-08-01 15:17:45'),
-	(858, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 65, '[]', '{"UserID":96,"Mode":0,"lat":9.7746819,"lng":125.4906873,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":65}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:17:54', '2025-08-01 15:17:54'),
-	(859, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 65, '{"VerificationCode":null}', '{"VerificationCode":"000000000000065"}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:17:54', '2025-08-01 15:17:54'),
-	(860, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 66, '[]', '{"UserID":96,"Mode":0,"lat":9.7746819,"lng":125.4906873,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":66}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:19:58', '2025-08-01 15:19:58'),
-	(861, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 66, '{"VerificationCode":null}', '{"VerificationCode":"000000000000066"}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:19:58', '2025-08-01 15:19:58'),
-	(862, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 67, '[]', '{"UserID":96,"Mode":0,"lat":9.7746819,"lng":125.4906873,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":67}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:33:02', '2025-08-01 15:33:02'),
-	(863, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 67, '{"VerificationCode":null}', '{"VerificationCode":"000000000000067"}', 'http://10.12.232.229:8000/api/logs/store', '10.12.232.244', 'okhttp/4.9.2', NULL, '2025-08-01 15:33:02', '2025-08-01 15:33:02'),
-	(864, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 87, '{"password":"$2y$12$40JBxhIBM6oXmYiWFX16WO95QTkrBBmuHF7egiDDschxDi3RdFlEK"}', '{"password":"$2y$12$lRnC08WiU3Nsgxft1ju7sOYm56uHLkvfj0mgLGjPhM6pX9J8V2IFG"}', 'http://tnhs.dev.com/users/2/87/employees/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-03 12:17:25', '2025-08-03 12:17:25'),
-	(865, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 615, '{"filepath":"student_photos\\/615.jpeg"}', '{"filepath":"student_photos\\/615.png"}', 'http://tnhs.dev.com/residents/615/upload-picture', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 08:51:31', '2025-08-04 08:51:31'),
-	(866, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 615, '{"filepath":"student_photos\\/615.png"}', '{"filepath":"student_photos\\/615.jpg"}', 'http://tnhs.dev.com/residents/615/upload-picture', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 08:52:54', '2025-08-04 08:52:54'),
-	(867, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Guardians', 4, '{"FirstName":"NORMA","MiddleName":"LUIB","LastName":"PILOTON"}', '{"FirstName":"Nenita","MiddleName":null,"LastName":"Empleo"}', 'http://tnhs.dev.com/guardians/4/update', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 08:56:03', '2025-08-04 08:56:03'),
-	(868, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 1553, '{"filepath":null}', '{"filepath":"student_photos\\/1553.jpg"}', 'http://tnhs.dev.com/residents/1553/upload-picture', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 08:56:21', '2025-08-04 08:56:21'),
-	(869, 'App\\Models\\User', 50, 'created', 'App\\Models\\User', 101, '[]', '{"conn_id":"1553","SchoolID":"1","name":"Johans Empleo","email":"jempleo@tnhs.edu.ph","password":"$2y$12$zsQIvNUK60B3JQS3OZJEVeLfeDNNtDTVFePUBO2ykY\\/MtsfHZ7SjO","qr_code":"1000000000013","created_by":50,"updated_by":50,"status":"active","archived":0,"id":101}', 'http://tnhs.dev.com/users/1553/0/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 08:56:36', '2025-08-04 08:56:36'),
-	(870, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 1553, '{"UserID":0}', '{"UserID":101}', 'http://tnhs.dev.com/users/1553/0/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 08:56:36', '2025-08-04 08:56:36'),
-	(871, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 50, '{"remember_token":"LwskNOAXifbMFhMGmiGSgBrmtigOsqLN58o52bHavimosh5axVFYw7Nk5vbZ"}', '{"remember_token":"H89IJNHKDstymjBFn8URxYhlglAQvEgDchFEOK8oypshqfhq5QpUAv9ehkpf"}', 'http://10.98.78.229:8000/logout', '10.98.78.15', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, '2025-08-04 09:54:47', '2025-08-04 09:54:47'),
-	(872, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 615, '{"filepath":"student_photos\\/615.jpg"}', '{"filepath":"student_photos\\/615\\/68912c69a9af3.jpg"}', 'http://tnhs.dev.com/residents/615/upload-picture', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 21:55:54', '2025-08-04 21:55:54'),
-	(873, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 744, '{"filepath":"student_photos\\/744.jpg"}', '{"filepath":"student_photos\\/744\\/68912cb0bafe0.png"}', 'http://tnhs.dev.com/residents/744/upload-picture', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 21:57:04', '2025-08-04 21:57:04'),
-	(874, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 628, '{"filepath":"student_photos\\/628.jpg"}', '{"filepath":"student_photos\\/628\\/68912d0245bd4.jpg"}', 'http://tnhs.dev.com/residents/628/upload-picture', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 21:58:26', '2025-08-04 21:58:26'),
-	(875, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 615, '{"filepath":"student_photos\\/615\\/68912c69a9af3.jpg"}', '{"filepath":"student_photos\\/615\\/68912d22aa851.jpg"}', 'http://tnhs.dev.com/residents/615/upload-picture', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 21:58:58', '2025-08-04 21:58:58'),
-	(876, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 615, '{"FirstName":"Abagail","MiddleName":"Mauricio","LastName":"Dickinson","Suffix":"Jr.","YearLevel":8}', '{"FirstName":"Johans","MiddleName":null,"LastName":"Empleo","Suffix":null,"YearLevel":12}', 'http://tnhs.dev.com/residents/615/update', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 22:12:44', '2025-08-04 22:12:44'),
-	(877, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 68, '[]', '{"UserID":86,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":68}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 22:30:39', '2025-08-04 22:30:39'),
-	(878, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 68, '{"VerificationCode":null}', '{"VerificationCode":"000000000000068"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 22:30:39', '2025-08-04 22:30:39'),
-	(879, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 69, '[]', '{"UserID":65,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":69}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 22:30:55', '2025-08-04 22:30:55'),
-	(880, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 69, '{"VerificationCode":null}', '{"VerificationCode":"000000000000069"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 22:30:55', '2025-08-04 22:30:55'),
-	(881, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 70, '[]', '{"UserID":65,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":70}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 22:31:28', '2025-08-04 22:31:28'),
-	(882, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 70, '{"VerificationCode":null}', '{"VerificationCode":"000000000000070"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 22:31:28', '2025-08-04 22:31:28'),
-	(883, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 71, '[]', '{"UserID":85,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":71}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 22:31:44', '2025-08-04 22:31:44'),
-	(884, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 71, '{"VerificationCode":null}', '{"VerificationCode":"000000000000071"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 22:31:44', '2025-08-04 22:31:44'),
-	(885, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 72, '[]', '{"UserID":56,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":72}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 22:31:54', '2025-08-04 22:31:54'),
-	(886, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 72, '{"VerificationCode":null}', '{"VerificationCode":"000000000000072"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 22:31:54', '2025-08-04 22:31:54'),
-	(887, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 73, '[]', '{"UserID":86,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":73}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 22:32:01', '2025-08-04 22:32:01'),
-	(888, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 73, '{"VerificationCode":null}', '{"VerificationCode":"000000000000073"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 22:32:01', '2025-08-04 22:32:01'),
-	(889, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 74, '[]', '{"UserID":65,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":74}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 22:32:07', '2025-08-04 22:32:07'),
-	(890, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 74, '{"VerificationCode":null}', '{"VerificationCode":"000000000000074"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 22:32:07', '2025-08-04 22:32:07'),
-	(891, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 50, '{"remember_token":"H89IJNHKDstymjBFn8URxYhlglAQvEgDchFEOK8oypshqfhq5QpUAv9ehkpf"}', '{"remember_token":"mSURf6hvfrqSpBSSLvmcAz93MLqjUTHxX0ZNCouSEMpYeJ6NJOvpNgg5huul"}', 'http://tnhs.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 22:46:59', '2025-08-04 22:46:59'),
-	(892, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 50, '{"remember_token":"mSURf6hvfrqSpBSSLvmcAz93MLqjUTHxX0ZNCouSEMpYeJ6NJOvpNgg5huul"}', '{"remember_token":"CzJY3qwoWV5x4oKsIHyEjGELSW9oVcY5REhJVOKXhwq41SOwMAH8YxxulwEB"}', 'http://tnhs.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 23:15:34', '2025-08-04 23:15:34'),
-	(893, 'App\\Models\\User', 50, 'created', 'App\\Models\\User', 102, '[]', '{"conn_id":"615","SchoolID":"1","name":"Johans Empleo","email":"jempleo@tnhs.edu.ph","password":"$2y$12$a4cfug35gjlbCwYtIpZQEOpFoFUv7HottY.WVRvIqFJR9edLxRm9.","qr_code":"1000000000014","created_by":50,"updated_by":50,"status":"active","archived":0,"id":102}', 'http://tnhs.dev.com/users/615/65/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 23:16:53', '2025-08-04 23:16:53'),
-	(894, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 615, '{"UserID":65}', '{"UserID":102}', 'http://tnhs.dev.com/users/615/65/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 23:16:53', '2025-08-04 23:16:53'),
-	(895, 'App\\Models\\User', 50, 'created', 'App\\Models\\User', 103, '[]', '{"conn_id":"973","SchoolID":"1","name":"Abagail Watsica","email":"awatsica@tnhs.edu.ph","password":"$2y$12$4qM\\/j8Cn4g8.NfcB7mcwtOm7nPZvRTWMUNvkxXwe6dnIytZNJzfge","qr_code":"1000000000015","created_by":50,"updated_by":50,"status":"active","archived":0,"id":103}', 'http://tnhs.dev.com/users/973/85/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 23:17:38', '2025-08-04 23:17:38'),
-	(896, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 973, '{"UserID":85}', '{"UserID":103}', 'http://tnhs.dev.com/users/973/85/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 23:17:38', '2025-08-04 23:17:38'),
-	(897, 'App\\Models\\User', 50, 'created', 'App\\Models\\User', 104, '[]', '{"conn_id":"615","SchoolID":"1","name":"Johans Empleo","email":"jempleo1@tnhs.edu.ph","password":"$2y$12$UlnCXUDCWAmYZT4T9XaEieWGsCZeYVl5QiJDNx0IfxWFA2.tYHkWS","qr_code":"1000000000016","created_by":50,"updated_by":50,"status":"active","archived":0,"id":104}', 'http://tnhs.dev.com/users/615/null/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 23:19:07', '2025-08-04 23:19:07'),
-	(898, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 615, '{"UserID":null}', '{"UserID":104}', 'http://tnhs.dev.com/users/615/null/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 23:19:07', '2025-08-04 23:19:07'),
-	(899, 'App\\Models\\User', 50, 'created', 'App\\Models\\User', 105, '[]', '{"conn_id":"615","SchoolID":"1","name":"Johans Empleo","email":"jempleo@tnhs.edu.ph","password":"$2y$12$MXpA3g00BKmJaVNJ6XEYFeZnpvszoKMwqYzxNy\\/qSnUVy5ooUUD2.","qr_code":"1000000000017","created_by":50,"updated_by":50,"status":"active","archived":0,"id":105}', 'http://tnhs.dev.com/users/615/null/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 23:19:24', '2025-08-04 23:19:24'),
-	(900, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 615, '{"UserID":104}', '{"UserID":105}', 'http://tnhs.dev.com/users/615/null/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 23:19:24', '2025-08-04 23:19:24'),
-	(901, 'App\\Models\\User', 50, 'created', 'App\\Models\\User', 106, '[]', '{"conn_id":"973","SchoolID":"1","name":"Abagail Watsica","email":"awatsica@tnhs.edu.ph","password":"$2y$12$oErdo2OLCHfCrUqY514Qguc1.6M8tRE9UFKOSi2\\/XvXXFS.EagAVm","qr_code":"1000000000018","created_by":50,"updated_by":50,"status":"active","archived":0,"id":106}', 'http://tnhs.dev.com/users/973/null/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 23:20:47', '2025-08-04 23:20:47'),
-	(902, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 973, '{"UserID":null}', '{"UserID":106}', 'http://tnhs.dev.com/users/973/null/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 23:20:47', '2025-08-04 23:20:47'),
-	(903, 'App\\Models\\User', 50, 'created', 'App\\Models\\User', 107, '[]', '{"conn_id":"1309","SchoolID":"1","name":"Abby Schulist","email":"aschulist@tnhs.edu.ph","password":"$2y$12$G1dFLNU0Sj4ESXmnWvuHEOmOLS0YfNRucQb6bb1GNjr8M42KVWQkW","qr_code":"1000000000019","created_by":50,"updated_by":50,"status":"active","archived":0,"id":107}', 'http://tnhs.dev.com/users/1309/null/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 23:21:00', '2025-08-04 23:21:00'),
-	(904, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 1309, '{"UserID":null}', '{"UserID":107}', 'http://tnhs.dev.com/users/1309/null/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 23:21:01', '2025-08-04 23:21:01'),
-	(905, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 75, '[]', '{"UserID":107,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":75}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 23:21:27', '2025-08-04 23:21:27'),
-	(906, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 75, '{"VerificationCode":null}', '{"VerificationCode":"000000000000075"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 23:21:27', '2025-08-04 23:21:27'),
-	(907, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 76, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":76}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 23:21:33', '2025-08-04 23:21:33'),
-	(908, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 76, '{"VerificationCode":null}', '{"VerificationCode":"000000000000076"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-04 23:21:33', '2025-08-04 23:21:33'),
-	(909, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\Residents', 1554, '[]', '{"LRN":"434324","FirstName":"3tret","MiddleName":"ertert","LastName":"tertert","Suffix":"","Classes":"A","YearLevel":9,"PhoneNumber":"+639128941731","created_by":50,"updated_by":50,"status":"active","archived":0,"id":1554}', 'http://tnhs.dev.com/residents/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-05 00:54:52', '2025-08-05 00:54:52'),
-	(910, 'App\\Models\\User', 50, 'created', 'App\\Models\\User', 108, '[]', '{"conn_id":"4","SchoolID":"1","name":"Nenita Empleo","email":"nempleo@tnhs.edu.ph","password":"$2y$12$KXhSzNFhZzLeAy4chXLjhOyotImYhtZ2i2QE59Xbnqdc6T1vBRGoy","qr_code":"1000000000020","created_by":50,"updated_by":50,"status":"active","archived":0,"id":108}', 'http://tnhs.dev.com/users/4/61/parents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-05 00:57:09', '2025-08-05 00:57:09'),
-	(911, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Guardians', 4, '{"UserID":61}', '{"UserID":108}', 'http://tnhs.dev.com/users/4/61/parents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-05 00:57:09', '2025-08-05 00:57:09'),
-	(912, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 50, '{"remember_token":"CzJY3qwoWV5x4oKsIHyEjGELSW9oVcY5REhJVOKXhwq41SOwMAH8YxxulwEB"}', '{"remember_token":"xn7cRMbNuzWfk8jqXf0x9yZdoWzAPHnKEoELAzkK6LvnMrqz8d6JW9wJStz5"}', 'http://tnhs.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-05 10:29:45', '2025-08-05 10:29:45'),
-	(913, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 50, '{"remember_token":"xn7cRMbNuzWfk8jqXf0x9yZdoWzAPHnKEoELAzkK6LvnMrqz8d6JW9wJStz5"}', '{"remember_token":"b1R7enQe4ACBL1tXHacxPpCQHttXZRyntGc0oFZWzi9qmvp1FtKFnroJZNve"}', 'http://tnhs.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-05 10:35:12', '2025-08-05 10:35:12'),
-	(914, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 50, '{"remember_token":"b1R7enQe4ACBL1tXHacxPpCQHttXZRyntGc0oFZWzi9qmvp1FtKFnroJZNve"}', '{"remember_token":"Tdr3cxmfG0EyGvw26QDUal2tDZXa4bwCCec6IRm7wxXuhz0Njz4pqp8Auf8V"}', 'http://tnhs.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-05 10:38:14', '2025-08-05 10:38:14'),
-	(915, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 50, '{"remember_token":"Tdr3cxmfG0EyGvw26QDUal2tDZXa4bwCCec6IRm7wxXuhz0Njz4pqp8Auf8V"}', '{"remember_token":"70OrBpIO4ERLM6BevKNnFVIPHhHx6OPJxwVCXT8SzVKQr630bu6BXwidWvR4"}', 'http://tnhs.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-05 11:29:12', '2025-08-05 11:29:12'),
-	(916, 'App\\Models\\User', 50, 'created', 'App\\Models\\User', 109, '[]', '{"conn_id":"2","SchoolID":"1","name":"NORVEN ESPINOSA","email":"nespinosa@tnhs.edu.ph","password":"$2y$12$gL5zDO7mgtTqrKVgBkOfaOXvhoXPfBNovph7xXjYIQhOn9D7VqBQa","qr_code":"1000000000001","created_by":50,"updated_by":50,"status":"active","archived":0,"id":109}', 'http://tnhs.dev.com/users/2/87/employees/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-05 11:29:21', '2025-08-05 11:29:21'),
-	(917, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Employees', 2, '{"UserID":87}', '{"UserID":109}', 'http://tnhs.dev.com/users/2/87/employees/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-05 11:29:21', '2025-08-05 11:29:21'),
-	(918, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 50, '{"remember_token":"70OrBpIO4ERLM6BevKNnFVIPHhHx6OPJxwVCXT8SzVKQr630bu6BXwidWvR4"}', '{"remember_token":"4ruj8r8T8B2dDVgjZO1QzZ4izjDNxTRfNrwLFe52tGtfn6kqFhLHe5fFom0p"}', 'http://tnhs.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-05 11:53:31', '2025-08-05 11:53:31'),
-	(919, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 50, '{"remember_token":"4ruj8r8T8B2dDVgjZO1QzZ4izjDNxTRfNrwLFe52tGtfn6kqFhLHe5fFom0p"}', '{"remember_token":"PeQx1aB0XddZseaqKVQ3AeNAsj9WpVZrhppOLHK9ZRLWcfNRAjXhb5dVRenG"}', 'http://tnhs.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-05 12:05:31', '2025-08-05 12:05:31'),
-	(920, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 50, '{"remember_token":"PeQx1aB0XddZseaqKVQ3AeNAsj9WpVZrhppOLHK9ZRLWcfNRAjXhb5dVRenG"}', '{"remember_token":"1ZHoZWKjyWlYddTdN7FAmjZSfiFpOAHyT63YmmClsOiSIXGjiN60WZVjVm3c"}', 'http://tnhs.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-05 12:10:47', '2025-08-05 12:10:47'),
-	(921, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 50, '{"remember_token":"1ZHoZWKjyWlYddTdN7FAmjZSfiFpOAHyT63YmmClsOiSIXGjiN60WZVjVm3c"}', '{"remember_token":"PEdaoSlrkyWlzBXypVa9d2Zqe5fE4Ny6UhSoGcCWxmClybv3f2K3KAfUVZ9C"}', 'http://tnhs.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-05 12:10:52', '2025-08-05 12:10:52'),
-	(922, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 109, '{"password":"$2y$12$gL5zDO7mgtTqrKVgBkOfaOXvhoXPfBNovph7xXjYIQhOn9D7VqBQa"}', '{"password":"$2y$12$v8.w5GkoZmtsVFudcMAVBemb69PISuaajycjRdBItiV\\/EVvfznr6."}', 'http://tnhs.dev.com/users/2/109/employees/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-05 12:14:03', '2025-08-05 12:14:03'),
-	(923, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\Residents', 1, '[]', '{"LRN":"gdfg","FirstName":"ANTONIO JR.","MiddleName":"LUIB","LastName":"PILOTON","Suffix":"","Classes":"gfd","YearLevel":3,"PhoneNumber":"+639128941731","created_by":50,"updated_by":50,"status":"active","archived":0,"id":1}', 'http://tnhs.dev.com/residents/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-05 12:30:56', '2025-08-05 12:30:56'),
-	(924, 'App\\Models\\User', 50, 'created', 'App\\Models\\User', 110, '[]', '{"conn_id":"1","SchoolID":"1","name":"ANTONIO JR. PILOTON","email":"apiloton@tnhs.edu.ph","password":"$2y$12$yT.tKUeAOGfEwOrw2\\/whd.Nc593X202g.fiMJ6tfBx\\/KqGb9Pj3Sa","qr_code":"1000000000002","created_by":50,"updated_by":50,"status":"active","archived":0,"id":110}', 'http://tnhs.dev.com/users/1/null/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-05 12:31:02', '2025-08-05 12:31:02'),
-	(925, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 1, '{"UserID":null}', '{"UserID":110}', 'http://tnhs.dev.com/users/1/null/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-05 12:31:02', '2025-08-05 12:31:02'),
-	(926, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 106, '{"password":"$2y$12$oErdo2OLCHfCrUqY514Qguc1.6M8tRE9UFKOSi2\\/XvXXFS.EagAVm"}', '{"password":"$2y$12$Gsjg3J04.RS0FwXNCuC29e7g9EB0LAWOKT9IkqBdsc7.RD3sBxk9O"}', 'http://tnhs.dev.com/users/106/reset-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-05 12:36:39', '2025-08-05 12:36:39'),
-	(927, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 107, '{"password":"$2y$12$G1dFLNU0Sj4ESXmnWvuHEOmOLS0YfNRucQb6bb1GNjr8M42KVWQkW"}', '{"password":"$2y$12$4AYekDtz2mxoTmNITLMWwOKi\\/PmYP46S.q6Ngg0RpK2hDlWf5gsb2"}', 'http://tnhs.dev.com/users/107/reset-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-05 12:36:42', '2025-08-05 12:36:42'),
-	(928, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 106, '{"password":"$2y$12$Gsjg3J04.RS0FwXNCuC29e7g9EB0LAWOKT9IkqBdsc7.RD3sBxk9O"}', '{"password":"$2y$12$twb7iaijF1sEOXyQgbsHsevVqI8kNdzcmV2SU2KZxBMlwZ64QG88O"}', 'http://tnhs.dev.com/users/106/reset-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-05 12:36:57', '2025-08-05 12:36:57'),
-	(929, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\Residents', 2, '[]', '{"LRN":"455454","FirstName":"DR. SHIRLY C. AGRUPIS","MiddleName":"jgvyv","LastName":"vjk","Suffix":"","Classes":"h","YearLevel":11,"PhoneNumber":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":2}', 'http://tnhs.dev.com/residents/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 02:16:53', '2025-08-06 02:16:53'),
-	(930, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 1, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":1,"updated_by":1,"status":"active","archived":0,"id":1}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 06:49:36', '2025-08-06 06:49:36'),
-	(931, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 1, '{"VerificationCode":null}', '{"VerificationCode":"000000000000001"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 06:49:37', '2025-08-06 06:49:37'),
-	(932, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 2, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":1,"updated_by":1,"status":"active","archived":0,"id":2}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 06:49:47', '2025-08-06 06:49:47'),
-	(933, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 2, '{"VerificationCode":null}', '{"VerificationCode":"000000000000002"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 06:49:47', '2025-08-06 06:49:47'),
-	(934, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 3, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":1,"updated_by":1,"status":"active","archived":0,"id":3}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 06:49:49', '2025-08-06 06:49:49'),
-	(935, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 3, '{"VerificationCode":null}', '{"VerificationCode":"000000000000003"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 06:49:49', '2025-08-06 06:49:49'),
-	(936, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 4, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":1,"updated_by":1,"status":"active","archived":0,"id":4}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 06:51:30', '2025-08-06 06:51:30'),
-	(937, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 4, '{"VerificationCode":null}', '{"VerificationCode":"000000000000004"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 06:51:30', '2025-08-06 06:51:30'),
-	(938, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 5, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":1,"updated_by":1,"status":"active","archived":0,"id":5}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 06:52:25', '2025-08-06 06:52:25'),
-	(939, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 5, '{"VerificationCode":null}', '{"VerificationCode":"000000000000005"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 06:52:25', '2025-08-06 06:52:25'),
-	(940, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 6, '[]', '{"UserID":110,"Mode":1,"lat":null,"lng":null,"created_by":1,"updated_by":1,"status":"active","archived":0,"id":6}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 06:53:38', '2025-08-06 06:53:38'),
-	(941, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 6, '{"VerificationCode":null}', '{"VerificationCode":"000000000000006"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 06:53:38', '2025-08-06 06:53:38'),
-	(942, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\Guardians', 1, '[]', '{"FirstName":"NENITA","MiddleName":"SAYSON","LastName":"EMPLEO","Suffix":null,"PhoneNumber":"+639128941731","Address":"STA. CRUZ, TUBAJON, DINAGAT ISLANDS","created_by":50,"updated_by":50,"status":"active","archived":0,"id":1}', 'http://tnhs.dev.com/guardians/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 06:54:10', '2025-08-06 06:54:10'),
-	(943, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 7, '[]', '{"UserID":110,"Mode":0,"lat":null,"lng":null,"created_by":1,"updated_by":1,"status":"active","archived":0,"id":7}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 06:54:15', '2025-08-06 06:54:15'),
-	(944, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 7, '{"VerificationCode":null}', '{"VerificationCode":"000000000000007"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 06:54:15', '2025-08-06 06:54:15'),
-	(945, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 1, '{"GuardianID":null}', '{"GuardianID":1}', 'http://tnhs.dev.com/guardians/assign-student', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 06:54:32', '2025-08-06 06:54:32'),
-	(946, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 8, '[]', '{"UserID":110,"Mode":1,"lat":null,"lng":null,"created_by":1,"updated_by":1,"status":"active","archived":0,"id":8}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 06:54:35', '2025-08-06 06:54:35'),
-	(947, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 8, '{"VerificationCode":null}', '{"VerificationCode":"000000000000008"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 06:54:35', '2025-08-06 06:54:35'),
-	(948, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 9, '[]', '{"UserID":110,"Mode":0,"lat":null,"lng":null,"created_by":1,"updated_by":1,"status":"active","archived":0,"id":9}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 06:54:43', '2025-08-06 06:54:43'),
-	(949, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 9, '{"VerificationCode":null}', '{"VerificationCode":"000000000000009"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 06:54:43', '2025-08-06 06:54:43'),
-	(950, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 10, '[]', '{"UserID":110,"Mode":1,"lat":null,"lng":null,"created_by":1,"updated_by":1,"status":"active","archived":0,"id":10}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 06:58:02', '2025-08-06 06:58:02'),
-	(951, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 10, '{"VerificationCode":null}', '{"VerificationCode":"000000000000010"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 06:58:02', '2025-08-06 06:58:02'),
-	(952, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 11, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":1,"updated_by":1,"status":"active","archived":0,"id":11}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:42:59', '2025-08-06 08:42:59'),
-	(953, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 11, '{"VerificationCode":null}', '{"VerificationCode":"000000000000011"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:42:59', '2025-08-06 08:42:59'),
-	(954, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 12, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":1,"updated_by":1,"status":"active","archived":0,"id":12}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:43:02', '2025-08-06 08:43:02'),
-	(955, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 12, '{"VerificationCode":null}', '{"VerificationCode":"000000000000012"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:43:02', '2025-08-06 08:43:02'),
-	(956, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 13, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":13}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:43:42', '2025-08-06 08:43:42'),
-	(957, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 13, '{"VerificationCode":null}', '{"VerificationCode":"000000000000013"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:43:42', '2025-08-06 08:43:42'),
-	(958, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 14, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":14}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:45:05', '2025-08-06 08:45:05'),
-	(959, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 14, '{"VerificationCode":null}', '{"VerificationCode":"000000000000014"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:45:05', '2025-08-06 08:45:05'),
-	(960, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 1, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":1}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:46:25', '2025-08-06 08:46:25'),
-	(961, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 1, '{"VerificationCode":null}', '{"VerificationCode":"000000000000001"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:46:25', '2025-08-06 08:46:25'),
-	(962, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 2, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":2}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:47:21', '2025-08-06 08:47:21'),
-	(963, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 2, '{"VerificationCode":null}', '{"VerificationCode":"000000000000002"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:47:21', '2025-08-06 08:47:21'),
-	(964, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 3, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":3}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:48:10', '2025-08-06 08:48:10'),
-	(965, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 3, '{"VerificationCode":null}', '{"VerificationCode":"000000000000003"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:48:10', '2025-08-06 08:48:10'),
-	(966, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 4, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":4}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:49:12', '2025-08-06 08:49:12'),
-	(967, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 4, '{"VerificationCode":null}', '{"VerificationCode":"000000000000004"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:49:12', '2025-08-06 08:49:12'),
-	(968, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 5, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":5}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:49:16', '2025-08-06 08:49:16'),
-	(969, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 5, '{"VerificationCode":null}', '{"VerificationCode":"000000000000005"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:49:16', '2025-08-06 08:49:16'),
-	(970, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 6, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":6}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:50:18', '2025-08-06 08:50:18'),
-	(971, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 6, '{"VerificationCode":null}', '{"VerificationCode":"000000000000006"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:50:18', '2025-08-06 08:50:18'),
-	(972, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 7, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":7}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:50:54', '2025-08-06 08:50:54'),
-	(973, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 7, '{"VerificationCode":null}', '{"VerificationCode":"000000000000007"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:50:54', '2025-08-06 08:50:54'),
-	(974, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 8, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":8}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:51:30', '2025-08-06 08:51:30'),
-	(975, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 8, '{"VerificationCode":null}', '{"VerificationCode":"000000000000008"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:51:30', '2025-08-06 08:51:30'),
-	(976, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 9, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":9}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:51:33', '2025-08-06 08:51:33'),
-	(977, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 9, '{"VerificationCode":null}', '{"VerificationCode":"000000000000009"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:51:33', '2025-08-06 08:51:33'),
-	(978, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 10, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":10}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:52:33', '2025-08-06 08:52:33'),
-	(979, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 10, '{"VerificationCode":null}', '{"VerificationCode":"000000000000010"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:52:33', '2025-08-06 08:52:33'),
-	(980, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 11, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":11}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:52:37', '2025-08-06 08:52:37'),
-	(981, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 11, '{"VerificationCode":null}', '{"VerificationCode":"000000000000011"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:52:37', '2025-08-06 08:52:37'),
-	(982, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 12, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":12}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:58:57', '2025-08-06 08:58:57'),
-	(983, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 12, '{"VerificationCode":null}', '{"VerificationCode":"000000000000012"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:58:57', '2025-08-06 08:58:57'),
-	(984, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 13, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":13}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:59:10', '2025-08-06 08:59:10'),
-	(985, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 13, '{"VerificationCode":null}', '{"VerificationCode":"000000000000013"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:59:10', '2025-08-06 08:59:10'),
-	(986, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 14, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":14}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:59:42', '2025-08-06 08:59:42'),
-	(987, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 14, '{"VerificationCode":null}', '{"VerificationCode":"000000000000014"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:59:42', '2025-08-06 08:59:42'),
-	(988, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 15, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":15}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:59:48', '2025-08-06 08:59:48'),
-	(989, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 15, '{"VerificationCode":null}', '{"VerificationCode":"000000000000015"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 08:59:48', '2025-08-06 08:59:48'),
-	(990, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 16, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":16}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 09:00:32', '2025-08-06 09:00:32'),
-	(991, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 16, '{"VerificationCode":null}', '{"VerificationCode":"000000000000016"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 09:00:32', '2025-08-06 09:00:32'),
-	(992, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 17, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":17}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 09:04:02', '2025-08-06 09:04:02'),
-	(993, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 17, '{"VerificationCode":null}', '{"VerificationCode":"000000000000017"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 09:04:02', '2025-08-06 09:04:02'),
-	(994, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 18, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":18}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 09:04:09', '2025-08-06 09:04:09'),
-	(995, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 18, '{"VerificationCode":null}', '{"VerificationCode":"000000000000018"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 09:04:09', '2025-08-06 09:04:09'),
-	(996, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 19, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":19}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 09:04:11', '2025-08-06 09:04:11'),
-	(997, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 19, '{"VerificationCode":null}', '{"VerificationCode":"000000000000019"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 09:04:11', '2025-08-06 09:04:11'),
-	(998, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 50, '{"password":"$2y$12$C45nsbdoMe2GGVUUhvxt0.KvQeai9.8YOw9doJpoKYbli5YhcKKmO"}', '{"password":"$2y$12$zrznwA9Gy9I05O4Kqdd0ueUa6DvgZIK3\\/8VrFtBOqr8GB.RKJu49G"}', 'http://tnhs.dev.com/users/50/reset-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 15:16:47', '2025-08-06 15:16:47'),
-	(999, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 106, '{"password":"$2y$12$twb7iaijF1sEOXyQgbsHsevVqI8kNdzcmV2SU2KZxBMlwZ64QG88O"}', '{"password":"$2y$12$n0Iad7AgLqQvvs8bN2dp\\/uyA6s0d3VUiYnCHxLIUHMhOl9\\/WPLcfq"}', 'http://tnhs.dev.com/users/106/reset-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 15:16:50', '2025-08-06 15:16:50'),
-	(1000, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 50, '{"password":"$2y$12$zrznwA9Gy9I05O4Kqdd0ueUa6DvgZIK3\\/8VrFtBOqr8GB.RKJu49G"}', '{"password":"$2y$12$H6uylI8jvf4r6DcMs3WFLOG4mBIRrlsQtFYln5EHyXmPxFb2iGlwS"}', 'http://tnhs.dev.com/users/50/reset-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 15:16:53', '2025-08-06 15:16:53'),
-	(1001, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 105, '{"conn_id":615,"name":"Johans Empleo","password":"$2y$12$MXpA3g00BKmJaVNJ6XEYFeZnpvszoKMwqYzxNy\\/qSnUVy5ooUUD2."}', '{"conn_id":"1","name":"JOHANS EMPLEO","password":"$2y$12$9VFWQBiDaxQZpkT23ybGruSlzO\\/6jP8E.SRZMYMOiKgCheQ3ZrqH2"}', 'http://tnhs.dev.com/users/1/105/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 15:20:23', '2025-08-06 15:20:23'),
-	(1002, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 1, '{"filepath":null}', '{"filepath":"student_photos\\/1\\/689375dca7550.jpg"}', 'http://tnhs.dev.com/residents/1/upload-picture', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 15:33:49', '2025-08-06 15:33:49'),
-	(1003, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 1, '{"filepath":"student_photos\\/1\\/689375dca7550.jpg"}', '{"filepath":"student_photos\\/1\\/68937615c6c86.jpg"}', 'http://tnhs.dev.com/residents/1/upload-picture', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 15:34:45', '2025-08-06 15:34:45'),
-	(1004, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 2, '{"filepath":null}', '{"filepath":"student_photos\\/2\\/68937652cbebd.jpg"}', 'http://tnhs.dev.com/residents/2/upload-picture', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 15:35:46', '2025-08-06 15:35:46'),
-	(1005, 'App\\Models\\User', 50, 'created', 'App\\Models\\User', 111, '[]', '{"conn_id":"2","SchoolID":"1","name":"DR. SHIRLY C. AGRUPIS vjk","email":"dvjk@tnhs.edu.ph","password":"$2y$12$sNP9R94h.ALPyecXCwzNv.qgrGNLik6i5KM43\\/L\\/zYyOcfxJdO1fy","qr_code":"1000000000003","created_by":50,"updated_by":50,"status":"active","archived":0,"id":111}', 'http://tnhs.dev.com/users/2/null/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 15:35:51', '2025-08-06 15:35:51'),
-	(1006, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 2, '{"UserID":null}', '{"UserID":111}', 'http://tnhs.dev.com/users/2/null/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 15:35:51', '2025-08-06 15:35:51'),
-	(1007, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 2, '{"filepath":"student_photos\\/2\\/68937652cbebd.jpg"}', '{"filepath":"student_photos\\/2\\/689376bb91194.jpg"}', 'http://tnhs.dev.com/residents/2/upload-picture', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 15:37:31', '2025-08-06 15:37:31'),
-	(1008, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 2, '{"filepath":"student_photos\\/2\\/689376bb91194.jpg"}', '{"filepath":"student_photos\\/2\\/689377edd33b4.jpg"}', 'http://tnhs.dev.com/residents/2/upload-picture', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 15:42:37', '2025-08-06 15:42:37'),
-	(1009, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 2, '{"filepath":"student_photos\\/2\\/689377edd33b4.jpg"}', '{"filepath":"student_photos\\/2\\/689377f08d7b0.jpg"}', 'http://tnhs.dev.com/residents/2/upload-picture', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 15:42:40', '2025-08-06 15:42:40'),
-	(1010, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 2, '{"filepath":"student_photos\\/2\\/689377f08d7b0.jpg"}', '{"filepath":"student_photos\\/2\\/689377f4257d9.jpg"}', 'http://tnhs.dev.com/residents/2/upload-picture', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 15:42:44', '2025-08-06 15:42:44'),
-	(1011, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 2, '{"filepath":"student_photos\\/2\\/689377f4257d9.jpg"}', '{"filepath":"student_photos\\/2\\/6893780de1dc1.jpg"}', 'http://tnhs.dev.com/residents/2/upload-picture', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 15:43:09', '2025-08-06 15:43:09'),
-	(1012, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 111, '{"profile_pic":null}', '{"profile_pic":"student_photos\\/2\\/6893780de1dc1.jpg"}', 'http://tnhs.dev.com/residents/2/upload-picture', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-06 15:43:09', '2025-08-06 15:43:09'),
-	(1013, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 20, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":20}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:28:50', '2025-08-07 00:28:50'),
-	(1014, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 20, '{"VerificationCode":null}', '{"VerificationCode":"000000000000020"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:28:50', '2025-08-07 00:28:50'),
-	(1015, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 21, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":21}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:28:52', '2025-08-07 00:28:52'),
-	(1016, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 21, '{"VerificationCode":null}', '{"VerificationCode":"000000000000021"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:28:52', '2025-08-07 00:28:52'),
-	(1017, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 22, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":22}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:28:58', '2025-08-07 00:28:58'),
-	(1018, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 22, '{"VerificationCode":null}', '{"VerificationCode":"000000000000022"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:28:58', '2025-08-07 00:28:58'),
-	(1019, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 23, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":23}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:31:26', '2025-08-07 00:31:26'),
-	(1020, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 23, '{"VerificationCode":null}', '{"VerificationCode":"000000000000023"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:31:26', '2025-08-07 00:31:26'),
-	(1021, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 24, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":24}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:31:28', '2025-08-07 00:31:28'),
-	(1022, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 24, '{"VerificationCode":null}', '{"VerificationCode":"000000000000024"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:31:28', '2025-08-07 00:31:28'),
-	(1023, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 25, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":25}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:40:24', '2025-08-07 00:40:24'),
-	(1024, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 25, '{"VerificationCode":null}', '{"VerificationCode":"000000000000025"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:40:24', '2025-08-07 00:40:24'),
-	(1025, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 26, '[]', '{"UserID":107,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":26}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:41:15', '2025-08-07 00:41:15'),
-	(1026, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 26, '{"VerificationCode":null}', '{"VerificationCode":"000000000000026"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:41:15', '2025-08-07 00:41:15'),
-	(1027, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 27, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":27}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:44:47', '2025-08-07 00:44:47'),
-	(1028, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 27, '{"VerificationCode":null}', '{"VerificationCode":"000000000000027"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:44:47', '2025-08-07 00:44:47'),
-	(1029, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 28, '[]', '{"UserID":107,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":28}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:46:22', '2025-08-07 00:46:22'),
-	(1030, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 28, '{"VerificationCode":null}', '{"VerificationCode":"000000000000028"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:46:22', '2025-08-07 00:46:22'),
-	(1031, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 29, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":29}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:46:32', '2025-08-07 00:46:32'),
-	(1032, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 29, '{"VerificationCode":null}', '{"VerificationCode":"000000000000029"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:46:32', '2025-08-07 00:46:32'),
-	(1033, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 30, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":30}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:47:02', '2025-08-07 00:47:02'),
-	(1034, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 30, '{"VerificationCode":null}', '{"VerificationCode":"000000000000030"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:47:02', '2025-08-07 00:47:02'),
-	(1035, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 31, '[]', '{"UserID":111,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":31}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:47:08', '2025-08-07 00:47:08'),
-	(1036, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 31, '{"VerificationCode":null}', '{"VerificationCode":"000000000000031"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:47:08', '2025-08-07 00:47:08'),
-	(1037, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 32, '[]', '{"UserID":110,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":32}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:47:13', '2025-08-07 00:47:13'),
-	(1038, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 32, '{"VerificationCode":null}', '{"VerificationCode":"000000000000032"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:47:13', '2025-08-07 00:47:13'),
-	(1039, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 33, '[]', '{"UserID":109,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":33}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:47:18', '2025-08-07 00:47:18'),
-	(1040, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 33, '{"VerificationCode":null}', '{"VerificationCode":"000000000000033"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:47:18', '2025-08-07 00:47:18'),
-	(1041, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 34, '[]', '{"UserID":108,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":34}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:47:24', '2025-08-07 00:47:24'),
-	(1042, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 34, '{"VerificationCode":null}', '{"VerificationCode":"000000000000034"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:47:24', '2025-08-07 00:47:24'),
-	(1043, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 35, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":35}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:03', '2025-08-07 00:49:03'),
-	(1044, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 35, '{"VerificationCode":null}', '{"VerificationCode":"000000000000035"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:03', '2025-08-07 00:49:03'),
-	(1045, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 36, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":36}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:06', '2025-08-07 00:49:06'),
-	(1046, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 36, '{"VerificationCode":null}', '{"VerificationCode":"000000000000036"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:06', '2025-08-07 00:49:06'),
-	(1047, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 37, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":37}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:07', '2025-08-07 00:49:07'),
-	(1048, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 37, '{"VerificationCode":null}', '{"VerificationCode":"000000000000037"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:07', '2025-08-07 00:49:07'),
-	(1049, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 38, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":38}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:08', '2025-08-07 00:49:08'),
-	(1050, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 38, '{"VerificationCode":null}', '{"VerificationCode":"000000000000038"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:08', '2025-08-07 00:49:08'),
-	(1051, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 39, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":39}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:09', '2025-08-07 00:49:09'),
-	(1052, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 39, '{"VerificationCode":null}', '{"VerificationCode":"000000000000039"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:09', '2025-08-07 00:49:09'),
-	(1053, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 40, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":40}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:41', '2025-08-07 00:49:41'),
-	(1054, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 40, '{"VerificationCode":null}', '{"VerificationCode":"000000000000040"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:41', '2025-08-07 00:49:41'),
-	(1055, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 41, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":41}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:43', '2025-08-07 00:49:43'),
-	(1056, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 41, '{"VerificationCode":null}', '{"VerificationCode":"000000000000041"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:44', '2025-08-07 00:49:44'),
-	(1057, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 42, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":42}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:45', '2025-08-07 00:49:45'),
-	(1058, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 42, '{"VerificationCode":null}', '{"VerificationCode":"000000000000042"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:45', '2025-08-07 00:49:45'),
-	(1059, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 43, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":43}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:47', '2025-08-07 00:49:47'),
-	(1060, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 43, '{"VerificationCode":null}', '{"VerificationCode":"000000000000043"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:47', '2025-08-07 00:49:47'),
-	(1061, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 44, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":44}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:48', '2025-08-07 00:49:48'),
-	(1062, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 44, '{"VerificationCode":null}', '{"VerificationCode":"000000000000044"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:48', '2025-08-07 00:49:48'),
-	(1063, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 45, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":45}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:49', '2025-08-07 00:49:49'),
-	(1064, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 45, '{"VerificationCode":null}', '{"VerificationCode":"000000000000045"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:49', '2025-08-07 00:49:49'),
-	(1065, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 46, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":46}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:50', '2025-08-07 00:49:50'),
-	(1066, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 46, '{"VerificationCode":null}', '{"VerificationCode":"000000000000046"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:50', '2025-08-07 00:49:50'),
-	(1067, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 47, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":47}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:51', '2025-08-07 00:49:51'),
-	(1068, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 47, '{"VerificationCode":null}', '{"VerificationCode":"000000000000047"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:51', '2025-08-07 00:49:51'),
-	(1069, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 48, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":48}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:51', '2025-08-07 00:49:51'),
-	(1070, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 48, '{"VerificationCode":null}', '{"VerificationCode":"000000000000048"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:51', '2025-08-07 00:49:51'),
-	(1071, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 49, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":49}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:52', '2025-08-07 00:49:52'),
-	(1072, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 49, '{"VerificationCode":null}', '{"VerificationCode":"000000000000049"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:52', '2025-08-07 00:49:52'),
-	(1073, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 50, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":50}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:53', '2025-08-07 00:49:53'),
-	(1074, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 50, '{"VerificationCode":null}', '{"VerificationCode":"000000000000050"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:49:53', '2025-08-07 00:49:53'),
-	(1075, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 51, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":51}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:51:41', '2025-08-07 00:51:41'),
-	(1076, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 51, '{"VerificationCode":null}', '{"VerificationCode":"000000000000051"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:51:41', '2025-08-07 00:51:41'),
-	(1077, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 52, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":52}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:51:43', '2025-08-07 00:51:43'),
-	(1078, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 52, '{"VerificationCode":null}', '{"VerificationCode":"000000000000052"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:51:43', '2025-08-07 00:51:43'),
-	(1079, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 53, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":53}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:52:49', '2025-08-07 00:52:49'),
-	(1080, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 53, '{"VerificationCode":null}', '{"VerificationCode":"000000000000053"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:52:49', '2025-08-07 00:52:49'),
-	(1081, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 54, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":54}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:52:51', '2025-08-07 00:52:51'),
-	(1082, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 54, '{"VerificationCode":null}', '{"VerificationCode":"000000000000054"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:52:51', '2025-08-07 00:52:51'),
-	(1083, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 55, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":55}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:52:52', '2025-08-07 00:52:52'),
-	(1084, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 55, '{"VerificationCode":null}', '{"VerificationCode":"000000000000055"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:52:52', '2025-08-07 00:52:52'),
-	(1085, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 56, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":56}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:59:54', '2025-08-07 00:59:54'),
-	(1086, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 56, '{"VerificationCode":null}', '{"VerificationCode":"000000000000056"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 00:59:54', '2025-08-07 00:59:54'),
-	(1087, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 57, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":57}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:00:01', '2025-08-07 01:00:01'),
-	(1088, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 57, '{"VerificationCode":null}', '{"VerificationCode":"000000000000057"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:00:01', '2025-08-07 01:00:01'),
-	(1089, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 58, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":58}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:00:04', '2025-08-07 01:00:04'),
-	(1090, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 58, '{"VerificationCode":null}', '{"VerificationCode":"000000000000058"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:00:04', '2025-08-07 01:00:04'),
-	(1091, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 59, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":59}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:00:06', '2025-08-07 01:00:06'),
-	(1092, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 59, '{"VerificationCode":null}', '{"VerificationCode":"000000000000059"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:00:06', '2025-08-07 01:00:06'),
-	(1093, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 60, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":60}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:00:06', '2025-08-07 01:00:06'),
-	(1094, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 60, '{"VerificationCode":null}', '{"VerificationCode":"000000000000060"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:00:06', '2025-08-07 01:00:06'),
-	(1095, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 61, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":61}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:00:07', '2025-08-07 01:00:07'),
-	(1096, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 61, '{"VerificationCode":null}', '{"VerificationCode":"000000000000061"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:00:07', '2025-08-07 01:00:07'),
-	(1097, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 62, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":62}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:02:50', '2025-08-07 01:02:50'),
-	(1098, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 62, '{"VerificationCode":null}', '{"VerificationCode":"000000000000062"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:02:50', '2025-08-07 01:02:50'),
-	(1099, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 63, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":63}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:02:52', '2025-08-07 01:02:52'),
-	(1100, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 63, '{"VerificationCode":null}', '{"VerificationCode":"000000000000063"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:02:52', '2025-08-07 01:02:52'),
-	(1101, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 64, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":64}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:06:20', '2025-08-07 01:06:20'),
-	(1102, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 64, '{"VerificationCode":null}', '{"VerificationCode":"000000000000064"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:06:20', '2025-08-07 01:06:20'),
-	(1103, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 65, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":65}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:06:21', '2025-08-07 01:06:21'),
-	(1104, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 65, '{"VerificationCode":null}', '{"VerificationCode":"000000000000065"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:06:21', '2025-08-07 01:06:21'),
-	(1105, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 66, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":66}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:06:22', '2025-08-07 01:06:22'),
-	(1106, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 66, '{"VerificationCode":null}', '{"VerificationCode":"000000000000066"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:06:22', '2025-08-07 01:06:22'),
-	(1107, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 67, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":67}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:06:23', '2025-08-07 01:06:23'),
-	(1108, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 67, '{"VerificationCode":null}', '{"VerificationCode":"000000000000067"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:06:23', '2025-08-07 01:06:23'),
-	(1109, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 68, '[]', '{"UserID":107,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":68}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:06:28', '2025-08-07 01:06:28'),
-	(1110, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 68, '{"VerificationCode":null}', '{"VerificationCode":"000000000000068"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:06:28', '2025-08-07 01:06:28'),
-	(1111, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 69, '[]', '{"UserID":107,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":69}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:06:29', '2025-08-07 01:06:29'),
-	(1112, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 69, '{"VerificationCode":null}', '{"VerificationCode":"000000000000069"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:06:29', '2025-08-07 01:06:29'),
-	(1113, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 70, '[]', '{"UserID":107,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":70}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:07:47', '2025-08-07 01:07:47'),
-	(1114, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 70, '{"VerificationCode":null}', '{"VerificationCode":"000000000000070"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:07:47', '2025-08-07 01:07:47'),
-	(1115, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 71, '[]', '{"UserID":107,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":71}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:07:55', '2025-08-07 01:07:55'),
-	(1116, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 71, '{"VerificationCode":null}', '{"VerificationCode":"000000000000071"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:07:55', '2025-08-07 01:07:55'),
-	(1117, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 72, '[]', '{"UserID":107,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":72}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:07:57', '2025-08-07 01:07:57'),
-	(1118, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 72, '{"VerificationCode":null}', '{"VerificationCode":"000000000000072"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:07:57', '2025-08-07 01:07:57'),
-	(1119, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 73, '[]', '{"UserID":107,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":73}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:07:58', '2025-08-07 01:07:58'),
-	(1120, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 73, '{"VerificationCode":null}', '{"VerificationCode":"000000000000073"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:07:58', '2025-08-07 01:07:58'),
-	(1121, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 74, '[]', '{"UserID":107,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":74}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:07:59', '2025-08-07 01:07:59'),
-	(1122, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 74, '{"VerificationCode":null}', '{"VerificationCode":"000000000000074"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:07:59', '2025-08-07 01:07:59'),
-	(1123, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 75, '[]', '{"UserID":107,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":75}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:07:59', '2025-08-07 01:07:59'),
-	(1124, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 75, '{"VerificationCode":null}', '{"VerificationCode":"000000000000075"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:07:59', '2025-08-07 01:07:59'),
-	(1125, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 76, '[]', '{"UserID":107,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":76}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:00', '2025-08-07 01:08:00'),
-	(1126, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 76, '{"VerificationCode":null}', '{"VerificationCode":"000000000000076"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:00', '2025-08-07 01:08:00'),
-	(1127, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 77, '[]', '{"UserID":107,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":77}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:01', '2025-08-07 01:08:01'),
-	(1128, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 77, '{"VerificationCode":null}', '{"VerificationCode":"000000000000077"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:01', '2025-08-07 01:08:01'),
-	(1129, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 78, '[]', '{"UserID":107,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":78}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:02', '2025-08-07 01:08:02'),
-	(1130, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 78, '{"VerificationCode":null}', '{"VerificationCode":"000000000000078"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:02', '2025-08-07 01:08:02'),
-	(1131, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 79, '[]', '{"UserID":107,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":79}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:03', '2025-08-07 01:08:03'),
-	(1132, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 79, '{"VerificationCode":null}', '{"VerificationCode":"000000000000079"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:03', '2025-08-07 01:08:03'),
-	(1133, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 80, '[]', '{"UserID":107,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":80}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:03', '2025-08-07 01:08:03'),
-	(1134, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 80, '{"VerificationCode":null}', '{"VerificationCode":"000000000000080"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:03', '2025-08-07 01:08:03'),
-	(1135, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 81, '[]', '{"UserID":107,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":81}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:04', '2025-08-07 01:08:04'),
-	(1136, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 81, '{"VerificationCode":null}', '{"VerificationCode":"000000000000081"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:04', '2025-08-07 01:08:04'),
-	(1137, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 82, '[]', '{"UserID":107,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":82}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:04', '2025-08-07 01:08:04'),
-	(1138, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 82, '{"VerificationCode":null}', '{"VerificationCode":"000000000000082"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:04', '2025-08-07 01:08:04'),
-	(1139, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 83, '[]', '{"UserID":107,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":83}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:05', '2025-08-07 01:08:05'),
-	(1140, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 83, '{"VerificationCode":null}', '{"VerificationCode":"000000000000083"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:05', '2025-08-07 01:08:05'),
-	(1141, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 84, '[]', '{"UserID":107,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":84}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:06', '2025-08-07 01:08:06'),
-	(1142, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 84, '{"VerificationCode":null}', '{"VerificationCode":"000000000000084"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:06', '2025-08-07 01:08:06'),
-	(1143, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 85, '[]', '{"UserID":109,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":85}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:14', '2025-08-07 01:08:14'),
-	(1144, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 85, '{"VerificationCode":null}', '{"VerificationCode":"000000000000085"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:14', '2025-08-07 01:08:14'),
-	(1145, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 86, '[]', '{"UserID":109,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":86}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:16', '2025-08-07 01:08:16'),
-	(1146, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 86, '{"VerificationCode":null}', '{"VerificationCode":"000000000000086"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:16', '2025-08-07 01:08:16'),
-	(1147, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 87, '[]', '{"UserID":109,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":87}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:17', '2025-08-07 01:08:17'),
-	(1148, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 87, '{"VerificationCode":null}', '{"VerificationCode":"000000000000087"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:17', '2025-08-07 01:08:17'),
-	(1149, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 88, '[]', '{"UserID":109,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":88}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:17', '2025-08-07 01:08:17'),
-	(1150, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 88, '{"VerificationCode":null}', '{"VerificationCode":"000000000000088"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:17', '2025-08-07 01:08:17'),
-	(1151, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 89, '[]', '{"UserID":109,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":89}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:18', '2025-08-07 01:08:18'),
-	(1152, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 89, '{"VerificationCode":null}', '{"VerificationCode":"000000000000089"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:18', '2025-08-07 01:08:18'),
-	(1153, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 90, '[]', '{"UserID":109,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":90}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:19', '2025-08-07 01:08:19'),
-	(1154, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 90, '{"VerificationCode":null}', '{"VerificationCode":"000000000000090"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:19', '2025-08-07 01:08:19'),
-	(1155, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 91, '[]', '{"UserID":109,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":91}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:21', '2025-08-07 01:08:21'),
-	(1156, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 91, '{"VerificationCode":null}', '{"VerificationCode":"000000000000091"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:21', '2025-08-07 01:08:21'),
-	(1157, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 92, '[]', '{"UserID":109,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":92}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:21', '2025-08-07 01:08:21'),
-	(1158, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 92, '{"VerificationCode":null}', '{"VerificationCode":"000000000000092"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:21', '2025-08-07 01:08:21'),
-	(1159, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 93, '[]', '{"UserID":109,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":93}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:22', '2025-08-07 01:08:22'),
-	(1160, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 93, '{"VerificationCode":null}', '{"VerificationCode":"000000000000093"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:22', '2025-08-07 01:08:22'),
-	(1161, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 94, '[]', '{"UserID":109,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":94}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:23', '2025-08-07 01:08:23'),
-	(1162, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 94, '{"VerificationCode":null}', '{"VerificationCode":"000000000000094"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 01:08:23', '2025-08-07 01:08:23'),
-	(1163, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 95, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":95}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 06:45:45', '2025-08-07 06:45:45'),
-	(1164, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 95, '{"VerificationCode":null}', '{"VerificationCode":"000000000000095"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 06:45:45', '2025-08-07 06:45:45'),
-	(1165, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 96, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":96}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 06:53:03', '2025-08-07 06:53:03'),
-	(1166, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 96, '{"VerificationCode":null}', '{"VerificationCode":"000000000000096"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 06:53:03', '2025-08-07 06:53:03'),
-	(1167, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 97, '[]', '{"UserID":107,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":97}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 06:53:07', '2025-08-07 06:53:07'),
-	(1168, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 97, '{"VerificationCode":null}', '{"VerificationCode":"000000000000097"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 06:53:07', '2025-08-07 06:53:07'),
-	(1169, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 98, '[]', '{"UserID":108,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":98}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 06:53:09', '2025-08-07 06:53:09'),
-	(1170, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 98, '{"VerificationCode":null}', '{"VerificationCode":"000000000000098"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 06:53:09', '2025-08-07 06:53:09'),
-	(1171, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 99, '[]', '{"UserID":109,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":99}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 06:53:13', '2025-08-07 06:53:13'),
-	(1172, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 99, '{"VerificationCode":null}', '{"VerificationCode":"000000000000099"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 06:53:13', '2025-08-07 06:53:13'),
-	(1173, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 100, '[]', '{"UserID":110,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":100}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 06:53:17', '2025-08-07 06:53:17'),
-	(1174, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 100, '{"VerificationCode":null}', '{"VerificationCode":"000000000000100"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 06:53:17', '2025-08-07 06:53:17'),
-	(1175, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 101, '[]', '{"UserID":111,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":101}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 06:53:19', '2025-08-07 06:53:19'),
-	(1176, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 101, '{"VerificationCode":null}', '{"VerificationCode":"000000000000101"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 06:53:19', '2025-08-07 06:53:19'),
-	(1177, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\Residents', 3, '[]', '{"LRN":"XXXXXXXXXXXXXXXXX","FirstName":"MARY JANE","MiddleName":"BASUL","LastName":"LIBAY","Suffix":"","Classes":"A","YearLevel":"10","PhoneNumber":"+6363","created_by":50,"updated_by":50,"status":"active","archived":0,"id":3}', 'http://tnhs.dev.com/residents/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 07:05:49', '2025-08-07 07:05:49'),
-	(1178, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 3, '{"filepath":null}', '{"filepath":"student_photos\\/3\\/6894516f2211c.jpg"}', 'http://tnhs.dev.com/residents/3/upload-picture', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 07:10:39', '2025-08-07 07:10:39'),
-	(1179, 'App\\Models\\User', 50, 'created', 'App\\Models\\User', 112, '[]', '{"conn_id":"3","SchoolID":"1","name":"MARY JANE LIBAY","email":"mlibay@tnhs.edu.ph","password":"$2y$12$9AJpzmFGCyDSx5zaq.TbpeQJQxTOFLnjR3ArHVE4xwiT\\/mhFSL7Ve","qr_code":"1000000000004","created_by":50,"updated_by":50,"status":"active","archived":0,"id":112}', 'http://tnhs.dev.com/users/3/null/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 07:10:44', '2025-08-07 07:10:44'),
-	(1180, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 3, '{"UserID":null}', '{"UserID":112}', 'http://tnhs.dev.com/users/3/null/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 07:10:44', '2025-08-07 07:10:44'),
-	(1181, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 102, '[]', '{"UserID":112,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":102}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 07:11:14', '2025-08-07 07:11:14'),
-	(1182, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 102, '{"VerificationCode":null}', '{"VerificationCode":"000000000000102"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 07:11:14', '2025-08-07 07:11:14'),
-	(1183, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 103, '[]', '{"UserID":112,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":103}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 07:11:17', '2025-08-07 07:11:17'),
-	(1184, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 103, '{"VerificationCode":null}', '{"VerificationCode":"000000000000103"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 07:11:17', '2025-08-07 07:11:17'),
-	(1185, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 104, '[]', '{"UserID":112,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":104}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 07:11:19', '2025-08-07 07:11:19'),
-	(1186, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 104, '{"VerificationCode":null}', '{"VerificationCode":"000000000000104"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 07:11:19', '2025-08-07 07:11:19'),
-	(1187, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 105, '[]', '{"UserID":112,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":105}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 07:11:20', '2025-08-07 07:11:20'),
-	(1188, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 105, '{"VerificationCode":null}', '{"VerificationCode":"000000000000105"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 07:11:20', '2025-08-07 07:11:20'),
-	(1189, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 106, '[]', '{"UserID":112,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":106}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 07:11:20', '2025-08-07 07:11:20'),
-	(1190, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 106, '{"VerificationCode":null}', '{"VerificationCode":"000000000000106"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 07:11:20', '2025-08-07 07:11:20'),
-	(1191, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 107, '[]', '{"UserID":112,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":107}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 07:11:21', '2025-08-07 07:11:21'),
-	(1192, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 107, '{"VerificationCode":null}', '{"VerificationCode":"000000000000107"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 07:11:21', '2025-08-07 07:11:21'),
-	(1193, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 108, '[]', '{"UserID":112,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":108}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 07:11:22', '2025-08-07 07:11:22'),
-	(1194, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 108, '{"VerificationCode":null}', '{"VerificationCode":"000000000000108"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 07:11:22', '2025-08-07 07:11:22'),
-	(1195, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 109, '[]', '{"UserID":112,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":109}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 07:11:27', '2025-08-07 07:11:27'),
-	(1196, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 109, '{"VerificationCode":null}', '{"VerificationCode":"000000000000109"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 07:11:27', '2025-08-07 07:11:27'),
-	(1197, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 3, '{"LRN":"XXXXXXXXXXXXXXXXX","Suffix":""}', '{"LRN":"01234567891011256","Suffix":null}', 'http://tnhs.dev.com/residents/3/update', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-07 08:30:04', '2025-08-07 08:30:04'),
-	(1198, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 110, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":110}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-09 12:58:38', '2025-08-09 12:58:38'),
-	(1199, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 110, '{"VerificationCode":null}', '{"VerificationCode":"000000000000110"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-09 12:58:38', '2025-08-09 12:58:38'),
-	(1200, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 1, '{"filepath":"student_photos\\/1\\/68937615c6c86.jpg"}', '{"filepath":"student_photos\\/1\\/6897462f01290.jpg"}', 'http://tnhs.dev.com/residents/1/upload-picture', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-09 12:59:27', '2025-08-09 12:59:27'),
-	(1201, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 105, '{"profile_pic":null}', '{"profile_pic":"student_photos\\/1\\/6897462f01290.jpg"}', 'http://tnhs.dev.com/residents/1/upload-picture', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-09 12:59:27', '2025-08-09 12:59:27'),
-	(1202, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 111, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":111}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-09 12:59:32', '2025-08-09 12:59:32'),
-	(1203, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 111, '{"VerificationCode":null}', '{"VerificationCode":"000000000000111"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-09 12:59:32', '2025-08-09 12:59:32'),
-	(1204, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 112, '[]', '{"UserID":109,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":112}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-09 12:59:42', '2025-08-09 12:59:42'),
-	(1205, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 112, '{"VerificationCode":null}', '{"VerificationCode":"000000000000112"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-09 12:59:42', '2025-08-09 12:59:42'),
-	(1206, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 113, '[]', '{"UserID":110,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":113}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-09 12:59:48', '2025-08-09 12:59:48'),
-	(1207, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 113, '{"VerificationCode":null}', '{"VerificationCode":"000000000000113"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-09 12:59:48', '2025-08-09 12:59:48'),
-	(1208, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 114, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":114}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-09 12:59:53', '2025-08-09 12:59:53'),
-	(1209, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 114, '{"VerificationCode":null}', '{"VerificationCode":"000000000000114"}', 'http://tnhs.dev.com/scanner/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0', NULL, '2025-08-09 12:59:53', '2025-08-09 12:59:53'),
-	(1210, NULL, NULL, 'updated', 'App\\Models\\User', 50, '{"password":"$2y$10$rAPxN6SwXO\\/r0JfL1BmpKOtO.Ox0MYngviwALpdaZrWy1FRdaQlMq"}', '{"password":"$2y$12$HeXUG8OxOLTwfJuF.zNa7.hcKXsn8ehcrW.usaiTHDNKpvTXYxRhG"}', 'http://tnhs.dev.com/login', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0', NULL, '2026-01-12 05:26:41', '2026-01-12 05:26:41'),
-	(1211, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 106, '{"password":"$2y$10$rAPxN6SwXO\\/r0JfL1BmpKOtO.Ox0MYngviwALpdaZrWy1FRdaQlMq"}', '{"password":"$2y$12$QHSmOjr.aBnUjpbEjyVyMeHiwnLO5jm2Q9e9DEyNpSojeXh1cwRFG"}', 'http://tnhs.dev.com/users/106/reset-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0', NULL, '2026-01-12 05:26:46', '2026-01-12 05:26:46'),
-	(1212, 'App\\Models\\User', 50, 'updated', 'App\\Models\\ScanAlert\\Residents', 2, '{"GuardianID":null}', '{"GuardianID":1}', 'http://tnhs.dev.com/guardians/assign-student', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0', NULL, '2026-01-12 05:28:45', '2026-01-12 05:28:45'),
-	(1213, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 109, '{"password":"$2y$10$rAPxN6SwXO\\/r0JfL1BmpKOtO.Ox0MYngviwALpdaZrWy1FRdaQlMq"}', '{"password":"$2y$12$bq8l2UWTmodIPMNTgWiA3.9dOEAyOrpaEC.bt4iEK66LsxEnJ8yXC"}', 'http://tnhs.dev.com/users/2/109/employees/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0', NULL, '2026-01-12 05:29:20', '2026-01-12 05:29:20'),
-	(1214, 'App\\Models\\User', 50, 'created', 'App\\Models\\ScanAlert\\Residents', 4, '[]', '{"LRN":"dfghfdghfg","FirstName":"JESSA","MiddleName":"HFGH","LastName":"HAMBRE","Suffix":"","Classes":"HGH","YearLevel":"6","PhoneNumber":"+639128941731","created_by":50,"updated_by":50,"status":"active","archived":0,"id":4}', 'http://tnhs.dev.com/residents/store', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0', NULL, '2026-01-12 05:29:33', '2026-01-12 05:29:33'),
-	(1215, NULL, NULL, 'updated', 'App\\Models\\User', 50, '{"fcm_token":"cK-CZWMZSqmGn33fyXWHTa:APA91bFkyMbK3UmsGkzm8r7QJYACq-Vrk2rcynQGBgMOioqaQ61a8MzCPX0-DyoUNzLCRCWgyQQDkzkUF7x0XHsehwOcNYCfg9MABuiexDOBDtU6ESk0OL8"}', '{"fcm_token":"etJ4MU5uQpu6ou6bqgkgyH:APA91bFUkk4hebK2U-Yn4u4vJeixY79oau9w0fgutZTRN6CKjuV0qkhBNF77-A8rCfA_BonPDOkJPmah2eSTeCkjt-dOlcGMiG-yam8Fnu1RrIWgCqY7wss"}', 'http://10.25.40.22:8000/api/user/save-fcm-token', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:33:18', '2026-01-12 05:33:18'),
-	(1216, NULL, NULL, 'updated', 'App\\Models\\User', 111, '{"password":"$2y$10$rAPxN6SwXO\\/r0JfL1BmpKOtO.Ox0MYngviwALpdaZrWy1FRdaQlMq"}', '{"password":"$2y$12$NkCwMyajVsc22tOpQ9YUE.cc.TDOQ7WiMSltW6qEIOTm0QQANoc9C"}', 'http://10.25.40.22:8000/api/user/2/111/residents/generate-password', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:33:34', '2026-01-12 05:33:34'),
-	(1217, NULL, NULL, 'updated', 'App\\Models\\User', 105, '{"nfc_code":null}', '{"nfc_code":"04B38501690C03"}', 'http://10.25.40.22:8000/api/user/105/nfc', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:35:09', '2026-01-12 05:35:09'),
-	(1218, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 11, '[]', '{"UserID":"105","nfc_uid":"04B38501690C03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":11}', 'http://10.25.40.22:8000/api/user/105/nfc', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:35:09', '2026-01-12 05:35:09'),
-	(1219, NULL, NULL, 'updated', 'App\\Models\\User', 111, '{"nfc_code":null}', '{"nfc_code":"04B3A701E30C03"}', 'http://10.25.40.22:8000/api/user/111/nfc', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:35:25', '2026-01-12 05:35:25'),
-	(1220, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 12, '[]', '{"UserID":"111","nfc_uid":"04B3A701E30C03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":12}', 'http://10.25.40.22:8000/api/user/111/nfc', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:35:25', '2026-01-12 05:35:25'),
-	(1221, NULL, NULL, 'updated', 'App\\Models\\User', 112, '{"nfc_code":null}', '{"nfc_code":"04824801034D03"}', 'http://10.25.40.22:8000/api/user/112/nfc', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:35:34', '2026-01-12 05:35:34'),
-	(1222, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\UserNFCs', 13, '[]', '{"UserID":"112","nfc_uid":"04824801034D03","created_by":50,"updated_by":50,"status":"active","archived":0,"id":13}', 'http://10.25.40.22:8000/api/user/112/nfc', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:35:34', '2026-01-12 05:35:34'),
-	(1223, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 115, '[]', '{"UserID":111,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":115}', 'http://10.25.40.22:8000/api/logs/store', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:39:39', '2026-01-12 05:39:39'),
-	(1224, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 115, '{"VerificationCode":null}', '{"VerificationCode":"000000000000115"}', 'http://10.25.40.22:8000/api/logs/store', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:39:39', '2026-01-12 05:39:39'),
-	(1225, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 116, '[]', '{"UserID":112,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":116}', 'http://10.25.40.22:8000/api/logs/store', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:39:45', '2026-01-12 05:39:45'),
-	(1226, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 116, '{"VerificationCode":null}', '{"VerificationCode":"000000000000116"}', 'http://10.25.40.22:8000/api/logs/store', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:39:45', '2026-01-12 05:39:45'),
-	(1227, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 117, '[]', '{"UserID":105,"Mode":1,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":117}', 'http://10.25.40.22:8000/api/logs/store', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:39:49', '2026-01-12 05:39:49'),
-	(1228, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 117, '{"VerificationCode":null}', '{"VerificationCode":"000000000000117"}', 'http://10.25.40.22:8000/api/logs/store', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:39:49', '2026-01-12 05:39:49'),
-	(1229, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 118, '[]', '{"UserID":105,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":118}', 'http://10.25.40.22:8000/api/logs/store', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:40:04', '2026-01-12 05:40:04'),
-	(1230, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 118, '{"VerificationCode":null}', '{"VerificationCode":"000000000000118"}', 'http://10.25.40.22:8000/api/logs/store', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:40:04', '2026-01-12 05:40:04'),
-	(1231, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 119, '[]', '{"UserID":112,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":119}', 'http://10.25.40.22:8000/api/logs/store', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:40:08', '2026-01-12 05:40:08'),
-	(1232, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 119, '{"VerificationCode":null}', '{"VerificationCode":"000000000000119"}', 'http://10.25.40.22:8000/api/logs/store', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:40:08', '2026-01-12 05:40:08'),
-	(1233, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 120, '[]', '{"UserID":111,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":120}', 'http://10.25.40.22:8000/api/logs/store', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:40:12', '2026-01-12 05:40:12'),
-	(1234, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 120, '{"VerificationCode":null}', '{"VerificationCode":"000000000000120"}', 'http://10.25.40.22:8000/api/logs/store', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:40:12', '2026-01-12 05:40:12'),
-	(1235, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 121, '[]', '{"UserID":111,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":121}', 'http://10.25.40.22:8000/api/logs/store', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:42:31', '2026-01-12 05:42:31'),
-	(1236, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 121, '{"VerificationCode":null}', '{"VerificationCode":"000000000000121"}', 'http://10.25.40.22:8000/api/logs/store', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:42:31', '2026-01-12 05:42:31'),
-	(1237, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 122, '[]', '{"UserID":111,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":122}', 'http://10.25.40.22:8000/api/logs/store', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:44:02', '2026-01-12 05:44:02'),
-	(1238, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 122, '{"VerificationCode":null}', '{"VerificationCode":"000000000000122"}', 'http://10.25.40.22:8000/api/logs/store', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:44:02', '2026-01-12 05:44:02'),
-	(1239, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\ScanLogs', 123, '[]', '{"UserID":112,"Mode":0,"lat":null,"lng":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":123}', 'http://10.25.40.22:8000/api/logs/store', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:44:06', '2026-01-12 05:44:06'),
-	(1240, NULL, NULL, 'updated', 'App\\Models\\ScanAlert\\ScanLogs', 123, '{"VerificationCode":null}', '{"VerificationCode":"000000000000123"}', 'http://10.25.40.22:8000/api/logs/store', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 05:44:06', '2026-01-12 05:44:06'),
-	(1241, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\Residents', 5, '[]', '{"LRN":"gdfg","FirstName":"JOHANS","MiddleName":null,"LastName":"EMPLEO","Suffix":"","Classes":"gfd","YearLevel":3,"PhoneNumber":"+639128941731","created_by":50,"updated_by":50,"status":"active","archived":0,"id":5}', 'http://10.25.40.22:8000/api/residents', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 06:02:12', '2026-01-12 06:02:12'),
-	(1242, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\Residents', 6, '[]', '{"LRN":"455454","FirstName":"DR. SHIRLY C. AGRUPIS","MiddleName":"jgvyv","LastName":"vjk","Suffix":"","Classes":"h","YearLevel":11,"PhoneNumber":null,"created_by":50,"updated_by":50,"status":"active","archived":0,"id":6}', 'http://10.25.40.22:8000/api/residents', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 06:02:12', '2026-01-12 06:02:12'),
-	(1243, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\Residents', 7, '[]', '{"LRN":"01234567891011256","FirstName":"MARY JANE","MiddleName":"BASUL","LastName":"LIBAY","Suffix":"","Classes":"A","YearLevel":10,"PhoneNumber":"+6363","created_by":50,"updated_by":50,"status":"active","archived":0,"id":7}', 'http://10.25.40.22:8000/api/residents', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 06:02:12', '2026-01-12 06:02:12'),
-	(1244, NULL, NULL, 'created', 'App\\Models\\ScanAlert\\Residents', 8, '[]', '{"LRN":"dfghfdghfg","FirstName":"JESSA","MiddleName":"HFGH","LastName":"HAMBRE","Suffix":"","Classes":"HGH","YearLevel":6,"PhoneNumber":"+639128941731","created_by":50,"updated_by":50,"status":"active","archived":0,"id":8}', 'http://10.25.40.22:8000/api/residents', '10.25.40.23', 'okhttp/4.9.2', NULL, '2026-01-12 06:02:12', '2026-01-12 06:02:12'),
-	(1245, 'App\\Models\\User', 50, 'updated', 'App\\Models\\User', 111, '{"password":"$2y$12$NkCwMyajVsc22tOpQ9YUE.cc.TDOQ7WiMSltW6qEIOTm0QQANoc9C"}', '{"password":"$2y$12$G5VcGHAaDhZuEIC3kfVG..3M96GSXkBz7xmJi41u\\/\\/fmfFvFBoz1S"}', 'http://tnhs.dev.com/users/2/111/residents/generate-password', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', NULL, '2026-02-17 09:27:32', '2026-02-17 09:27:32'),
-	(1246, NULL, NULL, 'updated', 'App\\Models\\User', 50, '{"fcm_token":"etJ4MU5uQpu6ou6bqgkgyH:APA91bFUkk4hebK2U-Yn4u4vJeixY79oau9w0fgutZTRN6CKjuV0qkhBNF77-A8rCfA_BonPDOkJPmah2eSTeCkjt-dOlcGMiG-yam8Fnu1RrIWgCqY7wss"}', '{"fcm_token":"fSy1iNs0SXGcNng3Jbs0lh:APA91bHNX0EKxAgD3iWC4Iq1cifB6nye4Ki6dIU1wGaxbZGEfJmNJaYQo-zdkvUiiVEwmRAwDUoGeRGc8IGjSdXRo9D1zp-dFZ17_3bVXLLHb40a9AFDCaE"}', 'http://192.168.0.27:8000/api/user/save-fcm-token', '192.168.0.26', 'okhttp/4.9.2', NULL, '2026-02-17 09:35:29', '2026-02-17 09:35:29'),
-	(1247, 'App\\Models\\User', 50, 'created', 'App\\Models\\Residents', 9, '[]', '{"LRN":"123456789123","FirstName":"ANTONIO JR","LastName":"PILOTON","Suffix":null,"PhoneNumber":"+639128941731","YearLevel":"7","Classes":"iyui","created_by":50,"updated_by":50,"status":"active","archived":0,"id":9}', 'http://saaskit.dev.com/residents/create', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', NULL, '2026-03-10 21:31:46', '2026-03-10 21:31:46'),
-	(1248, 'App\\Models\\User', 50, 'created', 'App\\Models\\Residents', 10, '[]', '{"LRN":"675674567456","FirstName":"74567","LastName":"45674567","Suffix":null,"PhoneNumber":"+639128941731","YearLevel":"7","Classes":"75","created_by":50,"updated_by":50,"status":"active","archived":0,"id":10}', 'http://saaskit.dev.com/residents/create', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', NULL, '2026-03-10 21:34:21', '2026-03-10 21:34:21'),
-	(1249, 'App\\Models\\User', 50, 'created', 'App\\Models\\Residents', 11, '[]', '{"LRN":"645674567","FirstName":"ANTONIO JRityui","LastName":"PILOTON","Suffix":null,"PhoneNumber":"+639128941731","YearLevel":"7","Classes":"7657","filepath":"residents\\/MzC1LJugG5XmoxqhqJnfQ43vXP0m57MOxIDC5zrk.png","created_by":50,"updated_by":50,"status":"active","archived":0,"id":11}', 'http://saaskit.dev.com/residents/create', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', NULL, '2026-03-10 21:35:38', '2026-03-10 21:35:38'),
-	(1250, 'App\\Models\\User', 50, 'updated', 'App\\Models\\Residents', 1, '{"Suffix":"","YearLevel":3}', '{"Suffix":null,"YearLevel":"7"}', 'http://saaskit.dev.com/residents/update/eyJpdiI6IkZzTTVHSVpvNzNQTUpLZFhpQlF3ZEE9PSIsInZhbHVlIjoiaGcrR0lMYU50SlJDZjNvemxkWTNOQT09IiwibWFjIjoiMjNkNGJlYTY2N2I3YjlhNWUwYjZlOTNjOThiYjQ5NjY4MTg1MWI0YjllYWNkMjI0ZDBlZTg3YjliMjU3MDJkNiIsInRhZyI6IiJ9', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', NULL, '2026-03-10 21:50:29', '2026-03-10 21:50:29'),
-	(1251, 'App\\Models\\User', 50, 'updated', 'App\\Models\\Residents', 1, '{"filepath":"student_photos\\/1\\/6897462f01290.jpg"}', '{"filepath":"residents\\/v8MVqUEFSLzVZfpHH1Ie58KsCfP2z3zPfGKxKsyX.jpg"}', 'http://saaskit.dev.com/residents/update/eyJpdiI6ImdydkJNRUI5UWYxVlFuTWl2QmJSQmc9PSIsInZhbHVlIjoiZElNdzVvbGdnRVN0VTZjSERKTXZrZz09IiwibWFjIjoiN2U2YjcyODQxNzFiMTZhMGYxNzE4YjRkNjZjMjg4ZDEyMzIyMDNmNGExMjQ1ZThjYTY4OGU1ZDZiMjUzMGEwMSIsInRhZyI6IiJ9', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', NULL, '2026-03-10 21:50:39', '2026-03-10 21:50:39'),
-	(1252, 'App\\Models\\User', 50, 'updated', 'App\\Models\\Residents', 3, '{"LRN":"01234567891011256","PhoneNumber":"+6363"}', '{"LRN":"545665445454","PhoneNumber":"+639868273741"}', 'http://saaskit.dev.com/residents/update/eyJpdiI6Ik1KTWE3c09SNnJlYmhyR3BLWTJWMGc9PSIsInZhbHVlIjoienRMZm0zMWdETDhTZzRRRXkvVTZXdz09IiwibWFjIjoiOGMzN2U0ZTAxMDgzNDE1MDFiNDJhNmQzMjdkZjA2MzYxYWViN2JlMGZhYTUzNzI2YWNmNTY0NWVhMWZlYzE4YiIsInRhZyI6IiJ9', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', NULL, '2026-03-10 21:58:02', '2026-03-10 21:58:02'),
-	(1253, 'App\\Models\\User', 50, 'updated', 'App\\Models\\Residents', 3, '{"filepath":"student_photos\\/3\\/6894516f2211c.jpg"}', '{"filepath":"residents\\/hqcXpqqCLdHwVreOW0huUxu2PQZdokEyPCxIkPow.png"}', 'http://saaskit.dev.com/residents/update/eyJpdiI6ImNPRCtqYitwVVQwL1lucG5Ed0VRVEE9PSIsInZhbHVlIjoiVHFBMmZZR3g2dUI5WkN1UXc1N0E0dz09IiwibWFjIjoiNWQ4YjE2OGZkNjdlZDFiNzVlNmEzZDVlNWMxM2ViMTdkOWQ1ZjAyODhmOTcxZjJlNjc4NzkwMmQ4NWE1MzUwYSIsInRhZyI6IiJ9', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', NULL, '2026-03-10 21:58:18', '2026-03-10 21:58:18'),
-	(1254, 'App\\Models\\User', 50, 'updated', 'App\\Models\\Residents', 3, '{"GuardianID":null}', '{"GuardianID":"1"}', 'http://saaskit.dev.com/residents/update/eyJpdiI6InZ4Ry94djN4SVdaTE9DMUI3bjFiNVE9PSIsInZhbHVlIjoiZnVsZjY0Zk0yalZ6RithYkEvVjlrQT09IiwibWFjIjoiMWY4OTYxOGM0ZjU5MzhjNmJjODUxNjM5NmE2NzFlYTkyMWRmZDQ0ZDk2OWRkM2Q3YmZmNTc2MmFhNjMzNzFmNyIsInRhZyI6IiJ9', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', NULL, '2026-03-10 22:00:08', '2026-03-10 22:00:08'),
-	(1255, 'App\\Models\\User', 50, 'updated', 'App\\Models\\Residents', 2, '{"Suffix":"","PhoneNumber":null}', '{"Suffix":null,"PhoneNumber":"+639128941731"}', 'http://saaskit.dev.com/residents/update/eyJpdiI6ImhKclVTcXFMVlZja0NTaklNbzF0RVE9PSIsInZhbHVlIjoiUEducHJJSHVTVndGdFF2czJQcHNidz09IiwibWFjIjoiNTJkODM0N2FkMzk4ZmQxNjA3N2NhOGZiMDA0ZjY2M2E2ZjhhZGQzN2ZlZDgxZjY2NTEwZTUyOGI1ZDQxNGNiOSIsInRhZyI6IiJ9', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', NULL, '2026-03-10 22:05:12', '2026-03-10 22:05:12'),
-	(1256, 'App\\Models\\User', 50, 'updated', 'App\\Models\\Residents', 4, '{"GuardianID":null,"Suffix":"","YearLevel":6}', '{"GuardianID":"1","Suffix":null,"YearLevel":"7"}', 'http://saaskit.dev.com/residents/update/eyJpdiI6ImpnZzVIYjVoVHdYZnNRTTVHZ0xVemc9PSIsInZhbHVlIjoia2d2Q2p1SG9xc2s1YllFT1RWMUZrUT09IiwibWFjIjoiNzgxMzJiNWIyMGRlODM2Y2EwMmY5M2M5OTM3OGQyOGMzYTQ4MWZjYTI3NTI1YzhkMmNlMTRlYzc2NmI3YTQ0YiIsInRhZyI6IiJ9', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', NULL, '2026-03-10 22:05:23', '2026-03-10 22:05:23'),
-	(1257, 'App\\Models\\User', 50, 'created', 'App\\Models\\Parents', 2, '[]', '{"FirstName":"JESSA","LastName":"Hambre","Suffix":null,"PhoneNumber":"+639128941731","Address":"Espina St","created_by":50,"updated_by":50,"status":"active","archived":0,"id":2}', 'http://saaskit.dev.com/parents/create', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', NULL, '2026-03-10 22:20:45', '2026-03-10 22:20:45'),
-	(1258, 'App\\Models\\User', 50, 'updated', 'App\\Models\\Residents', 5, '{"Suffix":"","YearLevel":3}', '{"Suffix":null,"YearLevel":"8"}', 'http://saaskit.dev.com/residents/update/eyJpdiI6ImMzMTRpanBvalhhbWdTNS9EMURhK0E9PSIsInZhbHVlIjoiVW5xQ203WGpRWk4yMTMxdkpxZXRqZz09IiwibWFjIjoiNmNlYzY3YmFhOGJlMjZiY2QwNTU4Y2Y5ZGY3MWIwM2U3M2MxYTk4ODQyZWY2NjczN2RlYTYxMmQ5ZTI1MjY1NyIsInRhZyI6IiJ9', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', NULL, '2026-03-10 22:21:49', '2026-03-10 22:21:49'),
-	(1259, 'App\\Models\\User', 50, 'updated', 'App\\Models\\Residents', 5, '{"GuardianID":null}', '{"GuardianID":"2"}', 'http://saaskit.dev.com/residents/update/eyJpdiI6ImVzWnVuKytFS3Z4WXVxcjNUcU9OR0E9PSIsInZhbHVlIjoiUDZ6NTFHeHY1bm53OXp2Wm9rRmVtdz09IiwibWFjIjoiNTNjMjkwMzA4MTE1OGZmOGFjNTk1OThjYWMwNjU3MDkxNDhiYjQyZmIwOWFjMDZjNWU2ZmNkOWIzYzJhOTBiMSIsInRhZyI6IiJ9', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', NULL, '2026-03-10 22:22:21', '2026-03-10 22:22:21'),
-	(1260, 'App\\Models\\User', 50, 'created', 'App\\Models\\Parents', 3, '[]', '{"FirstName":"NORMA","LastName":"LUIB","Suffix":null,"PhoneNumber":"+639128941731","Address":"Sitio Cayutan, Brgy. Cagniog","created_by":50,"updated_by":50,"status":"active","archived":0,"id":3}', 'http://saaskit.dev.com/parents/create', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', NULL, '2026-03-10 22:23:18', '2026-03-10 22:23:18'),
-	(1261, 'App\\Models\\User', 50, 'updated', 'App\\Models\\Parents', 2, '{"FirstName":"JESSA"}', '{"FirstName":"JESSA-edited"}', 'http://saaskit.dev.com/parents/update/eyJpdiI6IkVoc0lYM1Uyd3ByaWJqNnFwK2l5Q1E9PSIsInZhbHVlIjoiMUdwSm1SMmZtTkQ2UVhrMUR4SEhKdz09IiwibWFjIjoiNDAzYzUxNGU0ZTJjYzAyYmQ0MDI2YWVjMGJiM2VmZTY5NWFmZGMwYTEyYTU3NjViN2I3OWVlYWYzMWIzMzYwMCIsInRhZyI6IiJ9', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', NULL, '2026-03-10 22:24:39', '2026-03-10 22:24:39'),
-	(1262, 'App\\Models\\User', 50, 'created', 'App\\Models\\Employees', 3, '[]', '{"FirstName":"Teacher","LastName":"Teacher","Suffix":null,"PhoneNumber":"+639128941731","Address":"Espina St","created_by":50,"updated_by":50,"status":"active","archived":0,"id":3}', 'http://saaskit.dev.com/employees/create', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', NULL, '2026-03-10 22:32:20', '2026-03-10 22:32:20'),
-	(1263, 'App\\Models\\User', 50, 'updated', 'App\\Models\\Employees', 2, '{"FirstName":"NORVEN","Address":null}', '{"FirstName":"NORVEN-edited","Address":"Sitio Cayutan, Brgy. Cagniog"}', 'http://saaskit.dev.com/employees/update/eyJpdiI6IjMrZ1RKRG5DdG1qUlRseDI2UWN2N2c9PSIsInZhbHVlIjoiL09TamhuUFZiV0p6ajVLQVBCMFJEZz09IiwibWFjIjoiMmZkNDZkNThjMDY5YWVkMDA4ZjEwNGI5M2IyZDcxYjE0ZWVhZmM3ZjQyODU3NjUxZmZiYjJkZTFkZWI1ZTllMiIsInRhZyI6IiJ9', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', NULL, '2026-03-10 22:32:48', '2026-03-10 22:32:48'),
-	(1264, 'App\\Models\\User', 50, 'created', 'App\\Models\\Employees', 4, '[]', '{"FirstName":"jhgfhj","LastName":"fghjfghj","Suffix":null,"PhoneNumber":"+639128941731","Address":"jfghjfghj","created_by":50,"updated_by":50,"status":"active","archived":0,"id":4}', 'http://saaskit.dev.com/employees/create', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', NULL, '2026-03-10 22:33:01', '2026-03-10 22:33:01');
-/*!40000 ALTER TABLE `audits` ENABLE KEYS */;
+	(1, 'App\\Models\\User', 1, 'created', 'App\\Models\\Students', 1, '[]', '{"LRN":"154542121454","FirstName":"loreto","MiddleName":"stude","LastName":"PILOTON","Suffix":null,"PhoneNumber":"+639128941731","GuardianID":"16","YearLevel":"8","Strand":"HUMSS","created_by":1,"updated_by":1,"status":"active","archived":0,"school_id":1,"id":1}', 'http://saaskit.dev.com/students/create', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0', NULL, '2026-05-26 07:13:25', '2026-05-26 07:13:25'),
+	(2, 'App\\Models\\User', 1, 'created', 'App\\Models\\User', 9, '[]', '{"conn_id":1,"school_id":1,"name":"loreto PILOTON","email":"lpiloton1@tnhs.edu.ph","password":"$2y$12$ZB4.FSshFYWmk8hPy85t1.tQu0Kg2i8m\\/x70IN7Sq3J9uyVh.uMEi","qr_code":"304854000007","created_by":1,"updated_by":1,"status":"active","archived":0,"id":9}', 'http://saaskit.dev.com/students/create', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0', NULL, '2026-05-26 07:13:25', '2026-05-26 07:13:25'),
+	(3, 'App\\Models\\User', 1, 'updated', 'App\\Models\\Students', 1, '{"UserID":null}', '{"UserID":9}', 'http://saaskit.dev.com/students/create', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0', NULL, '2026-05-26 07:13:25', '2026-05-26 07:13:25'),
+	(4, 'App\\Models\\User', 1, 'updated', 'App\\Models\\User', 9, '{"filepath":"0"}', '{"filepath":"users\\/students\\/9\\/70fd9bb3-a729-4af0-bd55-019ca1c8ef0c.jpeg"}', 'http://saaskit.dev.com/users/upload', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0', NULL, '2026-05-26 07:18:26', '2026-05-26 07:18:26'),
+	(5, 'App\\Models\\User', 1, 'updated', 'App\\Models\\User', 9, '{"filepath":"users\\/students\\/9\\/70fd9bb3-a729-4af0-bd55-019ca1c8ef0c.jpeg"}', '{"filepath":"users\\/students\\/9\\/8aca7554-0240-4906-852b-245dd1601201.jpeg"}', 'http://saaskit.dev.com/users/upload', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0', NULL, '2026-05-26 07:20:45', '2026-05-26 07:20:45'),
+	(6, 'App\\Models\\User', 1, 'created', 'App\\Models\\Backup', 1, '[]', '{"filename":"2026-05-28-09-11-08.zip","filepath":"C:\\\\wamp64\\\\www\\\\saaskit\\\\storage\\\\app\\\\private\\\\SafeTrack\\\\2026-05-28-09-11-08.zip","backup_type":"db","file_size":20376,"status":"completed","created_by":1,"id":1}', 'http://saaskit.dev.com/sa/backups/generate', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0', NULL, '2026-05-28 01:11:10', '2026-05-28 01:11:10'),
+	(7, 'App\\Models\\User', 1, 'created', 'App\\Models\\LoginActivity', 1, '[]', '{"user_id":1,"email":"apiloton1@snsu.edu.ph","ip_address":"::1","user_agent":"Mozilla\\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\\/537.36 (KHTML, like Gecko) Chrome\\/149.0.0.0 Safari\\/537.36 Edg\\/149.0.0.0","device":"WebKit","platform":"Windows","browser":"Edge","status":"success","logged_in_at":"2026-06-09 17:29:43","id":1}', 'http://pos.dev.com/auth/google/callback?authuser=0&code=4%2F0AdkVLPx6zbQGom77FtyS-ptc4oR4WWQzim2Edrr23IJq8Om5A5NG48AWugpIOsLWRmi_lQ&hd=snsu.edu.ph&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20openid%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&state=TUGcJiqZmHtmenmVSFpiN5aNxsfPdyVaLe18PU6u', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:29:43', '2026-06-09 09:29:43'),
+	(8, 'App\\Models\\User', 1, 'updated', 'App\\Models\\LoginActivity', 1, '{"status":"success","logged_out_at":null}', '{"status":"logout","logged_out_at":"2026-06-09 17:30:55"}', 'http://pos.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:30:55', '2026-06-09 09:30:55'),
+	(9, 'App\\Models\\User', 1, 'updated', 'App\\Models\\User', 1, '{"remember_token":"oFYER6ZMlfwIv2T4o13Fsb5aIs4agOHtsKGKnEBNYZ6PX66GYHojrK188zDN"}', '{"remember_token":"XGSrczUrXTsImd2lz3XUoMkHZaYfGNLCRTDvreWbaDNHzoGOZNvDO4jzcST8"}', 'http://pos.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:30:55', '2026-06-09 09:30:55'),
+	(10, 'App\\Models\\User', 4, 'created', 'App\\Models\\LoginActivity', 2, '[]', '{"user_id":4,"email":"antoniojrpiloton@gmail.com","ip_address":"::1","user_agent":"Mozilla\\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\\/537.36 (KHTML, like Gecko) Chrome\\/149.0.0.0 Safari\\/537.36 Edg\\/149.0.0.0","device":"WebKit","platform":"Windows","browser":"Edge","status":"success","logged_in_at":"2026-06-09 17:31:02","id":2}', 'http://pos.dev.com/auth/google/callback?authuser=3&code=4%2F0AdkVLPwl05C2-KN3ojTKF413A3-cV9HYYUWqAkqxsSNVoV_zOOU1PuiJN4OEo0QBnmOQVg&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20openid%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&state=JLIvfzH4Dbhf5oMGbOWZIvFsAPfumoTnh2dlPXgC', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:31:02', '2026-06-09 09:31:02'),
+	(11, 'App\\Models\\User', 4, 'updated', 'App\\Models\\LoginActivity', 2, '{"status":"success","logged_out_at":null}', '{"status":"logout","logged_out_at":"2026-06-09 17:31:05"}', 'http://pos.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:31:05', '2026-06-09 09:31:05'),
+	(12, 'App\\Models\\User', 4, 'updated', 'App\\Models\\User', 4, '{"remember_token":"8EepkQ0GGeAbCLjgrx5HZuTFM0GyctXTqqB0N2xng3gLRzIswoBhSh101gZW"}', '{"remember_token":"6piHSTJSvHrCjQ1zE6TO7uYV917dNmF0oUsV5Hedv73DoNE6wit5gSAzcdOB"}', 'http://pos.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:31:05', '2026-06-09 09:31:05'),
+	(13, NULL, NULL, 'created', 'App\\Models\\LoginActivity', 3, '[]', '{"user_id":null,"email":null,"ip_address":"::1","user_agent":"Mozilla\\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\\/537.36 (KHTML, like Gecko) Chrome\\/149.0.0.0 Safari\\/537.36 Edg\\/149.0.0.0","device":"WebKit","platform":"Windows","browser":"Edge","status":"failed","logged_in_at":"2026-06-09 17:31:29","id":3}', 'http://pos.dev.com/auth/google/callback?authuser=3&code=4%2F0AdkVLPzHAhOqo-o7ax2d9yGmKwKzJGdHzmRoO5EnAXTq0d1zquZjFI3NIserS84Mj0FBzg&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20openid%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&state=YF67ygBpltCfvzUaanvt7MuPF5b70omypCBdqrz8', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:31:29', '2026-06-09 09:31:29'),
+	(14, NULL, NULL, 'created', 'App\\Models\\LoginActivity', 4, '[]', '{"user_id":null,"email":null,"ip_address":"::1","user_agent":"Mozilla\\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\\/537.36 (KHTML, like Gecko) Chrome\\/149.0.0.0 Safari\\/537.36 Edg\\/149.0.0.0","device":"WebKit","platform":"Windows","browser":"Edge","status":"failed","logged_in_at":"2026-06-09 17:31:35","id":4}', 'http://pos.dev.com/auth/google/callback?authuser=3&code=4%2F0AdkVLPy_l6QhjOkZEnrPlS33JXF-UJzqMYJ4cHPHVglsLLipO3cEhCw-ywmYQLNMMjftlg&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20openid&state=vjjUCZNLZb8yBj4JXYm5C3bAepBfJpG22Dw4gH2o', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:31:35', '2026-06-09 09:31:35'),
+	(15, NULL, NULL, 'created', 'App\\Models\\LoginActivity', 5, '[]', '{"user_id":null,"email":null,"ip_address":"::1","user_agent":"Mozilla\\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\\/537.36 (KHTML, like Gecko) Chrome\\/149.0.0.0 Safari\\/537.36 Edg\\/149.0.0.0","device":"WebKit","platform":"Windows","browser":"Edge","status":"failed","logged_in_at":"2026-06-09 17:34:26","id":5}', 'http://pos.dev.com/auth/google/callback?authuser=3&code=4%2F0AdkVLPyth8zip0fv5gwP-OB0Gx7GmHV9Tb56jAzTbpc63tDtbZY9q6a7YosvQsyWAP2TwA&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20openid&state=0yXVZKSZ9iTKnLJm2plT5JCNWpjGU5Zk4W4TYijQ', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:34:26', '2026-06-09 09:34:26'),
+	(16, NULL, NULL, 'created', 'App\\Models\\LoginActivity', 6, '[]', '{"user_id":null,"email":null,"ip_address":"::1","user_agent":"Mozilla\\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\\/537.36 (KHTML, like Gecko) Chrome\\/149.0.0.0 Safari\\/537.36 Edg\\/149.0.0.0","device":"WebKit","platform":"Windows","browser":"Edge","status":"failed","logged_in_at":"2026-06-09 17:35:34","id":6}', 'http://pos.dev.com/auth/google/callback?authuser=3&code=4%2F0AdkVLPzyHmkokfE7cD35rpkOy3Bbn6ILV24Tlu2Recqm5CmxfWumiq5jfERXNWSJjdfplw&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20openid&state=0fbzN4rjX6bLJP7aYekQ4vdiPFKVLv6Y1fqPAZAT', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:35:34', '2026-06-09 09:35:34'),
+	(17, NULL, NULL, 'created', 'App\\Models\\LoginActivity', 7, '[]', '{"user_id":null,"email":null,"ip_address":"::1","user_agent":"Mozilla\\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\\/537.36 (KHTML, like Gecko) Chrome\\/149.0.0.0 Safari\\/537.36 Edg\\/149.0.0.0","device":"WebKit","platform":"Windows","browser":"Edge","status":"failed","logged_in_at":"2026-06-09 17:36:10","id":7}', 'http://pos.dev.com/auth/google/callback?authuser=3&code=4%2F0AdkVLPzI7v8OU4wIJa4OHvYBYawk4kkdFdaEOsXiMorNJW0-zz9mVGuIbEHlHVTg1TbtkA&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20openid&state=lSQ9wXNbJKioKue8JlmqHXx1f9vc5o1IwPkcu9HB', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:36:10', '2026-06-09 09:36:10'),
+	(18, NULL, NULL, 'created', 'App\\Models\\LoginActivity', 8, '[]', '{"user_id":null,"email":null,"ip_address":"::1","user_agent":"Mozilla\\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\\/537.36 (KHTML, like Gecko) Chrome\\/149.0.0.0 Safari\\/537.36 Edg\\/149.0.0.0","device":"WebKit","platform":"Windows","browser":"Edge","status":"failed","logged_in_at":"2026-06-09 17:36:32","id":8}', 'http://pos.dev.com/auth/google/callback?authuser=3&code=4%2F0AdkVLPzosvZ4_zloDQqx7_iRZkdcdN-hw2_Uk4ihWWaKO1nb2aXui3bTBxYh-7soVJj0rg&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20openid%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&state=GmjuPf55qkzoI3ny1HlgDSaKFBwHYu0XzmKCQ0cW', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:36:32', '2026-06-09 09:36:32'),
+	(19, NULL, NULL, 'created', 'App\\Models\\User', 10, '[]', '{"name":"ANTONIO JR. PILOTON","email":"antoniojrpiloton@gmail.com","google_id":"112090857259724913006","avatar":"https:\\/\\/lh3.googleusercontent.com\\/a\\/ACg8ocKkyDZe64PBZKwzpp0RZycR0EkIrvLozpRb9PuWO14e-MU6Upk=s96-c","verified":1,"password":"$2y$12$7F9c6xAEidrM5KVU5k1HfuILUDG58jkWVV3jp8zUNCKVKkkCrG9Pm","id":10}', 'http://pos.dev.com/auth/google/callback?authuser=3&code=4%2F0AdkVLPxV9fHxOC4_l4TYhN2SnieLqqkiRPsJvc0Ktgs7RwNDdg-b1YHBge1jd8kHwHIw3g&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20openid&state=xdtaCXFqmxxiorRyQfm2VWZM9SOv8Fuv9cbiUXfI', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:38:00', '2026-06-09 09:38:00'),
+	(20, NULL, NULL, 'created', 'App\\Models\\LoginActivity', 9, '[]', '{"user_id":null,"email":null,"ip_address":"::1","user_agent":"Mozilla\\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\\/537.36 (KHTML, like Gecko) Chrome\\/149.0.0.0 Safari\\/537.36 Edg\\/149.0.0.0","device":"WebKit","platform":"Windows","browser":"Edge","status":"failed","logged_in_at":"2026-06-09 17:38:00","id":9}', 'http://pos.dev.com/auth/google/callback?authuser=3&code=4%2F0AdkVLPxV9fHxOC4_l4TYhN2SnieLqqkiRPsJvc0Ktgs7RwNDdg-b1YHBge1jd8kHwHIw3g&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20openid&state=xdtaCXFqmxxiorRyQfm2VWZM9SOv8Fuv9cbiUXfI', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:38:00', '2026-06-09 09:38:00'),
+	(21, NULL, NULL, 'created', 'App\\Models\\LoginActivity', 10, '[]', '{"user_id":10,"email":"antoniojrpiloton@gmail.com","ip_address":"::1","user_agent":"Mozilla\\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\\/537.36 (KHTML, like Gecko) Chrome\\/149.0.0.0 Safari\\/537.36 Edg\\/149.0.0.0","device":"WebKit","platform":"Windows","browser":"Edge","status":"failed","logged_in_at":"2026-06-09 17:39:53","id":10}', 'http://pos.dev.com/auth/google/callback?authuser=3&code=4%2F0AdkVLPx2PUV3NxKz6xHmaA-wuvrgQ3EcOp0RoO8VpyKqxV45Zk3h2UAiC46q3VP3FpRP9w&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20openid&state=puOxvrTsqo8e6nv2tLRYuSXaEe0RIXhZlzvXMXu0', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:39:53', '2026-06-09 09:39:53'),
+	(22, 'App\\Models\\User', 1, 'created', 'App\\Models\\LoginActivity', 11, '[]', '{"user_id":1,"email":"apiloton1@snsu.edu.ph","ip_address":"::1","user_agent":"Mozilla\\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\\/537.36 (KHTML, like Gecko) Chrome\\/149.0.0.0 Safari\\/537.36 Edg\\/149.0.0.0","device":"WebKit","platform":"Windows","browser":"Edge","status":"success","logged_in_at":"2026-06-09 17:42:35","id":11}', 'http://pos.dev.com/auth/google/callback?authuser=0&code=4%2F0AdkVLPxHBSnb8I9vmDnAN3S6udd1HPMYVhnMs78g_izk4nld5WkcFYuOxkiK_p9Fn9AbKw&hd=snsu.edu.ph&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20openid&state=y5jetKTZwB2TQXnAtWSZ0CBO106esrVf5IXiJ206', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:42:35', '2026-06-09 09:42:35'),
+	(23, 'App\\Models\\User', 1, 'updated', 'App\\Models\\LoginActivity', 11, '{"status":"success","logged_out_at":null}', '{"status":"logout","logged_out_at":"2026-06-09 17:42:37"}', 'http://pos.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:42:37', '2026-06-09 09:42:37'),
+	(24, 'App\\Models\\User', 1, 'updated', 'App\\Models\\User', 1, '{"remember_token":"XGSrczUrXTsImd2lz3XUoMkHZaYfGNLCRTDvreWbaDNHzoGOZNvDO4jzcST8"}', '{"remember_token":"rW30YsjBFXakA3uEaJjdQSD9417bMFRGd9z57GUTWibbR0CLMl98dZfhkhxH"}', 'http://pos.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:42:37', '2026-06-09 09:42:37'),
+	(25, NULL, NULL, 'created', 'App\\Models\\LoginActivity', 12, '[]', '{"user_id":10,"email":"antoniojrpiloton@gmail.com","ip_address":"::1","user_agent":"Mozilla\\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\\/537.36 (KHTML, like Gecko) Chrome\\/149.0.0.0 Safari\\/537.36 Edg\\/149.0.0.0","device":"WebKit","platform":"Windows","browser":"Edge","status":"failed","logged_in_at":"2026-06-09 17:42:43","id":12}', 'http://pos.dev.com/auth/google/callback?authuser=3&code=4%2F0AdkVLPzAjG3Clvhiq3iv7XWBHHYnMvvsDUjw0VuOawzP5ZSA9JnDSSGLGmxI2Lbe1bLnoQ&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20openid%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&state=Vw8XYwv51mSTnELKbjWDkp3ZRnYuAMsJS6bVjwbO', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:42:43', '2026-06-09 09:42:43'),
+	(26, 'App\\Models\\User', 10, 'updated', 'App\\Models\\User', 10, '{"remember_token":null}', '{"remember_token":"558uILeLu57khROHif7Rj0fCBixYknR7E8qJykRQOxj5hdQAX7LtiqXrAAvD"}', 'http://pos.dev.com/auth/google/callback?authuser=3&code=4%2F0AdkVLPy9-sKJV91Lh5qk3WTebPIDp0IMxXq-kWWbuTtQj1KoqXqf35bdHDZXRo3_j07Bjg&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20openid%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&state=6icCWOhO1wrW9RvkXnY3iNVcvHKdXi9cYXirGakT', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:47:54', '2026-06-09 09:47:54'),
+	(27, 'App\\Models\\User', 10, 'created', 'App\\Models\\LoginActivity', 13, '[]', '{"user_id":10,"email":"antoniojrpiloton@gmail.com","ip_address":"::1","user_agent":"Mozilla\\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\\/537.36 (KHTML, like Gecko) Chrome\\/149.0.0.0 Safari\\/537.36 Edg\\/149.0.0.0","device":"WebKit","platform":"Windows","browser":"Edge","status":"success","logged_in_at":"2026-06-09 17:47:54","id":13}', 'http://pos.dev.com/auth/google/callback?authuser=3&code=4%2F0AdkVLPy9-sKJV91Lh5qk3WTebPIDp0IMxXq-kWWbuTtQj1KoqXqf35bdHDZXRo3_j07Bjg&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20openid%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&state=6icCWOhO1wrW9RvkXnY3iNVcvHKdXi9cYXirGakT', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:47:54', '2026-06-09 09:47:54'),
+	(28, 'App\\Models\\User', 1, 'created', 'App\\Models\\LoginActivity', 14, '[]', '{"user_id":1,"email":"apiloton1@snsu.edu.ph","ip_address":"::1","user_agent":"Mozilla\\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\\/537.36 (KHTML, like Gecko) Chrome\\/149.0.0.0 Safari\\/537.36 Edg\\/149.0.0.0","device":"WebKit","platform":"Windows","browser":"Edge","status":"success","logged_in_at":"2026-06-09 17:50:13","id":14}', 'http://pos.dev.com/auth/google/callback?authuser=0&code=4%2F0AdkVLPykn-KekWRwNSxiv8X3ukO0t7altrx7hcVO3mUf68syO8lgBV2h-Jl1L0y6s_kCyQ&hd=snsu.edu.ph&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20openid&state=9zyCWLjdABQ7tZdH1og9e98dFdpkUFXwp6jDPfI4', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:50:13', '2026-06-09 09:50:13'),
+	(29, 'App\\Models\\User', 1, 'updated', 'App\\Models\\LoginActivity', 14, '{"status":"success","logged_out_at":null}', '{"status":"logout","logged_out_at":"2026-06-09 17:50:21"}', 'http://pos.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:50:21', '2026-06-09 09:50:21'),
+	(30, 'App\\Models\\User', 1, 'updated', 'App\\Models\\User', 1, '{"remember_token":"rW30YsjBFXakA3uEaJjdQSD9417bMFRGd9z57GUTWibbR0CLMl98dZfhkhxH"}', '{"remember_token":"9acJqd3Qk9lG7a5sByjXlIyli8rGQBOo5nKORAOrkvzzwe6sQEAQzBTPYymb"}', 'http://pos.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:50:21', '2026-06-09 09:50:21'),
+	(31, NULL, NULL, 'created', 'App\\Models\\User', 11, '[]', '{"name":"ANTONIO JR. PILOTON","email":"antoniojrpiloton@gmail.com","google_id":"112090857259724913006","avatar":"https:\\/\\/lh3.googleusercontent.com\\/a\\/ACg8ocKkyDZe64PBZKwzpp0RZycR0EkIrvLozpRb9PuWO14e-MU6Upk=s96-c","verified":1,"password":"$2y$12$5PBNfpUmecYLi.ljhHdkkuJd8N5DzQCileGvaDOQfau5sKcCaZ8sO","id":11}', 'http://pos.dev.com/auth/google/callback?authuser=3&code=4%2F0AdkVLPwi6UfUzzDQi7wLVMzpTajVQiHF0a53JnHfFkha5i4_gUuRojCES2ZAJPWbe2BF3g&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20openid&state=8DXyFolBYPr6xvk9se0TFQrt2mjbkl46ohP5t1GD', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:50:36', '2026-06-09 09:50:36'),
+	(32, 'App\\Models\\User', 11, 'updated', 'App\\Models\\User', 11, '{"remember_token":null}', '{"remember_token":"c45C0ylA33m8FRi65X0SJfPggMAt6HcaQn2vySRo6OrtaIwcU3WPgfCwH3p3"}', 'http://pos.dev.com/auth/google/callback?authuser=3&code=4%2F0AdkVLPwi6UfUzzDQi7wLVMzpTajVQiHF0a53JnHfFkha5i4_gUuRojCES2ZAJPWbe2BF3g&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20openid&state=8DXyFolBYPr6xvk9se0TFQrt2mjbkl46ohP5t1GD', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:50:36', '2026-06-09 09:50:36'),
+	(33, 'App\\Models\\User', 11, 'created', 'App\\Models\\LoginActivity', 15, '[]', '{"user_id":11,"email":"antoniojrpiloton@gmail.com","ip_address":"::1","user_agent":"Mozilla\\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\\/537.36 (KHTML, like Gecko) Chrome\\/149.0.0.0 Safari\\/537.36 Edg\\/149.0.0.0","device":"WebKit","platform":"Windows","browser":"Edge","status":"success","logged_in_at":"2026-06-09 17:50:36","id":15}', 'http://pos.dev.com/auth/google/callback?authuser=3&code=4%2F0AdkVLPwi6UfUzzDQi7wLVMzpTajVQiHF0a53JnHfFkha5i4_gUuRojCES2ZAJPWbe2BF3g&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20openid&state=8DXyFolBYPr6xvk9se0TFQrt2mjbkl46ohP5t1GD', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', NULL, '2026-06-09 09:50:36', '2026-06-09 09:50:36');
 
--- Dumping structure for table tnhs-new.cache
+-- Dumping structure for table snsu_safetrack.backups
+DROP TABLE IF EXISTS `backups`;
+CREATE TABLE IF NOT EXISTS `backups` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `filename` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `filepath` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `backup_type` enum('full','db','files') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'full',
+  `file_size` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `status` enum('processing','completed','failed') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'completed',
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_backup_type` (`backup_type`),
+  KEY `idx_status` (`status`),
+  KEY `idx_created_by` (`created_by`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table snsu_safetrack.backups: ~0 rows (approximately)
+DELETE FROM `backups`;
+INSERT INTO `backups` (`id`, `filename`, `filepath`, `backup_type`, `file_size`, `status`, `created_by`, `notes`, `created_at`, `deleted_at`, `updated_at`) VALUES
+	(1, '2026-05-28-09-11-08.zip', 'C:\\wamp64\\www\\saaskit\\storage\\app\\private\\SafeTrack\\2026-05-28-09-11-08.zip', 'db', 20376, 'completed', 1, NULL, '2026-05-28 01:11:10', NULL, '2026-05-28 01:11:10');
+
+-- Dumping structure for table snsu_safetrack.cache
 DROP TABLE IF EXISTS `cache`;
 CREATE TABLE IF NOT EXISTS `cache` (
   `key` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `value` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `expiration` int(11) NOT NULL,
   PRIMARY KEY (`key`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.cache: 5 rows
+-- Dumping data for table snsu_safetrack.cache: ~2 rows (approximately)
 DELETE FROM `cache`;
-/*!40000 ALTER TABLE `cache` DISABLE KEYS */;
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-	('scanalert-a-qr-based-student-monitoring-and-alert-system-cache-spatie.permission.cache', 'a:3:{s:5:"alias";a:5:{s:1:"a";s:2:"id";s:1:"b";s:4:"name";s:1:"c";s:7:"details";s:1:"d";s:10:"guard_name";s:1:"r";s:5:"roles";}s:11:"permissions";a:17:{i:0;a:5:{s:1:"a";i:6;s:1:"b";s:6:"scanQR";s:1:"c";s:16:"User can scan QR";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:1;a:5:{s:1:"a";i:7;s:1:"b";s:12:"manage users";s:1:"c";s:12:"manage users";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:2;a:5:{s:1:"a";i:8;s:1:"b";s:10:"view users";s:1:"c";s:10:"view users";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:3;a:5:{s:1:"a";i:9;s:1:"b";s:10:"view roles";s:1:"c";s:10:"view roles";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:4;a:5:{s:1:"a";i:10;s:1:"b";s:16:"view permissions";s:1:"c";s:16:"view permissions";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:5;a:5:{s:1:"a";i:11;s:1:"b";s:18:"teacher management";s:1:"c";s:18:"teacher management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:6;a:5:{s:1:"a";i:12;s:1:"b";s:11:"add teacher";s:1:"c";s:11:"add teacher";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:7;a:5:{s:1:"a";i:13;s:1:"b";s:13:"view employees";s:1:"c";s:13:"view employees";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:8;a:5:{s:1:"a";i:14;s:1:"b";s:19:"guardian management";s:1:"c";s:19:"guardian management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:9;a:5:{s:1:"a";i:15;s:1:"b";s:12:"add guardian";s:1:"c";s:12:"add guardian";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:10;a:5:{s:1:"a";i:16;s:1:"b";s:13:"view guardian";s:1:"c";s:13:"view guardian";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:11;a:5:{s:1:"a";i:17;s:1:"b";s:18:"student management";s:1:"c";s:18:"student management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:12;a:5:{s:1:"a";i:18;s:1:"b";s:11:"add student";s:1:"c";s:11:"add student";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:16;i:1;i:17;}}i:13;a:5:{s:1:"a";i:19;s:1:"b";s:13:"view residents";s:1:"c";s:13:"view residents";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:14;a:5:{s:1:"a";i:20;s:1:"b";s:15:"logs management";s:1:"c";s:15:"logs management";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:15;a:5:{s:1:"a";i:21;s:1:"b";s:9:"view logs";s:1:"c";s:9:"view logs";s:1:"d";s:3:"web";s:1:"r";a:1:{i:0;i:17;}}i:16;a:5:{s:1:"a";i:22;s:1:"b";s:10:"my student";s:1:"c";s:10:"my student";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:16;i:1;i:17;}}}s:5:"roles";a:2:{i:0;a:4:{s:1:"a";i:17;s:1:"b";s:5:"admin";s:1:"c";s:5:"admin";s:1:"d";s:3:"web";}i:1;a:4:{s:1:"a";i:16;s:1:"b";s:8:"employees";s:1:"c";s:8:"employees";s:1:"d";s:3:"web";}}}', 1773299325);
-/*!40000 ALTER TABLE `cache` ENABLE KEYS */;
+	('safetrack-cache-last_activity_11', 'b:1;', 1781060519),
+	('safetrack-cache-spatie.permission.cache', 'a:3:{s:5:"alias";a:5:{s:1:"a";s:2:"id";s:1:"b";s:4:"name";s:1:"c";s:7:"details";s:1:"d";s:10:"guard_name";s:1:"r";s:5:"roles";}s:11:"permissions";a:37:{i:0;a:5:{s:1:"a";i:1;s:1:"b";s:14:"dashboard.view";s:1:"c";s:14:"View dashboard";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:1;a:5:{s:1:"a";i:2;s:1:"b";s:12:"scanner.view";s:1:"c";s:19:"View scanner module";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:2;a:5:{s:1:"a";i:3;s:1:"b";s:9:"logs.view";s:1:"c";s:13:"View all logs";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:3;a:5:{s:1:"a";i:4;s:1:"b";s:15:"logs.users.view";s:1:"c";s:14:"View user logs";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:4;a:5:{s:1:"a";i:5;s:1:"b";s:13:"students.view";s:1:"c";s:13:"View students";s:1:"d";s:3:"web";s:1:"r";a:3:{i:0;i:3;i:1;i:4;i:2;i:6;}}i:5;a:5:{s:1:"a";i:6;s:1:"b";s:15:"students.create";s:1:"c";s:15:"Create students";s:1:"d";s:3:"web";s:1:"r";a:3:{i:0;i:3;i:1;i:4;i:2;i:6;}}i:6;a:5:{s:1:"a";i:7;s:1:"b";s:15:"students.update";s:1:"c";s:15:"Update students";s:1:"d";s:3:"web";s:1:"r";a:3:{i:0;i:3;i:1;i:4;i:2;i:6;}}i:7;a:5:{s:1:"a";i:8;s:1:"b";s:15:"students.delete";s:1:"c";s:15:"Delete students";s:1:"d";s:3:"web";s:1:"r";a:3:{i:0;i:3;i:1;i:4;i:2;i:6;}}i:8;a:5:{s:1:"a";i:9;s:1:"b";s:12:"parents.view";s:1:"c";s:12:"View parents";s:1:"d";s:3:"web";s:1:"r";a:3:{i:0;i:3;i:1;i:4;i:2;i:6;}}i:9;a:5:{s:1:"a";i:10;s:1:"b";s:14:"parents.create";s:1:"c";s:14:"Create parents";s:1:"d";s:3:"web";s:1:"r";a:3:{i:0;i:3;i:1;i:4;i:2;i:6;}}i:10;a:5:{s:1:"a";i:11;s:1:"b";s:14:"parents.update";s:1:"c";s:14:"Update parents";s:1:"d";s:3:"web";s:1:"r";a:3:{i:0;i:3;i:1;i:4;i:2;i:6;}}i:11;a:5:{s:1:"a";i:12;s:1:"b";s:14:"parents.delete";s:1:"c";s:14:"Delete parents";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:12;a:5:{s:1:"a";i:13;s:1:"b";s:14:"employees.view";s:1:"c";s:14:"View employees";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:13;a:5:{s:1:"a";i:14;s:1:"b";s:16:"employees.create";s:1:"c";s:16:"Create employees";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:14;a:5:{s:1:"a";i:15;s:1:"b";s:16:"employees.update";s:1:"c";s:16:"Update employees";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:15;a:5:{s:1:"a";i:16;s:1:"b";s:16:"employees.delete";s:1:"c";s:16:"Delete employees";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:16;a:5:{s:1:"a";i:17;s:1:"b";s:8:"sms.view";s:1:"c";s:14:"View SMS queue";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:17;a:5:{s:1:"a";i:18;s:1:"b";s:8:"sms.send";s:1:"c";s:17:"Send SMS messages";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:18;a:5:{s:1:"a";i:19;s:1:"b";s:17:"school-users.view";s:1:"c";s:17:"View school users";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:19;a:5:{s:1:"a";i:20;s:1:"b";s:19:"school-users.create";s:1:"c";s:19:"Create school users";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:20;a:5:{s:1:"a";i:21;s:1:"b";s:19:"school-users.update";s:1:"c";s:19:"Update school users";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:21;a:5:{s:1:"a";i:22;s:1:"b";s:19:"school-users.delete";s:1:"c";s:19:"Delete school users";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:22;a:5:{s:1:"a";i:23;s:1:"b";s:13:"settings.view";s:1:"c";s:13:"View settings";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:23;a:5:{s:1:"a";i:24;s:1:"b";s:15:"settings.update";s:1:"c";s:15:"Update settings";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:24;a:5:{s:1:"a";i:25;s:1:"b";s:16:"permissions.view";s:1:"c";s:16:"View permissions";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:25;a:5:{s:1:"a";i:26;s:1:"b";s:18:"permissions.create";s:1:"c";s:18:"Create permissions";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:26;a:5:{s:1:"a";i:27;s:1:"b";s:18:"permissions.update";s:1:"c";s:18:"Update permissions";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:27;a:5:{s:1:"a";i:28;s:1:"b";s:18:"permissions.delete";s:1:"c";s:18:"Delete permissions";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:28;a:5:{s:1:"a";i:29;s:1:"b";s:10:"roles.view";s:1:"c";s:10:"View roles";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:29;a:5:{s:1:"a";i:30;s:1:"b";s:12:"roles.create";s:1:"c";s:12:"Create roles";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:30;a:5:{s:1:"a";i:31;s:1:"b";s:12:"roles.update";s:1:"c";s:12:"Update roles";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:31;a:5:{s:1:"a";i:32;s:1:"b";s:12:"roles.delete";s:1:"c";s:12:"Delete roles";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:32;a:5:{s:1:"a";i:33;s:1:"b";s:12:"schools.view";s:1:"c";s:12:"View schools";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:33;a:5:{s:1:"a";i:34;s:1:"b";s:14:"schools.create";s:1:"c";s:14:"Create schools";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:34;a:5:{s:1:"a";i:35;s:1:"b";s:14:"schools.update";s:1:"c";s:14:"Update schools";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:35;a:5:{s:1:"a";i:36;s:1:"b";s:14:"schools.delete";s:1:"c";s:14:"Delete schools";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:36;a:5:{s:1:"a";i:37;s:1:"b";s:19:"support-center.view";s:1:"c";s:20:"Allow report support";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:3;i:1;i:4;}}}s:5:"roles";a:3:{i:0;a:4:{s:1:"a";i:4;s:1:"b";s:5:"admin";s:1:"c";s:5:"admin";s:1:"d";s:3:"web";}i:1;a:4:{s:1:"a";i:6;s:1:"b";s:2:"SA";s:1:"c";s:10:"SuperAdmin";s:1:"d";s:3:"web";}i:2;a:4:{s:1:"a";i:3;s:1:"b";s:9:"employees";s:1:"c";s:9:"employees";s:1:"d";s:3:"web";}}}', 1781141757);
 
--- Dumping structure for table tnhs-new.cache_locks
+-- Dumping structure for table snsu_safetrack.cache_locks
 DROP TABLE IF EXISTS `cache_locks`;
 CREATE TABLE IF NOT EXISTS `cache_locks` (
   `key` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `owner` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `expiration` int(11) NOT NULL,
   PRIMARY KEY (`key`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.cache_locks: 0 rows
+-- Dumping data for table snsu_safetrack.cache_locks: ~0 rows (approximately)
 DELETE FROM `cache_locks`;
-/*!40000 ALTER TABLE `cache_locks` DISABLE KEYS */;
-/*!40000 ALTER TABLE `cache_locks` ENABLE KEYS */;
+INSERT INTO `cache_locks` (`key`, `owner`, `expiration`) VALUES
+	('safetrack-a-qr-nfc-based-student-monitoring-and-alert-system-cache-framework\\schedule-7378ebb1f16e1d5e04a75a9faf10f26f7a954f0c', 'W5uQecleWa814o8g', 1778990640);
 
--- Dumping structure for table tnhs-new.failed_jobs
+-- Dumping structure for table snsu_safetrack.classes
+DROP TABLE IF EXISTS `classes`;
+CREATE TABLE IF NOT EXISTS `classes` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `Semester` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `AYFrom` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `AYTo` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `GradeLevelID` bigint(20) unsigned NOT NULL,
+  `StrandID` bigint(20) unsigned DEFAULT NULL,
+  `AdviserID` bigint(20) unsigned DEFAULT NULL,
+  `SectionName` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Capacity` int(11) DEFAULT '50',
+  `Room` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `IsActive` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table snsu_safetrack.classes: ~16 rows (approximately)
+DELETE FROM `classes`;
+INSERT INTO `classes` (`id`, `Semester`, `AYFrom`, `AYTo`, `GradeLevelID`, `StrandID`, `AdviserID`, `SectionName`, `Capacity`, `Room`, `IsActive`, `created_at`, `updated_at`, `created_by`, `updated_by`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 2, 2025, 2026, 1, 0, 2, 'A', 50, 'EB101', 1, '2026-05-12 09:17:39', '2026-05-12 09:17:39', 1, 1, 'active', 0, NULL),
+	(2, 2, 2025, 2026, 1, 0, 1, 'B', 50, NULL, 1, '2026-05-12 09:19:55', '2026-05-12 09:19:55', 1, 1, 'active', 0, NULL),
+	(3, 2, 2025, 2026, 2, 0, 2, 'A', 50, NULL, 1, '2026-05-12 09:24:35', '2026-05-12 09:24:35', 1, 1, 'active', 0, NULL),
+	(4, 2, 2025, 2026, 2, 0, 2, 'B', 50, NULL, 1, '2026-05-12 09:24:44', '2026-05-12 09:24:44', 1, 1, 'active', 0, NULL),
+	(5, 2, 2025, 2026, 3, 0, 1, 'A', 50, NULL, 1, '2026-05-12 09:24:57', '2026-05-12 09:24:57', 1, 1, 'active', 0, NULL),
+	(6, 2, 2025, 2026, 3, 0, 2, 'B', 50, NULL, 1, '2026-05-12 09:25:04', '2026-05-12 09:25:04', 1, 1, 'active', 0, NULL),
+	(7, 2, 2025, 2026, 4, 0, 2, 'A', 50, NULL, 1, '2026-05-12 09:25:15', '2026-05-12 09:25:15', 1, 1, 'active', 0, NULL),
+	(8, 2, 2025, 2026, 4, 0, 2, 'B', 50, NULL, 1, '2026-05-12 09:25:24', '2026-05-12 09:25:24', 1, 1, 'active', 0, NULL),
+	(9, 2, 2025, 2026, 5, 1, 2, 'A', 50, NULL, 1, '2026-05-12 09:25:35', '2026-05-12 09:25:35', 1, 1, 'active', 0, NULL),
+	(10, 2, 2025, 2026, 5, 3, 2, 'A', 50, NULL, 1, '2026-05-12 09:26:16', '2026-05-12 09:26:16', 1, 1, 'active', 0, NULL),
+	(11, 2, 2025, 2026, 5, 6, 2, 'A', 50, NULL, 1, '2026-05-12 09:26:29', '2026-05-12 09:26:29', 1, 1, 'active', 0, NULL),
+	(12, 2, 2025, 2026, 6, 1, 2, 'A', 50, NULL, 1, '2026-05-12 09:26:39', '2026-05-12 09:26:39', 1, 1, 'active', 0, NULL),
+	(13, 2, 2025, 2026, 6, 6, 2, 'A', 50, NULL, 1, '2026-05-12 09:26:48', '2026-05-12 09:26:48', 1, 1, 'active', 0, NULL),
+	(14, 2, 2025, 2026, 6, 3, 1, 'A', 50, NULL, 1, '2026-05-12 09:26:57', '2026-05-12 09:26:57', 1, 1, 'active', 0, NULL),
+	(15, 1, 2026, 2027, 1, 0, 2, 'A', 50, NULL, 1, '2026-05-12 11:23:11', '2026-05-12 11:23:11', 1, 1, 'active', 0, NULL),
+	(16, 1, 2026, 2027, 1, 0, 1, 'B', 50, NULL, 1, '2026-05-12 11:23:25', '2026-05-12 11:23:25', 1, 1, 'active', 0, NULL);
+
+-- Dumping structure for table snsu_safetrack.class_schedules
+DROP TABLE IF EXISTS `class_schedules`;
+CREATE TABLE IF NOT EXISTS `class_schedules` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `SubjectID` bigint(20) NOT NULL,
+  `SectionID` bigint(20) NOT NULL,
+  `TeacherID` bigint(20) NOT NULL,
+  `DayOfWeek` enum('MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY') DEFAULT NULL,
+  `StartTime` time DEFAULT NULL,
+  `EndTime` time DEFAULT NULL,
+  `Room` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `created_by` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- Dumping data for table snsu_safetrack.class_schedules: 0 rows
+DELETE FROM `class_schedules`;
+/*!40000 ALTER TABLE `class_schedules` DISABLE KEYS */;
+/*!40000 ALTER TABLE `class_schedules` ENABLE KEYS */;
+
+-- Dumping structure for table snsu_safetrack.employees
+DROP TABLE IF EXISTS `employees`;
+CREATE TABLE IF NOT EXISTS `employees` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `school_id` int(11) NOT NULL DEFAULT '0',
+  `UserID` int(11) NOT NULL DEFAULT '0',
+  `PhoneNumber` varchar(13) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `FirstName` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
+  `MiddleName` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `LastName` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `EmailAddress` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Suffix` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Address` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_by` int(11) NOT NULL,
+  `updated_by` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table snsu_safetrack.employees: 1 rows
+DELETE FROM `employees`;
+/*!40000 ALTER TABLE `employees` DISABLE KEYS */;
+INSERT INTO `employees` (`id`, `school_id`, `UserID`, `PhoneNumber`, `FirstName`, `MiddleName`, `LastName`, `EmailAddress`, `Suffix`, `Address`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 1, 8, '+639868273741', 'ESTER', NULL, 'TURAJA', NULL, NULL, 'SVT', 1, 1, '2026-05-26 07:27:55', '2026-05-26 02:11:39', 'active', 0, NULL);
+/*!40000 ALTER TABLE `employees` ENABLE KEYS */;
+
+-- Dumping structure for table snsu_safetrack.enrollments
+DROP TABLE IF EXISTS `enrollments`;
+CREATE TABLE IF NOT EXISTS `enrollments` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `StudentID` bigint(20) unsigned DEFAULT NULL,
+  `AYFrom` year(4) DEFAULT NULL,
+  `AYTo` year(4) DEFAULT NULL,
+  `Semester` tinyint(4) DEFAULT NULL,
+  `GradeLevelID` bigint(20) unsigned DEFAULT NULL,
+  `StrandID` bigint(20) unsigned DEFAULT NULL,
+  `ClassID` bigint(20) unsigned DEFAULT NULL,
+  `EnrollmentStatus` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT 'ENROLLED',
+  `EnrollmentDate` date DEFAULT NULL,
+  `Remarks` text COLLATE utf8mb4_unicode_ci,
+  `created_by` int(11) NOT NULL,
+  `updated_by` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_grade` (`GradeLevelID`),
+  KEY `idx_section` (`ClassID`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table snsu_safetrack.enrollments: ~0 rows (approximately)
+DELETE FROM `enrollments`;
+
+-- Dumping structure for table snsu_safetrack.failed_jobs
 DROP TABLE IF EXISTS `failed_jobs`;
 CREATE TABLE IF NOT EXISTS `failed_jobs` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -959,14 +285,64 @@ CREATE TABLE IF NOT EXISTS `failed_jobs` (
   `failed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `failed_jobs_uuid_unique` (`uuid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.failed_jobs: 0 rows
+-- Dumping data for table snsu_safetrack.failed_jobs: ~0 rows (approximately)
 DELETE FROM `failed_jobs`;
-/*!40000 ALTER TABLE `failed_jobs` DISABLE KEYS */;
-/*!40000 ALTER TABLE `failed_jobs` ENABLE KEYS */;
 
--- Dumping structure for table tnhs-new.jobs
+-- Dumping structure for table snsu_safetrack.grades
+DROP TABLE IF EXISTS `grades`;
+CREATE TABLE IF NOT EXISTS `grades` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `EnrollmentID` bigint(20) NOT NULL,
+  `SubjectID` bigint(20) NOT NULL,
+  `Quarter` enum('1ST','2ND','3RD','4TH') DEFAULT NULL,
+  `InitialGrade` decimal(5,2) DEFAULT NULL,
+  `FinalGrade` decimal(5,2) DEFAULT NULL,
+  `Remarks` enum('PASSED','FAILED') DEFAULT NULL,
+  `TeacherID` bigint(20) DEFAULT NULL,
+  `IsSubmitted` tinyint(1) DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `created_by` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- Dumping data for table snsu_safetrack.grades: 0 rows
+DELETE FROM `grades`;
+/*!40000 ALTER TABLE `grades` DISABLE KEYS */;
+/*!40000 ALTER TABLE `grades` ENABLE KEYS */;
+
+-- Dumping structure for table snsu_safetrack.grade_levels
+DROP TABLE IF EXISTS `grade_levels`;
+CREATE TABLE IF NOT EXISTS `grade_levels` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `GradeLevel` varchar(50) DEFAULT NULL,
+  `EducationLevel` enum('JHS','SHS') DEFAULT NULL,
+  `HasSemester` tinyint(1) DEFAULT '0',
+  `IsActive` tinyint(1) DEFAULT '0',
+  `created_by` int(11) NOT NULL,
+  `updated_by` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+
+-- Dumping data for table snsu_safetrack.grade_levels: 6 rows
+DELETE FROM `grade_levels`;
+/*!40000 ALTER TABLE `grade_levels` DISABLE KEYS */;
+INSERT INTO `grade_levels` (`id`, `GradeLevel`, `EducationLevel`, `HasSemester`, `IsActive`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, '7', 'JHS', 0, 1, 1, 1, '2026-05-11 19:14:21', '2026-05-11 11:14:21', 'active', 0, NULL),
+	(2, '8', 'JHS', 0, 1, 1, 1, '2026-05-11 19:14:30', '2026-05-11 11:14:30', 'active', 0, NULL),
+	(3, '9', 'JHS', 0, 1, 1, 1, '2026-05-11 19:14:35', '2026-05-11 11:14:35', 'active', 0, NULL),
+	(4, '10', 'JHS', 0, 1, 1, 1, '2026-05-11 19:14:39', '2026-05-11 11:14:39', 'active', 0, NULL),
+	(5, '11', 'SHS', 1, 1, 1, 1, '2026-05-11 19:14:46', '2026-05-11 11:14:46', 'active', 0, NULL),
+	(6, '12', 'SHS', 1, 1, 1, 1, '2026-05-11 19:14:59', '2026-05-11 11:14:59', 'active', 0, NULL);
+/*!40000 ALTER TABLE `grade_levels` ENABLE KEYS */;
+
+-- Dumping structure for table snsu_safetrack.jobs
 DROP TABLE IF EXISTS `jobs`;
 CREATE TABLE IF NOT EXISTS `jobs` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -978,14 +354,12 @@ CREATE TABLE IF NOT EXISTS `jobs` (
   `created_at` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `jobs_queue_index` (`queue`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.jobs: 0 rows
+-- Dumping data for table snsu_safetrack.jobs: ~0 rows (approximately)
 DELETE FROM `jobs`;
-/*!40000 ALTER TABLE `jobs` DISABLE KEYS */;
-/*!40000 ALTER TABLE `jobs` ENABLE KEYS */;
 
--- Dumping structure for table tnhs-new.job_batches
+-- Dumping structure for table snsu_safetrack.job_batches
 DROP TABLE IF EXISTS `job_batches`;
 CREATE TABLE IF NOT EXISTS `job_batches` (
   `id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -999,28 +373,92 @@ CREATE TABLE IF NOT EXISTS `job_batches` (
   `created_at` int(11) NOT NULL,
   `finished_at` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.job_batches: 0 rows
+-- Dumping data for table snsu_safetrack.job_batches: ~0 rows (approximately)
 DELETE FROM `job_batches`;
-/*!40000 ALTER TABLE `job_batches` DISABLE KEYS */;
-/*!40000 ALTER TABLE `job_batches` ENABLE KEYS */;
 
--- Dumping structure for table tnhs-new.migrations
+-- Dumping structure for table snsu_safetrack.knowledge_base_articles
+DROP TABLE IF EXISTS `knowledge_base_articles`;
+CREATE TABLE IF NOT EXISTS `knowledge_base_articles` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `slug` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `category` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `content` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` enum('draft','published','archived') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'draft',
+  `views` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `featured` tinyint(1) NOT NULL DEFAULT '0',
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `knowledge_base_articles_slug_unique` (`slug`),
+  KEY `knowledge_base_articles_status_category_index` (`status`,`category`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table snsu_safetrack.knowledge_base_articles: ~0 rows (approximately)
+DELETE FROM `knowledge_base_articles`;
+
+-- Dumping structure for table snsu_safetrack.login_activities
+DROP TABLE IF EXISTS `login_activities`;
+CREATE TABLE IF NOT EXISTS `login_activities` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned DEFAULT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ip_address` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_agent` text COLLATE utf8mb4_unicode_ci,
+  `device` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `platform` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `browser` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` enum('success','failed','logout') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'success',
+  `logged_in_at` timestamp NULL DEFAULT NULL,
+  `logged_out_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `login_activities_user_id_foreign` (`user_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table snsu_safetrack.login_activities: 15 rows
+DELETE FROM `login_activities`;
+/*!40000 ALTER TABLE `login_activities` DISABLE KEYS */;
+INSERT INTO `login_activities` (`id`, `user_id`, `email`, `ip_address`, `user_agent`, `device`, `platform`, `browser`, `status`, `logged_in_at`, `logged_out_at`, `created_at`, `updated_at`) VALUES
+	(1, 1, 'apiloton1@snsu.edu.ph', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', 'WebKit', 'Windows', 'Edge', 'logout', '2026-06-09 09:29:43', '2026-06-09 09:30:55', '2026-06-09 09:29:43', '2026-06-09 09:30:55'),
+	(2, 4, 'antoniojrpiloton@gmail.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', 'WebKit', 'Windows', 'Edge', 'logout', '2026-06-09 09:31:02', '2026-06-09 09:31:05', '2026-06-09 09:31:02', '2026-06-09 09:31:05'),
+	(3, NULL, NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', 'WebKit', 'Windows', 'Edge', 'failed', '2026-06-09 09:31:29', NULL, '2026-06-09 09:31:29', '2026-06-09 09:31:29'),
+	(4, NULL, NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', 'WebKit', 'Windows', 'Edge', 'failed', '2026-06-09 09:31:35', NULL, '2026-06-09 09:31:35', '2026-06-09 09:31:35'),
+	(5, NULL, NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', 'WebKit', 'Windows', 'Edge', 'failed', '2026-06-09 09:34:26', NULL, '2026-06-09 09:34:26', '2026-06-09 09:34:26'),
+	(6, NULL, NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', 'WebKit', 'Windows', 'Edge', 'failed', '2026-06-09 09:35:34', NULL, '2026-06-09 09:35:34', '2026-06-09 09:35:34'),
+	(7, NULL, NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', 'WebKit', 'Windows', 'Edge', 'failed', '2026-06-09 09:36:10', NULL, '2026-06-09 09:36:10', '2026-06-09 09:36:10'),
+	(8, NULL, NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', 'WebKit', 'Windows', 'Edge', 'failed', '2026-06-09 09:36:32', NULL, '2026-06-09 09:36:32', '2026-06-09 09:36:32'),
+	(9, NULL, NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', 'WebKit', 'Windows', 'Edge', 'failed', '2026-06-09 09:38:00', NULL, '2026-06-09 09:38:00', '2026-06-09 09:38:00'),
+	(10, 10, 'antoniojrpiloton@gmail.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', 'WebKit', 'Windows', 'Edge', 'failed', '2026-06-09 09:39:53', NULL, '2026-06-09 09:39:53', '2026-06-09 09:39:53'),
+	(11, 1, 'apiloton1@snsu.edu.ph', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', 'WebKit', 'Windows', 'Edge', 'logout', '2026-06-09 09:42:35', '2026-06-09 09:42:37', '2026-06-09 09:42:35', '2026-06-09 09:42:37'),
+	(12, 10, 'antoniojrpiloton@gmail.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', 'WebKit', 'Windows', 'Edge', 'failed', '2026-06-09 09:42:43', NULL, '2026-06-09 09:42:43', '2026-06-09 09:42:43'),
+	(13, 10, 'antoniojrpiloton@gmail.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', 'WebKit', 'Windows', 'Edge', 'success', '2026-06-09 09:47:54', NULL, '2026-06-09 09:47:54', '2026-06-09 09:47:54'),
+	(14, 1, 'apiloton1@snsu.edu.ph', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', 'WebKit', 'Windows', 'Edge', 'logout', '2026-06-09 09:50:13', '2026-06-09 09:50:21', '2026-06-09 09:50:13', '2026-06-09 09:50:21'),
+	(15, 11, 'antoniojrpiloton@gmail.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', 'WebKit', 'Windows', 'Edge', 'success', '2026-06-09 09:50:36', NULL, '2026-06-09 09:50:36', '2026-06-09 09:50:36');
+/*!40000 ALTER TABLE `login_activities` ENABLE KEYS */;
+
+-- Dumping structure for table snsu_safetrack.migrations
 DROP TABLE IF EXISTS `migrations`;
 CREATE TABLE IF NOT EXISTS `migrations` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `migration` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `batch` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.migrations: 0 rows
+-- Dumping data for table snsu_safetrack.migrations: ~2 rows (approximately)
 DELETE FROM `migrations`;
-/*!40000 ALTER TABLE `migrations` DISABLE KEYS */;
-/*!40000 ALTER TABLE `migrations` ENABLE KEYS */;
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
+	(1, '2026_05_25_163042_create_login_activities_table', 1),
+	(2, '2026_05_25_170020_create_suspicious_activities_table', 2),
+	(3, '2026_05_25_175650_create_system_settings_table', 3);
 
--- Dumping structure for table tnhs-new.model_has_permissions
+-- Dumping structure for table snsu_safetrack.model_has_permissions
 DROP TABLE IF EXISTS `model_has_permissions`;
 CREATE TABLE IF NOT EXISTS `model_has_permissions` (
   `permission_id` bigint(20) unsigned NOT NULL,
@@ -1028,14 +466,12 @@ CREATE TABLE IF NOT EXISTS `model_has_permissions` (
   `model_id` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`permission_id`,`model_id`,`model_type`) USING BTREE,
   KEY `model_has_permissions_model_id_model_type_index` (`model_id`,`model_type`) USING BTREE
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.model_has_permissions: 0 rows
+-- Dumping data for table snsu_safetrack.model_has_permissions: ~0 rows (approximately)
 DELETE FROM `model_has_permissions`;
-/*!40000 ALTER TABLE `model_has_permissions` DISABLE KEYS */;
-/*!40000 ALTER TABLE `model_has_permissions` ENABLE KEYS */;
 
--- Dumping structure for table tnhs-new.model_has_roles
+-- Dumping structure for table snsu_safetrack.model_has_roles
 DROP TABLE IF EXISTS `model_has_roles`;
 CREATE TABLE IF NOT EXISTS `model_has_roles` (
   `role_id` bigint(20) unsigned NOT NULL,
@@ -1043,84 +479,57 @@ CREATE TABLE IF NOT EXISTS `model_has_roles` (
   `model_id` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`role_id`,`model_id`,`model_type`) USING BTREE,
   KEY `model_has_roles_model_id_model_type_index` (`model_id`,`model_type`) USING BTREE
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.model_has_roles: 63 rows
+-- Dumping data for table snsu_safetrack.model_has_roles: ~8 rows (approximately)
 DELETE FROM `model_has_roles`;
-/*!40000 ALTER TABLE `model_has_roles` DISABLE KEYS */;
 INSERT INTO `model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES
-	(14, 'App\\Models\\User', 51),
-	(14, 'App\\Models\\User', 52),
-	(14, 'App\\Models\\User', 53),
-	(14, 'App\\Models\\User', 54),
-	(14, 'App\\Models\\User', 55),
-	(14, 'App\\Models\\User', 56),
-	(14, 'App\\Models\\User', 57),
-	(14, 'App\\Models\\User', 58),
-	(14, 'App\\Models\\User', 59),
-	(14, 'App\\Models\\User', 60),
-	(14, 'App\\Models\\User', 62),
-	(14, 'App\\Models\\User', 63),
-	(14, 'App\\Models\\User', 64),
-	(14, 'App\\Models\\User', 65),
-	(14, 'App\\Models\\User', 66),
-	(14, 'App\\Models\\User', 67),
-	(14, 'App\\Models\\User', 68),
-	(14, 'App\\Models\\User', 69),
-	(14, 'App\\Models\\User', 70),
-	(14, 'App\\Models\\User', 71),
-	(14, 'App\\Models\\User', 72),
-	(14, 'App\\Models\\User', 73),
-	(14, 'App\\Models\\User', 74),
-	(14, 'App\\Models\\User', 75),
-	(14, 'App\\Models\\User', 76),
-	(14, 'App\\Models\\User', 77),
-	(14, 'App\\Models\\User', 78),
-	(14, 'App\\Models\\User', 79),
-	(14, 'App\\Models\\User', 80),
-	(14, 'App\\Models\\User', 81),
-	(14, 'App\\Models\\User', 82),
-	(14, 'App\\Models\\User', 83),
-	(14, 'App\\Models\\User', 84),
-	(14, 'App\\Models\\User', 85),
-	(14, 'App\\Models\\User', 86),
-	(14, 'App\\Models\\User', 88),
-	(14, 'App\\Models\\User', 89),
-	(14, 'App\\Models\\User', 90),
-	(14, 'App\\Models\\User', 91),
-	(14, 'App\\Models\\User', 92),
-	(14, 'App\\Models\\User', 93),
-	(14, 'App\\Models\\User', 94),
-	(14, 'App\\Models\\User', 95),
-	(14, 'App\\Models\\User', 96),
-	(14, 'App\\Models\\User', 97),
-	(14, 'App\\Models\\User', 98),
-	(14, 'App\\Models\\User', 101),
-	(14, 'App\\Models\\User', 102),
-	(14, 'App\\Models\\User', 103),
-	(14, 'App\\Models\\User', 104),
-	(14, 'App\\Models\\User', 105),
-	(14, 'App\\Models\\User', 106),
-	(14, 'App\\Models\\User', 107),
-	(14, 'App\\Models\\User', 110),
-	(14, 'App\\Models\\User', 111),
-	(14, 'App\\Models\\User', 112),
-	(14, 'App\\Models\\User', 113),
-	(14, 'App\\Models\\User', 114),
-	(14, 'App\\Models\\User', 115),
-	(15, 'App\\Models\\User', 61),
-	(15, 'App\\Models\\User', 99),
-	(15, 'App\\Models\\User', 108),
-	(16, 'App\\Models\\User', 87),
-	(16, 'App\\Models\\User', 109),
-	(17, 'App\\Models\\User', 50),
-	(17, 'App\\Models\\User', 62);
-/*!40000 ALTER TABLE `model_has_roles` ENABLE KEYS */;
+	(6, 'App\\Models\\User', 1),
+	(3, 'App\\Models\\User', 2),
+	(4, 'App\\Models\\User', 3),
+	(6, 'App\\Models\\User', 4),
+	(3, 'App\\Models\\User', 5),
+	(2, 'App\\Models\\User', 6),
+	(1, 'App\\Models\\User', 7),
+	(3, 'App\\Models\\User', 8),
+	(1, 'App\\Models\\User', 9);
 
--- Dumping structure for table tnhs-new.parents
+-- Dumping structure for table snsu_safetrack.nfc_codes
+DROP TABLE IF EXISTS `nfc_codes`;
+CREATE TABLE IF NOT EXISTS `nfc_codes` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `school_id` int(11) NOT NULL DEFAULT '0',
+  `UserID` int(11) DEFAULT NULL,
+  `nf_codes` varchar(50) DEFAULT NULL,
+  `created_by` int(11) NOT NULL,
+  `updated_by` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+
+-- Dumping data for table snsu_safetrack.nfc_codes: 8 rows
+DELETE FROM `nfc_codes`;
+/*!40000 ALTER TABLE `nfc_codes` DISABLE KEYS */;
+INSERT INTO `nfc_codes` (`id`, `school_id`, `UserID`, `nf_codes`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 1, 3, '0018317828', 1, 1, '2026-05-25 10:23:10', '2026-05-25 02:23:10', 'active', 0, NULL),
+	(2, 1, 4, '0026063620', 1, 1, '2026-05-25 10:23:21', '2026-05-25 02:23:21', 'active', 0, NULL),
+	(3, 1, 2, '0017924612', 1, 1, '2026-05-25 10:23:30', '2026-05-25 02:23:30', 'active', 0, NULL),
+	(4, 3, 12, '0017924612', 1, 1, '2026-05-25 11:14:30', '2026-05-25 03:14:30', 'active', 0, NULL),
+	(5, 1, 7, '0026063620', 1, 1, '2026-05-26 08:11:52', '2026-05-26 00:11:52', 'active', 0, NULL),
+	(6, 1, 7, '0026063620', 1, 1, '2026-05-26 08:12:20', '2026-05-26 00:12:20', 'active', 0, NULL),
+	(7, 1, 7, '0026063620', 1, 1, '2026-05-26 08:12:50', '2026-05-26 00:12:50', 'active', 0, NULL),
+	(8, 1, 7, '0026063620', 1, 1, '2026-05-26 10:25:03', '2026-05-26 02:25:03', 'active', 0, NULL);
+/*!40000 ALTER TABLE `nfc_codes` ENABLE KEYS */;
+
+-- Dumping structure for table snsu_safetrack.parents
 DROP TABLE IF EXISTS `parents`;
 CREATE TABLE IF NOT EXISTS `parents` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `school_id` int(11) NOT NULL DEFAULT '0',
   `UserID` int(11) NOT NULL DEFAULT '0',
   `FirstName` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
   `MiddleName` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -1128,6 +537,7 @@ CREATE TABLE IF NOT EXISTS `parents` (
   `Suffix` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `PhoneNumber` varchar(13) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `Address` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Remark` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_by` int(11) NOT NULL,
   `updated_by` int(11) NOT NULL,
   `created_at` datetime NOT NULL,
@@ -1136,32 +546,41 @@ CREATE TABLE IF NOT EXISTS `parents` (
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.parents: 3 rows
+-- Dumping data for table snsu_safetrack.parents: ~16 rows (approximately)
 DELETE FROM `parents`;
-/*!40000 ALTER TABLE `parents` DISABLE KEYS */;
-INSERT INTO `parents` (`id`, `UserID`, `FirstName`, `MiddleName`, `LastName`, `Suffix`, `PhoneNumber`, `Address`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
-	(1, 0, 'NENITA', 'SAYSON', 'EMPLEO', NULL, '+639485622724', 'STA. CRUZ, TUBAJON, DINAGAT ISLANDS', 50, 50, '2025-08-06 14:54:10', '2025-08-06 08:52:29', 'active', 0, NULL),
-	(2, 0, 'JESSA-edited', NULL, 'Hambre', NULL, '+639128941731', 'Espina St', 50, 50, '2026-03-11 06:20:45', '2026-03-10 22:24:39', 'active', 0, NULL),
-	(3, 0, 'NORMA', NULL, 'LUIB', NULL, '+639128941731', 'Sitio Cayutan, Brgy. Cagniog', 50, 50, '2026-03-11 06:23:18', '2026-03-10 22:23:18', 'active', 0, NULL);
-/*!40000 ALTER TABLE `parents` ENABLE KEYS */;
+INSERT INTO `parents` (`id`, `school_id`, `UserID`, `FirstName`, `MiddleName`, `LastName`, `Suffix`, `PhoneNumber`, `Address`, `Remark`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 0, 0, 'JOCELYN', 'BERO', 'MORALES', NULL, '+639813581109', 'Espina St', NULL, 1, 1, '2026-05-22 10:13:42', '2026-05-22 02:13:51', 'active', 0, NULL),
+	(2, 0, 5, 'PARENT1', 'BERO', 'P1_L', NULL, '+639306069019', 'STC', NULL, 1, 1, '2026-05-22 14:20:08', '2026-05-22 06:25:12', 'active', 0, NULL),
+	(3, 0, 0, 'JOCELYN', 'BERO', 'MORALES', NULL, '+639813581109', 'STC', NULL, 1, 1, '2026-05-22 14:23:53', '2026-05-22 06:23:53', 'active', 0, NULL),
+	(4, 0, 7, 'KAREEN', 'BASUL', 'MAPOY', NULL, '+639700920157', 'Address', NULL, 1, 1, '2026-05-22 14:33:22', '2026-05-22 06:34:27', 'active', 0, NULL),
+	(5, 0, 0, 'Janeli', 'Managa', 'Olaco', NULL, '+639464233996', 'STA. CRUZ, TUBAJON', NULL, 8, 8, '2026-05-22 15:09:24', '2026-05-22 07:09:24', 'active', 0, NULL),
+	(6, 0, 0, 'RIZEL', 'CURTINA', 'IMALAY', NULL, '+639070708095', 'P-5 SAN VICENTE, TUBAJON, DINAGAT ISLANDS', NULL, 11, 11, '2026-05-22 15:09:48', '2026-05-22 07:09:48', 'active', 0, NULL),
+	(7, 0, 0, 'Rosden', NULL, 'Garcia', NULL, '+639858224872', 'STA. CRUZ, TUBAJON', NULL, 8, 8, '2026-05-22 15:11:25', '2026-05-22 07:11:25', 'active', 0, NULL),
+	(8, 0, 0, 'ARLENE', 'CREZALDO', 'DIAZ', NULL, '+639506975822', 'SAN VICENTE, TUBAJON, DINAGAT ISLANDS', NULL, 14, 14, '2026-05-22 15:11:26', '2026-05-22 07:11:26', 'active', 0, NULL),
+	(9, 0, 0, 'Lorna', NULL, 'Kiasan', NULL, '+639641012016', 'STA. CRUZ, TUBAJON', NULL, 8, 8, '2026-05-22 15:12:51', '2026-05-22 07:12:51', 'active', 0, NULL),
+	(10, 0, 0, 'LIZIL', NULL, 'LOBERIANO', NULL, '+639100891547', 'SAN ROQUE,TUBAJON DINAGAT ISLANDS', NULL, 14, 14, '2026-05-22 15:13:10', '2026-05-22 07:13:10', 'active', 0, NULL),
+	(11, 0, 0, 'JELLAN', 'DE ORO', 'PACUNLA', NULL, '+639817101537', 'SAN ROQUE,TUBAJON,DINAGAT ISLANDS', NULL, 9, 9, '2026-05-22 15:13:28', '2026-05-22 07:13:28', 'active', 0, NULL),
+	(12, 0, 0, 'MICHELLE', 'DELGADO', 'DELA PENA', NULL, '+639855793446', 'P-3 STA. CRUZ, TUBAJON, PDI', NULL, 11, 11, '2026-05-22 15:13:33', '2026-05-22 07:13:33', 'active', 0, NULL),
+	(13, 0, 0, 'CHARLYN', NULL, 'ANGOB', NULL, '+639468019180', 'SAN VICENTE, TUBAJON, DINAGAT ISLANDS', NULL, 14, 14, '2026-05-22 15:14:23', '2026-05-22 07:14:23', 'active', 0, NULL),
+	(14, 0, 0, 'RIZELLA', NULL, 'DELA PENA', NULL, '+639305900202', 'STA CRUZ, TUBAJON DINAGAT ISLANDS', NULL, 14, 14, '2026-05-22 15:15:56', '2026-05-22 07:15:56', 'active', 0, NULL),
+	(15, 3, 87, 'loreto P', 'new mabini2', 'loreto P', NULL, '+639128941731', 'Sitio Cayutan, Brgy. Cagniog', NULL, 1, 1, '2026-05-25 09:50:47', '2026-05-25 01:50:47', 'active', 0, NULL),
+	(16, 1, 6, 'ANTONIO JR', 'LUIB', 'PILOTON', NULL, '+639128941731', 'Sitio Cayutan, Brgy. Cagniog', NULL, 1, 1, '2026-05-26 08:10:14', '2026-05-26 00:10:15', 'active', 0, NULL);
 
--- Dumping structure for table tnhs-new.password_reset_tokens
+-- Dumping structure for table snsu_safetrack.password_reset_tokens
 DROP TABLE IF EXISTS `password_reset_tokens`;
 CREATE TABLE IF NOT EXISTS `password_reset_tokens` (
   `email` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `token` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`email`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.password_reset_tokens: 0 rows
+-- Dumping data for table snsu_safetrack.password_reset_tokens: ~0 rows (approximately)
 DELETE FROM `password_reset_tokens`;
-/*!40000 ALTER TABLE `password_reset_tokens` DISABLE KEYS */;
-/*!40000 ALTER TABLE `password_reset_tokens` ENABLE KEYS */;
 
--- Dumping structure for table tnhs-new.permissions
+-- Dumping structure for table snsu_safetrack.permissions
 DROP TABLE IF EXISTS `permissions`;
 CREATE TABLE IF NOT EXISTS `permissions` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -1172,32 +591,50 @@ CREATE TABLE IF NOT EXISTS `permissions` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `permissions_name_guard_name_unique` (`name`,`guard_name`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.permissions: 17 rows
+-- Dumping data for table snsu_safetrack.permissions: ~36 rows (approximately)
 DELETE FROM `permissions`;
-/*!40000 ALTER TABLE `permissions` DISABLE KEYS */;
 INSERT INTO `permissions` (`id`, `name`, `details`, `guard_name`, `created_at`, `updated_at`) VALUES
-	(6, 'scanQR', 'User can scan QR', 'web', '2025-07-16 16:09:28', '2025-07-16 16:09:28'),
-	(7, 'manage users', 'manage users', 'web', '2025-08-05 10:25:40', '2025-08-05 10:25:40'),
-	(8, 'view users', 'view users', 'web', '2025-08-05 10:25:51', '2025-08-05 10:25:51'),
-	(9, 'view roles', 'view roles', 'web', '2025-08-05 10:25:59', '2025-08-05 10:25:59'),
-	(10, 'view permissions', 'view permissions', 'web', '2025-08-05 10:26:09', '2025-08-05 10:26:09'),
-	(11, 'teacher management', 'teacher management', 'web', '2025-08-05 11:43:11', '2025-08-05 11:43:11'),
-	(12, 'add teacher', 'add teacher', 'web', '2025-08-05 11:43:42', '2025-08-05 11:43:42'),
-	(13, 'view employees', 'view employees', 'web', '2025-08-05 11:43:49', '2025-08-05 11:43:49'),
-	(14, 'guardian management', 'guardian management', 'web', '2025-08-05 11:44:12', '2025-08-05 11:44:12'),
-	(15, 'add guardian', 'add guardian', 'web', '2025-08-05 11:44:41', '2025-08-05 11:44:41'),
-	(16, 'view guardian', 'view guardian', 'web', '2025-08-05 11:44:50', '2025-08-05 11:44:50'),
-	(17, 'student management', 'student management', 'web', '2025-08-05 11:45:45', '2025-08-05 11:45:45'),
-	(18, 'add student', 'add student', 'web', '2025-08-05 11:45:51', '2025-08-05 11:45:51'),
-	(19, 'view residents', 'view residents', 'web', '2025-08-05 11:45:58', '2025-08-05 11:45:58'),
-	(20, 'logs management', 'logs management', 'web', '2025-08-05 11:48:07', '2025-08-05 11:48:07'),
-	(21, 'view logs', 'view logs', 'web', '2025-08-05 11:48:21', '2025-08-05 11:48:21'),
-	(22, 'my student', 'my student', 'web', '2025-08-05 11:56:44', '2025-08-05 11:56:44');
-/*!40000 ALTER TABLE `permissions` ENABLE KEYS */;
+	(1, 'dashboard.view', 'View dashboard', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(2, 'scanner.view', 'View scanner module', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(3, 'logs.view', 'View all logs', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(4, 'logs.users.view', 'View user logs', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(5, 'students.view', 'View students', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(6, 'students.create', 'Create students', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(7, 'students.update', 'Update students', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(8, 'students.delete', 'Delete students', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(9, 'parents.view', 'View parents', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(10, 'parents.create', 'Create parents', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(11, 'parents.update', 'Update parents', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(12, 'parents.delete', 'Delete parents', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(13, 'employees.view', 'View employees', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(14, 'employees.create', 'Create employees', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(15, 'employees.update', 'Update employees', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(16, 'employees.delete', 'Delete employees', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(17, 'sms.view', 'View SMS queue', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(18, 'sms.send', 'Send SMS messages', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(19, 'school-users.view', 'View school users', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(20, 'school-users.create', 'Create school users', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(21, 'school-users.update', 'Update school users', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(22, 'school-users.delete', 'Delete school users', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(23, 'settings.view', 'View settings', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(24, 'settings.update', 'Update settings', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(25, 'permissions.view', 'View permissions', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(26, 'permissions.create', 'Create permissions', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(27, 'permissions.update', 'Update permissions', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(28, 'permissions.delete', 'Delete permissions', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(29, 'roles.view', 'View roles', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(30, 'roles.create', 'Create roles', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(31, 'roles.update', 'Update roles', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(32, 'roles.delete', 'Delete roles', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(33, 'schools.view', 'View schools', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(34, 'schools.create', 'Create schools', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(35, 'schools.update', 'Update schools', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(36, 'schools.delete', 'Delete schools', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
+	(37, 'support-center.view', 'Allow report support', 'web', '2026-05-25 11:45:19', '2026-05-25 11:45:19');
 
--- Dumping structure for table tnhs-new.personal_access_tokens
+-- Dumping structure for table snsu_safetrack.personal_access_tokens
 DROP TABLE IF EXISTS `personal_access_tokens`;
 CREATE TABLE IF NOT EXISTS `personal_access_tokens` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -1213,11 +650,10 @@ CREATE TABLE IF NOT EXISTS `personal_access_tokens` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `personal_access_tokens_token_unique` (`token`),
   KEY `personal_access_tokens_tokenable_type_tokenable_id_index` (`tokenable_type`,`tokenable_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=172 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=172 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.personal_access_tokens: 39 rows
+-- Dumping data for table snsu_safetrack.personal_access_tokens: ~39 rows (approximately)
 DELETE FROM `personal_access_tokens`;
-/*!40000 ALTER TABLE `personal_access_tokens` DISABLE KEYS */;
 INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES
 	(133, 'App\\Models\\User', 50, 'mobile', 'cc9dedec3c97a5bec51b3936d60b25b54618fa52e66867255fd0dcb36b61a4ae', '["*"]', '2025-07-17 08:02:19', NULL, '2025-07-16 17:39:00', '2025-07-17 08:02:19'),
 	(134, 'App\\Models\\User', 50, 'mobile', '1220b4c233861c4d20b0e366499c4984d9d6d89f70b78b1762f3d0e96fa238c0', '["*"]', '2025-07-17 08:25:42', NULL, '2025-07-17 08:02:28', '2025-07-17 08:25:42'),
@@ -1258,12 +694,319 @@ INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `n
 	(169, 'App\\Models\\User', 50, 'mobile', 'a5edc5da7dc241dcbcaf6ad1096b7988c720a5890877af9ddc65aa6f9fd5218a', '["*"]', '2026-01-12 06:17:30', NULL, '2026-01-12 06:05:37', '2026-01-12 06:17:30'),
 	(170, 'App\\Models\\User', 50, 'mobile', '838af8bc119353b0f65eeb656020ecbe111a5f7fc9e5a7b011bdf9df9dd5c824', '["*"]', NULL, NULL, '2026-02-17 09:34:41', '2026-02-17 09:34:41'),
 	(171, 'App\\Models\\User', 50, 'mobile', '3153871347e9c1649f672b13cf0c3cb5e1613b2d4b1f0e980244028d9a6e1fec', '["*"]', '2026-02-17 09:36:42', NULL, '2026-02-17 09:35:27', '2026-02-17 09:36:42');
-/*!40000 ALTER TABLE `personal_access_tokens` ENABLE KEYS */;
 
--- Dumping structure for table tnhs-new.qr_codes
+-- Dumping structure for table snsu_safetrack.pos_branches
+DROP TABLE IF EXISTS `pos_branches`;
+CREATE TABLE IF NOT EXISTS `pos_branches` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `tenant_id` bigint(20) unsigned NOT NULL,
+  `branch_code` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `branch_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `address` text COLLATE utf8mb4_unicode_ci,
+  `phone` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `is_main_branch` tinyint(4) NOT NULL DEFAULT '0',
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `tenant_id` (`tenant_id`),
+  KEY `branch_code` (`branch_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table snsu_safetrack.pos_branches: ~0 rows (approximately)
+DELETE FROM `pos_branches`;
+
+-- Dumping structure for table snsu_safetrack.pos_categories
+DROP TABLE IF EXISTS `pos_categories`;
+CREATE TABLE IF NOT EXISTS `pos_categories` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) DEFAULT NULL,
+  `description` varchar(50) DEFAULT NULL,
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=31 DEFAULT CHARSET=utf8;
+
+-- Dumping data for table snsu_safetrack.pos_categories: 30 rows
+DELETE FROM `pos_categories`;
+/*!40000 ALTER TABLE `pos_categories` DISABLE KEYS */;
+INSERT INTO `pos_categories` (`id`, `name`, `description`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 'Beverages', 'Soft drinks, juices, coffee, water', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(2, 'Snacks', 'Chips, biscuits, candies', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(3, 'Canned Goods', 'Canned food products', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(4, 'Instant Foods', 'Noodles, soups, ready-to-eat products', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(5, 'Rice and Grains', 'Rice, corn, grains', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(6, 'Condiments', 'Sauces, vinegar, soy sauce, spices', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(7, 'Dairy Products', 'Milk, cheese, butter, yogurt', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(8, 'Frozen Foods', 'Frozen meat and frozen products', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(9, 'Bread and Bakery', 'Bread, cakes, pastries', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(10, 'Meat and Poultry', 'Fresh and processed meat products', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(11, 'Seafood', 'Fish and seafood products', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(12, 'Fruits and Vegetables', 'Fresh produce', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(13, 'Personal Care', 'Soap, shampoo, toothpaste', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(14, 'Health and Beauty', 'Cosmetics and beauty products', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(15, 'Medicines', 'OTC medicines and supplements', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(16, 'Baby Products', 'Diapers, milk, baby care items', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(17, 'Household Supplies', 'Cleaning and household products', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(18, 'Laundry Supplies', 'Detergents and fabric conditioners', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(19, 'School and Office Supplies', 'School and office items', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(20, 'Pet Supplies', 'Pet food and pet care products', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(21, 'Hardware', 'Tools and hardware supplies', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(22, 'Electrical Supplies', 'Electrical materials and accessories', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(23, 'Mobile Accessories', 'Chargers, cables, earphones', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(24, 'Clothing', 'Apparel and garments', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(25, 'Footwear', 'Shoes and slippers', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(26, 'Kitchenware', 'Kitchen tools and utensils', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(27, 'Toys', 'Toys and recreational items', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(28, 'Gift Items', 'Gift products and souvenirs', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(29, 'Services', 'Non-inventory service items', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL),
+	(30, 'Others', 'Miscellaneous products', NULL, NULL, '2026-06-10 09:03:39', '2026-06-10 01:03:39', 'active', 0, NULL);
+/*!40000 ALTER TABLE `pos_categories` ENABLE KEYS */;
+
+-- Dumping structure for table snsu_safetrack.pos_products
+DROP TABLE IF EXISTS `pos_products`;
+CREATE TABLE IF NOT EXISTS `pos_products` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `tenant_id` bigint(20) unsigned NOT NULL,
+  `category_id` bigint(20) unsigned DEFAULT NULL,
+  `unit_id` bigint(20) unsigned DEFAULT NULL,
+  `barcode` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sku` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `cost_price` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `selling_price` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `wholesale_price` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `reorder_level` int(11) NOT NULL DEFAULT '0',
+  `image` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `tenant_id` (`tenant_id`),
+  KEY `category_id` (`category_id`),
+  KEY `unit_id` (`unit_id`),
+  KEY `barcode` (`barcode`),
+  KEY `sku` (`sku`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table snsu_safetrack.pos_products: ~6 rows (approximately)
+DELETE FROM `pos_products`;
+INSERT INTO `pos_products` (`id`, `tenant_id`, `category_id`, `unit_id`, `barcode`, `sku`, `name`, `description`, `cost_price`, `selling_price`, `wholesale_price`, `reorder_level`, `image`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 0, NULL, NULL, NULL, '26212', 'Mega Sardines in Tomato Sauce | 155g', 'Mega Sardines offers the freshest and most delicious sardines, packed within 12 hours from catching to canning. Available in EASY-OPEN-CANS suited for your in-home convenience.', 18.00, 34.00, 23.00, 100, 'products/2DzT1ebRk9GmJXpz6eUWBalnXhlqmpdvPCxGMGMq.webp', 11, 11, '2026-06-10 08:57:45', '2026-06-10 02:27:45', 'active', 0, NULL),
+	(2, 0, 5, 1, NULL, NULL, 'P20 Benteng Bigas Meron Na', NULL, 20.00, 20.00, 20.00, 100, NULL, 11, 11, '2026-06-10 09:07:57', '2026-06-10 01:07:57', 'active', 0, NULL),
+	(3, 0, NULL, NULL, NULL, NULL, 'MARKER, Permanent, Black', NULL, 15.84, 18.00, 16.50, 100, 'products/aP4g0fHKizfp3GWznNHLj2DaeLHp6m3v3zueLl0B.jpg', 11, 11, '2026-06-10 09:13:18', '2026-06-10 02:07:28', 'active', 0, NULL),
+	(4, 0, 30, 2, '14111531-RE-B01', NULL, 'RECORD BOOK, 300 pages', NULL, 89.71, 92.00, 91.00, 100, NULL, 11, 11, '2026-06-10 09:14:53', '2026-06-10 01:14:53', 'active', 0, NULL),
+	(5, 0, 30, 16, '47131803-DS-A01', NULL, 'SOLBA DISINFECTANT SPRAY', NULL, 289.76, 298.00, 290.00, 100, 'products/3UHlZluiK9wHfPXHVpZHXLf98Lb4IQgz2rULdpbN.jpg', 11, 11, '2026-06-10 09:16:00', '2026-06-10 02:11:05', 'active', 0, NULL),
+	(6, 0, 22, 2, '39101628-LB-L01', NULL, 'LIGHT EMITTING DIODE (LED), Light Bulb, 7 watts', NULL, 89.73, 100.00, 92.00, 100, 'products/8g9sd19pYV9xgK3arKctxGabQBmzDBEsOv6rt12N.jpg', 11, 11, '2026-06-10 09:17:19', '2026-06-10 02:28:15', 'active', 0, NULL);
+
+-- Dumping structure for table snsu_safetrack.pos_product_price_histories
+DROP TABLE IF EXISTS `pos_product_price_histories`;
+CREATE TABLE IF NOT EXISTS `pos_product_price_histories` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `tenant_id` bigint(20) unsigned NOT NULL,
+  `product_id` bigint(20) unsigned DEFAULT NULL,
+  `cost_price` decimal(15,2) DEFAULT NULL,
+  `new_cost_price` decimal(15,2) DEFAULT NULL,
+  `selling_price` decimal(15,2) DEFAULT NULL,
+  `new_selling_price` decimal(15,2) DEFAULT NULL,
+  `wholesale_price` decimal(15,2) DEFAULT NULL,
+  `new_wholesale_price` decimal(15,2) DEFAULT NULL,
+  `reason` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `remarks` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `effective_date` datetime DEFAULT NULL,
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_tenant_id` (`tenant_id`),
+  KEY `idx_product_id` (`product_id`),
+  KEY `idx_created_at` (`created_at`),
+  CONSTRAINT `fk_product_price_history_product` FOREIGN KEY (`product_id`) REFERENCES `pos_products` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table snsu_safetrack.pos_product_price_histories: ~5 rows (approximately)
+DELETE FROM `pos_product_price_histories`;
+INSERT INTO `pos_product_price_histories` (`id`, `tenant_id`, `product_id`, `cost_price`, `new_cost_price`, `selling_price`, `new_selling_price`, `wholesale_price`, `new_wholesale_price`, `reason`, `remarks`, `effective_date`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 0, 1, 18.00, 18.00, 26.00, 26.00, 23.00, 23.00, NULL, 'Product price updated', '2026-06-10 10:20:22', 11, 11, '2026-06-10 10:20:22', '2026-06-10 02:20:22', 'active', 0, NULL),
+	(2, 0, 5, 289.76, 289.76, 298.00, 298.00, 290.00, 290.00, NULL, 'Product price updated', '2026-06-10 10:11:05', 11, 11, '2026-06-10 10:11:05', '2026-06-10 02:11:05', 'active', 0, NULL),
+	(3, 0, 1, 18.00, 18.00, 25.00, 25.00, 23.00, 23.00, NULL, 'Product price updated', '2026-06-10 10:21:21', 11, 11, '2026-06-10 10:21:21', '2026-06-10 02:21:21', 'active', 0, NULL),
+	(4, 0, 1, 18.00, 18.00, 35.00, 35.00, 23.00, 23.00, NULL, 'Product price updated', '2026-06-10 10:25:05', 11, 11, '2026-06-10 10:25:05', '2026-06-10 02:25:05', 'active', 0, NULL),
+	(5, 0, 1, 18.00, 18.00, 35.00, 34.00, 23.00, 23.00, NULL, 'Product price updated', '2026-06-10 10:27:45', 11, 11, '2026-06-10 10:27:45', '2026-06-10 02:27:45', 'active', 0, NULL),
+	(6, 0, 6, 89.73, 89.73, 95.00, 100.00, 92.00, 92.00, NULL, 'Product price updated', '2026-06-10 10:28:15', 11, 11, '2026-06-10 10:28:15', '2026-06-10 02:28:15', 'active', 0, NULL);
+
+-- Dumping structure for table snsu_safetrack.pos_sales
+DROP TABLE IF EXISTS `pos_sales`;
+CREATE TABLE IF NOT EXISTS `pos_sales` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `tenant_id` bigint(20) unsigned NOT NULL,
+  `branch_id` bigint(20) unsigned NOT NULL,
+  `customer_id` bigint(20) unsigned DEFAULT NULL,
+  `cashier_id` bigint(20) unsigned NOT NULL,
+  `invoice_no` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `subtotal` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `discount_amount` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `tax_amount` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `total_amount` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `amount_paid` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `change_amount` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `payment_status` enum('pending','partial','paid') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'paid',
+  `sale_date` datetime NOT NULL,
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `tenant_id` (`tenant_id`),
+  KEY `branch_id` (`branch_id`),
+  KEY `customer_id` (`customer_id`),
+  KEY `cashier_id` (`cashier_id`),
+  KEY `invoice_no` (`invoice_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table snsu_safetrack.pos_sales: ~0 rows (approximately)
+DELETE FROM `pos_sales`;
+
+-- Dumping structure for table snsu_safetrack.pos_tenants
+DROP TABLE IF EXISTS `pos_tenants`;
+CREATE TABLE IF NOT EXISTS `pos_tenants` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `subscription_id` bigint(20) unsigned NOT NULL,
+  `business_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `business_code` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `owner_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `phone` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address` text COLLATE utf8mb4_unicode_ci,
+  `logo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `subscription_start` date DEFAULT NULL,
+  `subscription_end` date DEFAULT NULL,
+  `trial_ends_at` datetime DEFAULT NULL,
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `subscription_id` (`subscription_id`),
+  KEY `business_code` (`business_code`),
+  KEY `status` (`status`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table snsu_safetrack.pos_tenants: ~1 rows (approximately)
+DELETE FROM `pos_tenants`;
+INSERT INTO `pos_tenants` (`id`, `subscription_id`, `business_name`, `business_code`, `owner_name`, `email`, `phone`, `address`, `logo`, `subscription_start`, `subscription_end`, `trial_ends_at`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 1, 'ANTONIO JR. PILOTON\'s Store', 'TEN-STWXURRU4L', 'ANTONIO JR. PILOTON', 'antoniojrpiloton@gmail.com', NULL, NULL, NULL, '2026-06-09', NULL, NULL, NULL, NULL, '2026-06-09 17:50:36', '2026-06-09 09:50:36', 'active', 0, NULL);
+
+-- Dumping structure for table snsu_safetrack.pos_units
+DROP TABLE IF EXISTS `pos_units`;
+CREATE TABLE IF NOT EXISTS `pos_units` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tenant_id` int(11) NOT NULL DEFAULT '0',
+  `name` varchar(50) NOT NULL DEFAULT '0',
+  `description` varchar(50) NOT NULL DEFAULT '0',
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=29 DEFAULT CHARSET=utf8;
+
+-- Dumping data for table snsu_safetrack.pos_units: 28 rows
+DELETE FROM `pos_units`;
+/*!40000 ALTER TABLE `pos_units` DISABLE KEYS */;
+INSERT INTO `pos_units` (`id`, `tenant_id`, `name`, `description`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 0, 'kg', 'Kilograms', 1, 1, '2026-06-10 09:01:07', '2026-06-10 01:01:07', 'active', 0, NULL),
+	(2, 1, 'Piece', 'Individual item', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(3, 1, 'Pack', 'Packaged items', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(4, 1, 'Box', 'Box of items', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(5, 1, 'Case', 'Case of products', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(6, 1, 'Bundle', 'Bundle of items', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(7, 1, 'Set', 'Set of products', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(8, 1, 'Dozen', '12 pieces', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(9, 1, 'Gram', 'Weight in grams', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(10, 1, 'Kilogram', 'Weight in kilograms', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(11, 1, 'Ounce', 'Weight in ounces', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(12, 1, 'Pound', 'Weight in pounds', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(13, 1, 'Milliliter', 'Volume in milliliters', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(14, 1, 'Liter', 'Volume in liters', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(15, 1, 'Bottle', 'Bottled products', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(16, 1, 'Can', 'Canned products', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(17, 1, 'Sachet', 'Sachet products', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(18, 1, 'Meter', 'Length in meters', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(19, 1, 'Centimeter', 'Length in centimeters', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(20, 1, 'Foot', 'Length in feet', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(21, 1, 'Inch', 'Length in inches', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(22, 1, 'Roll', 'Rolled products', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(23, 1, 'Tray', 'Tray of products', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(24, 1, 'Carton', 'Carton packaging', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(25, 1, 'Pouch', 'Pouch packaging', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(26, 1, 'Tube', 'Tube packaging', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(27, 1, 'Jar', 'Jar packaging', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL),
+	(28, 1, 'Bag', 'Bag packaging', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL);
+/*!40000 ALTER TABLE `pos_units` ENABLE KEYS */;
+
+-- Dumping structure for table snsu_safetrack.pos_users
+DROP TABLE IF EXISTS `pos_users`;
+CREATE TABLE IF NOT EXISTS `pos_users` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `tenant_id` bigint(20) unsigned NOT NULL,
+  `branch_id` bigint(20) unsigned DEFAULT NULL,
+  `first_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `middle_name` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `last_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `username` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `phone` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `last_login_at` datetime DEFAULT NULL,
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `tenant_id` (`tenant_id`),
+  KEY `branch_id` (`branch_id`),
+  KEY `username` (`username`),
+  KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table snsu_safetrack.pos_users: ~0 rows (approximately)
+DELETE FROM `pos_users`;
+
+-- Dumping structure for table snsu_safetrack.qr_codes
 DROP TABLE IF EXISTS `qr_codes`;
 CREATE TABLE IF NOT EXISTS `qr_codes` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `school_id` int(11) NOT NULL DEFAULT '0',
   `prefix` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `UserID` int(11) DEFAULT NULL,
   `last_number` int(11) DEFAULT NULL,
@@ -1275,19 +1018,31 @@ CREATE TABLE IF NOT EXISTS `qr_codes` (
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.qr_codes: 4 rows
+-- Dumping data for table snsu_safetrack.qr_codes: ~15 rows (approximately)
 DELETE FROM `qr_codes`;
-/*!40000 ALTER TABLE `qr_codes` DISABLE KEYS */;
-INSERT INTO `qr_codes` (`id`, `prefix`, `UserID`, `last_number`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
-	(1, '1', NULL, 1, 0, 0, '2025-08-05 19:29:21', '2025-08-05 11:29:21', 'active', 0, NULL),
-	(2, '1', NULL, 2, 0, 0, '2025-08-05 20:31:02', '2025-08-05 12:31:02', 'active', 0, NULL),
-	(3, '1', NULL, 3, 0, 0, '2025-08-06 23:35:51', '2025-08-06 15:35:51', 'active', 0, NULL),
-	(4, '1', NULL, 4, 0, 0, '2025-08-07 15:10:44', '2025-08-07 07:10:44', 'active', 0, NULL);
-/*!40000 ALTER TABLE `qr_codes` ENABLE KEYS */;
+INSERT INTO `qr_codes` (`id`, `school_id`, `prefix`, `UserID`, `last_number`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 2, '304855', NULL, 1, 0, 0, '2026-05-25 10:40:00', '2026-05-25 02:40:00', 'active', 0, NULL),
+	(2, 2, '304855', NULL, 2, 0, 0, '2026-05-25 10:42:07', '2026-05-25 02:42:07', 'active', 0, NULL),
+	(3, 2, '304855', NULL, 3, 0, 0, '2026-05-25 10:43:43', '2026-05-25 02:43:43', 'active', 0, NULL),
+	(4, 2, '304855', NULL, 4, 0, 0, '2026-05-25 10:44:40', '2026-05-25 02:44:40', 'active', 0, NULL),
+	(5, 2, '304855', NULL, 5, 0, 0, '2026-05-25 10:44:54', '2026-05-25 02:44:54', 'active', 0, NULL),
+	(6, 2, '304855', NULL, 6, 0, 0, '2026-05-25 10:45:17', '2026-05-25 02:45:17', 'active', 0, NULL),
+	(7, 2, '304855', NULL, 7, 0, 0, '2026-05-25 10:48:58', '2026-05-25 02:48:58', 'active', 0, NULL),
+	(8, 2, '304855', NULL, 8, 0, 0, '2026-05-25 10:49:24', '2026-05-25 02:49:24', 'active', 0, NULL),
+	(9, 2, '304855', NULL, 9, 0, 0, '2026-05-25 10:49:43', '2026-05-25 02:49:43', 'active', 0, NULL),
+	(10, 3, '304856', NULL, 1, 0, 0, '2026-05-25 10:59:19', '2026-05-25 02:59:19', 'active', 0, NULL),
+	(11, 3, '304856', NULL, 2, 0, 0, '2026-05-25 11:14:10', '2026-05-25 03:14:10', 'active', 0, NULL),
+	(12, 1, '304854', NULL, 1, 0, 0, '2026-05-25 11:37:09', '2026-05-25 03:37:09', 'active', 0, NULL),
+	(13, 1, '304854', NULL, 2, 0, 0, '2026-05-25 11:56:06', '2026-05-25 03:56:06', 'active', 0, NULL),
+	(14, 1, '304854', NULL, 3, 0, 0, '2026-05-26 07:27:55', '2026-05-25 23:27:55', 'active', 0, NULL),
+	(15, 1, '304854', NULL, 4, 0, 0, '2026-05-26 08:10:15', '2026-05-26 00:10:15', 'active', 0, NULL),
+	(16, 1, '304854', NULL, 5, 0, 0, '2026-05-26 08:10:23', '2026-05-26 00:10:23', 'active', 0, NULL),
+	(17, 1, '304854', NULL, 6, 0, 0, '2026-05-26 10:11:39', '2026-05-26 02:11:39', 'active', 0, NULL),
+	(18, 1, '304854', NULL, 7, 0, 0, '2026-05-26 15:13:25', '2026-05-26 07:13:25', 'active', 0, NULL);
 
--- Dumping structure for table tnhs-new.roles
+-- Dumping structure for table snsu_safetrack.roles
 DROP TABLE IF EXISTS `roles`;
 CREATE TABLE IF NOT EXISTS `roles` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -1298,31 +1053,116 @@ CREATE TABLE IF NOT EXISTS `roles` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `roles_name_guard_name_unique` (`name`,`guard_name`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.roles: 4 rows
+-- Dumping data for table snsu_safetrack.roles: ~5 rows (approximately)
 DELETE FROM `roles`;
-/*!40000 ALTER TABLE `roles` DISABLE KEYS */;
 INSERT INTO `roles` (`id`, `name`, `details`, `guard_name`, `created_at`, `updated_at`) VALUES
-	(14, 'residents', 'residents', 'web', '2025-07-16 15:55:56', '2025-07-16 15:55:56'),
-	(15, 'parents', 'parents', 'web', '2025-07-16 15:56:01', '2025-07-16 15:56:01'),
-	(16, 'employees', 'employees', 'web', '2025-07-16 15:56:06', '2025-07-16 15:56:06'),
-	(17, 'admin', 'admin', 'web', '2025-07-16 15:56:12', '2025-07-16 15:56:12');
-/*!40000 ALTER TABLE `roles` ENABLE KEYS */;
+	(1, 'students', 'students', 'web', '2025-07-16 15:55:56', '2025-07-16 15:55:56'),
+	(2, 'parents', 'parents', 'web', '2025-07-16 15:56:01', '2025-07-16 15:56:01'),
+	(3, 'employees', 'employees', 'web', '2025-07-16 15:56:06', '2025-07-16 15:56:06'),
+	(4, 'admin', 'admin', 'web', '2025-07-16 15:56:12', '2025-07-16 15:56:12'),
+	(6, 'SA', 'SuperAdmin', 'web', '2026-05-24 09:04:30', '2026-05-24 09:04:30');
 
--- Dumping structure for table tnhs-new.role_has_permissions
+-- Dumping structure for table snsu_safetrack.role_has_permissions
 DROP TABLE IF EXISTS `role_has_permissions`;
 CREATE TABLE IF NOT EXISTS `role_has_permissions` (
   `permission_id` bigint(20) unsigned NOT NULL,
   `role_id` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`permission_id`,`role_id`) USING BTREE,
   KEY `role_has_permissions_role_id_foreign` (`role_id`) USING BTREE
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.role_has_permissions: 19 rows
+-- Dumping data for table snsu_safetrack.role_has_permissions: ~104 rows (approximately)
 DELETE FROM `role_has_permissions`;
-/*!40000 ALTER TABLE `role_has_permissions` DISABLE KEYS */;
 INSERT INTO `role_has_permissions` (`permission_id`, `role_id`) VALUES
+	(5, 3),
+	(6, 3),
+	(7, 3),
+	(8, 3),
+	(9, 3),
+	(10, 3),
+	(11, 3),
+	(37, 3),
+	(1, 4),
+	(2, 4),
+	(3, 4),
+	(4, 4),
+	(5, 4),
+	(6, 4),
+	(7, 4),
+	(8, 4),
+	(9, 4),
+	(10, 4),
+	(11, 4),
+	(12, 4),
+	(13, 4),
+	(14, 4),
+	(15, 4),
+	(16, 4),
+	(17, 4),
+	(18, 4),
+	(19, 4),
+	(20, 4),
+	(21, 4),
+	(22, 4),
+	(23, 4),
+	(24, 4),
+	(25, 4),
+	(26, 4),
+	(27, 4),
+	(28, 4),
+	(29, 4),
+	(30, 4),
+	(31, 4),
+	(32, 4),
+	(33, 4),
+	(34, 4),
+	(35, 4),
+	(36, 4),
+	(37, 4),
+	(12, 5),
+	(14, 5),
+	(15, 5),
+	(18, 5),
+	(1, 6),
+	(2, 6),
+	(3, 6),
+	(4, 6),
+	(5, 6),
+	(6, 6),
+	(7, 6),
+	(8, 6),
+	(9, 6),
+	(10, 6),
+	(11, 6),
+	(12, 6),
+	(13, 6),
+	(14, 6),
+	(15, 6),
+	(16, 6),
+	(17, 6),
+	(18, 6),
+	(19, 6),
+	(20, 6),
+	(21, 6),
+	(22, 6),
+	(23, 6),
+	(24, 6),
+	(25, 6),
+	(26, 6),
+	(27, 6),
+	(28, 6),
+	(29, 6),
+	(30, 6),
+	(31, 6),
+	(32, 6),
+	(33, 6),
+	(34, 6),
+	(35, 6),
+	(36, 6),
+	(18, 16),
+	(22, 16),
 	(6, 17),
 	(7, 17),
 	(8, 17),
@@ -1335,19 +1175,17 @@ INSERT INTO `role_has_permissions` (`permission_id`, `role_id`) VALUES
 	(15, 17),
 	(16, 17),
 	(17, 17),
-	(18, 16),
 	(18, 17),
 	(19, 17),
 	(20, 17),
 	(21, 17),
-	(22, 16),
 	(22, 17);
-/*!40000 ALTER TABLE `role_has_permissions` ENABLE KEYS */;
 
--- Dumping structure for table tnhs-new.scan_logs
+-- Dumping structure for table snsu_safetrack.scan_logs
 DROP TABLE IF EXISTS `scan_logs`;
 CREATE TABLE IF NOT EXISTS `scan_logs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `school_id` int(11) NOT NULL DEFAULT '0',
   `VerificationCode` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
   `UserID` int(11) DEFAULT '0',
   `Mode` int(11) DEFAULT '0',
@@ -1360,165 +1198,128 @@ CREATE TABLE IF NOT EXISTS `scan_logs` (
   `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL,
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
+  `scan_type` enum('qr','nfc') COLLATE utf8mb4_unicode_ci DEFAULT 'qr',
+  `direction` enum('entry','exit') COLLATE utf8mb4_unicode_ci DEFAULT 'entry',
+  `attendance_status` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `gate_name` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `remarks` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=124 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.scan_logs: 123 rows
+-- Dumping data for table snsu_safetrack.scan_logs: ~18 rows (approximately)
 DELETE FROM `scan_logs`;
-/*!40000 ALTER TABLE `scan_logs` DISABLE KEYS */;
-INSERT INTO `scan_logs` (`id`, `VerificationCode`, `UserID`, `Mode`, `lat`, `lng`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
-	(1, '000000000000001', 105, 1, NULL, NULL, 50, 50, '2025-08-06 16:46:25', '2025-08-06 08:46:25', 'active', 0, NULL),
-	(2, '000000000000002', 105, 0, NULL, NULL, 50, 50, '2025-08-06 16:47:21', '2025-08-06 08:47:21', 'active', 0, NULL),
-	(3, '000000000000003', 105, 1, NULL, NULL, 50, 50, '2025-08-06 16:48:10', '2025-08-06 08:48:10', 'active', 0, NULL),
-	(4, '000000000000004', 105, 0, NULL, NULL, 50, 50, '2025-08-06 16:49:12', '2025-08-06 08:49:12', 'active', 0, NULL),
-	(5, '000000000000005', 105, 1, NULL, NULL, 50, 50, '2025-08-06 16:49:16', '2025-08-06 08:49:16', 'active', 0, NULL),
-	(6, '000000000000006', 105, 0, NULL, NULL, 50, 50, '2025-08-06 16:50:18', '2025-08-06 08:50:18', 'active', 0, NULL),
-	(7, '000000000000007', 105, 1, NULL, NULL, 50, 50, '2025-08-06 16:50:54', '2025-08-06 08:50:54', 'active', 0, NULL),
-	(8, '000000000000008', 105, 0, NULL, NULL, 50, 50, '2025-08-06 16:51:30', '2025-08-06 08:51:30', 'active', 0, NULL),
-	(9, '000000000000009', 105, 1, NULL, NULL, 50, 50, '2025-08-06 16:51:33', '2025-08-06 08:51:33', 'active', 0, NULL),
-	(10, '000000000000010', 105, 0, NULL, NULL, 50, 50, '2025-08-06 16:52:33', '2025-08-06 08:52:33', 'active', 0, NULL),
-	(11, '000000000000011', 105, 1, NULL, NULL, 50, 50, '2025-08-06 16:52:37', '2025-08-06 08:52:37', 'active', 0, NULL),
-	(12, '000000000000012', 105, 0, NULL, NULL, 50, 50, '2025-08-06 16:58:57', '2025-08-06 08:58:57', 'active', 0, NULL),
-	(13, '000000000000013', 105, 1, NULL, NULL, 50, 50, '2025-08-06 16:59:10', '2025-08-06 08:59:10', 'active', 0, NULL),
-	(14, '000000000000014', 105, 0, NULL, NULL, 50, 50, '2025-08-06 16:59:42', '2025-08-06 08:59:42', 'active', 0, NULL),
-	(15, '000000000000015', 105, 1, NULL, NULL, 50, 50, '2025-08-06 16:59:48', '2025-08-06 08:59:48', 'active', 0, NULL),
-	(16, '000000000000016', 105, 0, NULL, NULL, 50, 50, '2025-08-06 17:00:32', '2025-08-06 09:00:32', 'active', 0, NULL),
-	(17, '000000000000017', 105, 1, NULL, NULL, 50, 50, '2025-08-06 17:04:02', '2025-08-06 09:04:02', 'active', 0, NULL),
-	(18, '000000000000018', 105, 0, NULL, NULL, 50, 50, '2025-08-06 17:04:09', '2025-08-06 09:04:09', 'active', 0, NULL),
-	(19, '000000000000019', 105, 1, NULL, NULL, 50, 50, '2025-08-06 17:04:11', '2025-08-06 09:04:11', 'active', 0, NULL),
-	(20, '000000000000020', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:28:50', '2025-08-07 00:28:50', 'active', 0, NULL),
-	(21, '000000000000021', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:28:52', '2025-08-07 00:28:52', 'active', 0, NULL),
-	(22, '000000000000022', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:28:58', '2025-08-07 00:28:58', 'active', 0, NULL),
-	(23, '000000000000023', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:31:26', '2025-08-07 00:31:26', 'active', 0, NULL),
-	(24, '000000000000024', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:31:28', '2025-08-07 00:31:28', 'active', 0, NULL),
-	(25, '000000000000025', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:40:24', '2025-08-07 00:40:24', 'active', 0, NULL),
-	(26, '000000000000026', 107, 1, NULL, NULL, 50, 50, '2025-08-07 08:41:15', '2025-08-07 00:41:15', 'active', 0, NULL),
-	(27, '000000000000027', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:44:47', '2025-08-07 00:44:47', 'active', 0, NULL),
-	(28, '000000000000028', 107, 0, NULL, NULL, 50, 50, '2025-08-07 08:46:22', '2025-08-07 00:46:22', 'active', 0, NULL),
-	(29, '000000000000029', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:46:32', '2025-08-07 00:46:32', 'active', 0, NULL),
-	(30, '000000000000030', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:47:02', '2025-08-07 00:47:02', 'active', 0, NULL),
-	(31, '000000000000031', 111, 1, NULL, NULL, 50, 50, '2025-08-07 08:47:08', '2025-08-07 00:47:08', 'active', 0, NULL),
-	(32, '000000000000032', 110, 1, NULL, NULL, 50, 50, '2025-08-07 08:47:13', '2025-08-07 00:47:13', 'active', 0, NULL),
-	(33, '000000000000033', 109, 1, NULL, NULL, 50, 50, '2025-08-07 08:47:18', '2025-08-07 00:47:18', 'active', 0, NULL),
-	(34, '000000000000034', 108, 1, NULL, NULL, 50, 50, '2025-08-07 08:47:24', '2025-08-07 00:47:24', 'active', 0, NULL),
-	(35, '000000000000035', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:49:03', '2025-08-07 00:49:03', 'active', 0, NULL),
-	(36, '000000000000036', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:49:06', '2025-08-07 00:49:06', 'active', 0, NULL),
-	(37, '000000000000037', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:49:07', '2025-08-07 00:49:07', 'active', 0, NULL),
-	(38, '000000000000038', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:49:08', '2025-08-07 00:49:08', 'active', 0, NULL),
-	(39, '000000000000039', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:49:09', '2025-08-07 00:49:09', 'active', 0, NULL),
-	(40, '000000000000040', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:49:41', '2025-08-07 00:49:41', 'active', 0, NULL),
-	(41, '000000000000041', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:49:43', '2025-08-07 00:49:44', 'active', 0, NULL),
-	(42, '000000000000042', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:49:45', '2025-08-07 00:49:45', 'active', 0, NULL),
-	(43, '000000000000043', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:49:47', '2025-08-07 00:49:47', 'active', 0, NULL),
-	(44, '000000000000044', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:49:48', '2025-08-07 00:49:48', 'active', 0, NULL),
-	(45, '000000000000045', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:49:49', '2025-08-07 00:49:49', 'active', 0, NULL),
-	(46, '000000000000046', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:49:50', '2025-08-07 00:49:50', 'active', 0, NULL),
-	(47, '000000000000047', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:49:51', '2025-08-07 00:49:51', 'active', 0, NULL),
-	(48, '000000000000048', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:49:51', '2025-08-07 00:49:51', 'active', 0, NULL),
-	(49, '000000000000049', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:49:52', '2025-08-07 00:49:52', 'active', 0, NULL),
-	(50, '000000000000050', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:49:53', '2025-08-07 00:49:53', 'active', 0, NULL),
-	(51, '000000000000051', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:51:41', '2025-08-07 00:51:41', 'active', 0, NULL),
-	(52, '000000000000052', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:51:43', '2025-08-07 00:51:43', 'active', 0, NULL),
-	(53, '000000000000053', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:52:49', '2025-08-07 00:52:49', 'active', 0, NULL),
-	(54, '000000000000054', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:52:51', '2025-08-07 00:52:51', 'active', 0, NULL),
-	(55, '000000000000055', 105, 0, NULL, NULL, 50, 50, '2025-08-07 08:52:52', '2025-08-07 00:52:52', 'active', 0, NULL),
-	(56, '000000000000056', 105, 1, NULL, NULL, 50, 50, '2025-08-07 08:59:54', '2025-08-07 00:59:54', 'active', 0, NULL),
-	(57, '000000000000057', 105, 0, NULL, NULL, 50, 50, '2025-08-07 09:00:00', '2025-08-07 01:00:01', 'active', 0, NULL),
-	(58, '000000000000058', 105, 1, NULL, NULL, 50, 50, '2025-08-07 09:00:04', '2025-08-07 01:00:04', 'active', 0, NULL),
-	(59, '000000000000059', 105, 0, NULL, NULL, 50, 50, '2025-08-07 09:00:06', '2025-08-07 01:00:06', 'active', 0, NULL),
-	(60, '000000000000060', 105, 1, NULL, NULL, 50, 50, '2025-08-07 09:00:06', '2025-08-07 01:00:06', 'active', 0, NULL),
-	(61, '000000000000061', 105, 0, NULL, NULL, 50, 50, '2025-08-07 09:00:07', '2025-08-07 01:00:07', 'active', 0, NULL),
-	(62, '000000000000062', 105, 1, NULL, NULL, 50, 50, '2025-08-07 09:02:50', '2025-08-07 01:02:50', 'active', 0, NULL),
-	(63, '000000000000063', 105, 0, NULL, NULL, 50, 50, '2025-08-07 09:02:52', '2025-08-07 01:02:52', 'active', 0, NULL),
-	(64, '000000000000064', 105, 1, NULL, NULL, 50, 50, '2025-08-07 09:06:20', '2025-08-07 01:06:20', 'active', 0, NULL),
-	(65, '000000000000065', 105, 0, NULL, NULL, 50, 50, '2025-08-07 09:06:21', '2025-08-07 01:06:21', 'active', 0, NULL),
-	(66, '000000000000066', 105, 1, NULL, NULL, 50, 50, '2025-08-07 09:06:22', '2025-08-07 01:06:22', 'active', 0, NULL),
-	(67, '000000000000067', 105, 0, NULL, NULL, 50, 50, '2025-08-07 09:06:23', '2025-08-07 01:06:23', 'active', 0, NULL),
-	(68, '000000000000068', 107, 1, NULL, NULL, 50, 50, '2025-08-07 09:06:28', '2025-08-07 01:06:28', 'active', 0, NULL),
-	(69, '000000000000069', 107, 0, NULL, NULL, 50, 50, '2025-08-07 09:06:29', '2025-08-07 01:06:29', 'active', 0, NULL),
-	(70, '000000000000070', 107, 1, NULL, NULL, 50, 50, '2025-08-07 09:07:47', '2025-08-07 01:07:47', 'active', 0, NULL),
-	(71, '000000000000071', 107, 0, NULL, NULL, 50, 50, '2025-08-07 09:07:55', '2025-08-07 01:07:55', 'active', 0, NULL),
-	(72, '000000000000072', 107, 1, NULL, NULL, 50, 50, '2025-08-07 09:07:57', '2025-08-07 01:07:57', 'active', 0, NULL),
-	(73, '000000000000073', 107, 0, NULL, NULL, 50, 50, '2025-08-07 09:07:58', '2025-08-07 01:07:58', 'active', 0, NULL),
-	(74, '000000000000074', 107, 1, NULL, NULL, 50, 50, '2025-08-07 09:07:59', '2025-08-07 01:07:59', 'active', 0, NULL),
-	(75, '000000000000075', 107, 0, NULL, NULL, 50, 50, '2025-08-07 09:07:59', '2025-08-07 01:07:59', 'active', 0, NULL),
-	(76, '000000000000076', 107, 0, NULL, NULL, 50, 50, '2025-08-07 09:08:00', '2025-08-07 01:08:00', 'active', 0, NULL),
-	(77, '000000000000077', 107, 1, NULL, NULL, 50, 50, '2025-08-07 09:08:01', '2025-08-07 01:08:01', 'active', 0, NULL),
-	(78, '000000000000078', 107, 0, NULL, NULL, 50, 50, '2025-08-07 09:08:02', '2025-08-07 01:08:02', 'active', 0, NULL),
-	(79, '000000000000079', 107, 1, NULL, NULL, 50, 50, '2025-08-07 09:08:03', '2025-08-07 01:08:03', 'active', 0, NULL),
-	(80, '000000000000080', 107, 0, NULL, NULL, 50, 50, '2025-08-07 09:08:03', '2025-08-07 01:08:03', 'active', 0, NULL),
-	(81, '000000000000081', 107, 0, NULL, NULL, 50, 50, '2025-08-07 09:08:04', '2025-08-07 01:08:04', 'active', 0, NULL),
-	(82, '000000000000082', 107, 1, NULL, NULL, 50, 50, '2025-08-07 09:08:04', '2025-08-07 01:08:04', 'active', 0, NULL),
-	(83, '000000000000083', 107, 0, NULL, NULL, 50, 50, '2025-08-07 09:08:05', '2025-08-07 01:08:05', 'active', 0, NULL),
-	(84, '000000000000084', 107, 1, NULL, NULL, 50, 50, '2025-08-07 09:08:06', '2025-08-07 01:08:06', 'active', 0, NULL),
-	(85, '000000000000085', 109, 0, NULL, NULL, 50, 50, '2025-08-07 09:08:14', '2025-08-07 01:08:14', 'active', 0, NULL),
-	(86, '000000000000086', 109, 1, NULL, NULL, 50, 50, '2025-08-07 09:08:16', '2025-08-07 01:08:16', 'active', 0, NULL),
-	(87, '000000000000087', 109, 0, NULL, NULL, 50, 50, '2025-08-07 09:08:17', '2025-08-07 01:08:17', 'active', 0, NULL),
-	(88, '000000000000088', 109, 1, NULL, NULL, 50, 50, '2025-08-07 09:08:17', '2025-08-07 01:08:17', 'active', 0, NULL),
-	(89, '000000000000089', 109, 0, NULL, NULL, 50, 50, '2025-08-07 09:08:18', '2025-08-07 01:08:18', 'active', 0, NULL),
-	(90, '000000000000090', 109, 1, NULL, NULL, 50, 50, '2025-08-07 09:08:19', '2025-08-07 01:08:19', 'active', 0, NULL),
-	(91, '000000000000091', 109, 0, NULL, NULL, 50, 50, '2025-08-07 09:08:21', '2025-08-07 01:08:21', 'active', 0, NULL),
-	(92, '000000000000092', 109, 1, NULL, NULL, 50, 50, '2025-08-07 09:08:21', '2025-08-07 01:08:21', 'active', 0, NULL),
-	(93, '000000000000093', 109, 1, NULL, NULL, 50, 50, '2025-08-07 09:08:22', '2025-08-07 01:08:22', 'active', 0, NULL),
-	(94, '000000000000094', 109, 0, NULL, NULL, 50, 50, '2025-08-07 09:08:23', '2025-08-07 01:08:23', 'active', 0, NULL),
-	(95, '000000000000095', 105, 1, NULL, NULL, 50, 50, '2025-08-07 14:45:45', '2025-08-07 06:45:45', 'active', 0, NULL),
-	(96, '000000000000096', 105, 0, NULL, NULL, 50, 50, '2025-08-07 14:53:03', '2025-08-07 06:53:03', 'active', 0, NULL),
-	(97, '000000000000097', 107, 0, NULL, NULL, 50, 50, '2025-08-07 14:53:07', '2025-08-07 06:53:07', 'active', 0, NULL),
-	(98, '000000000000098', 108, 0, NULL, NULL, 50, 50, '2025-08-07 14:53:09', '2025-08-07 06:53:09', 'active', 0, NULL),
-	(99, '000000000000099', 109, 1, NULL, NULL, 50, 50, '2025-08-07 14:53:13', '2025-08-07 06:53:13', 'active', 0, NULL),
-	(100, '000000000000100', 110, 0, NULL, NULL, 50, 50, '2025-08-07 14:53:17', '2025-08-07 06:53:17', 'active', 0, NULL),
-	(101, '000000000000101', 111, 0, NULL, NULL, 50, 50, '2025-08-07 14:53:19', '2025-08-07 06:53:19', 'active', 0, NULL),
-	(102, '000000000000102', 112, 1, NULL, NULL, 50, 50, '2025-08-07 15:11:14', '2025-08-07 07:11:14', 'active', 0, NULL),
-	(103, '000000000000103', 112, 0, NULL, NULL, 50, 50, '2025-08-07 15:11:17', '2025-08-07 07:11:17', 'active', 0, NULL),
-	(104, '000000000000104', 112, 1, NULL, NULL, 50, 50, '2025-08-07 15:11:19', '2025-08-07 07:11:19', 'active', 0, NULL),
-	(105, '000000000000105', 112, 0, NULL, NULL, 50, 50, '2025-08-07 15:11:20', '2025-08-07 07:11:20', 'active', 0, NULL),
-	(106, '000000000000106', 112, 1, NULL, NULL, 50, 50, '2025-08-07 15:11:20', '2025-08-07 07:11:20', 'active', 0, NULL),
-	(107, '000000000000107', 112, 0, NULL, NULL, 50, 50, '2025-08-07 15:11:21', '2025-08-07 07:11:21', 'active', 0, NULL),
-	(108, '000000000000108', 112, 1, NULL, NULL, 50, 50, '2025-08-07 15:11:22', '2025-08-07 07:11:22', 'active', 0, NULL),
-	(109, '000000000000109', 112, 0, NULL, NULL, 50, 50, '2025-08-07 15:11:27', '2025-08-07 07:11:27', 'active', 0, NULL),
-	(110, '000000000000110', 105, 1, NULL, NULL, 50, 50, '2025-08-09 20:58:38', '2025-08-09 12:58:38', 'active', 0, NULL),
-	(111, '000000000000111', 105, 0, NULL, NULL, 50, 50, '2025-08-09 20:59:32', '2025-08-09 12:59:32', 'active', 0, NULL),
-	(112, '000000000000112', 109, 0, NULL, NULL, 50, 50, '2025-08-09 20:59:42', '2025-08-09 12:59:42', 'active', 0, NULL),
-	(113, '000000000000113', 110, 1, NULL, NULL, 50, 50, '2025-08-09 20:59:48', '2025-08-09 12:59:48', 'active', 0, NULL),
-	(114, '000000000000114', 105, 1, NULL, NULL, 50, 50, '2025-08-09 20:59:53', '2025-08-09 12:59:53', 'active', 0, NULL),
-	(115, '000000000000115', 111, 1, NULL, NULL, 50, 50, '2026-01-12 13:39:39', '2026-01-12 05:39:39', 'active', 0, NULL),
-	(116, '000000000000116', 112, 1, NULL, NULL, 50, 50, '2026-01-12 13:39:45', '2026-01-12 05:39:45', 'active', 0, NULL),
-	(117, '000000000000117', 105, 1, NULL, NULL, 50, 50, '2026-01-12 13:39:49', '2026-01-12 05:39:49', 'active', 0, NULL),
-	(118, '000000000000118', 105, 0, NULL, NULL, 50, 50, '2026-01-12 13:40:04', '2026-01-12 05:40:04', 'active', 0, NULL),
-	(119, '000000000000119', 112, 0, NULL, NULL, 50, 50, '2026-01-12 13:40:08', '2026-01-12 05:40:08', 'active', 0, NULL),
-	(120, '000000000000120', 111, 0, NULL, NULL, 50, 50, '2026-01-12 13:40:12', '2026-01-12 05:40:12', 'active', 0, NULL),
-	(121, '000000000000121', 111, 0, NULL, NULL, 50, 50, '2026-01-12 13:42:31', '2026-01-12 05:42:31', 'active', 0, NULL),
-	(122, '000000000000122', 111, 0, NULL, NULL, 50, 50, '2026-01-12 13:44:02', '2026-01-12 05:44:02', 'active', 0, NULL),
-	(123, '000000000000123', 112, 0, NULL, NULL, 50, 50, '2026-01-12 13:44:06', '2026-01-12 05:44:06', 'active', 0, NULL);
-/*!40000 ALTER TABLE `scan_logs` ENABLE KEYS */;
+INSERT INTO `scan_logs` (`id`, `school_id`, `VerificationCode`, `UserID`, `Mode`, `lat`, `lng`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`, `scan_type`, `direction`, `attendance_status`, `gate_name`, `remarks`) VALUES
+	(1, 1, 'VC-0000000001', 7, 1, NULL, NULL, 7, 7, '2026-05-26 08:12:57', '2026-05-26 00:12:57', 'active', 0, NULL, 'nfc', 'entry', 'late', NULL, NULL),
+	(2, 1, 'VC-0000000002', 7, 0, NULL, NULL, 7, 7, '2026-05-26 08:33:26', '2026-05-26 00:33:26', 'active', 0, NULL, 'nfc', 'exit', 'early_out', NULL, NULL),
+	(3, 1, 'VC-0000000003', 7, 1, NULL, NULL, 7, 7, '2026-05-26 08:33:31', '2026-05-26 00:33:31', 'active', 0, NULL, 'nfc', 'entry', 'present', NULL, NULL),
+	(4, 1, '004', 7, 0, NULL, NULL, 7, 7, '2026-05-26 08:37:51', '2026-05-26 00:37:51', 'active', 0, NULL, 'nfc', 'exit', 'present', NULL, NULL),
+	(5, 1, '005', 7, 1, NULL, NULL, 7, 7, '2026-05-26 08:37:58', '2026-05-26 00:37:58', 'active', 0, NULL, 'nfc', 'entry', 'present', NULL, NULL),
+	(6, 1, 'VC00006', 7, 0, NULL, NULL, 7, 7, '2026-05-26 08:38:48', '2026-05-26 00:38:48', 'active', 0, NULL, 'nfc', 'exit', 'present', NULL, NULL),
+	(7, 1, 'VC00007', 7, 1, NULL, NULL, 7, 7, '2026-05-26 08:38:50', '2026-05-26 00:38:50', 'active', 0, NULL, 'nfc', 'entry', 'present', NULL, NULL),
+	(8, 1, 'VC00008', 7, 0, NULL, NULL, 7, 7, '2026-05-26 08:51:30', '2026-05-26 00:51:30', 'active', 0, NULL, 'nfc', 'exit', 'present', NULL, NULL),
+	(9, 1, 'VC00009', 7, 1, NULL, NULL, 7, 7, '2026-05-26 08:51:33', '2026-05-26 00:51:33', 'active', 0, NULL, 'nfc', 'entry', 'present', NULL, NULL),
+	(10, 1, 'VC00010', 7, 0, NULL, NULL, 7, 7, '2026-05-26 08:51:40', '2026-05-26 00:51:40', 'active', 0, NULL, 'nfc', 'exit', 'present', NULL, NULL),
+	(11, 1, 'VC00011', 7, 1, NULL, NULL, 7, 7, '2026-05-26 08:51:41', '2026-05-26 00:51:41', 'active', 0, NULL, 'nfc', 'entry', 'present', NULL, NULL),
+	(12, 1, 'VC00012', 7, 0, NULL, NULL, 7, 7, '2026-05-26 08:53:57', '2026-05-26 00:53:57', 'active', 0, NULL, 'nfc', 'exit', 'present', NULL, NULL),
+	(13, 1, 'VC00013', 7, 1, NULL, NULL, 7, 7, '2026-05-26 08:54:01', '2026-05-26 00:54:01', 'active', 0, NULL, 'nfc', 'entry', 'present', NULL, NULL),
+	(14, 1, 'VC00014', 7, 0, NULL, NULL, 7, 7, '2026-05-26 08:59:24', '2026-05-26 00:59:24', 'active', 0, NULL, 'nfc', 'exit', 'present', NULL, NULL),
+	(15, 1, 'VC00015', 7, 1, NULL, NULL, 7, 7, '2026-05-26 09:04:04', '2026-05-26 01:04:04', 'active', 0, NULL, 'nfc', 'entry', 'present', NULL, NULL),
+	(16, 1, 'VC00016', 7, 0, NULL, NULL, 7, 7, '2026-05-26 09:30:47', '2026-05-26 01:30:47', 'active', 0, NULL, 'nfc', 'exit', 'present', NULL, NULL),
+	(17, 1, 'VC00017', 7, 1, NULL, NULL, 7, 7, '2026-05-26 09:32:18', '2026-05-26 01:32:18', 'active', 0, NULL, 'nfc', 'entry', 'present', NULL, NULL),
+	(18, 1, 'VC00018', 7, 0, NULL, NULL, 7, 7, '2026-05-26 10:25:09', '2026-05-26 02:25:09', 'active', 0, NULL, 'nfc', 'exit', 'present', NULL, NULL),
+	(19, 1, 'VC00019', 7, 1, NULL, NULL, 7, 7, '2026-05-26 10:25:23', '2026-05-26 02:25:23', 'active', 0, NULL, 'nfc', 'entry', 'present', NULL, NULL),
+	(20, 1, 'VC00020', 7, 0, NULL, NULL, 7, 7, '2026-05-26 10:25:30', '2026-05-26 02:25:30', 'active', 0, NULL, 'nfc', 'exit', 'present', NULL, NULL),
+	(21, 1, 'VC00021', 7, 1, NULL, NULL, 7, 7, '2026-05-26 10:25:32', '2026-05-26 02:25:32', 'active', 0, NULL, 'nfc', 'entry', 'present', NULL, NULL);
 
--- Dumping structure for table tnhs-new.school
+-- Dumping structure for table snsu_safetrack.school
 DROP TABLE IF EXISTS `school`;
 CREATE TABLE IF NOT EXISTS `school` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `SchoolID` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
-  `SchoolName` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
-  `SchoolAddress` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `SchoolRegion` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `District` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `Principal` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `PrincipalPosition` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `alias_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
+  `code` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
+  `slug` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `SystemTitle` varchar(150) NOT NULL DEFAULT '0',
+  `SchoolName` varchar(255) NOT NULL,
+  `SchoolCode` varchar(100) DEFAULT NULL,
+  `EducationLevel` enum('JHS','SHS','INTEGRATED') DEFAULT 'INTEGRATED',
+  `Region` varchar(100) DEFAULT NULL,
+  `Division` varchar(100) DEFAULT NULL,
+  `Address` text,
+  `ContactNumber` varchar(20) DEFAULT NULL,
+  `EmailAddress` varchar(150) DEFAULT NULL,
+  `PrincipalID` int(11) DEFAULT NULL,
+  `RegistrarID` bigint(20) DEFAULT NULL,
+  `Logo` varchar(255) DEFAULT NULL,
+  `OfficialTimeIn` time DEFAULT '07:00:00',
+  `OfficialTimeOut` time DEFAULT '17:00:00',
+  `LateGraceMinutes` int(11) DEFAULT '15',
+  `EnableNFC` tinyint(1) DEFAULT '1',
+  `EnableQR` tinyint(1) DEFAULT '1',
+  `EnableOfflineAttendance` tinyint(1) DEFAULT '1',
+  `CurrentSchoolYearID` bigint(20) DEFAULT NULL,
+  `ThemeColor` varchar(20) DEFAULT '#004D1A',
   `created_by` int(11) NOT NULL,
   `updated_by` int(11) NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cacert_path` longtext,
+  `python_path` longtext,
+  `port_com` varchar(20) DEFAULT NULL,
+  `sms_failed_count` int(11) DEFAULT NULL,
+  `sms_low_balance` int(11) DEFAULT '0',
+  `total_sent` int(11) DEFAULT '0',
+  `sms_provider` varchar(20) DEFAULT 'api',
+  `sms_api_url` longtext,
+  `sms_api_key` longtext,
+  `sms_api_device_id` longtext,
+  `sms_last_failed_at` datetime DEFAULT NULL,
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
--- Dumping data for table tnhs-new.school: 0 rows
+-- Dumping data for table snsu_safetrack.school: 4 rows
 DELETE FROM `school`;
 /*!40000 ALTER TABLE `school` DISABLE KEYS */;
+INSERT INTO `school` (`id`, `alias_name`, `code`, `slug`, `SystemTitle`, `SchoolName`, `SchoolCode`, `EducationLevel`, `Region`, `Division`, `Address`, `ContactNumber`, `EmailAddress`, `PrincipalID`, `RegistrarID`, `Logo`, `OfficialTimeIn`, `OfficialTimeOut`, `LateGraceMinutes`, `EnableNFC`, `EnableQR`, `EnableOfflineAttendance`, `CurrentSchoolYearID`, `ThemeColor`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `cacert_path`, `python_path`, `port_com`, `sms_failed_count`, `sms_low_balance`, `total_sent`, `sms_provider`, `sms_api_url`, `sms_api_key`, `sms_api_device_id`, `sms_last_failed_at`, `archived`, `deleted_at`) VALUES
+	(1, 'TNHS', '0', NULL, 'SAFETRACK: A QR and NFC-Based Student Monitoring System', 'TUBAJON NATIONAL HIGH SCHOOL', '304854', 'INTEGRATED', 'CARAGA', 'Dinagat Islands', 'SAN VICENTE, TUBAJON, DINAGAT ISLANDS', '+639128941731', '@tnhs.edu.ph', NULL, NULL, 'schools/Dh5Ux3SGGfc55zBc3WIyndKabOTvbe3Y5TxrQYbP.png', '07:00:00', '17:00:00', 15, 1, 1, 1, NULL, '#f00074', 1, 1, '2026-05-25 11:25:26', '2026-05-26 02:17:57', 'active', NULL, NULL, NULL, NULL, 0, 0, 'api', NULL, NULL, NULL, NULL, 0, NULL),
+	(2, 'LNHS', '0', NULL, 'SAFETRACK: A QR and NFC-Based Student Monitoring System', 'LORETO NATIONAL HIGH SCHOOL', '12345', 'INTEGRATED', 'CARAGA', 'Dinagat Islands', 'LORATION, DINAGAT ISLANDS', '+639128941731', '@lnhs.edu.ph', NULL, NULL, 'schools/FSFIQsbFgLXoywTw3Z0Yr7fNs4ef56w7cdwqLLh3.jpg', NULL, NULL, 15, 1, 1, 1, NULL, '#00bd03', 1, 1, '2026-05-25 13:34:13', '2026-05-25 05:40:25', 'active', NULL, NULL, NULL, NULL, 0, 0, 'api', NULL, NULL, NULL, NULL, 0, NULL),
+	(3, 'SNNHS', '0', NULL, 'SAFETRACK: A QR and NFC-Based Student Monitoring System', 'SURIGAO DEL NORTE NATIONAL HIGH SCHOOL', '12346', 'INTEGRATED', 'CARAGA', 'SURIGAO CITY', 'SURIGAO CITY', '+639128941731', '@snnhs.edu.ph', NULL, NULL, 'schools/EI7QcLGXYpZuG9fUechj5RObJvKhBeCAw9YwRIHQ.jpg', '07:00:00', '17:00:00', 15, 1, 1, 1, NULL, '#007bff', 1, 1, '2026-05-25 13:39:59', '2026-05-26 01:35:20', 'active', NULL, NULL, NULL, NULL, 0, 0, 'api', NULL, NULL, NULL, NULL, 0, NULL),
+	(4, 'CRSHS', '0', NULL, 'SAFETRACK: A QR and NFC-Based Student Monitoring System', 'Caraga Regional Science High School', '654321', 'INTEGRATED', 'CARAGA', 'SURIGAO CITY', 'SURIGAO CITY', '+639128941731', '@crshs.edu.ph', NULL, NULL, 'schools/7lorUNvirlFD3zLx4OOUStN3WdyStreMSHPFCUDc.jpg', NULL, NULL, 15, 1, 1, 1, NULL, '#009699', 1, 1, '2026-05-25 13:44:27', '2026-05-26 01:33:55', 'active', NULL, NULL, NULL, NULL, 0, 0, 'api', NULL, NULL, NULL, NULL, 0, NULL);
 /*!40000 ALTER TABLE `school` ENABLE KEYS */;
 
--- Dumping structure for table tnhs-new.sessions
+-- Dumping structure for table snsu_safetrack.school_years
+DROP TABLE IF EXISTS `school_years`;
+CREATE TABLE IF NOT EXISTS `school_years` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `Semester` int(11) NOT NULL DEFAULT '0',
+  `AYFrom` year(4) DEFAULT NULL,
+  `AYTo` year(4) DEFAULT NULL,
+  `StartDate` date DEFAULT NULL,
+  `EndDate` date DEFAULT NULL,
+  `IsActive` tinyint(1) DEFAULT '0',
+  `created_by` int(11) NOT NULL,
+  `updated_by` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+
+-- Dumping data for table snsu_safetrack.school_years: 4 rows
+DELETE FROM `school_years`;
+/*!40000 ALTER TABLE `school_years` DISABLE KEYS */;
+INSERT INTO `school_years` (`id`, `Semester`, `AYFrom`, `AYTo`, `StartDate`, `EndDate`, `IsActive`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 0, '2026', '2027', '2026-06-11', '2027-03-31', 1, 1, 1, '2026-05-12 16:45:46', '2026-05-12 08:49:57', 'active', 0, NULL),
+	(2, 0, '2025', '2026', '2026-06-15', '2026-08-22', 1, 1, 1, '2026-05-12 16:46:45', '2026-05-12 08:49:58', 'active', 0, NULL),
+	(3, 0, '2024', '2025', '2026-04-26', '2026-05-30', 1, 1, 1, '2026-05-12 16:47:08', '2026-05-12 08:47:08', 'active', 0, NULL),
+	(4, 0, '2023', '2024', '2026-04-26', '2026-05-30', 1, 1, 1, '2026-05-12 16:47:58', '2026-05-12 08:49:59', 'active', 0, NULL);
+/*!40000 ALTER TABLE `school_years` ENABLE KEYS */;
+
+-- Dumping structure for table snsu_safetrack.sessions
 DROP TABLE IF EXISTS `sessions`;
 CREATE TABLE IF NOT EXISTS `sessions` (
   `id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -1530,25 +1331,21 @@ CREATE TABLE IF NOT EXISTS `sessions` (
   PRIMARY KEY (`id`),
   KEY `sessions_user_id_index` (`user_id`),
   KEY `sessions_last_activity_index` (`last_activity`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.sessions: 2 rows
+-- Dumping data for table snsu_safetrack.sessions: ~2 rows (approximately)
 DELETE FROM `sessions`;
-/*!40000 ALTER TABLE `sessions` DISABLE KEYS */;
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-	('wafAdZ8ihUX6OSWFArJxLw1nEfwxW3NAHkFRPrDf', 50, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiOU1VRThrOUlOMDlWNm9HeXA0YzJsNG5kbkFpZ1BwSEdOSkJaU2g2MyI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czoyODoiaHR0cDovL3NhYXNraXQuZGV2LmNvbS91c2VycyI7fXM6OToiX3ByZXZpb3VzIjthOjI6e3M6MzoidXJsIjtzOjM4OiJodHRwOi8vc2Fhc2tpdC5kZXYuY29tL3N0dWRlbnRzL2NyZWF0ZSI7czo1OiJyb3V0ZSI7czoxNToic3R1ZGVudHMuY3JlYXRlIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6NTA7fQ==', 1773207023),
-	('qudlsgfdw002i4bznHxyOzAQLfvOLPPXTjjTSvta', 50, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiSUV6SDBDNDhKVHdmcHlrTnkxMjY5MXc2VmhONE9wTjBGSTJ3dWtuZCI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czozMjoiaHR0cDovL3NhYXNraXQuZGV2LmNvbS9kYXNoYm9hcmQiO31zOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czoyODoiaHR0cDovL3NhYXNraXQuZGV2LmNvbS91c2VycyI7czo1OiJyb3V0ZSI7czoxMToidXNlcnMuaW5kZXgiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTo1MDt9', 1773212677),
-	('IZdSyGR65nD1wjevXBaTUWiiN0XIlOwAx33DPxzx', 50, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiVUF5MGNzTExWMnRHdmZjRFJXeUVOb0RxcVVUTFQzSWF0QzZCRkFTNiI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mzc6Imh0dHA6Ly9zYWFza2l0LmRldi5jb20vc3R1ZGVudHMvaW5kZXgiO3M6NToicm91dGUiO3M6MTQ6InN0dWRlbnRzLmluZGV4Ijt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6NTA7fQ==', 1773212850),
-	('6VZH1zZwrV2mfPy6KhAEjXaDNcivcdvEvu0eLWlZ', 50, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiUDI4ZkQxRmVNZ203NE9YZ3dja0pHRDZhbkE4NUc0cW9hcUJKNjFjcCI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czozNzoiaHR0cDovL3NhYXNraXQuZGV2LmNvbS9zdHVkZW50cy9pbmRleCI7fXM6OToiX3ByZXZpb3VzIjthOjI6e3M6MzoidXJsIjtzOjM3OiJodHRwOi8vc2Fhc2tpdC5kZXYuY29tL3N0dWRlbnRzL2luZGV4IjtzOjU6InJvdXRlIjtzOjE0OiJzdHVkZW50cy5pbmRleCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjUwO30=', 1773213013);
-/*!40000 ALTER TABLE `sessions` ENABLE KEYS */;
+	('tUf4TglSlbt2BMc66t0SFIZ7pZJuGllIENocBV4T', 11, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiNWprc2RQZEduUVZUWjFzZnE0cFpzM0NyUjZMZU1XZld5dGZnalFVbSI7czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MTE7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MzE6Imh0dHA6Ly9wb3MuZGV2LmNvbS9zYWxlcy9jcmVhdGUiO3M6NToicm91dGUiO3M6MTI6InNhbGVzLmNyZWF0ZSI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1781060274);
 
--- Dumping structure for table tnhs-new.sms_queues
+-- Dumping structure for table snsu_safetrack.sms_queues
 DROP TABLE IF EXISTS `sms_queues`;
 CREATE TABLE IF NOT EXISTS `sms_queues` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `school_id` int(11) NOT NULL DEFAULT '0',
   `PhoneNumber` varchar(13) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `Message` longtext COLLATE utf8mb4_unicode_ci,
-  `remark` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `remark` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT 'pending',
   `created_by` int(11) DEFAULT NULL,
   `updated_by` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
@@ -1557,85 +1354,94 @@ CREATE TABLE IF NOT EXISTS `sms_queues` (
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=68 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.sms_queues: 67 rows
+-- Dumping data for table snsu_safetrack.sms_queues: ~43 rows (approximately)
 DELETE FROM `sms_queues`;
-/*!40000 ALTER TABLE `sms_queues` DISABLE KEYS */;
-INSERT INTO `sms_queues` (`id`, `PhoneNumber`, `Message`, `remark`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
-	(1, '+639128941731', 'Johans Empleo just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 04:50:18 PM. Code: 000000000000006', 'sent', 0, 0, '2025-08-06 16:50:18', '2025-08-06 09:06:40', 'active', 0, NULL),
-	(2, '+639128941731', 'Johans Empleo just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 04:50:54 PM. Code: 000000000000007', 'sent', 0, 0, '2025-08-06 16:50:54', '2025-08-06 09:06:51', 'active', 0, NULL),
-	(3, '+639128941731', 'Johans Empleo just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 04:51:30 PM. Code: 000000000000008', 'sent', 0, 0, '2025-08-06 16:51:30', '2025-08-06 09:07:02', 'active', 0, NULL),
-	(4, '+639128941731', 'Johans Empleo just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 04:51:33 PM. Code: 000000000000009', 'sent', 0, 0, '2025-08-06 16:51:33', '2025-08-06 09:07:14', 'active', 0, NULL),
-	(5, '+639485622724', 'Johans Empleo just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 04:52:33 PM. Code: 000000000000010', 'sent', 0, 0, '2025-08-06 16:52:33', '2025-08-06 09:09:09', 'active', 0, NULL),
-	(6, '+639485622724', 'Johans Empleo just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 04:52:37 PM. Code: 000000000000011', 'sent', 0, 0, '2025-08-06 16:52:37', '2025-08-06 09:08:43', 'active', 0, NULL),
-	(7, '+639485622724', 'Johans Empleo just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 04:58:57 PM. Code: 000000000000012', 'sent', 0, 0, '2025-08-06 16:58:57', '2025-08-06 09:08:09', 'active', 0, NULL),
-	(8, '+639485622724', 'Johans Empleo just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 04:59:10 PM. Code: 000000000000013', 'sent', 0, 0, '2025-08-06 16:59:10', '2025-08-06 09:08:21', 'active', 0, NULL),
-	(9, '+639485622724', 'Johans Empleo just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 04:59:42 PM. Code: 000000000000014', 'sent', 0, 0, '2025-08-06 16:59:42', '2025-08-06 09:07:25', 'active', 0, NULL),
-	(10, '+639485622724', 'Johans Empleo just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 04:59:48 PM. Code: 000000000000015', 'sent', 0, 0, '2025-08-06 16:59:48', '2025-08-06 09:07:36', 'active', 0, NULL),
-	(11, '+639485622724', 'Johans Empleo just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 05:00:32 PM. Code: 000000000000016', 'sent', 0, 0, '2025-08-06 17:00:32', '2025-08-06 09:07:47', 'active', 0, NULL),
-	(12, '+639485622724', 'Johans Empleo just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 05:04:02 PM. Code: 000000000000017', 'sent', 0, 0, '2025-08-06 17:04:02', '2025-08-06 09:09:21', 'active', 0, NULL),
-	(13, '+639485622724', 'Johans Empleo just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 05:04:09 PM. Code: 000000000000018', 'sent', 0, 0, '2025-08-06 17:04:09', '2025-08-06 09:08:32', 'active', 0, NULL),
-	(14, '+639485622724', 'Johans Empleo just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 06, 2025 05:04:11 PM. Code: 000000000000019', 'sent', 0, 0, '2025-08-06 17:04:11', '2025-08-06 09:09:32', 'active', 0, NULL),
-	(15, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:28:50 AM. Code: 000000000000020', NULL, 0, 0, '2025-08-07 08:28:50', '2025-08-07 00:28:50', 'active', 0, NULL),
-	(16, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:28:52 AM. Code: 000000000000021', NULL, 0, 0, '2025-08-07 08:28:52', '2025-08-07 00:28:52', 'active', 0, NULL),
-	(17, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:28:58 AM. Code: 000000000000022', NULL, 0, 0, '2025-08-07 08:28:58', '2025-08-07 00:28:58', 'active', 0, NULL),
-	(18, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:31:26 AM. Code: 000000000000023', NULL, 0, 0, '2025-08-07 08:31:26', '2025-08-07 00:31:26', 'active', 0, NULL),
-	(19, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:31:28 AM. Code: 000000000000024', NULL, 0, 0, '2025-08-07 08:31:28', '2025-08-07 00:31:28', 'active', 0, NULL),
-	(20, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:40:24 AM. Code: 000000000000025', NULL, 0, 0, '2025-08-07 08:40:24', '2025-08-07 00:40:24', 'active', 0, NULL),
-	(21, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:44:47 AM. Code: 000000000000027', NULL, 0, 0, '2025-08-07 08:44:47', '2025-08-07 00:44:47', 'active', 0, NULL),
-	(22, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:46:32 AM. Code: 000000000000029', NULL, 0, 0, '2025-08-07 08:46:32', '2025-08-07 00:46:32', 'active', 0, NULL),
-	(23, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:47:02 AM. Code: 000000000000030', NULL, 0, 0, '2025-08-07 08:47:02', '2025-08-07 00:47:02', 'active', 0, NULL),
-	(24, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:03 AM. Code: 000000000000035', NULL, 0, 0, '2025-08-07 08:49:03', '2025-08-07 00:49:03', 'active', 0, NULL),
-	(25, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:06 AM. Code: 000000000000036', NULL, 0, 0, '2025-08-07 08:49:06', '2025-08-07 00:49:06', 'active', 0, NULL),
-	(26, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:07 AM. Code: 000000000000037', NULL, 0, 0, '2025-08-07 08:49:07', '2025-08-07 00:49:07', 'active', 0, NULL),
-	(27, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:08 AM. Code: 000000000000038', NULL, 0, 0, '2025-08-07 08:49:08', '2025-08-07 00:49:08', 'active', 0, NULL),
-	(28, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:09 AM. Code: 000000000000039', NULL, 0, 0, '2025-08-07 08:49:09', '2025-08-07 00:49:09', 'active', 0, NULL),
-	(29, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:41 AM. Code: 000000000000040', NULL, 0, 0, '2025-08-07 08:49:41', '2025-08-07 00:49:41', 'active', 0, NULL),
-	(30, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:44 AM. Code: 000000000000041', NULL, 0, 0, '2025-08-07 08:49:44', '2025-08-07 00:49:44', 'active', 0, NULL),
-	(31, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:45 AM. Code: 000000000000042', NULL, 0, 0, '2025-08-07 08:49:45', '2025-08-07 00:49:45', 'active', 0, NULL),
-	(32, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:47 AM. Code: 000000000000043', NULL, 0, 0, '2025-08-07 08:49:47', '2025-08-07 00:49:47', 'active', 0, NULL),
-	(33, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:48 AM. Code: 000000000000044', NULL, 0, 0, '2025-08-07 08:49:48', '2025-08-07 00:49:48', 'active', 0, NULL),
-	(34, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:49 AM. Code: 000000000000045', NULL, 0, 0, '2025-08-07 08:49:49', '2025-08-07 00:49:49', 'active', 0, NULL),
-	(35, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:50 AM. Code: 000000000000046', NULL, 0, 0, '2025-08-07 08:49:50', '2025-08-07 00:49:50', 'active', 0, NULL),
-	(36, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:51 AM. Code: 000000000000047', NULL, 0, 0, '2025-08-07 08:49:51', '2025-08-07 00:49:51', 'active', 0, NULL),
-	(37, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:51 AM. Code: 000000000000048', NULL, 0, 0, '2025-08-07 08:49:51', '2025-08-07 00:49:51', 'active', 0, NULL),
-	(38, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:52 AM. Code: 000000000000049', NULL, 0, 0, '2025-08-07 08:49:52', '2025-08-07 00:49:52', 'active', 0, NULL),
-	(39, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:49:53 AM. Code: 000000000000050', NULL, 0, 0, '2025-08-07 08:49:53', '2025-08-07 00:49:53', 'active', 0, NULL),
-	(40, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:51:41 AM. Code: 000000000000051', NULL, 0, 0, '2025-08-07 08:51:41', '2025-08-07 00:51:41', 'active', 0, NULL),
-	(41, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:51:43 AM. Code: 000000000000052', NULL, 0, 0, '2025-08-07 08:51:43', '2025-08-07 00:51:43', 'active', 0, NULL),
-	(42, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:52:49 AM. Code: 000000000000053', NULL, 0, 0, '2025-08-07 08:52:49', '2025-08-07 00:52:49', 'active', 0, NULL),
-	(43, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:52:51 AM. Code: 000000000000054', NULL, 0, 0, '2025-08-07 08:52:51', '2025-08-07 00:52:51', 'active', 0, NULL),
-	(44, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:52:52 AM. Code: 000000000000055', NULL, 0, 0, '2025-08-07 08:52:52', '2025-08-07 00:52:52', 'active', 0, NULL),
-	(45, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 08:59:54 AM. Code: 000000000000056', NULL, 0, 0, '2025-08-07 08:59:54', '2025-08-07 00:59:54', 'active', 0, NULL),
-	(46, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 09:00:01 AM. Code: 000000000000057', NULL, 0, 0, '2025-08-07 09:00:01', '2025-08-07 01:00:01', 'active', 0, NULL),
-	(47, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 09:00:04 AM. Code: 000000000000058', NULL, 0, 0, '2025-08-07 09:00:04', '2025-08-07 01:00:04', 'active', 0, NULL),
-	(48, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 09:00:06 AM. Code: 000000000000059', NULL, 0, 0, '2025-08-07 09:00:06', '2025-08-07 01:00:06', 'active', 0, NULL),
-	(49, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 09:00:06 AM. Code: 000000000000060', NULL, 0, 0, '2025-08-07 09:00:06', '2025-08-07 01:00:06', 'active', 0, NULL),
-	(50, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 09:00:07 AM. Code: 000000000000061', NULL, 0, 0, '2025-08-07 09:00:07', '2025-08-07 01:00:07', 'active', 0, NULL),
-	(51, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 09:02:50 AM. Code: 000000000000062', NULL, 0, 0, '2025-08-07 09:02:50', '2025-08-07 01:02:50', 'active', 0, NULL),
-	(52, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 09:02:52 AM. Code: 000000000000063', NULL, 0, 0, '2025-08-07 09:02:52', '2025-08-07 01:02:52', 'active', 0, NULL),
-	(53, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 09:06:20 AM. Code: 000000000000064', NULL, 0, 0, '2025-08-07 09:06:20', '2025-08-07 01:06:20', 'active', 0, NULL),
-	(54, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 09:06:21 AM. Code: 000000000000065', NULL, 0, 0, '2025-08-07 09:06:21', '2025-08-07 01:06:21', 'active', 0, NULL),
-	(55, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 09:06:22 AM. Code: 000000000000066', NULL, 0, 0, '2025-08-07 09:06:22', '2025-08-07 01:06:22', 'active', 0, NULL),
-	(56, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 09:06:23 AM. Code: 000000000000067', NULL, 0, 0, '2025-08-07 09:06:23', '2025-08-07 01:06:23', 'active', 0, NULL),
-	(57, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 02:45:45 PM. Code: 000000000000095', NULL, 0, 0, '2025-08-07 14:45:45', '2025-08-07 06:45:45', 'active', 0, NULL),
-	(58, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 07, 2025 02:53:03 PM. Code: 000000000000096', NULL, 0, 0, '2025-08-07 14:53:03', '2025-08-07 06:53:03', 'active', 0, NULL),
-	(59, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 09, 2025 08:58:38 PM. Code: 000000000000110', NULL, 0, 0, '2025-08-09 20:58:38', '2025-08-09 12:58:38', 'active', 0, NULL),
-	(60, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Aug 09, 2025 08:59:32 PM. Code: 000000000000111', NULL, 0, 0, '2025-08-09 20:59:32', '2025-08-09 12:59:32', 'active', 0, NULL),
-	(61, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Aug 09, 2025 08:59:53 PM. Code: 000000000000114', NULL, 0, 0, '2025-08-09 20:59:53', '2025-08-09 12:59:53', 'active', 0, NULL),
-	(62, '+639485622724', 'DR. SHIRLY C. AGRUPIS vjk just entered TUBAJON NATIONAL HIGH SCHOOL @ Jan 12, 2026 01:39:39 PM. Code: 000000000000115', NULL, 0, 0, '2026-01-12 13:39:39', '2026-01-12 05:39:39', 'active', 0, NULL),
-	(63, '+639485622724', 'JOHANS EMPLEO just entered TUBAJON NATIONAL HIGH SCHOOL @ Jan 12, 2026 01:39:49 PM. Code: 000000000000117', NULL, 0, 0, '2026-01-12 13:39:49', '2026-01-12 05:39:49', 'active', 0, NULL),
-	(64, '+639485622724', 'JOHANS EMPLEO just left TUBAJON NATIONAL HIGH SCHOOL @ Jan 12, 2026 01:40:04 PM. Code: 000000000000118', NULL, 0, 0, '2026-01-12 13:40:04', '2026-01-12 05:40:04', 'active', 0, NULL),
-	(65, '+639485622724', 'DR. SHIRLY C. AGRUPIS vjk just left TUBAJON NATIONAL HIGH SCHOOL @ Jan 12, 2026 01:40:12 PM. Code: 000000000000120', NULL, 0, 0, '2026-01-12 13:40:12', '2026-01-12 05:40:12', 'active', 0, NULL),
-	(66, '+639485622724', 'DR. SHIRLY C. AGRUPIS vjk just left TUBAJON NATIONAL HIGH SCHOOL @ Jan 12, 2026 01:42:31 PM. Code: 000000000000121', NULL, 0, 0, '2026-01-12 13:42:31', '2026-01-12 05:42:31', 'active', 0, NULL),
-	(67, '+639485622724', 'DR. SHIRLY C. AGRUPIS vjk just left TUBAJON NATIONAL HIGH SCHOOL @ Jan 12, 2026 01:44:02 PM. Code: 000000000000122', NULL, 0, 0, '2026-01-12 13:44:02', '2026-01-12 05:44:02', 'active', 0, NULL);
-/*!40000 ALTER TABLE `sms_queues` ENABLE KEYS */;
+INSERT INTO `sms_queues` (`id`, `school_id`, `PhoneNumber`, `Message`, `remark`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 0, '639813581109', 'Dear Mr/Mrs. MORALES, \nMARK LOUIEJE MORALES just entered TUBAJON NATIONAL HIGH SCHOOL (LATE) @ May 22, 2026 10:14:36 AM. Code: VC-0000000026', 'sent', 0, 0, '2026-05-22 10:14:36', '2026-05-22 02:14:48', 'active', 0, NULL),
+	(2, 0, '639813581109', 'Dear Mr/Mrs. MORALES, \nMARK LOUIEJE MORALES just left TUBAJON NATIONAL HIGH SCHOOL (EARLY OUT) @ May 22, 2026 10:14:40 AM. Code: VC-0000000027', 'sent', 0, 0, '2026-05-22 10:14:40', '2026-05-22 02:15:12', 'active', 0, NULL),
+	(3, 0, '639813581109', 'Dear Mr/Mrs. MORALES, \nMARK LOUIEJE MORALES just left TUBAJON NATIONAL HIGH SCHOOL (EARLY OUT) @ May 22, 2026 02:24:46 PM. Code: VC-0000000031', 'sent', 0, 0, '2026-05-22 14:24:46', '2026-05-22 06:25:03', 'active', 0, NULL),
+	(4, 0, '639813581109', 'Dear Mr/Mrs. MORALES, \nMARK LOUIEJE MORALES just left TUBAJON NATIONAL HIGH SCHOOL @ May 22, 2026 02:31:37 PM. Code: VC-0000000033', 'sent', 0, 0, '2026-05-22 14:31:37', '2026-05-22 06:31:57', 'active', 0, NULL),
+	(5, 0, '639306069019', 'Dear Mr/Mrs. P1_L, \nFNAME LNAME just left TUBAJON NATIONAL HIGH SCHOOL @ May 22, 2026 02:32:10 PM. Code: VC-0000000035', 'sent', 0, 0, '2026-05-22 14:32:10', '2026-05-22 06:32:51', 'active', 0, NULL),
+	(6, 0, '639700920157', 'Dear Mr/Mrs. MAPOY, \nRHOB RYDWYN MAPOY just entered TUBAJON NATIONAL HIGH SCHOOL @ May 22, 2026 02:35:18 PM. Code: VC-0000000038', 'sent', 0, 0, '2026-05-22 14:35:18', '2026-05-22 06:35:35', 'active', 0, NULL),
+	(7, 0, '639700920157', 'Dear Mr/Mrs. MAPOY, \nRHOB RYDWYN MAPOY just left TUBAJON NATIONAL HIGH SCHOOL @ May 22, 2026 02:35:22 PM. Code: VC-0000000039', 'sent', 0, 0, '2026-05-22 14:35:22', '2026-05-22 06:35:48', 'active', 0, NULL),
+	(8, 0, '639464233996', 'Dear Mr/Mrs. Olaco, \nEvonie Cabahit just entered TUBAJON NATIONAL HIGH SCHOOL (LATE) @ May 22, 2026 03:16:55 PM. Code: VC-0000000040', 'sent', 0, 0, '2026-05-22 15:16:55', '2026-05-22 07:17:20', 'active', 0, NULL),
+	(9, 0, '639464233996', 'Dear Mr/Mrs. Olaco, \nEvonie Cabahit just entered TUBAJON NATIONAL HIGH SCHOOL @ May 22, 2026 03:16:57 PM. Code: VC-0000000041', 'sent', 0, 0, '2026-05-22 15:16:57', '2026-05-22 07:17:33', 'active', 0, NULL),
+	(10, 0, '639070708095', 'Dear Mr/Mrs. IMALAY, \nRUSHEY GIE IMALAY just entered TUBAJON NATIONAL HIGH SCHOOL (LATE) @ May 22, 2026 03:17:07 PM. Code: VC-0000000042', 'sent', 0, 0, '2026-05-22 15:17:07', '2026-05-22 07:17:47', 'active', 0, NULL),
+	(11, 0, '639858224872', 'Dear Mr/Mrs. Garcia, \nJustin Ganaganag just entered TUBAJON NATIONAL HIGH SCHOOL (LATE) @ May 22, 2026 03:17:11 PM. Code: VC-0000000043', 'sent', 0, 0, '2026-05-22 15:17:11', '2026-05-22 07:19:31', 'active', 0, NULL),
+	(12, 0, '639641012016', 'Dear Mr/Mrs. Kiasan, \nAlthea Dita just entered TUBAJON NATIONAL HIGH SCHOOL (LATE) @ May 22, 2026 03:17:14 PM. Code: VC-0000000044', 'sent', 0, 0, '2026-05-22 15:17:14', '2026-05-22 07:19:44', 'active', 0, NULL),
+	(13, 0, '639813581109', 'Dear Mr/Mrs. MORALES, \nMARK LOUIJE MORALES just entered TUBAJON NATIONAL HIGH SCHOOL (LATE) @ May 22, 2026 03:17:17 PM. Code: VC-0000000045', 'sent', 0, 0, '2026-05-22 15:17:17', '2026-05-22 07:19:57', 'active', 0, NULL),
+	(14, 0, '639464233996', 'Dear Mr/Mrs. Olaco, \nEvonie Cabahit just entered TUBAJON NATIONAL HIGH SCHOOL @ May 22, 2026 03:17:40 PM. Code: VC-0000000046', 'sent', 0, 0, '2026-05-22 15:17:40', '2026-05-22 07:20:10', 'active', 0, NULL),
+	(15, 0, '639070708095', 'Dear Mr/Mrs. IMALAY, \nRUSHEY GIE IMALAY just entered TUBAJON NATIONAL HIGH SCHOOL @ May 22, 2026 03:17:48 PM. Code: VC-0000000047', 'sent', 0, 0, '2026-05-22 15:17:48', '2026-05-22 07:20:24', 'active', 0, NULL),
+	(16, 0, '639813581109', 'Dear Mr/Mrs. MORALES, \nMARK LOUIJE MORALES just entered TUBAJON NATIONAL HIGH SCHOOL @ May 22, 2026 03:17:52 PM. Code: VC-0000000048', 'sent', 0, 0, '2026-05-22 15:17:52', '2026-05-22 07:20:37', 'active', 0, NULL),
+	(17, 0, '639641012016', 'Dear Mr/Mrs. Kiasan, \nAlthea Dita just entered TUBAJON NATIONAL HIGH SCHOOL @ May 22, 2026 03:17:57 PM. Code: VC-0000000049', 'sent', 0, 0, '2026-05-22 15:17:57', '2026-05-22 07:20:50', 'active', 0, NULL),
+	(18, 0, '639858224872', 'Dear Mr/Mrs. Garcia, \nJustin Ganaganag just entered TUBAJON NATIONAL HIGH SCHOOL @ May 22, 2026 03:18:02 PM. Code: VC-0000000050', 'sent', 0, 0, '2026-05-22 15:18:02', '2026-05-22 07:21:03', 'active', 0, NULL),
+	(19, 0, '639817101537', 'Dear Mr/Mrs. PACUNLA, \nLYCA REMOLISAN just entered TUBAJON NATIONAL HIGH SCHOOL (LATE) @ May 22, 2026 03:18:31 PM. Code: VC-0000000051', 'sent', 0, 0, '2026-05-22 15:18:31', '2026-05-22 07:21:17', 'active', 0, NULL),
+	(20, 0, '639468019180', 'Dear Mr/Mrs. ANGOB, \nJV ANGOB just entered TUBAJON NATIONAL HIGH SCHOOL (LATE) @ May 22, 2026 03:29:17 PM. Code: VC-0000000054', 'sent', 0, 0, '2026-05-22 15:29:17', '2026-05-22 07:29:31', 'active', 0, NULL),
+	(21, 0, '639855793446', 'Dear Mr/Mrs. DELA PENA, \nKHALIL DELA PEÅƒA just entered TUBAJON NATIONAL HIGH SCHOOL (LATE) @ May 22, 2026 03:29:21 PM. Code: VC-0000000055', 'sent', 0, 0, '2026-05-22 15:29:21', '2026-05-26 00:31:10', 'active', 0, NULL),
+	(22, 0, '639468019180', 'Dear Mr/Mrs. ANGOB, \nJV ANGOB just entered TUBAJON NATIONAL HIGH SCHOOL @ May 22, 2026 03:30:14 PM. Code: VC-0000000059', 'sent', 0, 0, '2026-05-22 15:30:14', '2026-05-22 07:33:56', 'active', 0, NULL),
+	(23, 0, '639855793446', 'Dear Mr/Mrs. DELA PENA, \nKHALIL DELA PEÅƒA just entered TUBAJON NATIONAL HIGH SCHOOL @ May 22, 2026 03:30:18 PM. Code: VC-0000000060', 'sent', 0, 0, '2026-05-22 15:30:18', '2026-05-26 00:31:24', 'active', 0, NULL),
+	(24, 3, '639128941731', 'Dear Mr/Mrs. loreto P,\nloreto PILOTON just entered LORETO NATIONAL HIGH SCHOOL (LATE) @ May 25, 2026 11:14:33 AM. Code: VC-0000000014', 'sent', 0, 0, '2026-05-25 11:14:33', '2026-05-26 00:31:38', 'active', 0, NULL),
+	(25, 1, '639128941731', 'Dear Mr/Mrs. PILOTON,\nloreto PILOTON just entered TUBAJON NATIONAL HIGH SCHOOL (LATE) @ May 26, 2026 08:12:57 AM. Code: VC-0000000001', 'sent', NULL, NULL, '2026-05-26 08:12:57', '2026-05-26 00:31:53', 'active', 0, NULL),
+	(26, 1, '639128941731', 'Dear Mr/Mrs. PILOTON,\nloreto PILOTON just left TUBAJON NATIONAL HIGH SCHOOL (EARLY OUT) @ May 26, 2026 08:33:26 AM. Code: VC-0000000002', 'sent', NULL, NULL, '2026-05-26 08:33:27', '2026-05-26 00:34:29', 'active', 0, NULL),
+	(27, 1, '639128941731', 'Dear Mr/Mrs. PILOTON,\nloreto PILOTON just entered TUBAJON NATIONAL HIGH SCHOOL @ May 26, 2026 08:33:31 AM. Code: VC-0000000003', 'sent', NULL, NULL, '2026-05-26 08:33:31', '2026-05-26 00:34:44', 'active', 0, NULL),
+	(28, 1, '639128941731', 'Dear Mr/Mrs. PILOTON,\n\n\nloreto PILOTON just left TUBAJON NATIONAL HIGH SCHOOL @ May 26, 2026 08:37:51 AM. Code: 004', 'sent', NULL, NULL, '2026-05-26 08:37:51', '2026-05-26 00:47:17', 'active', 0, NULL),
+	(29, 1, '639128941731', 'Dear Mr/Mrs. PILOTON,\n\n\nloreto PILOTON just entered TUBAJON NATIONAL HIGH SCHOOL @ May 26, 2026 08:37:58 AM. Code: 005', 'sent', NULL, NULL, '2026-05-26 08:37:58', '2026-05-26 00:47:44', 'active', 0, NULL),
+	(30, 1, '639128941731', 'Dear Mr/Mrs. PILOTON,\n\n\nloreto PILOTON just left TUBAJON NATIONAL HIGH SCHOOL @ May 26, 2026 08:38:48 AM. Code: VC00006', 'sent', NULL, NULL, '2026-05-26 08:38:48', '2026-05-26 00:49:34', 'active', 0, NULL),
+	(31, 1, '639128941731', 'Dear Mr/Mrs. PILOTON,\n\n\nloreto PILOTON just entered TUBAJON NATIONAL HIGH SCHOOL @ May 26, 2026 08:38:50 AM. Code: VC00007', 'sent', NULL, NULL, '2026-05-26 08:38:50', '2026-05-26 00:50:01', 'active', 0, NULL),
+	(32, 1, '639128941731', 'Dear Mr/Mrs. PILOTON,\n\n\nloreto PILOTON just left TUBAJON NATIONAL HIGH SCHOOL @ May 26, 2026 08:51:30 AM. Code: VC00008', 'sent', NULL, NULL, '2026-05-26 08:51:30', '2026-05-26 00:51:56', 'active', 0, NULL),
+	(33, 1, '639128941731', 'Dear Mr/Mrs. PILOTON,\n\n\nloreto PILOTON just entered TUBAJON NATIONAL HIGH SCHOOL @ May 26, 2026 08:51:33 AM. Code: VC00009', 'sent', NULL, NULL, '2026-05-26 08:51:33', '2026-05-26 00:52:23', 'active', 0, NULL),
+	(34, 1, '639128941731', 'Dear Mr/Mrs. PILOTON,\n\n\nloreto PILOTON just left TUBAJON NATIONAL HIGH SCHOOL @ May 26, 2026 08:51:40 AM. Code: VC00010', 'sent', NULL, NULL, '2026-05-26 08:51:40', '2026-05-26 00:52:50', 'active', 0, NULL),
+	(35, 1, '639128941731', 'Dear Mr/Mrs. PILOTON,\n\n\nloreto PILOTON just entered TUBAJON NATIONAL HIGH SCHOOL @ May 26, 2026 08:51:41 AM. Code: VC00011', 'sent', NULL, NULL, '2026-05-26 08:51:41', '2026-05-26 00:53:18', 'active', 0, NULL),
+	(36, 1, '639128941731', 'Dear Mr/Mrs. PILOTON,\n\nloreto PILOTON just left TUBAJON NATIONAL HIGH SCHOOL @ May 26, 2026 08:53:57 AM. Code: VC00012', 'sent', NULL, NULL, '2026-05-26 08:53:57', '2026-05-26 00:54:20', 'active', 0, NULL),
+	(37, 1, '639128941731', 'Dear Mr/Mrs. PILOTON,\n\nloreto PILOTON just entered TUBAJON NATIONAL HIGH SCHOOL @ May 26, 2026 08:54:01 AM. Code: VC00013', 'sent', NULL, NULL, '2026-05-26 08:54:01', '2026-05-26 00:54:47', 'active', 0, NULL),
+	(38, 1, '639128941731', 'Dear Mr/Mrs. PILOTON,\n\nloreto PILOTON just left TUBAJON NATIONAL HIGH SCHOOL @ May 26, 2026 08:59:24 AM. Code: VC00014', 'sent', NULL, NULL, '2026-05-26 08:59:24', '2026-05-26 01:02:53', 'active', 0, NULL),
+	(39, 1, '639128941731', 'Dear Mr/Mrs. PILOTON,\n\nloreto PILOTON just entered TUBAJON NATIONAL HIGH SCHOOL @ May 26, 2026 09:04:04 AM. Code: VC00015', 'sent', NULL, NULL, '2026-05-26 09:04:04', '2026-05-26 01:04:30', 'active', 0, NULL),
+	(40, 1, '639128941731', 'Dear Mr/Mrs. PILOTON,\n\nloreto PILOTON just left TUBAJON NATIONAL HIGH SCHOOL @ May 26, 2026 09:30:47 AM. Code: VC00016', 'sent', NULL, NULL, '2026-05-26 09:30:47', '2026-05-26 01:31:11', 'active', 0, NULL),
+	(41, 1, '639128941731', 'Dear Mr/Mrs. PILOTON,\n\nloreto PILOTON just entered TUBAJON NATIONAL HIGH SCHOOL @ May 26, 2026 09:32:18 AM. Code: VC00017', 'sent', NULL, NULL, '2026-05-26 09:32:18', '2026-05-26 01:32:43', 'active', 0, NULL),
+	(42, 1, '639128941731', 'Dear Mr/Mrs. PILOTON,\n\nloreto PILOTON just left TUBAJON NATIONAL HIGH SCHOOL @ May 26, 2026 10:25:09 AM. Code: VC00018', 'sent', NULL, NULL, '2026-05-26 10:25:09', '2026-05-26 02:25:32', 'active', 0, NULL),
+	(43, 1, '639128941731', 'Dear Mr/Mrs. PILOTON,\n\nloreto PILOTON just entered TUBAJON NATIONAL HIGH SCHOOL @ May 26, 2026 10:25:23 AM. Code: VC00019', 'pending', NULL, NULL, '2026-05-26 10:25:23', '2026-05-26 05:44:17', 'active', 0, NULL),
+	(44, 1, '639128941731', 'Dear Mr/Mrs. PILOTON,\n\nloreto PILOTON just left TUBAJON NATIONAL HIGH SCHOOL @ May 26, 2026 10:25:30 AM. Code: VC00020', 'sent', NULL, NULL, '2026-05-26 10:25:30', '2026-05-26 02:27:20', 'active', 0, NULL),
+	(45, 1, '639128941731', 'Dear Mr/Mrs. PILOTON,\n\nloreto PILOTON just entered TUBAJON NATIONAL HIGH SCHOOL @ May 26, 2026 10:25:32 AM. Code: VC00021', 'sent', NULL, NULL, '2026-05-26 10:25:32', '2026-05-26 02:28:25', 'active', 0, NULL);
 
--- Dumping structure for table tnhs-new.residents
+-- Dumping structure for table snsu_safetrack.strands
+DROP TABLE IF EXISTS `strands`;
+CREATE TABLE IF NOT EXISTS `strands` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `StrandCode` varchar(20) DEFAULT NULL,
+  `StrandName` varchar(100) DEFAULT NULL,
+  `created_by` int(11) NOT NULL,
+  `updated_by` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `StrandCode` (`StrandCode`)
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+
+-- Dumping data for table snsu_safetrack.strands: 9 rows
+DELETE FROM `strands`;
+/*!40000 ALTER TABLE `strands` DISABLE KEYS */;
+INSERT INTO `strands` (`id`, `StrandCode`, `StrandName`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 'STEM', 'Science, Technology, Engineering and Mathematics', 1, 1, '2026-05-12 16:22:54', '2026-05-12 08:22:54', 'active', 0, NULL),
+	(2, 'HUMSS', 'Humanities and Social Sciences', 1, 1, '2026-05-12 16:23:03', '2026-05-12 08:23:03', 'active', 0, NULL),
+	(3, 'ABM', 'Accountancy, Business and Management', 1, 1, '2026-05-12 16:23:10', '2026-05-12 08:23:10', 'active', 0, NULL),
+	(4, 'GAS', 'General Academic Strand', 1, 1, '2026-05-12 16:23:16', '2026-05-12 08:23:16', 'active', 0, NULL),
+	(5, 'TVL-HE', 'Home Economics', 1, 1, '2026-05-12 16:23:26', '2026-05-12 08:23:26', 'active', 0, NULL),
+	(6, 'TVL-ICT', 'Information and Communications Technology', 1, 1, '2026-05-12 16:23:36', '2026-05-12 08:23:36', 'active', 0, NULL),
+	(7, 'TVL-IA', 'Industrial Arts', 1, 1, '2026-05-12 16:23:44', '2026-05-12 08:23:44', 'active', 0, NULL),
+	(8, 'TVL-AFA', 'Agri-Fishery Arts', 1, 1, '2026-05-12 16:24:08', '2026-05-12 08:24:08', 'active', 0, NULL),
+	(0, 'N/A', 'N/A', 0, 0, '0000-00-00 00:00:00', '2026-05-12 08:58:08', 'active', 0, NULL);
+/*!40000 ALTER TABLE `strands` ENABLE KEYS */;
+
+-- Dumping structure for table snsu_safetrack.students
 DROP TABLE IF EXISTS `students`;
 CREATE TABLE IF NOT EXISTS `students` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `school_id` int(11) NOT NULL DEFAULT '0',
   `GuardianID` int(11) DEFAULT NULL,
   `UserID` int(11) DEFAULT NULL,
   `LRN` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
@@ -1643,38 +1449,33 @@ CREATE TABLE IF NOT EXISTS `students` (
   `MiddleName` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `LastName` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `Suffix` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Sex` enum('Male','Female') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `Section` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `PhoneNumber` varchar(13) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `filepath` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Strand` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `CurrentStatus` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `YearLevel` int(11) DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
-  `updated_by` int(11) NOT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `BirthDate` date DEFAULT NULL,
+  `BirthPlace` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Religion` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `Remark` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `updated_by` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `archived` tinyint(4) DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.residents: 11 rows
+-- Dumping data for table snsu_safetrack.students: ~1 rows (approximately)
 DELETE FROM `students`;
-/*!40000 ALTER TABLE `residents` DISABLE KEYS */;
-INSERT INTO `students` (`id`, `GuardianID`, `UserID`, `LRN`, `FirstName`, `MiddleName`, `LastName`, `Suffix`, `Section`, `PhoneNumber`, `filepath`, `YearLevel`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
-	(1, 1, 105, 'gdfg', 'JOHANS', '', 'EMPLEO', NULL, 'gfd', '+639128941731', 'residents/v8MVqUEFSLzVZfpHH1Ie58KsCfP2z3zPfGKxKsyX.jpg', 7, 50, 50, '2025-08-05 20:30:56', '2026-03-10 21:50:39', 'active', 0, NULL),
-	(2, 1, 111, '455454', 'DR. SHIRLY C. AGRUPIS', 'jgvyv', 'vjk', NULL, 'h', '+639128941731', 'student_photos/2/6893780de1dc1.jpg', 11, 50, 50, '2025-08-06 10:16:53', '2026-03-10 22:05:12', 'active', 0, NULL),
-	(3, 1, 112, '545665445454', 'MARY JANE', 'BASUL', 'LIBAY', NULL, 'A', '+639868273741', 'residents/hqcXpqqCLdHwVreOW0huUxu2PQZdokEyPCxIkPow.png', 10, 50, 50, '2025-08-07 15:05:49', '2026-03-10 22:00:08', 'active', 0, NULL),
-	(4, 1, NULL, 'dfghfdghfg', 'JESSA', 'HFGH', 'HAMBRE', NULL, 'HGH', '+639128941731', NULL, 7, 50, 50, '2026-01-12 13:29:33', '2026-03-10 22:05:23', 'active', 0, NULL),
-	(5, 2, NULL, 'gdfg', 'JOHANS', NULL, 'EMPLEO', NULL, 'gfd', '+639128941731', NULL, 8, 50, 50, '2026-01-12 14:02:12', '2026-03-10 22:22:21', 'active', 0, NULL),
-	(6, NULL, NULL, '455454', 'DR. SHIRLY C. AGRUPIS', 'jgvyv', 'vjk', '', 'h', NULL, NULL, 11, 50, 50, '2026-01-12 14:02:12', '2026-01-12 06:02:12', 'active', 0, NULL),
-	(7, NULL, NULL, '01234567891011256', 'MARY JANE', 'BASUL', 'LIBAY', '', 'A', '+6363', NULL, 10, 50, 50, '2026-01-12 14:02:12', '2026-01-12 06:02:12', 'active', 0, NULL),
-	(8, NULL, NULL, 'dfghfdghfg', 'JESSA', 'HFGH', 'HAMBRE', '', 'HGH', '+639128941731', NULL, 6, 50, 50, '2026-01-12 14:02:12', '2026-01-12 06:02:12', 'active', 0, NULL),
-	(9, NULL, NULL, '123456789123', 'ANTONIO JR', NULL, 'PILOTON', NULL, 'iyui', '+639128941731', NULL, 7, 50, 50, '2026-03-11 05:31:45', '2026-03-10 21:31:45', 'active', 0, NULL),
-	(10, NULL, NULL, '675674567456', '74567', NULL, '45674567', NULL, '75', '+639128941731', NULL, 7, 50, 50, '2026-03-11 05:34:21', '2026-03-10 21:34:21', 'active', 0, NULL),
-	(11, NULL, NULL, '645674567', 'ANTONIO JRityui', NULL, 'PILOTON', NULL, '7657', '+639128941731', 'residents/MzC1LJugG5XmoxqhqJnfQ43vXP0m57MOxIDC5zrk.png', 7, 50, 50, '2026-03-11 05:35:38', '2026-03-10 21:35:38', 'active', 0, NULL);
-/*!40000 ALTER TABLE `residents` ENABLE KEYS */;
+INSERT INTO `students` (`id`, `school_id`, `GuardianID`, `UserID`, `LRN`, `FirstName`, `MiddleName`, `LastName`, `Suffix`, `Sex`, `Section`, `PhoneNumber`, `filepath`, `Strand`, `CurrentStatus`, `YearLevel`, `BirthDate`, `BirthPlace`, `Religion`, `Remark`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 1, 16, 9, '154542121454', 'loreto', 'stude', 'PILOTON', NULL, NULL, NULL, '+639128941731', NULL, 'HUMSS', NULL, 8, NULL, NULL, NULL, NULL, 1, 1, '2026-05-26 15:13:25', '2026-05-26 07:13:25', 'active', 0, NULL);
 
--- Dumping structure for table tnhs-new.students_contact_person
+-- Dumping structure for table snsu_safetrack.students_contact_person
 DROP TABLE IF EXISTS `students_contact_person`;
 CREATE TABLE IF NOT EXISTS `students_contact_person` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1690,50 +1491,178 @@ CREATE TABLE IF NOT EXISTS `students_contact_person` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.students_contact_person: 0 rows
+-- Dumping data for table snsu_safetrack.students_contact_person: 0 rows
 DELETE FROM `students_contact_person`;
 /*!40000 ALTER TABLE `students_contact_person` DISABLE KEYS */;
 /*!40000 ALTER TABLE `students_contact_person` ENABLE KEYS */;
 
--- Dumping structure for table tnhs-new.employees
-DROP TABLE IF EXISTS `teachers`;
-CREATE TABLE IF NOT EXISTS `teachers` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `UserID` int(11) NOT NULL DEFAULT '0',
-  `FirstName` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
-  `MiddleName` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `LastName` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `Suffix` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `Address` varchar(60) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
-  `updated_by` int(11) NOT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `archived` tinyint(4) NOT NULL DEFAULT '0',
-  `deleted_at` timestamp NULL DEFAULT NULL,
-  `PhoneNumber` varchar(13) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+-- Dumping structure for table snsu_safetrack.subjects
+DROP TABLE IF EXISTS `subjects`;
+CREATE TABLE IF NOT EXISTS `subjects` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `SubjectCode` varchar(50) DEFAULT NULL,
+  `SubjectName` varchar(255) DEFAULT NULL,
+  `GradeLevelID` bigint(20) NOT NULL,
+  `StrandID` bigint(20) DEFAULT NULL,
+  `SemesterID` bigint(20) DEFAULT NULL,
+  `IsCore` tinyint(1) DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `created_by` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- Dumping data for table tnhs-new.employees: 1 rows
-DELETE FROM `teachers`;
-/*!40000 ALTER TABLE `employees` DISABLE KEYS */;
-INSERT INTO `teachers` (`id`, `UserID`, `FirstName`, `MiddleName`, `LastName`, `Suffix`, `Address`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`, `PhoneNumber`) VALUES
-	(2, 109, 'NORVEN-edited', 'OLACO', 'ESPINOSA', NULL, 'Sitio Cayutan, Brgy. Cagniog', 50, 50, '2025-07-17 00:01:24', '2026-03-10 22:32:48', 'active', 0, NULL, '+639128941731'),
-	(3, 0, 'Teacher', NULL, 'Teacher', NULL, 'Espina St', 50, 50, '2026-03-11 06:32:20', '2026-03-10 22:32:20', 'active', 0, NULL, '+639128941731'),
-	(4, 0, 'jhgfhj', NULL, 'fghjfghj', NULL, 'jfghjfghj', 50, 50, '2026-03-11 06:33:01', '2026-03-10 22:33:01', 'active', 0, NULL, '+639128941731');
-/*!40000 ALTER TABLE `employees` ENABLE KEYS */;
+-- Dumping data for table snsu_safetrack.subjects: 0 rows
+DELETE FROM `subjects`;
+/*!40000 ALTER TABLE `subjects` DISABLE KEYS */;
+/*!40000 ALTER TABLE `subjects` ENABLE KEYS */;
 
--- Dumping structure for table tnhs-new.users
+-- Dumping structure for table snsu_safetrack.support_tickets
+DROP TABLE IF EXISTS `support_tickets`;
+CREATE TABLE IF NOT EXISTS `support_tickets` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `ticket_no` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `school_id` bigint(20) unsigned DEFAULT NULL,
+  `user_id` bigint(20) unsigned DEFAULT NULL,
+  `assigned_to` bigint(20) unsigned DEFAULT NULL,
+  `subject` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `priority` enum('low','medium','high','critical') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'medium',
+  `status` enum('open','pending','in_progress','resolved','closed') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'open',
+  `category` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `resolved_at` datetime DEFAULT NULL,
+  `attachment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `response_time_minutes` int(11) DEFAULT NULL,
+  `is_incident` tinyint(1) NOT NULL DEFAULT '0',
+  `source` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'web',
+  `ip_address` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_agent` text COLLATE utf8mb4_unicode_ci,
+  `status_record` enum('active','inactive') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `archived` tinyint(1) NOT NULL DEFAULT '0',
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `support_tickets_ticket_no_unique` (`ticket_no`),
+  KEY `support_tickets_status_priority_index` (`status`,`priority`),
+  KEY `support_tickets_school_status_index` (`school_id`,`status`),
+  KEY `support_tickets_assigned_status_index` (`assigned_to`,`status`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table snsu_safetrack.support_tickets: ~9 rows (approximately)
+DELETE FROM `support_tickets`;
+INSERT INTO `support_tickets` (`id`, `ticket_no`, `school_id`, `user_id`, `assigned_to`, `subject`, `description`, `priority`, `status`, `category`, `resolved_at`, `attachment`, `response_time_minutes`, `is_incident`, `source`, `ip_address`, `user_agent`, `status_record`, `archived`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES
+	(1, 'ST-2026-000001', NULL, 1, NULL, 'sadasd', 'asdasd', 'low', 'closed', 'dasdasd', '2026-05-25 19:23:38', NULL, NULL, 0, 'web', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0', 'active', 0, 1, 1, '2026-05-25 11:20:05', '2026-05-25 11:25:57'),
+	(2, 'ST-2026-000002', NULL, 1, NULL, 'hljklhjkl', 'lhjklhjkl', 'medium', 'open', 'dasdasd', NULL, NULL, NULL, 0, 'web', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0', 'active', 0, 1, 1, '2026-05-25 11:33:03', '2026-05-25 11:33:03'),
+	(3, 'ST-2026-000003', NULL, 1, NULL, 'hljklhjkl', '41451', 'low', 'in_progress', 'dasdasd', NULL, NULL, NULL, 0, 'web', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0', 'active', 0, 1, 1, '2026-05-25 11:33:57', '2026-05-25 11:35:13'),
+	(4, 'ST-2026-000004', NULL, 1, NULL, 'hljklhjkl', 'rjhgjh', 'high', 'in_progress', 'student_management', NULL, NULL, NULL, 0, 'web', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0', 'active', 0, 1, 1, '2026-05-25 11:38:24', '2026-05-25 11:38:34'),
+	(5, 'ST-2026-000005', NULL, 1, NULL, 'hljklhjklgk', 'kghjkghjk', 'medium', 'open', 'qr_nfc', NULL, NULL, NULL, 0, 'web', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0', 'active', 0, 1, 1, '2026-05-25 11:42:33', '2026-05-25 11:42:33'),
+	(6, 'ST-2026-000006', NULL, 1, NULL, 'hljklhjklgk', 'kghjkhjk', 'medium', 'open', 'qr_nfc', NULL, NULL, NULL, 0, 'web', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0', 'active', 0, 1, 1, '2026-05-25 11:48:46', '2026-05-25 11:48:46'),
+	(7, 'ST-2026-000007', NULL, 1, NULL, 'hljklhjkl', 'jfghjfghj', 'high', 'open', 'attendance', NULL, NULL, NULL, 0, 'web', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0', 'active', 0, 1, 1, '2026-05-25 12:01:00', '2026-05-25 12:01:00'),
+	(8, 'ST-2026-000008', NULL, 1, NULL, 'hljklhjklgk', 'kghjkhjk', 'medium', 'open', 'student_management', NULL, NULL, NULL, 0, 'web', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0', 'active', 0, 1, 1, '2026-05-25 12:06:20', '2026-05-25 12:06:20'),
+	(9, 'ST-2026-000009', NULL, 1, NULL, 'hljklhjkl', 'kghjkghjkhjk', 'critical', 'closed', 'qr_nfc', '2026-05-26 10:23:54', NULL, NULL, 0, 'web', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0', 'active', 0, 1, 1, '2026-05-26 02:23:39', '2026-05-26 02:23:57');
+
+-- Dumping structure for table snsu_safetrack.support_ticket_replies
+DROP TABLE IF EXISTS `support_ticket_replies`;
+CREATE TABLE IF NOT EXISTS `support_ticket_replies` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `ticket_id` bigint(20) unsigned NOT NULL,
+  `user_id` bigint(20) unsigned DEFAULT NULL,
+  `message` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `attachment` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `is_internal` tinyint(1) NOT NULL DEFAULT '0',
+  `status_record` enum('active','inactive') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `archived` tinyint(1) NOT NULL DEFAULT '0',
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `support_ticket_replies_ticket_created_index` (`ticket_id`,`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table snsu_safetrack.support_ticket_replies: ~5 rows (approximately)
+DELETE FROM `support_ticket_replies`;
+INSERT INTO `support_ticket_replies` (`id`, `ticket_id`, `user_id`, `message`, `attachment`, `is_internal`, `status_record`, `archived`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES
+	(1, 1, 1, 'Hello po', NULL, 0, 'active', 0, 1, 1, '2026-05-25 11:21:04', '2026-05-25 11:21:04'),
+	(2, 1, 1, 'jjkk', NULL, 0, 'active', 0, 1, 1, '2026-05-25 11:25:44', '2026-05-25 11:25:44'),
+	(3, 1, 1, 'jghjghj', NULL, 0, 'active', 0, 1, 1, '2026-05-25 11:31:22', '2026-05-25 11:31:22'),
+	(4, 9, 1, 'kghjkghjk', NULL, 0, 'active', 0, 1, 1, '2026-05-26 02:23:43', '2026-05-26 02:23:43'),
+	(5, 9, 1, '.m,.', NULL, 0, 'active', 0, 1, 1, '2026-05-26 02:23:45', '2026-05-26 02:23:45'),
+	(6, 9, 1, 'lhjkljkl', NULL, 0, 'active', 0, 1, 1, '2026-05-26 02:23:48', '2026-05-26 02:23:48');
+
+-- Dumping structure for table snsu_safetrack.suspicious_activities
+DROP TABLE IF EXISTS `suspicious_activities`;
+CREATE TABLE IF NOT EXISTS `suspicious_activities` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned DEFAULT NULL,
+  `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `severity` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'warning',
+  `description` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ip_address` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `meta` json DEFAULT NULL,
+  `detected_at` timestamp NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `suspicious_activities_user_id_foreign` (`user_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table snsu_safetrack.suspicious_activities: 6 rows
+DELETE FROM `suspicious_activities`;
+/*!40000 ALTER TABLE `suspicious_activities` DISABLE KEYS */;
+INSERT INTO `suspicious_activities` (`id`, `user_id`, `type`, `severity`, `description`, `ip_address`, `meta`, `detected_at`, `created_at`, `updated_at`) VALUES
+	(1, NULL, 'failed_logins', 'critical', 'Multiple failed login attempts detected.', '::1', '{"attempts": 5}', '2026-05-25 09:15:57', '2026-05-25 09:15:57', '2026-05-25 09:15:57'),
+	(2, 2, 'multiple_sessions', 'warning', 'Multiple simultaneous active sessions detected.', NULL, '{"sessions": 3}', '2026-05-25 09:16:20', '2026-05-25 09:16:20', '2026-05-25 09:16:20'),
+	(3, 2, 'multiple_sessions', 'warning', 'Multiple simultaneous active sessions detected.', NULL, '{"sessions": 8}', '2026-05-25 09:48:11', '2026-05-25 09:48:11', '2026-05-25 09:48:11'),
+	(4, 2, 'multiple_sessions', 'warning', 'Multiple simultaneous active sessions detected.', NULL, '{"sessions": 9}', '2026-05-25 12:09:08', '2026-05-25 12:09:08', '2026-05-25 12:09:08'),
+	(5, NULL, 'failed_logins', 'critical', 'Multiple failed login attempts detected.', '::1', '{"attempts": 5}', '2026-06-09 09:36:10', '2026-06-09 09:36:10', '2026-06-09 09:36:10'),
+	(6, 10, 'multiple_sessions', 'warning', 'Multiple simultaneous active sessions detected.', NULL, '{"sessions": 3}', '2026-06-09 09:47:54', '2026-06-09 09:47:54', '2026-06-09 09:47:54');
+/*!40000 ALTER TABLE `suspicious_activities` ENABLE KEYS */;
+
+-- Dumping structure for table snsu_safetrack.system_settings
+DROP TABLE IF EXISTS `system_settings`;
+CREATE TABLE IF NOT EXISTS `system_settings` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `cacert_path` longtext COLLATE utf8mb4_unicode_ci,
+  `python_path` longtext COLLATE utf8mb4_unicode_ci,
+  `port_com` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sms_failed_count` int(11) DEFAULT '0',
+  `sms_low_balance` int(11) DEFAULT '0',
+  `total_sent` int(11) DEFAULT '0',
+  `sms_provider` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'api',
+  `sms_api_url` longtext COLLATE utf8mb4_unicode_ci,
+  `sms_api_key` longtext COLLATE utf8mb4_unicode_ci,
+  `sms_api_device_id` longtext COLLATE utf8mb4_unicode_ci,
+  `sms_last_failed_at` datetime DEFAULT NULL,
+  `gsm_enabled` tinyint(1) NOT NULL DEFAULT '0',
+  `sms_enabled` tinyint(1) NOT NULL DEFAULT '1',
+  `remark` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '1',
+  `error_message` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table snsu_safetrack.system_settings: 1 rows
+DELETE FROM `system_settings`;
+/*!40000 ALTER TABLE `system_settings` DISABLE KEYS */;
+INSERT INTO `system_settings` (`id`, `cacert_path`, `python_path`, `port_com`, `sms_failed_count`, `sms_low_balance`, `total_sent`, `sms_provider`, `sms_api_url`, `sms_api_key`, `sms_api_device_id`, `sms_last_failed_at`, `gsm_enabled`, `sms_enabled`, `remark`, `error_message`, `created_at`, `updated_at`) VALUES
+	(1, 'C:\\wamp64\\bin\\php\\php8.4.15\\extras\\ssl\\cacert.pem', 'C:/Users/USER/AppData/Local/Programs/Python/Python313/python.exe', 'COM5', 6, 0, 23, 'gsm', NULL, NULL, NULL, '2026-05-25 18:50:39', 1, 1, '1', '', '2026-05-25 10:03:34', '2026-05-26 02:28:25');
+/*!40000 ALTER TABLE `system_settings` ENABLE KEYS */;
+
+-- Dumping structure for table snsu_safetrack.users
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE IF NOT EXISTS `users` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `is_super_admin` int(10) unsigned NOT NULL DEFAULT '0',
+  `school_id` int(11) NOT NULL DEFAULT '0',
+  `tenant_id` int(11) NOT NULL DEFAULT '0',
+  `filepath` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
   `qr_code` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
   `nfc_code` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `conn_id` bigint(20) unsigned NOT NULL DEFAULT '0',
   `user_type` int(10) unsigned NOT NULL DEFAULT '0',
-  `SchoolID` bigint(20) unsigned NOT NULL DEFAULT '0',
   `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `email` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `email_verified_at` timestamp NULL DEFAULT NULL,
@@ -1742,63 +1671,35 @@ CREATE TABLE IF NOT EXISTS `users` (
   `profile_pic` longtext COLLATE utf8mb4_unicode_ci,
   `password` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `remember_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `google_id` longtext COLLATE utf8mb4_unicode_ci,
+  `verified` int(11) DEFAULT NULL,
   `created_by` int(11) DEFAULT NULL,
   `updated_by` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_activity_at` datetime DEFAULT NULL,
   `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_email_unique` (`email`)
-) ENGINE=MyISAM AUTO_INCREMENT=116 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.users: 1 rows
+-- Dumping data for table snsu_safetrack.users: 8 rows
 DELETE FROM `users`;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` (`id`, `qr_code`, `nfc_code`, `conn_id`, `user_type`, `SchoolID`, `name`, `email`, `email_verified_at`, `avatar`, `fcm_token`, `profile_pic`, `password`, `remember_token`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
-	(50, '0', NULL, 0, 0, 0, 'Antonio Jr Piloton', 'apiloton1@ssct.edu.ph', NULL, 'https://lh3.googleusercontent.com/a/ACg8ocICxZuvbmnED8B5vH9nAzZ75oj4EyyJOq04YOMO7jxaSaNGZqsv=s96-c', 'fSy1iNs0SXGcNng3Jbs0lh:APA91bHNX0EKxAgD3iWC4Iq1cifB6nye4Ki6dIU1wGaxbZGEfJmNJaYQo-zdkvUiiVEwmRAwDUoGeRGc8IGjSdXRo9D1zp-dFZ17_3bVXLLHb40a9AFDCaE', NULL, '$2y$12$HeXUG8OxOLTwfJuF.zNa7.hcKXsn8ehcrW.usaiTHDNKpvTXYxRhG', 'PEdaoSlrkyWlzBXypVa9d2Zqe5fE4Ny6UhSoGcCWxmClybv3f2K3KAfUVZ9C', NULL, NULL, '2025-07-16 23:53:07', '2026-02-17 09:35:29', NULL, 0, NULL),
-	(115, '0', NULL, 0, 0, 0, 'JESSA HAMBRE', 'dfghfdghfg@student.local', NULL, NULL, NULL, NULL, '$2y$12$5/WBrMimawhzFeTMJEwPQ.qJOr8zcolCi2Oy3Ar3ukAXFKC2jCvo6', NULL, NULL, NULL, '2026-03-11 06:54:21', '2026-03-10 22:54:21', NULL, 0, NULL),
-	(113, '0', NULL, 0, 0, 0, 'JOHANS EMPLEO', 'gdfg@student.local', NULL, NULL, NULL, NULL, '$2y$12$P7jJBXirvRKtsYBoZ5tZ/OC.RsUEEVuEwC2Oasg3i7GpI8x7m2hgy', NULL, NULL, NULL, '2026-03-11 06:49:26', '2026-03-10 22:49:26', NULL, 0, NULL),
-	(114, '0', NULL, 0, 0, 0, 'DR. SHIRLY C. AGRUPIS vjk', '455454@student.local', NULL, NULL, NULL, NULL, '$2y$12$VSNZlPEFaCTBRXWFLkhDi.IeiKtHUSeuHtRcVZchbs7mq46AEb.Y.', NULL, NULL, NULL, '2026-03-11 06:51:23', '2026-03-10 22:51:23', NULL, 0, NULL);
+INSERT INTO `users` (`id`, `is_super_admin`, `school_id`, `tenant_id`, `filepath`, `qr_code`, `nfc_code`, `conn_id`, `user_type`, `name`, `email`, `email_verified_at`, `avatar`, `fcm_token`, `profile_pic`, `password`, `remember_token`, `google_id`, `verified`, `created_by`, `updated_by`, `created_at`, `updated_at`, `last_activity_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 0, 0, 0, '0', '0', NULL, 0, 0, 'Antonio Jr Piloton', 'apiloton1@snsu.edu.ph', NULL, 'https://lh3.googleusercontent.com/a/ACg8ocICxZuvbmnED8B5vH9nAzZ75oj4EyyJOq04YOMO7jxaSaNGZqsv=s96-c', NULL, NULL, '$2y$12$KOu9VkzGkjxU5Ztn1Jdp/OptDZxOV.pTIgY9aFMn0TKRCDbez835.', '9acJqd3Qk9lG7a5sByjXlIyli8rGQBOo5nKORAOrkvzzwe6sQEAQzBTPYymb', '117952079880321133596', 1, NULL, NULL, '2026-05-25 11:23:26', '2026-06-09 09:50:21', '2026-06-09 17:50:13', NULL, 0, NULL),
+	(2, 0, 1, 0, '0', '304854000001', NULL, 1, 0, 'NORVEN ESPINOSA', 'nespinosa@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$WWpdipcPO1wqNNF4HfHMROcP.XbpLzZb39a5hh5GCvLtYncSq0zSm', NULL, NULL, NULL, 1, 1, '2026-05-25 11:37:09', '2026-05-26 00:41:07', '2026-05-26 08:41:07', 'active', 0, NULL),
+	(3, 0, 1, 0, '0', '304854000002', NULL, 2, 0, 'ESTER TURAJA', 'eturaja@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$RSojH6443ykSykVitn0ls.6v6D4Wq7zzGuNoZOZR7pTigonvvPGXm', NULL, NULL, NULL, 1, 1, '2026-05-25 11:56:06', '2026-05-26 02:25:19', '2026-05-26 10:25:19', 'active', 0, NULL),
+	(8, 0, 1, 0, '0', '304854000006', NULL, 1, 0, 'ESTER TURAJA', 'eturaja1@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$PilyO0GK/GEdyoCSJS/1kOSRCCAncpm6aZSeCJqrLV9KfdnWU0WQO', NULL, NULL, NULL, 3, 3, '2026-05-26 10:11:39', '2026-05-26 02:15:17', NULL, 'active', 0, NULL),
+	(6, 0, 1, 0, '0', '304854000004', NULL, 16, 0, 'ANTONIO JR PILOTON', 'apiloton@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$wUQYpeWx.jaclMtCSrZkV.hSxiWQV.IEPOZDRg3bG/seTnqSNAUDa', NULL, NULL, NULL, 1, 1, '2026-05-26 08:10:15', '2026-05-26 01:41:59', '2026-05-26 09:41:59', 'active', 0, NULL),
+	(7, 0, 1, 0, '0', '304854000005', '0026063620', 1, 0, 'loreto PILOTON', 'lpiloton@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$smEgx4teawc9h4T4H.eBMuWPaRiy3W0oM4qmH/XBHYfAOAsxNgTn6', NULL, NULL, NULL, 1, 1, '2026-05-26 08:10:23', '2026-05-26 02:24:39', NULL, 'active', 0, NULL),
+	(9, 0, 1, 0, 'users/students/9/8aca7554-0240-4906-852b-245dd1601201.jpeg', '304854000007', NULL, 1, 0, 'loreto PILOTON', 'lpiloton1@tnhs.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$ZB4.FSshFYWmk8hPy85t1.tQu0Kg2i8m/x70IN7Sq3J9uyVh.uMEi', NULL, NULL, NULL, 1, 1, '2026-05-26 15:13:25', '2026-05-26 07:20:45', NULL, 'active', 0, NULL),
+	(11, 0, 0, 0, '0', '0', NULL, 0, 0, 'ANTONIO JR. PILOTON', 'antoniojrpiloton@gmail.com', NULL, 'https://lh3.googleusercontent.com/a/ACg8ocKkyDZe64PBZKwzpp0RZycR0EkIrvLozpRb9PuWO14e-MU6Upk=s96-c', NULL, NULL, '$2y$12$5PBNfpUmecYLi.ljhHdkkuJd8N5DzQCileGvaDOQfau5sKcCaZ8sO', 'c45C0ylA33m8FRi65X0SJfPggMAt6HcaQn2vySRo6OrtaIwcU3WPgfCwH3p3', '112090857259724913006', 1, NULL, NULL, '2026-06-09 17:50:36', '2026-06-10 02:56:59', '2026-06-10 10:56:59', NULL, 0, NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 
--- Dumping structure for table tnhs-new.user_nfcs
-DROP TABLE IF EXISTS `user_nfcs`;
-CREATE TABLE IF NOT EXISTS `user_nfcs` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `UserID` int(11) NOT NULL DEFAULT '0',
-  `nfc_uid` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
-  `created_by` int(11) NOT NULL,
-  `updated_by` int(11) NOT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `archived` tinyint(4) NOT NULL DEFAULT '0',
-  `deleted_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Dumping data for table tnhs-new.user_nfcs: 13 rows
-DELETE FROM `user_nfcs`;
-/*!40000 ALTER TABLE `user_nfcs` DISABLE KEYS */;
-INSERT INTO `user_nfcs` (`id`, `UserID`, `nfc_uid`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
-	(1, 89, '04B38501690C03', 50, 50, '2025-07-25 04:36:52', '2025-07-24 20:36:52', 'active', 0, NULL),
-	(2, 90, '04825A01484D03', 50, 50, '2025-07-25 04:37:16', '2025-07-24 20:37:16', 'active', 0, NULL),
-	(3, 92, '0472A501EE4D03', 50, 50, '2025-07-25 04:37:26', '2025-07-24 20:37:26', 'active', 0, NULL),
-	(4, 91, '04822201944D03', 50, 50, '2025-07-25 04:37:33', '2025-07-24 20:37:33', 'active', 0, NULL),
-	(5, 93, '04824801034D03', 50, 50, '2025-07-25 04:37:43', '2025-07-24 20:37:43', 'active', 0, NULL),
-	(6, 94, '0472A801914D03', 50, 50, '2025-07-25 04:37:50', '2025-07-24 20:37:50', 'active', 0, NULL),
-	(7, 96, '04B3D4016B0C03', 50, 50, '2025-07-25 04:37:58', '2025-07-24 20:37:58', 'active', 0, NULL),
-	(8, 97, '04B39201240C03', 50, 50, '2025-07-25 04:38:06', '2025-07-24 20:38:06', 'active', 0, NULL),
-	(9, 95, '04B3A701E30C03', 50, 50, '2025-07-25 04:38:21', '2025-07-24 20:38:21', 'active', 0, NULL),
-	(10, 98, '04B3FD01AE0C03', 50, 50, '2025-07-25 04:38:37', '2025-07-24 20:38:37', 'active', 0, NULL),
-	(11, 105, '04B38501690C03', 50, 50, '2026-01-12 13:35:09', '2026-01-12 05:35:09', 'active', 0, NULL),
-	(12, 111, '04B3A701E30C03', 50, 50, '2026-01-12 13:35:25', '2026-01-12 05:35:25', 'active', 0, NULL),
-	(13, 112, '04824801034D03', 50, 50, '2026-01-12 13:35:34', '2026-01-12 05:35:34', 'active', 0, NULL);
-/*!40000 ALTER TABLE `user_nfcs` ENABLE KEYS */;
-
--- Dumping structure for table tnhs-new.user_phones
+-- Dumping structure for table snsu_safetrack.user_phones
 DROP TABLE IF EXISTS `user_phones`;
 CREATE TABLE IF NOT EXISTS `user_phones` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1814,10 +1715,30 @@ CREATE TABLE IF NOT EXISTS `user_phones` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table tnhs-new.user_phones: 0 rows
+-- Dumping data for table snsu_safetrack.user_phones: 0 rows
 DELETE FROM `user_phones`;
 /*!40000 ALTER TABLE `user_phones` DISABLE KEYS */;
 /*!40000 ALTER TABLE `user_phones` ENABLE KEYS */;
+
+-- Dumping structure for table snsu_safetrack.year_level
+DROP TABLE IF EXISTS `year_level`;
+CREATE TABLE IF NOT EXISTS `year_level` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `YearLevel` int(11) NOT NULL DEFAULT '0',
+  `created_by` int(11) NOT NULL,
+  `updated_by` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- Dumping data for table snsu_safetrack.year_level: 0 rows
+DELETE FROM `year_level`;
+/*!40000 ALTER TABLE `year_level` DISABLE KEYS */;
+/*!40000 ALTER TABLE `year_level` ENABLE KEYS */;
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

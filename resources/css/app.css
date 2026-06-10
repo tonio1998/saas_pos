@@ -20,6 +20,7 @@
 @import "./confirmation.css";
 @import "./id.css";
 @import "./body.css";
+@import "./pages/pos.css";
 
 @import "@fontsource/inter/400.css";
 @import "@fontsource/inter/500.css";

@@ -6,8 +6,34 @@ use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\LoginActivityController;
 use App\Http\Controllers\PlatformAnalyticsController;
+use App\Http\Controllers\POS\BrandController;
+use App\Http\Controllers\POS\CategoryController;
+use App\Http\Controllers\POS\CustomerCollectionController;
+use App\Http\Controllers\POS\CustomerController;
+use App\Http\Controllers\POS\CustomerCreditController;
+use App\Http\Controllers\POS\ExpenseController;
+use App\Http\Controllers\POS\ExpenseReportController;
+use App\Http\Controllers\POS\InventoryController;
+use App\Http\Controllers\POS\InventoryReportController;
+use App\Http\Controllers\POS\PaymentsController;
+use App\Http\Controllers\POS\PriceHistoryController;
+use App\Http\Controllers\POS\ProductController;
+use App\Http\Controllers\POS\ProfitReportController;
+use App\Http\Controllers\POS\PurchaseController;
+use App\Http\Controllers\POS\PurchaseReportController;
+use App\Http\Controllers\POS\ReturnController;
+use App\Http\Controllers\POS\SalesAshShiftController;
+use App\Http\Controllers\POS\SalesCashDrawerController;
+use App\Http\Controllers\POS\SalesCashTransactionController;
+use App\Http\Controllers\POS\SalesController;
+use App\Http\Controllers\POS\SalesReportController;
+use App\Http\Controllers\POS\StockAdjustmentController;
+use App\Http\Controllers\POS\StockController;
+use App\Http\Controllers\POS\StockLowStockController;
+use App\Http\Controllers\POS\SupplierController;
+use App\Http\Controllers\POS\UnitController;
 use App\Http\Controllers\SADashboardController;
-use App\Http\Controllers\SchoolDashboardController;
+use App\Http\Controllers\StoreDashboardController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\GradeLevelController;
 use App\Http\Controllers\SchoolLogsController;
@@ -55,8 +81,8 @@ Route::prefix('sa')->name('sa.')->middleware([
     'auth',
     'role:SA',
 ])->group(function () {
-    Route::prefix('schools')
-        ->name('schools.')->group(function(){
+    Route::prefix('store')
+        ->name('store.')->group(function(){
             Route::get('/', [SchoolController::class, 'index'])->name('index');
             Route::get('/create', [SchoolController::class, 'create'])->name('create');
             Route::post('/', [SchoolController::class, 'store'])->name('store');
@@ -255,8 +281,8 @@ Route::prefix('support-center')
 
 Route::middleware('auth')->group(function(){
     Route::prefix('dashboard')->name('dashboard.')->group(function(){
-        Route::get('/', [SchoolDashboardController::class, 'index'])->name('index');
-        Route::get('/data', [SchoolDashboardController::class, 'data'])->name('data');
+        Route::get('/', [StoreDashboardController::class, 'index'])->name('index');
+        Route::get('/data', [StoreDashboardController::class, 'data'])->name('data');
     });
 
     Route::prefix('school-users')->name('school-users.')->group(function(){
@@ -445,6 +471,246 @@ Route::middleware('auth')->group(function(){
     Route::prefix('scanner')->name('scanner.')->group(function(){
         Route::get('/', [SchoolScannerController::class, 'index'])->name('index');
         Route::post('/send-sms', [SchoolScannerController::class, 'send']);
+    });
+
+
+//    POS
+
+
+    Route::prefix('sales')->name('sales.')->group(function () {
+        Route::get('/', [SalesController::class, 'index'])->name('index');
+        Route::get('/create', [SalesController::class, 'create'])->name('create');
+        Route::post('/create', [SalesController::class, 'store'])->name('store');
+        Route::get('/view/{id}', [SalesController::class, 'show'])->name('show');
+        Route::get('/edit/{id}', [SalesController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [SalesController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [SalesController::class, 'destroy'])->name('destroy');
+        Route::get('/data', [SalesController::class, 'ajaxData'])->name('data');
+    });
+
+    Route::prefix('cashiering')->name('cashiering.')->group(function () {
+        Route::prefix('cash-drawers')->name('cash-drawers.')->group(function () {
+            Route::get('/', [SalesCashDrawerController::class, 'index'])->name('index');
+            Route::get('/create', [SalesCashDrawerController::class, 'create'])->name('create');
+            Route::post('/create', [SalesCashDrawerController::class, 'store'])->name('store');
+            Route::get('/view/{id}', [SalesCashDrawerController::class, 'show'])->name('show');
+            Route::get('/edit/{id}', [SalesCashDrawerController::class, 'edit'])->name('edit');
+            Route::put('/update/{id}', [SalesCashDrawerController::class, 'update'])->name('update');
+            Route::delete('/delete/{id}', [SalesCashDrawerController::class, 'destroy'])->name('destroy');
+            Route::get('/data', [SalesCashDrawerController::class, 'ajaxData'])->name('data');
+        });
+
+        Route::prefix('cash-transactions')->name('cash-transactions.')->group(function () {
+            Route::get('/', [SalesCashTransactionController::class, 'index'])->name('index');
+            Route::get('/create', [SalesCashTransactionController::class, 'create'])->name('create');
+            Route::post('/create', [SalesCashTransactionController::class, 'store'])->name('store');
+            Route::get('/view/{id}', [SalesCashTransactionController::class, 'show'])->name('show');
+            Route::get('/edit/{id}', [SalesCashTransactionController::class, 'edit'])->name('edit');
+            Route::put('/update/{id}', [SalesCashTransactionController::class, 'update'])->name('update');
+            Route::delete('/delete/{id}', [SalesCashTransactionController::class, 'destroy'])->name('destroy');
+            Route::get('/data', [SalesCashTransactionController::class, 'ajaxData'])->name('data');
+        });
+
+        Route::prefix('ash-shifts')->name('ash-shifts.')->group(function () {
+            Route::get('/', [SalesAshShiftController::class, 'index'])->name('index');
+            Route::get('/create', [SalesAshShiftController::class, 'create'])->name('create');
+            Route::post('/create', [SalesAshShiftController::class, 'store'])->name('store');
+            Route::get('/view/{id}', [SalesAshShiftController::class, 'show'])->name('show');
+            Route::get('/edit/{id}', [SalesAshShiftController::class, 'edit'])->name('edit');
+            Route::put('/update/{id}', [SalesAshShiftController::class, 'update'])->name('update');
+            Route::delete('/delete/{id}', [SalesAshShiftController::class, 'destroy'])->name('destroy');
+            Route::get('/data', [SalesAshShiftController::class, 'ajaxData'])->name('data');
+        });
+    });
+
+    Route::prefix('products')->name('products.')->group(function () {
+        Route::get('/', [ProductController::class, 'index'])->name('index');
+        Route::get('/create', [ProductController::class, 'create'])->name('create');
+        Route::post('/create', [ProductController::class, 'store'])->name('store');
+        Route::get('/view/{id}', [ProductController::class, 'show'])->name('show');
+        Route::get('/edit/{id}', [ProductController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [ProductController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [ProductController::class, 'destroy'])->name('destroy');
+        Route::get('/data', [ProductController::class, 'ajaxData'])->name('data');
+
+        Route::prefix('price-history')->name('price-history.')->group(function () {
+            Route::get('/', [PriceHistoryController::class, 'index'])->name('index');
+            Route::get('/create', [PriceHistoryController::class, 'create'])->name('create');
+            Route::post('/create', [PriceHistoryController::class, 'store'])->name('store');
+            Route::get('/view/{id}', [PriceHistoryController::class, 'show'])->name('show');
+            Route::get('/edit/{id}', [PriceHistoryController::class, 'edit'])->name('edit');
+            Route::put('/update/{id}', [PriceHistoryController::class, 'update'])->name('update');
+            Route::delete('/delete/{id}', [PriceHistoryController::class, 'destroy'])->name('destroy');
+            Route::get('/data', [PriceHistoryController::class, 'ajaxData'])->name('data');
+        });
+
+        Route::prefix('categories')->name('categories.')->group(function () {
+            Route::get('/', [CategoryController::class, 'index'])->name('index');
+            Route::get('/create', [CategoryController::class, 'create'])->name('create');
+            Route::post('/create', [CategoryController::class, 'store'])->name('store');
+            Route::get('/edit/{id}', [CategoryController::class, 'edit'])->name('edit');
+            Route::put('/update/{id}', [CategoryController::class, 'update'])->name('update');
+            Route::delete('/delete/{id}', [CategoryController::class, 'destroy'])->name('destroy');
+            Route::get('/data', [CategoryController::class, 'ajaxData'])->name('data');
+        });
+
+        Route::prefix('brands')->name('brands.')->group(function () {
+            Route::get('/', [BrandController::class, 'index'])->name('index');
+            Route::get('/create', [BrandController::class, 'create'])->name('create');
+            Route::post('/create', [BrandController::class, 'store'])->name('store');
+            Route::get('/edit/{id}', [BrandController::class, 'edit'])->name('edit');
+            Route::put('/update/{id}', [BrandController::class, 'update'])->name('update');
+            Route::delete('/delete/{id}', [BrandController::class, 'destroy'])->name('destroy');
+            Route::get('/data', [BrandController::class, 'ajaxData'])->name('data');
+        });
+
+        Route::prefix('units')->name('units.')->group(function () {
+            Route::get('/', [UnitController::class, 'index'])->name('index');
+            Route::get('/create', [UnitController::class, 'create'])->name('create');
+            Route::post('/create', [UnitController::class, 'store'])->name('store');
+            Route::get('/edit/{id}', [UnitController::class, 'edit'])->name('edit');
+            Route::put('/update/{id}', [UnitController::class, 'update'])->name('update');
+            Route::delete('/delete/{id}', [UnitController::class, 'destroy'])->name('destroy');
+            Route::get('/data', [UnitController::class, 'ajaxData'])->name('data');
+        });
+    });
+
+    Route::prefix('customers')->name('customers.')->group(function () {
+        Route::get('/', [CustomerController::class, 'index'])->name('index');
+        Route::get('/create', [CustomerController::class, 'create'])->name('create');
+        Route::post('/create', [CustomerController::class, 'store'])->name('store');
+        Route::get('/view/{id}', [CustomerController::class, 'show'])->name('show');
+        Route::get('/edit/{id}', [CustomerController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [CustomerController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [CustomerController::class, 'destroy'])->name('destroy');
+        Route::get('/data', [CustomerController::class, 'ajaxData'])->name('data');
+
+        Route::prefix('credit')->name('credit.')->group(function () {
+            Route::get('/', [CustomerCreditController::class, 'index'])->name('index');
+            Route::get('/create', [CustomerCreditController::class, 'create'])->name('create');
+            Route::post('/create', [CustomerCreditController::class, 'store'])->name('store');
+            Route::get('/view/{id}', [CustomerCreditController::class, 'show'])->name('show');
+            Route::get('/edit/{id}', [CustomerCreditController::class, 'edit'])->name('edit');
+            Route::put('/update/{id}', [CustomerCreditController::class, 'update'])->name('update');
+            Route::delete('/delete/{id}', [CustomerCreditController::class, 'destroy'])->name('destroy');
+            Route::get('/data', [CustomerCreditController::class, 'ajaxData'])->name('data');
+        });
+
+        Route::prefix('collections')->name('collections.')->group(function () {
+            Route::get('/', [CustomerCollectionController::class, 'index'])->name('index');
+            Route::get('/create', [CustomerCollectionController::class, 'create'])->name('create');
+            Route::post('/create', [CustomerCollectionController::class, 'store'])->name('store');
+            Route::get('/view/{id}', [CustomerCollectionController::class, 'show'])->name('show');
+            Route::get('/edit/{id}', [CustomerCollectionController::class, 'edit'])->name('edit');
+            Route::put('/update/{id}', [CustomerCollectionController::class, 'update'])->name('update');
+            Route::delete('/delete/{id}', [CustomerCollectionController::class, 'destroy'])->name('destroy');
+            Route::get('/data', [CustomerCollectionController::class, 'ajaxData'])->name('data');
+        });
+    });
+
+    Route::prefix('suppliers')->name('suppliers.')->group(function () {
+        Route::get('/', [SupplierController::class, 'index'])->name('index');
+        Route::get('/create', [SupplierController::class, 'create'])->name('create');
+        Route::post('/create', [SupplierController::class, 'store'])->name('store');
+        Route::get('/edit/{id}', [SupplierController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [SupplierController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [SupplierController::class, 'destroy'])->name('destroy');
+        Route::get('/data', [SupplierController::class, 'ajaxData'])->name('data');
+    });
+
+    Route::prefix('purchases')->name('purchases.')->group(function () {
+        Route::get('/', [PurchaseController::class, 'index'])->name('index');
+        Route::get('/create', [PurchaseController::class, 'create'])->name('create');
+        Route::post('/create', [PurchaseController::class, 'store'])->name('store');
+        Route::get('/view/{id}', [PurchaseController::class, 'show'])->name('show');
+        Route::get('/edit/{id}', [PurchaseController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [PurchaseController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [PurchaseController::class, 'destroy'])->name('destroy');
+        Route::get('/data', [PurchaseController::class, 'ajaxData'])->name('data');
+    });
+
+    Route::prefix('expenses')->name('expenses.')->group(function () {
+        Route::get('/', [ExpenseController::class, 'index'])->name('index');
+        Route::get('/create', [ExpenseController::class, 'create'])->name('create');
+        Route::post('/create', [ExpenseController::class, 'store'])->name('store');
+        Route::get('/edit/{id}', [ExpenseController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [ExpenseController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [ExpenseController::class, 'destroy'])->name('destroy');
+        Route::get('/data', [ExpenseController::class, 'ajaxData'])->name('data');
+    });
+
+    Route::prefix('returns')->name('returns.')->group(function () {
+        Route::get('/', [ReturnController::class, 'index'])->name('index');
+        Route::get('/create', [ReturnController::class, 'create'])->name('create');
+        Route::post('/create', [ReturnController::class, 'store'])->name('store');
+        Route::get('/view/{id}', [ReturnController::class, 'show'])->name('show');
+        Route::get('/edit/{id}', [ReturnController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [ReturnController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [ReturnController::class, 'destroy'])->name('destroy');
+        Route::get('/data', [ReturnController::class, 'ajaxData'])->name('data');
+    });
+
+    Route::prefix('payments')->name('payments.')->group(function () {
+        Route::get('/', [PaymentsController::class, 'index'])->name('index');
+        Route::get('/create', [PaymentsController::class, 'create'])->name('create');
+        Route::post('/create', [PaymentsController::class, 'store'])->name('store');
+        Route::get('/view/{id}', [PaymentsController::class, 'show'])->name('show');
+        Route::get('/edit/{id}', [PaymentsController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [PaymentsController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [PaymentsController::class, 'destroy'])->name('destroy');
+        Route::get('/data', [PaymentsController::class, 'ajaxData'])->name('data');
+    });
+
+    Route::prefix('inventory-movements')->name('inventory-movements.')->group(function () {
+        Route::get('/', [InventoryController::class, 'index'])->name('index');
+        Route::get('/create', [InventoryController::class, 'create'])->name('create');
+        Route::post('/create', [InventoryController::class, 'store'])->name('store');
+        Route::get('/view/{id}', [InventoryController::class, 'show'])->name('show');
+        Route::get('/edit/{id}', [InventoryController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [InventoryController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [InventoryController::class, 'destroy'])->name('destroy');
+        Route::get('/data', [InventoryController::class, 'ajaxData'])->name('data');
+    });
+
+    Route::prefix('stocks')->name('stocks.')->group(function () {
+        Route::get('/', [StockController::class, 'index'])->name('index');
+        Route::get('/create', [StockController::class, 'create'])->name('create');
+        Route::post('/create', [StockController::class, 'store'])->name('store');
+        Route::get('/view/{id}', [StockController::class, 'show'])->name('show');
+        Route::get('/edit/{id}', [StockController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [StockController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [StockController::class, 'destroy'])->name('destroy');
+        Route::get('/data', [StockController::class, 'ajaxData'])->name('data');
+
+        Route::prefix('adjustments')->name('adjustments.')->group(function () {
+            Route::get('/', [StockAdjustmentController::class, 'index'])->name('index');
+            Route::get('/create', [StockAdjustmentController::class, 'create'])->name('create');
+            Route::post('/create', [StockAdjustmentController::class, 'store'])->name('store');
+            Route::get('/view/{id}', [StockAdjustmentController::class, 'show'])->name('show');
+            Route::get('/edit/{id}', [StockAdjustmentController::class, 'edit'])->name('edit');
+            Route::put('/update/{id}', [StockAdjustmentController::class, 'update'])->name('update');
+            Route::delete('/delete/{id}', [StockAdjustmentController::class, 'destroy'])->name('destroy');
+            Route::get('/data', [StockAdjustmentController::class, 'ajaxData'])->name('data');
+        });
+
+        Route::prefix('low-stocks')->name('low-stocks.')->group(function () {
+            Route::get('/', [StockLowStockController::class, 'index'])->name('index');
+            Route::get('/create', [StockLowStockController::class, 'create'])->name('create');
+            Route::post('/create', [StockLowStockController::class, 'store'])->name('store');
+            Route::get('/view/{id}', [StockLowStockController::class, 'show'])->name('show');
+            Route::get('/edit/{id}', [StockLowStockController::class, 'edit'])->name('edit');
+            Route::put('/update/{id}', [StockLowStockController::class, 'update'])->name('update');
+            Route::delete('/delete/{id}', [StockLowStockController::class, 'destroy'])->name('destroy');
+            Route::get('/data', [StockLowStockController::class, 'ajaxData'])->name('data');
+        });
+    });
+
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/sales', [SalesReportController::class, 'index'])->name('sales');
+        Route::get('/inventory', [InventoryReportController::class, 'index'])->name('inventory');
+        Route::get('/expenses', [ExpenseReportController::class, 'index'])->name('expenses');
+        Route::get('/profit', [ProfitReportController::class, 'index'])->name('profit');
+        Route::get('/purchases', [PurchaseReportController::class, 'index'])->name('purchases');
     });
 
 });

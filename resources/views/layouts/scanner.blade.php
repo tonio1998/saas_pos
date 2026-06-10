@@ -8,7 +8,7 @@
 
     @vite(['resources/css/app.css','resources/js/app.js'])
     @include('theme')
-    @include('pages.schools.scanner.style')
+    @include('pages.store.scanner.style')
 </head>
 <body>
 
@@ -18,10 +18,10 @@
     </main>
 </div>
 
-<x-alerts />
+<x-alerts/>
 
 @include('components.footer')
-@include('pages.schools.scanner.script')
+@include('pages.store.scanner.script')
 @stack('scripts')
 <script>
     window.analyticsRoutes = {
