@@ -268,24 +268,24 @@ const POS = {
     },
     events() {
 
-        this.productCards.forEach(card => {
-
-            card.addEventListener(
-                'click',
-                () => {
-
-                    this.addToCart({
-                        id: Number(card.dataset.id),
-                        barcode: card.dataset.barcode,
-                        name: card.dataset.name,
-                        price: Number(card.dataset.price),
-                        stock: Number(card.dataset.stock || 0),
-                    });
-
-                }
-            );
-
-        });
+        // this.productCards.forEach(card => {
+        //
+        //     card.addEventListener(
+        //         'click',
+        //         () => {
+        //
+        //             this.addToCart({
+        //                 id: Number(card.dataset.id),
+        //                 barcode: card.dataset.barcode,
+        //                 name: card.dataset.name,
+        //                 price: Number(card.dataset.price),
+        //                 stock: Number(card.dataset.stock || 0),
+        //             });
+        //
+        //         }
+        //     );
+        //
+        // });
 
         this.bindSearch();
 
