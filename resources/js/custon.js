@@ -3,6 +3,64 @@ window.$ = window.jQuery = $
 
 $(document).ready(function () {
 
+    function calculateAverageCost() {
+
+        let currentStock =
+            parseFloat(
+                $('#current_stock').val()
+            ) || 0;
+
+        let quantity =
+            parseFloat(
+                $('#quantity').val()
+            ) || 0;
+
+        let currentCost =
+            parseFloat(
+                $('#current_cost').val()
+            ) || 0;
+
+        let purchaseCost =
+            parseFloat(
+                $('#unit_cost').val()
+            ) || 0;
+
+        if (
+            quantity <= 0 ||
+            purchaseCost <= 0
+        ) {
+
+            $('#average_cost').val('');
+
+            return;
+        }
+
+        let totalExistingValue =
+            currentStock * currentCost;
+
+        let totalNewValue =
+            quantity * purchaseCost;
+
+        let totalStock =
+            currentStock + quantity;
+
+        let averageCost =
+            (
+                totalExistingValue +
+                totalNewValue
+            ) / totalStock;
+
+        $('#average_cost').val(
+            averageCost.toFixed(2)
+        );
+
+    }
+
+    $('#quantity, #unit_cost').on(
+        'input',
+        calculateAverageCost
+    );
+
     function calculateAdjustment() {
 
         const currentStock =

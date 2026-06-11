@@ -1,329 +1,48 @@
+import ProductDB from './db.js';
+import ProductService from './services/product.service.js';
+
 const POS = {
 
-    vatRate: 0.12,
+    state: {
 
-    products: [],
+        cart: [],
 
-    cart: [],
+        customer: null,
 
-    init() {
+        subtotal: 0,
 
-        this.loadCart();
+        discount: 0,
 
-        this.bindEvents();
+        total: 0,
+        productMap: {},
+        paymentMethod: 'cash',
 
-        this.updateDateTime();
+        tendered: 0,
+
+        change: 0,
+
+    },
+
+    async init() {
+
+        this.cache();
+
+        await ProductDB.init();
+
+        await this.loadProducts();
+
+        this.events();
 
         this.renderCart();
 
-        setInterval(() => {
+        this.searchInput?.focus();
 
-            this.updateDateTime();
-
-        }, 1000);
     },
-
-    bindEvents() {
-
-        const searchInput =
-            document.getElementById(
-                'barcodeSearch'
-            );
-
-        if (searchInput) {
-
-            searchInput.addEventListener(
-                'keydown',
-                e => {
-
-                    if (
-                        e.key !== 'Enter'
-                    ) {
-                        return;
-                    }
-
-                    e.preventDefault();
-
-                    const value =
-                        e.target.value.trim();
-
-                    if (!value) {
-                        return;
-                    }
-
-                    this.scanBarcode(
-                        value
-                    );
-
-                    e.target.value = '';
-                }
-            );
-        }
-
-        document.addEventListener(
-            'click',
-            e => {
-
-                const product =
-                    e.target.closest(
-                        '.product-card'
-                    );
-
-                if (product) {
-
-                    this.addToCart({
-                        id:
-                        product.dataset.id,
-                        barcode:
-                        product.dataset.barcode,
-                        name:
-                        product.dataset.name,
-                        price:
-                            parseFloat(
-                                product.dataset.price
-                            ),
-                        image:
-                            product.dataset.image || ''
-                    });
-
-                    return;
-                }
-
-                const qtyPlus =
-                    e.target.closest(
-                        '.qty-plus'
-                    );
-
-                if (qtyPlus) {
-
-                    this.changeQty(
-                        qtyPlus.dataset.id,
-                        1
-                    );
-
-                    return;
-                }
-
-                const qtyMinus =
-                    e.target.closest(
-                        '.qty-minus'
-                    );
-
-                if (qtyMinus) {
-
-                    this.changeQty(
-                        qtyMinus.dataset.id,
-                        -1
-                    );
-
-                    return;
-                }
-
-                const removeBtn =
-                    e.target.closest(
-                        '.remove-item'
-                    );
-
-                if (removeBtn) {
-
-                    this.removeItem(
-                        removeBtn.dataset.id
-                    );
-
-                    return;
-                }
-            }
-        );
-
-        document.addEventListener(
-            'keydown',
-            e => {
-
-                switch (
-                    e.key
-                    ) {
-
-                    case 'F2':
-                        e.preventDefault();
-                        this.productInquiry();
-                        break;
-
-                    case 'F4':
-                        e.preventDefault();
-                        this.discount();
-                        break;
-
-                    case 'F5':
-                        e.preventDefault();
-                        this.holdSale();
-                        break;
-
-                    case 'F6':
-                        e.preventDefault();
-                        this.recallSale();
-                        break;
-
-                    case 'F7':
-                        e.preventDefault();
-                        this.customerLookup();
-                        break;
-
-                    case 'F8':
-                        e.preventDefault();
-                        this.refund();
-                        break;
-                }
-
-                if (
-                    e.ctrlKey &&
-                    e.key.toLowerCase() ===
-                    'd'
-                ) {
-
-                    e.preventDefault();
-
-                    this.openDrawer();
-                }
-            }
-        );
-    },
-
-    async scanBarcode(
-        barcode
-    ) {
-
-        try {
-
-            const response =
-                await fetch(
-                    `/products/barcode/${barcode}`
-                );
-
-            if (
-                !response.ok
-            ) {
-                return;
-            }
-
-            const product =
-                await response.json();
-
-            this.addToCart({
-                id: product.id,
-                barcode:
-                product.barcode,
-                name:
-                product.name,
-                price:
-                    parseFloat(
-                        product.selling_price
-                    ),
-                image:
-                product.image
-            });
-
-        } catch (
-            error
-            ) {
-
-            console.error(
-                error
-            );
-        }
-    },
-
-    addToCart(product) {
-
-        const existing =
-            this.cart.find(
-                item =>
-                    item.id ==
-                    product.id
-            );
-
-        if (existing) {
-
-            existing.qty++;
-
-        } else {
-
-            this.cart.push({
-                ...product,
-                qty: 1,
-                discount: 0
-            });
-        }
-
-        this.persistCart();
-
-        this.renderCart();
-    },
-
-    changeQty(
-        productId,
-        amount
-    ) {
-
-        const item =
-            this.cart.find(
-                x =>
-                    x.id ==
-                    productId
-            );
-
-        if (!item) {
-            return;
-        }
-
-        item.qty += amount;
-
-        if (
-            item.qty <= 0
-        ) {
-
-            this.cart =
-                this.cart.filter(
-                    x =>
-                        x.id !=
-                        productId
-                );
-        }
-
-        this.persistCart();
-
-        this.renderCart();
-    },
-
-    removeItem(
-        productId
-    ) {
-
-        this.cart =
-            this.cart.filter(
-                item =>
-                    item.id !=
-                    productId
-            );
-
-        this.persistCart();
-
-        this.renderCart();
-    },
-
-    clearCart() {
-
-        this.cart = [];
-
-        this.persistCart();
-
-        this.renderCart();
-    },
-
-    renderCart() {
+    renderProducts(products) {
 
         const container =
-            document.querySelector(
-                '.cart-items'
+            document.getElementById(
+                'productContainer'
             );
 
         if (!container) {
@@ -331,303 +50,1151 @@ const POS = {
         }
 
         if (
-            !this.cart.length
+            !products ||
+            products.length === 0
         ) {
 
             container.innerHTML = `
-                <div
-                    class="text-center text-muted py-5"
-                >
-                    No items added
-                </div>
-            `;
-
-            this.computeTotals();
+            <div class="empty-products">
+                No products found
+            </div>
+        `;
 
             return;
         }
 
         container.innerHTML =
-            this.cart
-                .map(
-                    item => {
+            products.map(product => `
 
-                        const lineTotal =
-                            (
-                                item.price *
-                                item.qty
-                            ) -
-                            item.discount;
+            <div
+                class="product-card"
+                data-id="${product.id}"
+                data-name="${product.name}"
+                data-price="${product.selling_price}"
+                data-stock="${product.stock_on_hand ?? 0}"
+                data-barcode="${product.barcode ?? ''}"
+                data-category="${product.category_id ?? ''}"
+            >
 
-                        return `
-                            <div class="cart-item">
+                <div class="product-image">
 
-                                <div class="cart-item-top">
+                    <img
+                        src="${
+                product.image
+                    ? product.image
+                    : '/images/no_image.jpg'
+            }"
+                        alt="${product.name}"
+                    >
 
-                                    <div>
+                </div>
 
-                                        <div class="cart-name">
-                                            ${item.name}
-                                        </div>
+                <div class="product-info">
 
-                                        <div class="cart-meta">
-                                            ${item.barcode}
-                                        </div>
+                    <div class="product-name">
+                        ${product.name}
+                    </div>
 
-                                    </div>
+                    <div class="product-price">
+                        ₱${Number(
+                product.selling_price
+            ).toFixed(2)}
+                    </div>
 
-                                    <button
-                                        class="btn btn-sm btn-danger remove-item"
-                                        data-id="${item.id}"
-                                    >
-                                        ×
-                                    </button>
+                </div>
 
-                                </div>
+            </div>
 
-                                <div class="cart-item-bottom">
+        `).join('');
 
-                                    <div class="qty-box">
+        this.productCards =
+            container.querySelectorAll(
+                '.product-card'
+            );
 
-                                        <button
-                                            class="qty-minus"
-                                            data-id="${item.id}"
-                                        >
-                                            -
-                                        </button>
+        this.buildProductCache();
 
-                                        <span>
-                                            ${item.qty}
-                                        </span>
+        this.bindProductEvents();
 
-                                        <button
-                                            class="qty-plus"
-                                            data-id="${item.id}"
-                                        >
-                                            +
-                                        </button>
-
-                                    </div>
-
-                                    <div
-                                        class="cart-total"
-                                    >
-                                        ${this.currency(
-                            lineTotal
-                        )}
-                                    </div>
-
-                                </div>
-
-                            </div>
-                        `;
-                    }
-                )
-                .join('');
-
-        this.computeTotals();
     },
+    bindProductEvents() {
 
-    computeTotals() {
+        this.productCards.forEach(card => {
 
-        let subtotal = 0;
+            card.addEventListener(
+                'click',
+                () => {
 
-        let discount = 0;
+                    this.addToCart({
 
-        this.cart.forEach(
-            item => {
+                        id:
+                            Number(
+                                card.dataset.id
+                            ),
 
-                subtotal +=
-                    item.price *
-                    item.qty;
+                        barcode:
+                        card.dataset.barcode,
 
-                discount +=
-                    item.discount;
+                        name:
+                        card.dataset.name,
+
+                        price:
+                            Number(
+                                card.dataset.price
+                            ),
+
+                        stock:
+                            Number(
+                                card.dataset.stock || 0
+                            ),
+
+                    });
+
+                }
+            );
+
+        });
+
+    },
+    async loadProducts() {
+
+        let products =
+            await ProductService.getCached();
+
+        if (
+            !products ||
+            products.length === 0
+        ) {
+
+            products =
+                await ProductService.sync();
+
+        }
+
+        this.products =
+            products;
+
+        this.renderProducts(
+            products
+        );
+
+    },
+    async refreshProducts() {
+
+        const products =
+            await ProductService.sync();
+
+        this.products =
+            products;
+
+        this.renderProducts(
+            products
+        );
+
+    },
+    cache() {
+
+        this.cartItemsList =
+            document.getElementById('cartItemsList');
+
+        this.summarySubtotal =
+            document.getElementById('summarySubtotal');
+
+        this.summaryDiscount =
+            document.getElementById('summaryDiscount');
+
+        this.summaryTotal =
+            document.getElementById('summaryTotal');
+
+        this.productCards =
+            document.querySelectorAll('.product-card');
+
+        this.categoryChips =
+            document.querySelectorAll('.category-chip');
+
+        this.searchInput =
+            document.getElementById('barcodeSearch');
+
+        this.checkoutButton =
+            document.getElementById('btnCheckout');
+
+        this.paymentModal =
+            document.getElementById(
+                'paymentModal'
+            );
+
+        this.paymentMethod =
+            document.getElementById(
+                'paymentMethod'
+            );
+
+        this.amountTendered =
+            document.getElementById(
+                'amountTendered'
+            );
+
+        this.paymentTotal =
+            document.getElementById(
+                'paymentTotal'
+            );
+
+        this.paymentChange =
+            document.getElementById(
+                'paymentChange'
+            );
+
+        this.btnConfirmPayment =
+            document.getElementById(
+                'btnConfirmPayment'
+            );
+    },
+    buildProductCache() {
+
+        this.productCards.forEach(card => {
+
+            const barcode =
+                card.dataset.barcode;
+
+            if (!barcode) {
+                return;
             }
-        );
 
-        const vat =
-            subtotal *
-            this.vatRate;
+            this.state.productMap[
+                barcode
+                ] = card;
 
-        const total =
-            subtotal -
-            discount;
+        });
 
-        const subtotalEl =
-            document.getElementById(
-                'subtotalAmount'
-            );
-
-        const discountEl =
-            document.getElementById(
-                'discountAmount'
-            );
-
-        const vatEl =
-            document.getElementById(
-                'vatAmount'
-            );
-
-        const totalEl =
-            document.getElementById(
-                'grandTotal'
-            );
-
-        if (subtotalEl) {
-
-            subtotalEl.innerHTML =
-                this.currency(
-                    subtotal
-                );
-        }
-
-        if (discountEl) {
-
-            discountEl.innerHTML =
-                this.currency(
-                    discount
-                );
-        }
-
-        if (vatEl) {
-
-            vatEl.innerHTML =
-                this.currency(
-                    vat
-                );
-        }
-
-        if (totalEl) {
-
-            totalEl.innerHTML =
-                this.currency(
-                    total
-                );
-        }
     },
+    events() {
 
-    persistCart() {
+        this.productCards.forEach(card => {
 
-        localStorage.setItem(
-            'pos_cart',
-            JSON.stringify(
-                this.cart
-            )
-        );
-    },
+            card.addEventListener(
+                'click',
+                () => {
 
-    loadCart() {
+                    this.addToCart({
+                        id: Number(card.dataset.id),
+                        barcode: card.dataset.barcode,
+                        name: card.dataset.name,
+                        price: Number(card.dataset.price),
+                        stock: Number(card.dataset.stock || 0),
+                    });
 
-        const data =
-            localStorage.getItem(
-                'pos_cart'
+                }
             );
 
-        if (!data) {
+        });
+
+        this.bindSearch();
+
+        this.bindCategories();
+
+        this.bindBarcodeScanner();
+
+        this.bindKeyboardShortcuts();
+        this.bindCheckout();
+    },
+    bindCheckout() {
+
+        if (
+            this.checkoutButton
+        ) {
+
+            this.checkoutButton.addEventListener(
+                'click',
+                () => this.openCheckout()
+            );
+
+        }
+
+        if (
+            this.amountTendered
+        ) {
+
+            this.amountTendered.addEventListener(
+                'input',
+                () => this.calculateChange()
+            );
+
+        }
+
+        if (
+            this.btnConfirmPayment
+        ) {
+
+            this.btnConfirmPayment.addEventListener(
+                'click',
+                () => this.completeSale()
+            );
+
+        }
+
+    },
+    async completeSale() {
+
+        if (
+            !this.validateCheckout()
+        ) {
             return;
         }
 
         try {
 
-            this.cart =
-                JSON.parse(
-                    data
+            this.btnConfirmPayment.disabled =
+                true;
+
+            const payload =
+                this.buildPayload();
+
+            const response =
+                await fetch(
+                    '/pos/sales',
+                    {
+                        method: 'POST',
+
+                        headers: {
+
+                            'Content-Type':
+                                'application/json',
+
+                            'X-CSRF-TOKEN':
+                            document
+                                .querySelector(
+                                    'meta[name="csrf-token"]'
+                                )
+                                .content,
+
+                        },
+
+                        body:
+                            JSON.stringify(
+                                payload
+                            ),
+
+                    }
                 );
 
-        } catch {
+            const result =
+                await response.json();
 
-            this.cart = [];
-        }
-    },
+            if (
+                !response.ok
+            ) {
 
-    currency(value) {
+                throw new Error(
+                    result.message ||
+                    'Checkout failed.'
+                );
 
-        return new Intl.NumberFormat(
-            'en-PH',
-            {
-                style: 'currency',
-                currency: 'PHP'
             }
-        ).format(
-            value
-        );
-    },
 
-    updateDateTime() {
+            bootstrap.Modal
+                .getInstance(
+                    this.paymentModal
+                )
+                .hide();
 
-        const element =
-            document.getElementById(
-                'posDateTime'
+            this.printReceipt(
+                result
             );
 
-        if (!element) {
+            this.reset();
+
+        } catch (error) {
+
+            alert(
+                error.message
+            );
+
+        } finally {
+
+            this.btnConfirmPayment.disabled =
+                false;
+
+        }
+
+    },
+    reset() {
+
+        this.state.cart = [];
+
+        this.state.subtotal = 0;
+
+        this.state.discount = 0;
+
+        this.state.total = 0;
+
+        this.state.tendered = 0;
+
+        this.state.change = 0;
+
+        this.renderCart();
+
+        this.amountTendered.value = '';
+
+        this.searchInput.value = '';
+
+        this.searchInput.focus();
+
+    },
+    printReceipt(
+        sale
+    ) {
+
+        const receipt =
+            window.open(
+                '',
+                '_blank',
+                'width=400,height=700'
+            );
+
+        receipt.document.write(`
+
+        <html>
+
+        <head>
+
+            <title>
+
+                Receipt
+
+            </title>
+
+        </head>
+
+        <body>
+
+            <h3>
+
+                CatchuPOS
+
+            </h3>
+
+            <hr>
+
+            ${this.state.cart.map(item => `
+
+                <div>
+
+                    ${item.name}
+
+                    x ${item.qty}
+
+                    = ₱${item.subtotal.toFixed(2)}
+
+                </div>
+
+            `).join('')}
+
+            <hr>
+
+            <strong>
+
+                Total:
+
+                ₱${this.state.total.toFixed(2)}
+
+            </strong>
+
+            <br>
+
+            Tendered:
+
+            ₱${this.state.tendered.toFixed(2)}
+
+            <br>
+
+            Change:
+
+            ₱${this.state.change.toFixed(2)}
+
+        </body>
+
+        </html>
+
+    `);
+
+        receipt.document.close();
+
+        receipt.focus();
+
+        receipt.print();
+
+    },
+    calculateChange() {
+
+        const tendered =
+            Number(
+                this.amountTendered.value || 0
+            );
+
+        const change =
+            tendered -
+            this.state.total;
+
+        this.state.tendered =
+            tendered;
+
+        this.state.change =
+            change > 0
+                ? change
+                : 0;
+
+        this.paymentChange.textContent =
+            `₱${this.state.change.toFixed(2)}`;
+
+    },
+    validateCheckout() {
+
+        if (
+            this.state.cart.length === 0
+        ) {
+
+            alert(
+                'Cart is empty.'
+            );
+
+            return false;
+
+        }
+
+        const paymentMethod =
+            this.paymentMethod.value;
+
+        if (
+            paymentMethod === 'cash'
+        ) {
+
+            if (
+                this.state.tendered <
+                this.state.total
+            ) {
+
+                alert(
+                    'Insufficient payment.'
+                );
+
+                return false;
+
+            }
+
+        }
+
+        return true;
+
+    },
+    buildPayload() {
+
+        return {
+
+            customer_id:
+            this.state.customer,
+
+            payment_method:
+            this.paymentMethod.value,
+
+            subtotal:
+            this.state.subtotal,
+
+            discount:
+            this.state.discount,
+
+            total:
+            this.state.total,
+
+            tendered:
+            this.state.tendered,
+
+            change:
+            this.state.change,
+
+            items:
+                this.state.cart.map(
+                    item => ({
+
+                        product_id:
+                        item.id,
+
+                        qty:
+                        item.qty,
+
+                        price:
+                        item.price,
+
+                    })
+                ),
+
+        };
+
+    },
+    openCheckout() {
+
+        if (
+            this.state.cart.length === 0
+        ) {
+
+            alert(
+                'Cart is empty.'
+            );
+
+            return;
+
+        }
+
+        this.paymentTotal.textContent =
+            `₱${this.state.total.toFixed(2)}`;
+
+        this.amountTendered.value = '';
+
+        this.paymentChange.textContent =
+            '₱0.00';
+
+        const modal =
+            bootstrap.Modal.getOrCreateInstance(
+                this.paymentModal
+            );
+
+        modal.show();
+
+    },
+    bindSearch() {
+
+        if (!this.searchInput) {
             return;
         }
 
-        element.innerHTML =
-            new Date()
-                .toLocaleString(
-                    'en-PH'
+        this.searchInput.addEventListener(
+            'input',
+            e => {
+
+                const keyword =
+                    e.target.value
+                        .trim()
+                        .toLowerCase();
+
+                this.productCards.forEach(card => {
+
+                    const name =
+                        (
+                            card.dataset.name || ''
+                        ).toLowerCase();
+
+                    const barcode =
+                        (
+                            card.dataset.barcode || ''
+                        ).toLowerCase();
+
+                    const visible =
+                        name.includes(keyword) ||
+                        barcode.includes(keyword);
+
+                    card.style.display =
+                        visible
+                            ? ''
+                            : 'none';
+
+                });
+
+            }
+        );
+
+    },
+    bindCategories() {
+
+        this.categoryChips.forEach(chip => {
+
+            chip.addEventListener(
+                'click',
+                () => {
+
+                    this.categoryChips.forEach(
+                        button =>
+                            button.classList.remove(
+                                'active'
+                            )
+                    );
+
+                    chip.classList.add(
+                        'active'
+                    );
+
+                    const category =
+                        chip.dataset.category;
+
+                    this.filterCategory(
+                        category
+                    );
+
+                }
+            );
+
+        });
+
+    },
+    filterCategory(
+        categoryId
+    ) {
+
+        this.productCards.forEach(card => {
+
+            if (
+                !categoryId
+            ) {
+
+                card.style.display = '';
+
+                return;
+
+            }
+
+            const cardCategory =
+                card.dataset.category;
+
+            card.style.display =
+                cardCategory === categoryId
+                    ? ''
+                    : 'none';
+
+        });
+
+    },
+    bindBarcodeScanner() {
+
+        if (!this.searchInput) {
+            return;
+        }
+
+        this.searchInput.addEventListener(
+            'keydown',
+            e => {
+
+                if (
+                    e.key !== 'Enter'
+                ) {
+                    return;
+                }
+
+                const barcode =
+                    e.target.value.trim();
+
+                if (!barcode) {
+                    return;
+                }
+
+                const card =
+                    this.state.productMap[
+                        barcode
+                        ];
+
+                if (!card) {
+
+                    e.target.select();
+
+                    return;
+                }
+
+                card.click();
+
+                e.target.value = '';
+
+            }
+        );
+
+    },
+    bindKeyboardShortcuts() {
+
+        document.addEventListener(
+            'keydown',
+            e => {
+
+                const tag =
+                    document.activeElement.tagName;
+
+                if (
+                    tag === 'INPUT' ||
+                    tag === 'TEXTAREA' ||
+                    tag === 'SELECT'
+                ) {
+                    return;
+                }
+
+                switch (e.key) {
+
+                    case 'F2':
+
+                        e.preventDefault();
+
+                        this.searchInput?.focus();
+
+                        break;
+
+                    case 'F4':
+
+                        e.preventDefault();
+
+                        this.checkoutButton?.click();
+
+                        break;
+
+                    case 'Escape':
+
+                        e.preventDefault();
+
+                        this.searchInput?.blur();
+
+                        break;
+
+                }
+
+            }
+        );
+
+    },
+    addToCart(product) {
+
+        const existing =
+            this.state.cart.find(
+                item => item.id === product.id
+            );
+
+        if (existing) {
+
+            existing.qty++;
+
+            existing.subtotal =
+                existing.qty *
+                existing.price;
+
+        } else {
+
+            this.state.cart.push({
+
+                id: product.id,
+
+                barcode: product.barcode,
+
+                name: product.name,
+
+                price: product.price,
+
+                stock: product.stock,
+
+                qty: 1,
+
+                subtotal: product.price,
+
+            });
+
+        }
+
+        this.calculateTotals();
+
+        this.renderCart();
+
+    },
+
+    updateQuantity(
+        productId,
+        quantity
+    ) {
+
+        const item =
+            this.state.cart.find(
+                row => row.id === productId
+            );
+
+        if (!item) {
+            return;
+        }
+
+        quantity =
+            Number(quantity);
+
+        if (quantity <= 0) {
+
+            this.removeItem(
+                productId
+            );
+
+            return;
+        }
+
+        if (
+            quantity > item.stock
+        ) {
+            quantity =
+                item.stock;
+        }
+
+        item.qty =
+            quantity;
+
+        item.subtotal =
+            item.qty *
+            item.price;
+
+        this.calculateTotals();
+
+        this.renderCart();
+
+    },
+
+    removeItem(
+        productId
+    ) {
+
+        this.state.cart =
+            this.state.cart.filter(
+                item =>
+                    item.id !== productId
+            );
+
+        this.calculateTotals();
+
+        this.renderCart();
+
+    },
+
+    calculateTotals() {
+
+        this.state.subtotal =
+            this.state.cart.reduce(
+                (
+                    total,
+                    item
+                ) =>
+                    total +
+                    item.subtotal,
+                0
+            );
+
+        this.state.discount = 0;
+
+        this.state.total =
+            this.state.subtotal -
+            this.state.discount;
+
+    },
+
+    renderCart() {
+
+        if (
+            this.state.cart.length === 0
+        ) {
+
+            this.cartItemsList.innerHTML = `
+                <div class="empty-cart">
+                    <i class="bi bi-cart"></i>
+                    <span>No Items</span>
+                </div>
+            `;
+
+            this.renderSummary();
+
+            return;
+
+        }
+
+        this.cartItemsList.innerHTML =
+            this.state.cart
+                .map(item => {
+
+                    return `
+<div
+    class="cart-item"
+    data-id="${item.id}"
+>
+
+    <div class="cart-item-header">
+
+        <div class="cart-item-name">
+            ${item.name}
+        </div>
+
+        <button
+            class="remove-item"
+            data-id="${item.id}"
+        >
+            <i class="bi bi-trash"></i>
+        </button>
+
+    </div>
+
+    <div class="cart-item-summary">
+
+        ₱${item.price.toFixed(2)}
+        ×
+        ${item.qty}
+        =
+        ₱${item.subtotal.toFixed(2)}
+
+    </div>
+
+    <div class="cart-item-actions">
+
+        <button
+            class="qty-minus"
+            data-id="${item.id}"
+        >
+            -
+        </button>
+
+        <input
+            type="number"
+            class="qty-input"
+            data-id="${item.id}"
+            value="${item.qty}"
+            min="1"
+        >
+
+        <button
+            class="qty-plus"
+            data-id="${item.id}"
+        >
+            +
+        </button>
+
+    </div>
+
+</div>
+`;
+
+                })
+                .join('');
+
+        this.attachCartEvents();
+
+        this.renderSummary();
+
+    },
+
+    attachCartEvents() {
+
+        document
+            .querySelectorAll('.qty-minus')
+            .forEach(button => {
+
+                button.addEventListener(
+                    'click',
+                    () => {
+
+                        const id =
+                            Number(
+                                button.dataset.id
+                            );
+
+                        const item =
+                            this.state.cart.find(
+                                row =>
+                                    row.id === id
+                            );
+
+                        if (!item) {
+                            return;
+                        }
+
+                        this.updateQuantity(
+                            id,
+                            item.qty - 1
+                        );
+
+                    }
                 );
+
+            });
+
+        document
+            .querySelectorAll('.qty-plus')
+            .forEach(button => {
+
+                button.addEventListener(
+                    'click',
+                    () => {
+
+                        const id =
+                            Number(
+                                button.dataset.id
+                            );
+
+                        const item =
+                            this.state.cart.find(
+                                row =>
+                                    row.id === id
+                            );
+
+                        if (!item) {
+                            return;
+                        }
+
+                        this.updateQuantity(
+                            id,
+                            item.qty + 1
+                        );
+
+                    }
+                );
+
+            });
+
+        document
+            .querySelectorAll('.qty-input')
+            .forEach(input => {
+
+                input.addEventListener(
+                    'change',
+                    () => {
+
+                        this.updateQuantity(
+                            Number(
+                                input.dataset.id
+                            ),
+                            input.value
+                        );
+
+                    }
+                );
+
+            });
+
+        document
+            .querySelectorAll('.remove-item')
+            .forEach(button => {
+
+                button.addEventListener(
+                    'click',
+                    () => {
+
+                        this.removeItem(
+                            Number(
+                                button.dataset.id
+                            )
+                        );
+
+                    }
+                );
+
+            });
+
     },
 
-    productInquiry() {
+    renderSummary() {
 
-        console.log(
-            'Product Inquiry'
-        );
+        this.summarySubtotal.textContent =
+            `₱${this.state.subtotal.toFixed(2)}`;
+
+        this.summaryDiscount.textContent =
+            `₱${this.state.discount.toFixed(2)}`;
+
+        this.summaryTotal.textContent =
+            `₱${this.state.total.toFixed(2)}`;
+
     },
 
-    discount() {
-
-        console.log(
-            'Discount'
-        );
-    },
-
-    holdSale() {
-
-        console.log(
-            'Hold Sale'
-        );
-    },
-
-    recallSale() {
-
-        console.log(
-            'Recall Sale'
-        );
-    },
-
-    customerLookup() {
-
-        console.log(
-            'Customer Lookup'
-        );
-    },
-
-    refund() {
-
-        console.log(
-            'Refund'
-        );
-    },
-
-    openDrawer() {
-
-        console.log(
-            'Open Drawer'
-        );
-    }
 };
 
 document.addEventListener(
     'DOMContentLoaded',
-    () => {
-
-        POS.init();
-    }
+    () => POS.init()
 );
-
-window.POS = POS;

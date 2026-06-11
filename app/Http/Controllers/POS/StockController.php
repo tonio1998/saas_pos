@@ -39,6 +39,10 @@ class StockController extends Controller
                 'numeric',
                 'min:0'
             ],
+            'update_cost_price' => [
+                'nullable',
+                'boolean'
+            ],
             'remarks' => [
                 'nullable',
                 'string',
@@ -55,7 +59,7 @@ class StockController extends Controller
                     decrypt($id)
                 );
 
-            $stockBefore = $product->stock_on_hand;
+            $stockBefore = (float) $product->stock_on_hand;
 
             $quantity = (float) $request->quantity;
 
@@ -66,22 +70,67 @@ class StockController extends Controller
             $newStock->product_id = $product->id;
             $newStock->transaction_type = Stocks::TYPE_IN;
             $newStock->quantity = $quantity;
-            $newStock->stock_before = $stockBefore ?? 0;
-            $newStock->stock_after = $stockAfter ?? 0;
+            $newStock->stock_before = $stockBefore;
+            $newStock->stock_after = $stockAfter;
             $newStock->unit_cost = $request->unit_cost;
             $newStock->reference_type = 'STOCK_RECEIVING';
             $newStock->reference_id = null;
             $newStock->remarks = $request->remarks;
             $newStock->created_by = auth()->id();
-            $this->setCommonFields($newStock);
+
+            $this->setCommonFields(
+                $newStock
+            );
+
             $newStock->save();
 
-            $product->update([
-                'stock_on_hand' => $stockAfter,
-                'cost_price' => $request->filled('unit_cost')
-                    ? $request->unit_cost
-                    : $product->cost_price,
-            ]);
+            $productData = [
+                'stock_on_hand' => $stockAfter
+            ];
+
+            if (
+                $request->boolean('update_cost_price') &&
+                $request->filled('unit_cost')
+            ) {
+
+                $currentCost =
+                    (float) $product->cost_price;
+
+                $purchaseCost =
+                    (float) $request->unit_cost;
+
+                if ($stockBefore > 0) {
+
+                    $totalExistingValue =
+                        $stockBefore * $currentCost;
+
+                    $totalNewValue =
+                        $quantity * $purchaseCost;
+
+                    $averageCost =
+                        (
+                            $totalExistingValue +
+                            $totalNewValue
+                        ) / $stockAfter;
+
+                    $productData['cost_price'] =
+                        round(
+                            $averageCost,
+                            2
+                        );
+
+                } else {
+
+                    $productData['cost_price'] =
+                        $purchaseCost;
+
+                }
+
+            }
+
+            $product->update(
+                $productData
+            );
 
             DB::commit();
 
@@ -95,7 +144,7 @@ class StockController extends Controller
                     'Stock received successfully.'
                 );
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
 
             DB::rollBack();
 
