@@ -100,6 +100,7 @@
                 @endif
                 responsive:true,
                 pagingType:'simple_numbers',
+                scrollX: true,
                 pageLength:10,
                 lengthChange:true,
                 order:[[3,'desc']],

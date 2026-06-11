@@ -15,7 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
 
         $middleware->web(append: [
-            \App\Http\Middleware\LoadSchoolSettings::class,
+            \App\Http\Middleware\LoadTenantSettings::class,
             \App\Http\Middleware\UpdateLastActivity::class,
         ]);
 

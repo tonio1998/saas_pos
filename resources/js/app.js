@@ -21,9 +21,9 @@ import './permissions-drag.js'
 import Chart from 'chart.js/auto';
 window.Chart = Chart;
 
-import './qrcode.js'
 import './pages/dashboard.js'
 import './pages/terminal.js'
+import './custon.js'
 
 document.addEventListener("DOMContentLoaded",function(){
     document.querySelectorAll(".password-toggle").forEach(toggle=> {

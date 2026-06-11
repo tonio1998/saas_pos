@@ -36,14 +36,14 @@
                 <a
                     class="sidebar-link"
                     data-bs-toggle="collapse"
-                    href="#schoolsMenu"
+                    href="#tenantsMenu"
                     role="button"
                 >
 
                     <i class="bi bi-buildings-fill sidebar-icon"></i>
 
                     <span>
-                        Schools
+                        Tenants
                     </span>
 
                     <i class="bi bi-chevron-down dropdown-icon"></i>
@@ -52,31 +52,31 @@
 
                 <div
                     class="collapse sidebar-dropdown"
-                    id="schoolsMenu"
+                    id="tenantsMenu"
                 >
 
                     <a
-                        href="{{ route('sa.store.index') }}"
+                        href="{{ route('sa.tenants.index') }}"
                         class="sidebar-sublink"
                     >
 
                         <i class="bi bi-list-ul sidebar-subicon"></i>
 
                         <span>
-                            School List
+                            Tenants List
                         </span>
 
                     </a>
 
                     <a
-                        href="{{ route('sa.store.create') }}"
+                        href="{{ route('sa.tenants.create') }}"
                         class="sidebar-sublink"
                     >
 
                         <i class="bi bi-plus-circle-fill sidebar-subicon"></i>
 
                         <span>
-                            Register School
+                            Register Tenant
                         </span>
 
                     </a>

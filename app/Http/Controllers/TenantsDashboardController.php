@@ -13,14 +13,14 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class StoreDashboardController extends Controller
+class TenantsDashboardController extends Controller
 {
     public $data = [];
 
     public function index()
     {
         return view(
-            'pages.store.dashboard.index',
+            'pages.tenants.dashboard.index',
             $this->data
         );
     }

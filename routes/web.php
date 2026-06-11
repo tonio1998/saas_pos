@@ -31,9 +31,10 @@ use App\Http\Controllers\POS\StockAdjustmentController;
 use App\Http\Controllers\POS\StockController;
 use App\Http\Controllers\POS\StockLowStockController;
 use App\Http\Controllers\POS\SupplierController;
+use App\Http\Controllers\POS\TenantsController;
 use App\Http\Controllers\POS\UnitController;
 use App\Http\Controllers\SADashboardController;
-use App\Http\Controllers\StoreDashboardController;
+use App\Http\Controllers\TenantsDashboardController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\GradeLevelController;
 use App\Http\Controllers\SchoolLogsController;
@@ -81,21 +82,22 @@ Route::prefix('sa')->name('sa.')->middleware([
     'auth',
     'role:SA',
 ])->group(function () {
-    Route::prefix('store')
-        ->name('store.')->group(function(){
-            Route::get('/', [SchoolController::class, 'index'])->name('index');
-            Route::get('/create', [SchoolController::class, 'create'])->name('create');
-            Route::post('/', [SchoolController::class, 'store'])->name('store');
-            Route::get('/edit/{id}', [SchoolController::class, 'edit'])->name('edit');
-            Route::put('/update/{id}', [SchoolController::class, 'update'])->name('update');
-            Route::get('/data', [SchoolController::class, 'ajaxData'])->name('data');
-            Route::get('/show/{id}', [SchoolController::class, 'show'])->name('show');
 
-            Route::post(
-                '/close-context',
-                [SchoolController::class, 'closeContext']
-            )->name('close-context');
-        });
+    Route::prefix('tenants')->name('tenants.')->group(function(){
+        Route::get('/', [TenantsController::class, 'index'])->name('index');
+        Route::get('/create', [TenantsController::class, 'create'])->name('create');
+        Route::post('/create', [TenantsController::class, 'store'])->name('store');
+        Route::get('/edit/{id}', [TenantsController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [TenantsController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [TenantsController::class, 'destroy'])->name('destroy');
+        Route::get('/show/{id}', [TenantsController::class, 'show'])->name('show');
+        Route::get('/data', [TenantsController::class, 'ajaxData'])->name('data');
+
+        Route::post(
+            '/close-context',
+            [TenantsController::class, 'closeContext']
+        )->name('close-context');
+    });
 
     Route::get('/dashboard', [
         SADashboardController::class,
@@ -281,8 +283,8 @@ Route::prefix('support-center')
 
 Route::middleware('auth')->group(function(){
     Route::prefix('dashboard')->name('dashboard.')->group(function(){
-        Route::get('/', [StoreDashboardController::class, 'index'])->name('index');
-        Route::get('/data', [StoreDashboardController::class, 'data'])->name('data');
+        Route::get('/', [TenantsDashboardController::class, 'index'])->name('index');
+        Route::get('/data', [TenantsDashboardController::class, 'data'])->name('data');
     });
 
     Route::prefix('school-users')->name('school-users.')->group(function(){
@@ -318,11 +320,6 @@ Route::middleware('auth')->group(function(){
         Route::get('/{user}/permissions', [UserController::class,'editPermissions'])->name('permissions');
         Route::put('/{user}/roles',[UserController::class,'updateRoles'])->name('roles.update');
         Route::put('/{user}/permissions',[UserController::class,'updatePermissions'])->name('permissions.update');
-        Route::get('/{user}/change-photo', [UserController::class,'changePhoto'])->name('change-photo');
-        Route::post('/upload', [UserController::class,'upload'])->name('upload');
-        Route::get('/print-id/{id}', [UserController::class, 'printID'])->name('printID');
-        Route::get('/{id}/nfc', [UserController::class, 'nfc'])->name('nfc');
-        Route::post('/nfc/assign', [UserController::class, 'assignNfc'])->name('nfc.assign');
     });
 
     Route::prefix('logs')->name('logs.')->group(function(){
@@ -398,33 +395,6 @@ Route::middleware('auth')->group(function(){
         Route::get('/data', [SchoolYearController::class, 'ajaxData'])->name('data');
     });
 
-    Route::prefix('semesters')->name('semesters.')->group(function(){
-        Route::get('/', [SemestersController::class, 'index'])->name('index');
-        Route::get('/edit/{id}', [SemestersController::class, 'edit'])->name('edit');
-        Route::put('/update/{id}', [SemestersController::class, 'update'])->name('update');
-        Route::get('/create', [SemestersController::class, 'create'])->name('create');
-        Route::post('/create', [SemestersController::class, 'store'])->name('store');
-        Route::get('/data', [SemestersController::class, 'ajaxData'])->name('data');
-    });
-
-    Route::prefix('grade-levels')->name('grade-levels.')->group(function(){
-        Route::get('/', [GradeLevelController::class, 'index'])->name('index');
-        Route::get('/edit/{id}', [GradeLevelController::class, 'edit'])->name('edit');
-        Route::put('/update/{id}', [GradeLevelController::class, 'update'])->name('update');
-        Route::get('/create', [GradeLevelController::class, 'create'])->name('create');
-        Route::post('/create', [GradeLevelController::class, 'store'])->name('store');
-        Route::get('/data', [GradeLevelController::class, 'ajaxData'])->name('data');
-    });
-
-    Route::prefix('strands')->name('strands.')->group(function(){
-        Route::get('/', [StrandsController::class, 'index'])->name('index');
-        Route::get('/edit/{id}', [StrandsController::class, 'edit'])->name('edit');
-        Route::put('/update/{id}', [StrandsController::class, 'update'])->name('update');
-        Route::get('/create', [StrandsController::class, 'create'])->name('create');
-        Route::post('/create', [StrandsController::class, 'store'])->name('store');
-        Route::get('/data', [StrandsController::class, 'ajaxData'])->name('data');
-    });
-
     Route::prefix('reports')->name('reports.')->group(function(){
         Route::get('/', [ReportsController::class, 'index'])->name('index');
         Route::get('/gate-logs/data', [ReportsController::class, 'gateLogsData'])->name('gate-logs.data');
@@ -475,7 +445,6 @@ Route::middleware('auth')->group(function(){
 
 
 //    POS
-
 
     Route::prefix('sales')->name('sales.')->group(function () {
         Route::get('/', [SalesController::class, 'index'])->name('index');
@@ -572,6 +541,48 @@ Route::middleware('auth')->group(function(){
             Route::put('/update/{id}', [UnitController::class, 'update'])->name('update');
             Route::delete('/delete/{id}', [UnitController::class, 'destroy'])->name('destroy');
             Route::get('/data', [UnitController::class, 'ajaxData'])->name('data');
+        });
+
+        Route::prefix('stock')->name('stock.')->group(function () {
+            Route::get('receive/{id}', [StockController::class, 'receive'])->name('receive');
+            Route::post('receive/{id}', [StockController::class, 'storeReceive'])->name('receive.store');
+            Route::get('history/{id}', [StockController::class, 'history'])->name('history');
+            Route::get('adjustment/{id}', [StockController::class, 'adjustment'])->name('adjustment');
+            Route::post('/adjustment/{id}',[StockController::class, 'storeAdjustment'])->name('adjustment.store');
+        });
+
+    });
+
+    Route::prefix('stocks')->name('stocks.')->group(function () {
+        Route::get('/', [StockController::class, 'index'])->name('index');
+        Route::get('/create', [StockController::class, 'create'])->name('create');
+        Route::post('/create', [StockController::class, 'store'])->name('store');
+        Route::get('/view/{id}', [StockController::class, 'show'])->name('show');
+        Route::get('/edit/{id}', [StockController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [StockController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [StockController::class, 'destroy'])->name('destroy');
+        Route::get('/data', [StockController::class, 'ajaxData'])->name('data');
+
+        Route::prefix('adjustments')->name('adjustments.')->group(function () {
+            Route::get('/', [StockAdjustmentController::class, 'index'])->name('index');
+            Route::get('/create', [StockAdjustmentController::class, 'create'])->name('create');
+            Route::post('/create', [StockAdjustmentController::class, 'store'])->name('store');
+            Route::get('/view/{id}', [StockAdjustmentController::class, 'show'])->name('show');
+            Route::get('/edit/{id}', [StockAdjustmentController::class, 'edit'])->name('edit');
+            Route::put('/update/{id}', [StockAdjustmentController::class, 'update'])->name('update');
+            Route::delete('/delete/{id}', [StockAdjustmentController::class, 'destroy'])->name('destroy');
+            Route::get('/data', [StockAdjustmentController::class, 'ajaxData'])->name('data');
+        });
+
+        Route::prefix('low-stocks')->name('low-stocks.')->group(function () {
+            Route::get('/', [StockLowStockController::class, 'index'])->name('index');
+            Route::get('/create', [StockLowStockController::class, 'create'])->name('create');
+            Route::post('/create', [StockLowStockController::class, 'store'])->name('store');
+            Route::get('/view/{id}', [StockLowStockController::class, 'show'])->name('show');
+            Route::get('/edit/{id}', [StockLowStockController::class, 'edit'])->name('edit');
+            Route::put('/update/{id}', [StockLowStockController::class, 'update'])->name('update');
+            Route::delete('/delete/{id}', [StockLowStockController::class, 'destroy'])->name('destroy');
+            Route::get('/data', [StockLowStockController::class, 'ajaxData'])->name('data');
         });
     });
 
@@ -670,39 +681,6 @@ Route::middleware('auth')->group(function(){
         Route::put('/update/{id}', [InventoryController::class, 'update'])->name('update');
         Route::delete('/delete/{id}', [InventoryController::class, 'destroy'])->name('destroy');
         Route::get('/data', [InventoryController::class, 'ajaxData'])->name('data');
-    });
-
-    Route::prefix('stocks')->name('stocks.')->group(function () {
-        Route::get('/', [StockController::class, 'index'])->name('index');
-        Route::get('/create', [StockController::class, 'create'])->name('create');
-        Route::post('/create', [StockController::class, 'store'])->name('store');
-        Route::get('/view/{id}', [StockController::class, 'show'])->name('show');
-        Route::get('/edit/{id}', [StockController::class, 'edit'])->name('edit');
-        Route::put('/update/{id}', [StockController::class, 'update'])->name('update');
-        Route::delete('/delete/{id}', [StockController::class, 'destroy'])->name('destroy');
-        Route::get('/data', [StockController::class, 'ajaxData'])->name('data');
-
-        Route::prefix('adjustments')->name('adjustments.')->group(function () {
-            Route::get('/', [StockAdjustmentController::class, 'index'])->name('index');
-            Route::get('/create', [StockAdjustmentController::class, 'create'])->name('create');
-            Route::post('/create', [StockAdjustmentController::class, 'store'])->name('store');
-            Route::get('/view/{id}', [StockAdjustmentController::class, 'show'])->name('show');
-            Route::get('/edit/{id}', [StockAdjustmentController::class, 'edit'])->name('edit');
-            Route::put('/update/{id}', [StockAdjustmentController::class, 'update'])->name('update');
-            Route::delete('/delete/{id}', [StockAdjustmentController::class, 'destroy'])->name('destroy');
-            Route::get('/data', [StockAdjustmentController::class, 'ajaxData'])->name('data');
-        });
-
-        Route::prefix('low-stocks')->name('low-stocks.')->group(function () {
-            Route::get('/', [StockLowStockController::class, 'index'])->name('index');
-            Route::get('/create', [StockLowStockController::class, 'create'])->name('create');
-            Route::post('/create', [StockLowStockController::class, 'store'])->name('store');
-            Route::get('/view/{id}', [StockLowStockController::class, 'show'])->name('show');
-            Route::get('/edit/{id}', [StockLowStockController::class, 'edit'])->name('edit');
-            Route::put('/update/{id}', [StockLowStockController::class, 'update'])->name('update');
-            Route::delete('/delete/{id}', [StockLowStockController::class, 'destroy'])->name('destroy');
-            Route::get('/data', [StockLowStockController::class, 'ajaxData'])->name('data');
-        });
     });
 
     Route::prefix('reports')->name('reports.')->group(function () {

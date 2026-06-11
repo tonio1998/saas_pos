@@ -17,9 +17,9 @@
 
 <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
-<main class="page">
+<div class="page">
     @yield('content')
-</main>
+</div>
 
 <x-alerts />
 <x-ios-confirm />

@@ -21,7 +21,6 @@
 
 body {
     background: var(--pos-bg);
-    overflow: hidden;
 }
 
 .pos-shell {

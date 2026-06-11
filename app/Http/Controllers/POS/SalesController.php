@@ -20,7 +20,7 @@ class SalesController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('pages.store.terminal.index', [
+        return view('pages.tenants.terminal.index', [
             'products' => $products,
         ]);
     }
