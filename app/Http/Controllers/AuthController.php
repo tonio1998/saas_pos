@@ -6,15 +6,19 @@ use App\Models\POS\POSTenant;
 use App\Models\School;
 use App\Models\User;
 use App\Services\SecurityService;
+use App\Traits\TCommonFunctions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Spatie\Permission\Models\Role;
 
 class AuthController extends Controller
 {
+    use TCommonFunctions;
     public function showLogin()
     {
         return Auth::check()
@@ -282,41 +286,107 @@ class AuthController extends Controller
             )->first();
 
             if (!$user) {
-               $newtenant = new POSTenant();
-                $newtenant->subscription_id = 1;
-                $newtenant->business_name = $googleUser->getName() . "'s Store";
-                $newtenant->business_code = 'TEN-' . strtoupper(
-                        \Illuminate\Support\Str::random(10)
+
+                DB::beginTransaction();
+
+                try {
+
+                    $googleRoles = config(
+                        'google_roles',
+                        []
                     );
-                $newtenant->owner_name = $googleUser->getName();
-                $newtenant->email = $email;
-                $newtenant->subscription_start = now()->toDateString();
-                $this->set
-                $newtenant->save();
 
-                $user = User::create([
-                    'tenant_id' => $newtenant->id,
-                    'name' => $googleUser->getName(),
-                    'email' => $email,
-                    'google_id' => $googleUser->getId(),
-                    'avatar' => $googleUser->getAvatar(),
-                    'verified' => 1,
-                    'password' => Hash::make(
-                        \Illuminate\Support\Str::random(40)
-                    ),
-                ]);
+                    $assignedRoles = [];
 
-                $defaultRole = 'tenant-owner';
+                    foreach (
+                        $googleRoles as $role => $emails
+                    ) {
 
-                if (
-                    Role::where(
-                        'name',
-                        $defaultRole
-                    )->exists()
-                ) {
-                    $user->assignRole(
-                        $defaultRole
+                        $normalizedEmails = array_map(
+                            fn ($item) => strtolower(
+                                trim($item)
+                            ),
+                            $emails
+                        );
+
+                        if (
+                            in_array(
+                                $email,
+                                $normalizedEmails
+                            )
+                        ) {
+                            $assignedRoles[] = $role;
+                        }
+                    }
+
+                    $isSA = in_array(
+                        'SA',
+                        $assignedRoles
                     );
+
+                    $tenantId = null;
+
+                    if (!$isSA) {
+                        $tenant = new POSTenant();
+                        $tenant->subscription_id = 1;
+                        $tenant->business_name = $googleUser->getName() . "'s Store";
+                        $tenant->business_code = 'TEN-' . strtoupper(Str::random(10));
+                        $tenant->owner_name = $googleUser->getName();
+                        $tenant->email = $email;
+                        $tenant->subscription_start = now()->toDateString();
+                        $tenant->save();
+
+                        $tenantId = $tenant->id;
+                    }
+
+                    $user = User::create([
+                        'tenant_id' => $tenantId,
+                        'name' => $googleUser->getName(),
+                        'email' => $email,
+                        'google_id' => $googleUser->getId(),
+                        'avatar' => $googleUser->getAvatar(),
+                        'verified' => 1,
+                        'password' => Hash::make(
+                            \Illuminate\Support\Str::random(
+                                32
+                            )
+                        ),
+                    ]);
+
+                    if ($isSA) {
+
+                        if (
+                            Role::where(
+                                'name',
+                                'SA'
+                            )->exists()
+                        ) {
+                            $user->assignRole(
+                                'SA'
+                            );
+                        }
+
+                    } else {
+
+                        if (
+                            Role::where(
+                                'name',
+                                'tenant'
+                            )->exists()
+                        ) {
+                            $user->assignRole(
+                                'tenant'
+                            );
+                        }
+                    }
+
+                    DB::commit();
+
+                } catch (\Throwable $e) {
+
+                    DB::rollBack();
+
+                    throw $e;
                 }
             }
 
@@ -336,44 +406,56 @@ class AuthController extends Controller
                 ->session()
                 ->regenerate();
 
-            $tenant = POSTenant::find(
+            if (
+                !$user->hasRole('SA') &&
                 $user->tenant_id
-            );
+            ) {
 
-            if ($tenant) {
-
-                session([
-                    'tenant_id' => $tenant->id,
-                    'tenant_name' => $tenant->business_name,
-                ]);
-
-                app()->instance(
-                    'currentTenant',
-                    $tenant
+                $tenant = POSTenant::find(
+                    $user->tenant_id
                 );
+
+                if ($tenant) {
+
+                    session([
+                        'tenant_id' => $tenant->id,
+                        'tenant_name' => $tenant->business_name,
+                    ]);
+
+                    app()->instance(
+                        'currentTenant',
+                        $tenant
+                    );
+                }
             }
 
             app(SecurityService::class)
                 ->logLogin(
                     request(),
-                    auth()->user(),
+                    $user,
                     'success'
                 );
 
             if (
-                auth()->user()->hasRole('SA')
+                $user->hasRole('SA')
             ) {
 
                 return redirect()->intended(
-                    route('sa.dashboard.index')
+                    route(
+                        'sa.dashboard.index'
+                    )
                 );
             }
 
             return redirect()->intended(
-                route('dashboard.index')
+                route(
+                    'dashboard.index'
+                )
             );
 
         } catch (\Throwable $e) {
+
+            dd($e);
 
             Log::error(
                 'Google login error',
@@ -391,9 +473,12 @@ class AuthController extends Controller
                 );
 
             return redirect()
-                ->route('login')
+                ->route(
+                    'login'
+                )
                 ->withErrors([
-                    'google' => 'Google login failed.',
+                    'google' =>
+                        'Google login failed.',
                 ]);
         }
     }

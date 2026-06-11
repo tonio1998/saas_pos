@@ -208,7 +208,7 @@
                 <div class="sa-grid">
 
                     <a
-                        href="{{ route('sa.store.index') }}"
+                        href="{{ route('sa.tenants.index') }}"
                         class="sa-quick"
                     >
 

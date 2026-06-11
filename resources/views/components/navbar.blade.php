@@ -34,8 +34,8 @@
 
                     <img
                         src="{{
-                            $schoolSettings?->Logo
-                                ? asset('storage/' . $schoolSettings->Logo)
+                            $tenantSettings?->Logo
+                                ? asset('storage/' . $tenantSettings->Logo)
                                 : asset('images/logo.png')
                         }}"
                         class="logo-img"
@@ -46,11 +46,11 @@
                 <div class="brand-info d-none d-sm-flex">
 
                     <div class="system-name">
-                        <?= $schoolSettings?->SystemTitle ?? 'SAFETRACK: A QR & NFC-Based Student Monitoring and Alert System' ?>
+                        <?= $tenantSettings?->SystemTitle ?? 'SAFETRACK: A QR & NFC-Based Student Monitoring and Alert System' ?>
                     </div>
 
                     <div class="school-name">
-                        {{ $schoolSettings?->SchoolName ?? 'SURIGAO DEL NORTE STATE UNIVERSITY' }}
+                        {{ $tenantSettings?->SchoolName ?? 'SURIGAO DEL NORTE STATE UNIVERSITY' }}
                     </div>
 
                 </div>
@@ -61,7 +61,7 @@
 
         <div class="d-flex align-items-center gap-2 gap-md-3">
 
-            @if(session('school_id') && auth()->user()->hasRole('SA'))
+            @if(session('tenant_id') && auth()->user()->hasRole('SA'))
 
                 <div class="dropdown">
 
@@ -73,7 +73,7 @@
                         <i class="bi bi-buildings"></i>
 
                         <span class="d-none d-md-inline">
-                            {{ session('school_name') }}
+                            {{ session('tenant_name') }}
                         </span>
 
                     </button>
@@ -83,11 +83,11 @@
                         <li class="px-3 py-2">
 
                             <div class="fw-semibold">
-                                {{ session('school_name') }}
+                                {{ session('tenant_name') }}
                             </div>
 
                             <div class="small text-muted">
-                                Active School Context
+                                Active Tenant Context
                             </div>
 
                         </li>
@@ -100,7 +100,7 @@
 
                             <form
                                 method="POST"
-                                action="{{ route('sa.store.close-context') }}"
+                                action="{{ route('sa.tenants.close-context') }}"
                             >
 
                                 @csrf

@@ -98,6 +98,7 @@ class UserController extends Controller
                 'logs',
                 'school'
             ])
+            ->where('system_name','=','pos')
             ->select([
                 'id',
                 'name',

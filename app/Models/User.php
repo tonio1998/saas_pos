@@ -23,7 +23,7 @@ class User extends Authenticatable implements AuditableContract
      * @var list<string>
      */
     protected $fillable = [
-        'school_id',
+        'tenant_id',
         'name',
         'email',
         'filepath',

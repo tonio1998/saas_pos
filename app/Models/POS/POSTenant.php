@@ -86,4 +86,20 @@ class POSTenant extends Model
                 $this->trial_ends_at
             );
     }
+
+    public function products()
+    {
+        return $this->hasMany(
+            POSProducts::class,
+            'tenant_id'
+        );
+    }
+
+    public function users()
+    {
+        return $this->hasMany(
+            User::class,
+            'tenant_id'
+        );
+    }
 }

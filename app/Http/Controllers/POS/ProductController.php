@@ -12,6 +12,7 @@ use App\Traits\TCommonFunctions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Milon\Barcode\DNS1D;
 
 class ProductController extends Controller
 {
@@ -19,7 +20,7 @@ class ProductController extends Controller
 
     public function index()
     {
-        return view('pages.store.products.index');
+        return view('pages.tenants.products.index');
     }
 
     public function create()
@@ -34,7 +35,7 @@ class ProductController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('pages.store.products.create', compact('units', 'categories'));
+        return view('pages.tenants.products.create', compact('units', 'categories'));
     }
 
     public function edit(Request $request)
@@ -51,7 +52,7 @@ class ProductController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('pages.store.products.create', [
+        return view('pages.tenants.products.create', [
             'product' => $product,
             'units' => $units,
             'categories' => $categories,
@@ -215,100 +216,128 @@ class ProductController extends Controller
 
             ->addColumn('actions', function ($product) {
 
-                $editUrl = route(
-                    'products.edit',
-                    encrypt($product->id)
-                );
+                $encryptedId = encrypt($product->id);
 
                 $viewUrl = route(
                     'products.show',
-                    encrypt($product->id)
+                    $encryptedId
+                );
+
+                $editUrl = route(
+                    'products.edit',
+                    $encryptedId
+                );
+
+                $receiveStockUrl = route(
+                    'products.stock.receive',
+                    $encryptedId
+                );
+
+                $stockHistoryUrl = route(
+                    'products.stock.history',
+                    $encryptedId
+                );
+
+                $stockAdjustmentUrl = route(
+                    'products.stock.adjustment',
+                    $encryptedId
                 );
 
                 $modalId = 'productActionModal' . $product->id;
 
-                $button = '
-                <button
-                    class="btn btn-soft-primary btn-sm"
-                    type="button"
-                    data-bs-toggle="modal"
-                    data-bs-target="#' . $modalId . '"
-                >
-                    <i class="bi bi-gear"></i>
-                    Actions
-                </button>
-            ';
+                return '
+        <button
+            type="button"
+            class="btn btn-soft-primary btn-sm"
+            data-bs-toggle="modal"
+            data-bs-target="#' . $modalId . '"
+        >
+            <i class="bi bi-gear"></i>
+            Actions
+        </button>
 
-                $actions = '';
+        <div
+            class="modal fade"
+            id="' . $modalId . '"
+            tabindex="-1"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
 
-                $actions .= '
-                <a
-                    href="' . $viewUrl . '"
-                    class="btn btn-light text-start"
-                >
-                    <i class="bi bi-eye me-2 text-info"></i>
-                    View Product
-                </a>
-            ';
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            Product Actions
+                        </h5>
 
-                $actions .= '
-                <a
-                    href="' . $editUrl . '"
-                    class="btn btn-light text-start"
-                >
-                    <i class="bi bi-pencil me-2 text-primary"></i>
-                    Edit Product
-                </a>
-            ';
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                        ></button>
+                    </div>
 
-                $modal = '
-                <div
-                    class="modal fade"
-                    id="' . $modalId . '"
-                    tabindex="-1"
-                    aria-hidden="true"
-                >
-                    <div class="modal-dialog modal-dialog-centered modal-sm">
-                        <div class="modal-content border-0 shadow">
+                    <div class="modal-body">
 
-                            <div class="modal-header">
-                                <h5 class="modal-title">
-                                    Product Actions
-                                </h5>
+                        <div class="d-grid gap-2">
 
-                                <button
-                                    type="button"
-                                    class="btn-close"
-                                    data-bs-dismiss="modal"
-                                ></button>
-                            </div>
+                            <a
+                                href="' . $viewUrl . '"
+                                class="btn btn-light text-start"
+                            >
+                                <i class="bi bi-eye text-info me-2"></i>
+                                View Product
+                            </a>
 
-                            <div class="modal-body p-2">
+                            <a
+                                href="' . $editUrl . '"
+                                class="btn btn-light text-start"
+                            >
+                                <i class="bi bi-pencil text-primary me-2"></i>
+                                Edit Product
+                            </a>
 
-                                <div class="d-grid gap-2">
-                                    ' . $actions . '
-                                </div>
+                            <hr class="my-2">
 
-                            </div>
+                            <a
+                                href="' . $receiveStockUrl . '"
+                                class="btn btn-success text-start"
+                            >
+                                <i class="bi bi-box-arrow-in-down me-2"></i>
+                                Receive Stock
+                            </a>
+
+                            <a
+                                href="' . $stockAdjustmentUrl . '"
+                                class="btn btn-warning text-start"
+                            >
+                                <i class="bi bi-sliders me-2"></i>
+                                Stock Adjustment
+                            </a>
+
+                            <a
+                                href="' . $stockHistoryUrl . '"
+                                class="btn btn-secondary text-start"
+                            >
+                                <i class="bi bi-clock-history me-2"></i>
+                                Stock History
+                            </a>
 
                         </div>
-                    </div>
-                </div>
-            ';
 
-                return '
-                <div class="text-center">
-                    ' . $button . '
-                    ' . $modal . '
+                    </div>
+
                 </div>
-            ';
+            </div>
+        </div>
+    ';
             })
 
             ->addColumn('image', function ($product) {
 
                 $image = $product->image
                     ? Storage::url($product->image)
-                    : asset('assets/images/no-image.png');
+                    : asset('images/no_image.jpg');
 
                 return '
                     <img
@@ -320,8 +349,19 @@ class ProductController extends Controller
                 ';
             })
             ->addColumn('barcode', function ($product) {
-                return $product->barcode
-                    ?: '<span class="badge bg-light text-muted">No Barcode</span>';
+
+                if (!$product->barcode) {
+                    return '<span class="badge bg-light text-muted">No Barcode</span>';
+                }
+
+                $barcode = new DNS1D();
+
+                return $barcode->getBarcodeSVG(
+                    $product->barcode,
+                    'C128',
+                    1.5,
+                    40
+                );
             })
             ->addColumn('sku', function ($product) {
                 return $product->sku
@@ -332,16 +372,6 @@ class ProductController extends Controller
                     <div class="fw-bold">
                         ' . e($product->name ?: 'Unnamed Product') . '
                     </div>
-                ';
-
-                $html .= '
-                    <small class="text-muted">
-                        ' . e(
-                            $product->description
-                                ? str($product->description)->limit(80)
-                                : 'No description available'
-                        ) . '
-                    </small>
                 ';
 
                 return $html;

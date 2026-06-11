@@ -6,6 +6,13 @@ use App\Models\SmsQueuingModel;
 use App\Models\SystemSetting;
 use Illuminate\Support\Str;
 
+function format_date($date)
+{
+    if(!$date){
+        return 'N/A';
+    }
+    return $date->format('M d, Y h:i A');
+}
 
 if (!function_exists('system_settings')) {
 

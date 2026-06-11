@@ -11,6 +11,7 @@ class POSProducts extends Model
     protected $table = 'pos_products';
 
     protected $fillable = [
+        'stock_on_hand',
         'tenant_id',
         'category_id',
         'unit_id',
@@ -57,6 +58,14 @@ class POSProducts extends Model
         return $this->belongsTo(
             User::class,
             'updated_by'
+        );
+    }
+
+    public function stocks()
+    {
+        return $this->hasMany(
+            Stocks::class,
+            'product_id'
         );
     }
 }
