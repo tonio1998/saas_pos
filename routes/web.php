@@ -455,6 +455,8 @@ Route::middleware('auth')->group(function(){
         Route::put('/update/{id}', [SalesController::class, 'update'])->name('update');
         Route::delete('/delete/{id}', [SalesController::class, 'destroy'])->name('destroy');
         Route::get('/data', [SalesController::class, 'ajaxData'])->name('data');
+        Route::get('/products',[SalesController::class, 'products']
+        );
     });
 
     Route::prefix('cashiering')->name('cashiering.')->group(function () {
@@ -521,16 +523,6 @@ Route::middleware('auth')->group(function(){
             Route::put('/update/{id}', [CategoryController::class, 'update'])->name('update');
             Route::delete('/delete/{id}', [CategoryController::class, 'destroy'])->name('destroy');
             Route::get('/data', [CategoryController::class, 'ajaxData'])->name('data');
-        });
-
-        Route::prefix('brands')->name('brands.')->group(function () {
-            Route::get('/', [BrandController::class, 'index'])->name('index');
-            Route::get('/create', [BrandController::class, 'create'])->name('create');
-            Route::post('/create', [BrandController::class, 'store'])->name('store');
-            Route::get('/edit/{id}', [BrandController::class, 'edit'])->name('edit');
-            Route::put('/update/{id}', [BrandController::class, 'update'])->name('update');
-            Route::delete('/delete/{id}', [BrandController::class, 'destroy'])->name('destroy');
-            Route::get('/data', [BrandController::class, 'ajaxData'])->name('data');
         });
 
         Route::prefix('units')->name('units.')->group(function () {

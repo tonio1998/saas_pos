@@ -94,27 +94,11 @@
             </a>
 
             <a
-                href="{{ route('products.brands.index') }}"
-                class="sidebar-sublink"
-            >
-                <i class="bi bi-award-fill sidebar-subicon"></i>
-                <span>Brands</span>
-            </a>
-
-            <a
                 href="{{ route('products.units.index') }}"
                 class="sidebar-sublink"
             >
                 <i class="bi bi-rulers sidebar-subicon"></i>
                 <span>Units</span>
-            </a>
-
-            <a
-                href="{{ route('products.price-history.index') }}"
-                class="sidebar-sublink"
-            >
-                <i class="bi bi-clock-history sidebar-subicon"></i>
-                <span>Price History</span>
             </a>
 
         </div>

@@ -22,6 +22,7 @@ import Chart from 'chart.js/auto';
 window.Chart = Chart;
 
 import './pages/dashboard.js'
+import './pages/db.js'
 import './pages/terminal.js'
 import './custon.js'
 

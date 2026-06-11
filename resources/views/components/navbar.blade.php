@@ -34,8 +34,8 @@
 
                     <img
                         src="{{
-                            $tenantSettings?->Logo
-                                ? asset('storage/' . $tenantSettings->Logo)
+                            $tenantSettings?->logo
+                                ? asset('storage/' . $tenantSettings->logo)
                                 : asset('images/logo.png')
                         }}"
                         class="logo-img"
@@ -46,11 +46,11 @@
                 <div class="brand-info d-none d-sm-flex">
 
                     <div class="system-name">
-                        <?= $tenantSettings?->SystemTitle ?? 'SAFETRACK: A QR & NFC-Based Student Monitoring and Alert System' ?>
+                        <?= $tenantSettings?->business_name ?? 'SAFETRACK: A QR & NFC-Based Student Monitoring and Alert System' ?>
                     </div>
 
                     <div class="school-name">
-                        {{ $tenantSettings?->SchoolName ?? 'SURIGAO DEL NORTE STATE UNIVERSITY' }}
+                        {{ $tenantSettings?->owner_name ?? 'SURIGAO DEL NORTE STATE UNIVERSITY' }}
                     </div>
 
                 </div>

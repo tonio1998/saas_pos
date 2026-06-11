@@ -6,250 +6,135 @@
 
     <div class="pos-shell">
 
-        <div class="pos-topbar">
+        <div class="pos-left">
 
-            <div class="pos-search">
+            @include(
+                'pages.tenants.terminal.search_bar'
+            )
 
-                <div class="input-group input-group-lg">
+            @include(
+                'pages.tenants.terminal.category_tabs'
+            )
 
-                <span class="input-group-text">
-                    <i class="bi bi-upc-scan"></i>
-                </span>
-
-                    <input
-                        type="text"
-                        id="barcodeSearch"
-                        class="form-control"
-                        placeholder="Scan barcode or search product..."
-                        autofocus
-                    >
-
-                </div>
-
-            </div>
-
-            <div class="pos-meta">
-
-                <div class="meta-card">
-                    <small>Terminal</small>
-                    <strong>POS-01</strong>
-                </div>
-
-                <div class="meta-card">
-                    <small>Cashier</small>
-                    <strong>{{ auth()->user()->name }}</strong>
-                </div>
-
-                <div class="meta-card">
-                    <small>Transaction</small>
-                    <strong>#000001</strong>
-                </div>
-
-            </div>
+            @include(
+                'pages.tenants.terminal.products.product_grid'
+            )
 
         </div>
 
-        <div class="pos-body">
+        <div class="pos-right">
 
-            <aside class="pos-sidebar">
+            @include(
+                'pages.tenants.terminal.cart.cart_header'
+            )
 
-                <div class="sidebar-section">
+            @include(
+                'pages.tenants.terminal.cart.cart_items'
+            )
 
-                    <div class="section-title">
-                        Categories
-                    </div>
+            @include(
+                'pages.tenants.terminal.cart.cart_summary'
+            )
 
-                    <div class="category-list">
+            @include(
+                'pages.tenants.terminal.cart.checkout_button'
+            )
 
-                        <button class="category-pill active">
-                            All
-                        </button>
+        </div>
 
-                        <button class="category-pill">
-                            Beverages
-                        </button>
+    </div>
 
-                        <button class="category-pill">
-                            Snacks
-                        </button>
+    <div
+        class="modal fade"
+        id="paymentModal"
+        tabindex="-1"
+    >
 
-                        <button class="category-pill">
-                            Frozen
-                        </button>
+        <div class="modal-dialog modal-dialog-centered">
 
-                        <button class="category-pill">
-                            Pharmacy
-                        </button>
+            <div class="modal-content">
 
-                        <button class="category-pill">
-                            Personal Care
-                        </button>
+                <div class="modal-header">
 
-                    </div>
+                    <h5 class="modal-title">
+                        Complete Sale
+                    </h5>
 
-                </div>
-
-                <div class="sidebar-section">
-
-                    <div class="section-title">
-                        Quick Actions
-                    </div>
-
-                    <div class="d-grid gap-2">
-
-                        <button class="btn btn-light">
-                            F2 Inquiry
-                        </button>
-
-                        <button class="btn btn-light">
-                            F4 Discount
-                        </button>
-
-                        <button class="btn btn-light">
-                            F5 Hold
-                        </button>
-
-                        <button class="btn btn-light">
-                            F6 Recall
-                        </button>
-
-                        <button class="btn btn-light">
-                            F7 Customer
-                        </button>
-
-                        <button class="btn btn-light">
-                            F8 Refund
-                        </button>
-
-                    </div>
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                    ></button>
 
                 </div>
 
-            </aside>
+                <div class="modal-body">
 
-            <main class="pos-products">
+                    <div class="mb-3">
 
-                <div class="products-header">
+                        <label class="form-label">
+                            Payment Method
+                        </label>
 
-                    <div>
-                        <h5 class="mb-0">
-                            Products
-                        </h5>
+                        <select
+                            id="paymentMethod"
+                            class="form-select"
+                        >
+                            <option value="cash">
+                                Cash
+                            </option>
 
-                        <small class="text-muted">
-                            Available Items
-                        </small>
+                            <option value="gcash">
+                                GCash
+                            </option>
+
+                            <option value="card">
+                                Card
+                            </option>
+
+                        </select>
+
                     </div>
 
-                    <div class="text-muted">
-                        1,245 Products
-                    </div>
+                    <div class="mb-3">
 
-                </div>
+                        <label class="form-label">
+                            Amount Tendered
+                        </label>
 
-                <div class="products-grid">
-                    @foreach($products as $product)
-                        <button
-                            class="product-card"
-                            data-id="{{ $product->id }}"
-                            data-barcode="{{ $product->barcode }}"
-                            data-name="{{ $product->name }}"
-                            data-price="{{ $product->selling_price }}"
-                            data-image="{{ $product->image }}"
+                        <input
+                            type="number"
+                            id="amountTendered"
+                            class="form-control"
+                            min="0"
+                            step="0.01"
                         >
 
-                            <div class="product-image">
-
-                                <img
-                                    src="{{
-            $product->image
-                ? Storage::url($product->image)
-                : asset('images/no_image.jpg')
-        }}"
-                                    alt="{{ $product->name }}"
-                                >
-
-                            </div>
-
-                            <div class="product-name">
-                                {{ $product->name }}
-                            </div>
-
-                            <div class="product-price">
-                                {{ $product->selling_price }}
-                            </div>
-
-                            <div class="product-stock">
-                                Stock: 125
-                            </div>
-
-                        </button>
-                    @endforeach
-                </div>
-
-            </main>
-
-            <aside class="pos-cart">
-
-                <div class="cart-header">
-
-                    <div>
-
-                        <h5 class="mb-0">
-                            Current Sale
-                        </h5>
-
-                        <small class="text-muted">
-                            3 Items
-                        </small>
-
                     </div>
 
-                    <button class="btn btn-sm btn-danger">
-                        Clear
-                    </button>
+                    <div class="payment-summary">
 
-                </div>
+                        <div class="d-flex justify-content-between">
 
-                <div class="cart-items">
+                            <span>Total</span>
 
-                    <div class="cart-item">
+                            <strong id="paymentTotal">
 
-                        <div class="cart-item-top">
+                                ₱0.00
 
-                            <div>
-
-                                <div class="cart-name">
-                                    Coke 1.5L
-                                </div>
-
-                                <div class="cart-meta">
-                                    Barcode: 480001
-                                </div>
-
-                            </div>
-
-                            <button class="btn btn-sm btn-danger">
-                                ×
-                            </button>
+                            </strong>
 
                         </div>
 
-                        <div class="cart-item-bottom">
+                        <div class="d-flex justify-content-between mt-2">
 
-                            <div class="qty-box">
+                            <span>Change</span>
 
-                                <button>-</button>
+                            <strong id="paymentChange">
 
-                                <span>2</span>
+                                ₱0.00
 
-                                <button>+</button>
-
-                            </div>
-
-                            <div class="cart-total">
-                                ₱150.00
-                            </div>
+                            </strong>
 
                         </div>
 
@@ -257,67 +142,27 @@
 
                 </div>
 
-                <div class="cart-summary">
+                <div class="modal-footer">
 
-                    <div class="summary-row">
-                        <span>Subtotal</span>
-                        <strong id="subtotalAmount">
-                            ₱0.00
-                        </strong>
-                    </div>
-
-                    <div class="summary-row">
-                        <span>Discount</span>
-                        <strong id="discountAmount">
-                            ₱0.00
-                        </strong>
-                    </div>
-
-                    <div class="summary-row">
-                        <span>VAT</span>
-                        <strong id="vatAmount">
-                            ₱0.00
-                        </strong>
-                    </div>
-
-                </div>
-
-                <div class="grand-total">
-
-                    <small>
-                        TOTAL DUE
-                    </small>
-
-                    <div
-                        class="amount"
-                        id="grandTotal"
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal"
                     >
-                        ₱0.00
-                    </div>
-
-                </div>
-
-                <div class="payment-actions">
-
-                    <button class="btn-pay">
-                        PAY NOW
+                        Cancel
                     </button>
 
-                    <div class="secondary-actions">
-
-                        <button class="btn-hold">
-                            HOLD
-                        </button>
-
-                        <button class="btn-void">
-                            VOID
-                        </button>
-
-                    </div>
+                    <button
+                        type="button"
+                        class="btn btn-success"
+                        id="btnConfirmPayment"
+                    >
+                        Complete Sale
+                    </button>
 
                 </div>
 
-            </aside>
+            </div>
 
         </div>
 
