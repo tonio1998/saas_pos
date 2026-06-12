@@ -871,7 +871,35 @@ class SalesController extends Controller
 
     public function index()
     {
-        return view('pages.tenants.terminal.index');
+
+        $salesToday = POSSale::query()
+            ->where('sale_date', '>=', now()->subDays(1))
+            ->where('sale_date', '<=', now())
+            ->sum('subtotal');
+
+        $transactionsToday = POSSale::query()
+            ->where('sale_date', '>=', now()->subDays(1))
+            ->where('sale_date', '<=', now())
+            ->count();
+
+        $averageSale = POSSale::query()
+            ->where('sale_date', '>=', now()->subDays(1))
+            ->where('sale_date', '<=', now())
+            ->avg('subtotal');
+
+        return view('pages.tenants.terminal.index', [
+
+            'salesToday' =>
+                $salesToday,
+
+
+            'transactionsToday' =>
+                $transactionsToday,
+
+            'averageSale' =>
+                $averageSale,
+
+        ]);
     }
 
     public function create()
