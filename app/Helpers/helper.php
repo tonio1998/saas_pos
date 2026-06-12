@@ -6,6 +6,22 @@ use App\Models\SmsQueuingModel;
 use App\Models\SystemSetting;
 use Illuminate\Support\Str;
 
+function generateSaleInvoiceNo(): string
+{
+    return 'S' . now()->format('Ymd') . '-' . strtoupper(generateSerialNumber(6));
+}
+
+function generateSerialNumber(int $length = 6): string
+{
+    $characters = '0123456789';
+    $charactersLength = strlen($characters);
+    $randomString = '';
+    for ($i = 0; $i < $length; $i++) {
+        $randomString .= $characters[random_int(0, $charactersLength - 1)];
+    }
+    return $randomString;
+}
+
 function format_date($date)
 {
     if(!$date){

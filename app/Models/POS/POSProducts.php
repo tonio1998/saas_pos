@@ -17,6 +17,7 @@ class POSProducts extends Model
         'unit_id',
         'barcode',
         'sku',
+        'image',
         'name',
         'description',
         'cost_price',

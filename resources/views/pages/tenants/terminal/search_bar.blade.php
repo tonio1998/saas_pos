@@ -12,7 +12,7 @@
 
             <div class="brand-title">
 
-                CatchuPOS
+                BaryaPOS
 
             </div>
 
