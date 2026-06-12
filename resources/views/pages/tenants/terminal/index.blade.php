@@ -44,22 +44,6 @@
             <x-card>
 
                 <div class="text-muted">
-                    Profit Today
-                </div>
-
-                <h3 class="mb-0 text-primary">
-                    ₱{{ number_format($profitToday ?? 0, 2) }}
-                </h3>
-
-            </x-card>
-
-        </div>
-
-        <div class="col-md-3">
-
-            <x-card>
-
-                <div class="text-muted">
                     Transactions
                 </div>
 

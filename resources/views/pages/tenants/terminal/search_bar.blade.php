@@ -1,6 +1,6 @@
 <div class="search-section">
 
-    <div class="brand-area">
+    <div class="brand-area  p-3">
 
         <div class="brand-logo">
 
@@ -26,9 +26,9 @@
 
     </div>
 
-    <div class="search-box">
+    <div class="search-box  p-3 pt-0 pb-0">
 
-        <i class="bi bi-search"></i>
+        <i class="bi bi-search ms-3"></i>
 
         <input
             type="text"
