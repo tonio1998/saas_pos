@@ -105,6 +105,7 @@ class ProductController extends Controller
             'wholesale_price' => ['nullable', 'numeric', 'min:0'],
 
             'reorder_level' => ['nullable', 'integer', 'min:0'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
         $product = POSProducts::findOrFail(
@@ -179,6 +180,15 @@ class ProductController extends Controller
                 );
 
                 $priceHistory->save();
+            }
+
+            $image = $validated['image'];
+
+            if ($image) {
+                $product->image = $image->store(
+                    'products',
+                    'public'
+                );
             }
 
             $product->update([

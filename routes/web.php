@@ -450,13 +450,15 @@ Route::middleware('auth')->group(function(){
         Route::get('/', [SalesController::class, 'index'])->name('index');
         Route::get('/create', [SalesController::class, 'create'])->name('create');
         Route::post('/create', [SalesController::class, 'store'])->name('store');
-        Route::get('/view/{id}', [SalesController::class, 'show'])->name('show');
         Route::get('/edit/{id}', [SalesController::class, 'edit'])->name('edit');
         Route::put('/update/{id}', [SalesController::class, 'update'])->name('update');
         Route::delete('/delete/{id}', [SalesController::class, 'destroy'])->name('destroy');
         Route::get('/data', [SalesController::class, 'ajaxData'])->name('data');
-        Route::get('/products',[SalesController::class, 'products']
-        );
+        Route::get('/products',[SalesController::class, 'products']);
+        Route::get(
+            '/{sale}/details',
+            [SalesController::class, 'details']
+        )->name('details');
     });
 
     Route::prefix('cashiering')->name('cashiering.')->group(function () {

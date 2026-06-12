@@ -4,337 +4,232 @@ const ProductDB = {
 
     async init() {
 
-        return new Promise(
-            (
-                resolve,
-                reject
-            ) => {
+        if (this.db) {
+            return;
+        }
 
-                const request =
-                    indexedDB.open(
-                        'catchupos',
-                        1
+        return new Promise((resolve, reject) => {
+
+            const request = indexedDB.open('catchupos', 2);
+
+            request.onupgradeneeded = event => {
+
+                const db = event.target.result;
+
+                if (!db.objectStoreNames.contains('products')) {
+
+                    const store = db.createObjectStore(
+                        'products',
+                        {
+                            keyPath: 'id'
+                        }
                     );
 
-                request.onupgradeneeded =
-                    event => {
-
-                        const db =
-                            event.target.result;
-
-                        if (
-                            !db.objectStoreNames.contains(
-                                'products'
-                            )
-                        ) {
-
-                            const store =
-                                db.createObjectStore(
-                                    'products',
-                                    {
-                                        keyPath: 'id'
-                                    }
-                                );
-
-                            store.createIndex(
-                                'name',
-                                'name',
-                                {
-                                    unique: false
-                                }
-                            );
-
-                            store.createIndex(
-                                'barcode',
-                                'barcode',
-                                {
-                                    unique: false
-                                }
-                            );
-
+                    store.createIndex(
+                        'name',
+                        'name',
+                        {
+                            unique: false
                         }
+                    );
 
-                    };
+                    store.createIndex(
+                        'barcode',
+                        'barcode',
+                        {
+                            unique: false
+                        }
+                    );
 
-                request.onsuccess =
-                    event => {
+                }
 
-                        this.db =
-                            event.target.result;
+                if (!db.objectStoreNames.contains('settings')) {
 
-                        resolve();
+                    db.createObjectStore(
+                        'settings',
+                        {
+                            keyPath: 'key'
+                        }
+                    );
 
-                    };
+                }
 
-                request.onerror =
-                    event =>
-                        reject(
-                            event.target.error
-                        );
+            };
 
-            }
-        );
+            request.onsuccess = event => {
+
+                this.db = event.target.result;
+
+                resolve();
+
+            };
+
+            request.onerror = event =>
+                reject(event.target.error);
+
+        });
 
     },
 
-    async saveProducts(
-        products
-    ) {
+    async saveProducts(products) {
 
-        return new Promise(
-            (
-                resolve,
-                reject
-            ) => {
+        return new Promise((resolve, reject) => {
 
-                const tx =
-                    this.db.transaction(
-                        'products',
-                        'readwrite'
-                    );
+            const tx = this.db.transaction(
+                ['products', 'settings'],
+                'readwrite'
+            );
 
-                const store =
-                    tx.objectStore(
-                        'products'
-                    );
+            const productStore =
+                tx.objectStore('products');
 
-                products.forEach(
-                    product =>
-                        store.put(
-                            product
-                        )
-                );
+            const settingsStore =
+                tx.objectStore('settings');
 
-                tx.oncomplete =
-                    () =>
-                        resolve(
-                            true
-                        );
+            productStore.clear();
 
-                tx.onerror =
-                    event =>
-                        reject(
-                            event.target.error
-                        );
+            products.forEach(product => {
 
-            }
-        );
+                productStore.put(product);
+
+            });
+
+            settingsStore.put({
+                key: 'products_last_sync',
+                value: Date.now()
+            });
+
+            tx.oncomplete = () =>
+                resolve(true);
+
+            tx.onerror = event =>
+                reject(event.target.error);
+
+        });
 
     },
 
     async clearProducts() {
 
-        return new Promise(
-            (
-                resolve,
-                reject
-            ) => {
+        return new Promise((resolve, reject) => {
 
-                const tx =
-                    this.db.transaction(
-                        'products',
-                        'readwrite'
-                    );
+            const tx = this.db.transaction(
+                'products',
+                'readwrite'
+            );
 
-                const store =
-                    tx.objectStore(
-                        'products'
-                    );
+            const store =
+                tx.objectStore('products');
 
-                const request =
-                    store.clear();
+            const request =
+                store.clear();
 
-                request.onsuccess =
-                    () =>
-                        resolve(
-                            true
-                        );
+            request.onsuccess = () =>
+                resolve(true);
 
-                request.onerror =
-                    event =>
-                        reject(
-                            event.target.error
-                        );
+            request.onerror = event =>
+                reject(event.target.error);
 
-            }
-        );
+        });
 
     },
 
     async getProducts() {
 
-        return new Promise(
-            (
-                resolve,
-                reject
-            ) => {
+        return new Promise((resolve, reject) => {
 
-                const tx =
-                    this.db.transaction(
-                        'products',
-                        'readonly'
-                    );
+            const tx = this.db.transaction(
+                'products',
+                'readonly'
+            );
 
-                const store =
-                    tx.objectStore(
-                        'products'
-                    );
+            const store =
+                tx.objectStore('products');
 
-                const request =
-                    store.getAll();
+            const request =
+                store.getAll();
 
-                request.onsuccess =
-                    () =>
-                        resolve(
-                            request.result
-                        );
+            request.onsuccess = () =>
+                resolve(request.result || []);
 
-                request.onerror =
-                    event =>
-                        reject(
-                            event.target.error
-                        );
+            request.onerror = event =>
+                reject(event.target.error);
 
-            }
-        );
+        });
 
     },
 
-    async search(
-        keyword
-    ) {
+    async getLastSync() {
 
-        return new Promise(
-            (
-                resolve,
-                reject
-            ) => {
+        return new Promise((resolve, reject) => {
 
-                const tx =
-                    this.db.transaction(
-                        'products',
-                        'readonly'
-                    );
+            const tx = this.db.transaction(
+                'settings',
+                'readonly'
+            );
 
-                const store =
-                    tx.objectStore(
-                        'products'
-                    );
+            const store =
+                tx.objectStore('settings');
 
-                const request =
-                    store.getAll();
+            const request =
+                store.get('products_last_sync');
 
-                request.onsuccess =
-                    () => {
+            request.onsuccess = () =>
+                resolve(
+                    request.result?.value || null
+                );
 
-                        const term =
-                            keyword
-                                .trim()
-                                .toLowerCase();
+            request.onerror = event =>
+                reject(event.target.error);
 
-                        const rows =
-                            request.result
-                                .filter(
-                                    product => {
-
-                                        const name =
-                                            (
-                                                product.name ||
-                                                ''
-                                            )
-                                                .toLowerCase();
-
-                                        const barcode =
-                                            (
-                                                product.barcode ||
-                                                ''
-                                            )
-                                                .toLowerCase();
-
-                                        return (
-                                            name.includes(
-                                                term
-                                            ) ||
-                                            barcode.includes(
-                                                term
-                                            )
-                                        );
-
-                                    }
-                                )
-                                .slice(
-                                    0,
-                                    50
-                                );
-
-                        resolve(
-                            rows
-                        );
-
-                    };
-
-                request.onerror =
-                    event =>
-                        reject(
-                            event.target.error
-                        );
-
-            }
-        );
+        });
 
     },
 
-    async findBarcode(
-        barcode
-    ) {
+    async search(keyword) {
 
-        return new Promise(
-            (
-                resolve,
-                reject
-            ) => {
+        const term =
+            keyword
+                .trim()
+                .toLowerCase();
 
-                const tx =
-                    this.db.transaction(
-                        'products',
-                        'readonly'
-                    );
+        const products =
+            await this.getProducts();
 
-                const store =
-                    tx.objectStore(
-                        'products'
-                    );
+        return products
+            .filter(product => {
 
-                const request =
-                    store.getAll();
+                const name =
+                    (product.name || '')
+                        .toLowerCase();
 
-                request.onsuccess =
-                    () => {
+                const barcode =
+                    (product.barcode || '')
+                        .toLowerCase();
 
-                        const product =
-                            request.result.find(
-                                item =>
-                                    item.barcode ===
-                                    barcode
-                            );
+                return (
+                    name.includes(term) ||
+                    barcode.includes(term)
+                );
 
-                        resolve(
-                            product ||
-                            null
-                        );
-
-                    };
-
-                request.onerror =
-                    event =>
-                        reject(
-                            event.target.error
-                        );
-
-            }
-        );
+            })
+            .slice(0, 50);
 
     },
+
+    async findBarcode(barcode) {
+
+        const products =
+            await this.getProducts();
+
+        return (
+            products.find(
+                product =>
+                    product.barcode === barcode
+            ) || null
+        );
+
+    }
 
 };
 

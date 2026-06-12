@@ -26,9 +26,11 @@
         <div class="product-bottom">
 
             <span class="product-price">
-                ₱{{ number_format($product->selling_price, 2) }}
+                ₱{{ number_format($product->selling_price, 2) }} / {{ $stock }}
             </span>
-
+            <span class="stock-badge out">
+                    0
+                </span>
             @if($stock <= 0)
 
                 <span class="stock-badge out">

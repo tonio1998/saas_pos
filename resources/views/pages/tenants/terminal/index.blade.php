@@ -1,64 +1,192 @@
-@extends('layouts.pos')
+@extends('layouts.app')
 
-@section('title', 'POS Terminal')
+@section('title', 'Sales History')
 
 @section('content')
 
-    <div class="pos-shell">
+    <x-page-header
+        title="Sales History"
+        subtitle="View and Manage Sales Transactions"
+    >
+        <x-slot:action>
 
-        <div class="pos-left">
+            <a
+                href="{{ route('sales.create') }}"
+                class="btn btn-success btn-md"
+            >
+                <i class="bi bi-cart-check"></i>
+                New Sale
+            </a>
 
-            @include(
-                'pages.tenants.terminal.search_bar'
-            )
+        </x-slot:action>
+    </x-page-header>
 
-            @include(
-                'pages.tenants.terminal.category_tabs'
-            )
+    <div class="row g-3 mb-3">
 
-            @include(
-                'pages.tenants.terminal.products.product_grid'
-            )
+        <div class="col-md-3">
+
+            <x-card>
+
+                <div class="text-muted">
+                    Sales Today
+                </div>
+
+                <h3 class="mb-0 text-success">
+                    ₱{{ number_format($salesToday ?? 0, 2) }}
+                </h3>
+
+            </x-card>
 
         </div>
 
-        <div class="pos-right">
+        <div class="col-md-3">
 
-            @include(
-                'pages.tenants.terminal.cart.cart_header'
-            )
+            <x-card>
 
-            @include(
-                'pages.tenants.terminal.cart.cart_items'
-            )
+                <div class="text-muted">
+                    Profit Today
+                </div>
 
-            @include(
-                'pages.tenants.terminal.cart.cart_summary'
-            )
+                <h3 class="mb-0 text-primary">
+                    ₱{{ number_format($profitToday ?? 0, 2) }}
+                </h3>
 
-            @include(
-                'pages.tenants.terminal.cart.checkout_button'
-            )
+            </x-card>
+
+        </div>
+
+        <div class="col-md-3">
+
+            <x-card>
+
+                <div class="text-muted">
+                    Transactions
+                </div>
+
+                <h3 class="mb-0">
+                    {{ number_format($transactionsToday ?? 0) }}
+                </h3>
+
+            </x-card>
+
+        </div>
+
+        <div class="col-md-3">
+
+            <x-card>
+
+                <div class="text-muted">
+                    Average Sale
+                </div>
+
+                <h3 class="mb-0 text-warning">
+                    ₱{{ number_format($averageSale ?? 0, 2) }}
+                </h3>
+
+            </x-card>
 
         </div>
 
     </div>
 
+    <x-card>
+
+        <x-datatable
+            id="salesTable"
+            :columns="[
+                'Actions',
+                'Invoice No.',
+                'Date & Time',
+                'Customer',
+                'Items',
+                'Subtotal',
+                'Discount',
+                'Total Sales',
+                'Profit',
+                'Payment Method',
+                'Tendered',
+                'Change',
+                'Status',
+                'Cashier'
+            ]"
+            :ajax="route('sales.data')"
+            :datatableColumns="[
+                [
+                    'data' => 'actions',
+                    'orderable' => false,
+                    'searchable' => false
+                ],
+                [
+                    'data' => 'invoice_number'
+                ],
+                [
+                    'data' => 'sale_date'
+                ],
+                [
+                    'data' => 'customer'
+                ],
+                [
+                    'data' => 'total_items'
+                ],
+                [
+                    'data' => 'subtotal'
+                ],
+                [
+                    'data' => 'discount'
+                ],
+                [
+                    'data' => 'total'
+                ],
+                [
+                    'data' => 'profit'
+                ],
+                [
+                    'data' => 'payment_method'
+                ],
+                [
+                    'data' => 'tendered'
+                ],
+                [
+                    'data' => 'change_amount'
+                ],
+                [
+                    'data' => 'status'
+                ],
+                [
+                    'data' => 'cashier'
+                ]
+            ]"
+        />
+
+    </x-card>
+
     <div
         class="modal fade"
-        id="paymentModal"
+        id="saleDetailsModal"
         tabindex="-1"
+        aria-hidden="true"
     >
 
-        <div class="modal-dialog modal-dialog-centered">
+        <div
+            class="modal-dialog modal-xl modal-dialog-scrollable"
+        >
 
-            <div class="modal-content">
+            <div class="modal-content border-0 shadow">
 
                 <div class="modal-header">
 
-                    <h5 class="modal-title">
-                        Complete Sale
-                    </h5>
+                    <div>
+
+                        <h5 class="modal-title mb-1">
+                            Transaction Details
+                        </h5>
+
+                        <small
+                            class="text-muted"
+                            id="detailInvoice"
+                        ></small>
+
+                    </div>
 
                     <button
                         type="button"
@@ -70,71 +198,305 @@
 
                 <div class="modal-body">
 
-                    <div class="mb-3">
+                    <div class="row g-3 mb-4">
 
-                        <label class="form-label">
-                            Payment Method
-                        </label>
+                        <div class="col-md-3">
 
-                        <select
-                            id="paymentMethod"
-                            class="form-select"
-                        >
-                            <option value="cash">
-                                Cash
-                            </option>
+                            <div class="card h-100">
 
-                            <option value="gcash">
-                                GCash
-                            </option>
+                                <div class="card-body">
 
-                            <option value="card">
-                                Card
-                            </option>
+                                    <div class="text-muted small">
+                                        Customer
+                                    </div>
 
-                        </select>
+                                    <div
+                                        class="fw-semibold"
+                                        id="detailCustomer"
+                                    ></div>
 
-                    </div>
+                                </div>
 
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            Amount Tendered
-                        </label>
-
-                        <input
-                            type="number"
-                            id="amountTendered"
-                            class="form-control"
-                            min="0"
-                            step="0.01"
-                        >
-
-                    </div>
-
-                    <div class="payment-summary">
-
-                        <div class="d-flex justify-content-between">
-
-                            <span>Total</span>
-
-                            <strong id="paymentTotal">
-
-                                ₱0.00
-
-                            </strong>
+                            </div>
 
                         </div>
 
-                        <div class="d-flex justify-content-between mt-2">
+                        <div class="col-md-3">
 
-                            <span>Change</span>
+                            <div class="card h-100">
 
-                            <strong id="paymentChange">
+                                <div class="card-body">
 
-                                ₱0.00
+                                    <div class="text-muted small">
+                                        Cashier
+                                    </div>
 
-                            </strong>
+                                    <div
+                                        class="fw-semibold"
+                                        id="detailCashier"
+                                    ></div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <div class="card h-100">
+
+                                <div class="card-body">
+
+                                    <div class="text-muted small">
+                                        Date & Time
+                                    </div>
+
+                                    <div
+                                        class="fw-semibold"
+                                        id="detailDate"
+                                    ></div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <div class="card h-100">
+
+                                <div class="card-body">
+
+                                    <div class="text-muted small">
+                                        Status
+                                    </div>
+
+                                    <span
+                                        class="badge fs-6"
+                                        id="detailStatus"
+                                    ></span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row g-3 mb-4">
+
+                        <div class="col-md-3">
+
+                            <div class="card text-center h-100">
+
+                                <div class="card-body">
+
+                                    <div class="small text-muted">
+                                        Subtotal
+                                    </div>
+
+                                    <div
+                                        class="fw-bold fs-5"
+                                        id="detailSubtotal"
+                                    ></div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <div class="card text-center h-100">
+
+                                <div class="card-body">
+
+                                    <div class="small text-muted">
+                                        Discount
+                                    </div>
+
+                                    <div
+                                        class="fw-bold fs-5 text-danger"
+                                        id="detailDiscount"
+                                    ></div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <div class="card text-center h-100 border-primary">
+
+                                <div class="card-body">
+
+                                    <div class="small text-muted">
+                                        Total Sale
+                                    </div>
+
+                                    <div
+                                        class="fw-bold fs-3 text-primary"
+                                        id="detailTotal"
+                                    ></div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <div class="card text-center h-100 border-warning">
+
+                                <div class="card-body">
+
+                                    <div class="small text-muted">
+                                        Profit
+                                    </div>
+
+                                    <div
+                                        class="fw-bold fs-3 text-warning"
+                                        id="detailProfit"
+                                    ></div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="card mb-4">
+
+                        <div
+                            class="card-header d-flex justify-content-between align-items-center"
+                        >
+
+                        <span class="fw-semibold">
+                            Payment Details
+                        </span>
+
+                            <span
+                                class="badge bg-primary"
+                                id="paymentCount"
+                            >
+                            0 Payments
+                        </span>
+
+                        </div>
+
+                        <div class="table-responsive">
+
+                            <table
+                                class="table table-hover align-middle mb-0"
+                                id="paymentTable"
+                            >
+
+                                <thead class="table-light">
+
+                                <tr>
+                                    <th>Method</th>
+                                    <th>Reference</th>
+                                    <th class="text-end">
+                                        Amount
+                                    </th>
+                                </tr>
+
+                                </thead>
+
+                                <tbody></tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                    <div class="card mb-4">
+
+                        <div
+                            class="card-header d-flex justify-content-between align-items-center"
+                        >
+
+                        <span class="fw-semibold">
+                            Items Purchased
+                        </span>
+
+                            <span
+                                class="badge bg-secondary"
+                                id="itemCount"
+                            >
+                            0 Items
+                        </span>
+
+                        </div>
+
+                        <div class="table-responsive">
+
+                            <table
+                                class="table table-striped table-hover align-middle mb-0"
+                                id="itemsTable"
+                            >
+
+                                <thead class="table-light">
+
+                                <tr>
+                                    <th>Barcode</th>
+                                    <th>Product</th>
+                                    <th class="text-center">
+                                        Qty
+                                    </th>
+                                    <th class="text-end">
+                                        Price
+                                    </th>
+                                    <th class="text-end">
+                                        Total
+                                    </th>
+                                    <th class="text-end">
+                                        Profit
+                                    </th>
+                                </tr>
+
+                                </thead>
+
+                                <tbody></tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+
+                            <div class="card h-100">
+
+                                <div class="card-header fw-semibold">
+                                    Notes
+                                </div>
+
+                                <div
+                                    class="card-body"
+                                    id="detailNotes"
+                                >
+
+                                <span class="text-muted">
+                                    No notes available.
+                                </span>
+
+                                </div>
+
+                            </div>
 
                         </div>
 
@@ -146,18 +508,19 @@
 
                     <button
                         type="button"
-                        class="btn btn-light"
+                        class="btn btn-outline-secondary"
                         data-bs-dismiss="modal"
                     >
-                        Cancel
+                        Close
                     </button>
 
                     <button
                         type="button"
-                        class="btn btn-success"
-                        id="btnConfirmPayment"
+                        class="btn btn-primary"
+                        id="btnReprint"
                     >
-                        Complete Sale
+                        <i class="bi bi-printer me-1"></i>
+                        Reprint Receipt
                     </button>
 
                 </div>
@@ -168,4 +531,7 @@
 
     </div>
 
+    <script>
+
+    </script>
 @endsection

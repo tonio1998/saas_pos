@@ -16,7 +16,6 @@
 
 
 -- Dumping database structure for snsu_safetrack
-DROP DATABASE IF EXISTS `snsu_safetrack`;
 CREATE DATABASE IF NOT EXISTS `snsu_safetrack` /*!40100 DEFAULT CHARACTER SET utf8 */;
 USE `snsu_safetrack`;
 
@@ -30,7 +29,7 @@ CREATE TABLE IF NOT EXISTS `attendance_risk_scores` (
   `risk_level` enum('low','medium','high') DEFAULT 'low',
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table snsu_safetrack.attendance_risk_scores: 0 rows
 DELETE FROM `attendance_risk_scores`;
@@ -137,7 +136,7 @@ CREATE TABLE IF NOT EXISTS `backups` (
   KEY `idx_created_by` (`created_by`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table snsu_safetrack.backups: ~1 rows (approximately)
+-- Dumping data for table snsu_safetrack.backups: ~2 rows (approximately)
 DELETE FROM `backups`;
 INSERT INTO `backups` (`id`, `filename`, `filepath`, `backup_type`, `file_size`, `status`, `created_by`, `notes`, `created_at`, `deleted_at`, `updated_at`) VALUES
 	(1, '2026-05-28-09-11-08.zip', 'C:\\wamp64\\www\\saaskit\\storage\\app\\private\\SafeTrack\\2026-05-28-09-11-08.zip', 'db', 20376, 'completed', 1, NULL, '2026-05-28 01:11:10', NULL, '2026-05-28 01:11:10'),
@@ -152,15 +151,10 @@ CREATE TABLE IF NOT EXISTS `cache` (
   PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table snsu_safetrack.cache: ~6 rows (approximately)
+-- Dumping data for table snsu_safetrack.cache: ~1 rows (approximately)
 DELETE FROM `cache`;
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-	('safetrack-cache-last_activity_1', 'b:1;', 1781159266),
-	('safetrack-cache-last_activity_11', 'b:1;', 1781153110),
-	('safetrack-cache-last_activity_2', 'b:1;', 1781163288),
-	('safetrack-cache-last_activity_3', 'b:1;', 1781182647),
-	('safetrack-cache-spatie.permission.cache', 'a:3:{s:5:"alias";a:5:{s:1:"a";s:2:"id";s:1:"b";s:4:"name";s:1:"c";s:7:"details";s:1:"d";s:10:"guard_name";s:1:"r";s:5:"roles";}s:11:"permissions";a:37:{i:0;a:5:{s:1:"a";i:1;s:1:"b";s:14:"dashboard.view";s:1:"c";s:14:"View dashboard";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:1;a:5:{s:1:"a";i:2;s:1:"b";s:12:"scanner.view";s:1:"c";s:19:"View scanner module";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:2;a:5:{s:1:"a";i:3;s:1:"b";s:9:"logs.view";s:1:"c";s:13:"View all logs";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:3;a:5:{s:1:"a";i:4;s:1:"b";s:15:"logs.users.view";s:1:"c";s:14:"View user logs";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:4;a:5:{s:1:"a";i:5;s:1:"b";s:13:"students.view";s:1:"c";s:13:"View students";s:1:"d";s:3:"web";s:1:"r";a:3:{i:0;i:3;i:1;i:4;i:2;i:6;}}i:5;a:5:{s:1:"a";i:6;s:1:"b";s:15:"students.create";s:1:"c";s:15:"Create students";s:1:"d";s:3:"web";s:1:"r";a:3:{i:0;i:3;i:1;i:4;i:2;i:6;}}i:6;a:5:{s:1:"a";i:7;s:1:"b";s:15:"students.update";s:1:"c";s:15:"Update students";s:1:"d";s:3:"web";s:1:"r";a:3:{i:0;i:3;i:1;i:4;i:2;i:6;}}i:7;a:5:{s:1:"a";i:8;s:1:"b";s:15:"students.delete";s:1:"c";s:15:"Delete students";s:1:"d";s:3:"web";s:1:"r";a:3:{i:0;i:3;i:1;i:4;i:2;i:6;}}i:8;a:5:{s:1:"a";i:9;s:1:"b";s:12:"parents.view";s:1:"c";s:12:"View parents";s:1:"d";s:3:"web";s:1:"r";a:3:{i:0;i:3;i:1;i:4;i:2;i:6;}}i:9;a:5:{s:1:"a";i:10;s:1:"b";s:14:"parents.create";s:1:"c";s:14:"Create parents";s:1:"d";s:3:"web";s:1:"r";a:3:{i:0;i:3;i:1;i:4;i:2;i:6;}}i:10;a:5:{s:1:"a";i:11;s:1:"b";s:14:"parents.update";s:1:"c";s:14:"Update parents";s:1:"d";s:3:"web";s:1:"r";a:3:{i:0;i:3;i:1;i:4;i:2;i:6;}}i:11;a:5:{s:1:"a";i:12;s:1:"b";s:14:"parents.delete";s:1:"c";s:14:"Delete parents";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:12;a:5:{s:1:"a";i:13;s:1:"b";s:14:"employees.view";s:1:"c";s:14:"View employees";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:13;a:5:{s:1:"a";i:14;s:1:"b";s:16:"employees.create";s:1:"c";s:16:"Create employees";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:14;a:5:{s:1:"a";i:15;s:1:"b";s:16:"employees.update";s:1:"c";s:16:"Update employees";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:15;a:5:{s:1:"a";i:16;s:1:"b";s:16:"employees.delete";s:1:"c";s:16:"Delete employees";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:16;a:5:{s:1:"a";i:17;s:1:"b";s:8:"sms.view";s:1:"c";s:14:"View SMS queue";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:17;a:5:{s:1:"a";i:18;s:1:"b";s:8:"sms.send";s:1:"c";s:17:"Send SMS messages";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:18;a:5:{s:1:"a";i:19;s:1:"b";s:17:"school-users.view";s:1:"c";s:17:"View school users";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:19;a:5:{s:1:"a";i:20;s:1:"b";s:19:"school-users.create";s:1:"c";s:19:"Create school users";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:20;a:5:{s:1:"a";i:21;s:1:"b";s:19:"school-users.update";s:1:"c";s:19:"Update school users";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:21;a:5:{s:1:"a";i:22;s:1:"b";s:19:"school-users.delete";s:1:"c";s:19:"Delete school users";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:22;a:5:{s:1:"a";i:23;s:1:"b";s:13:"settings.view";s:1:"c";s:13:"View settings";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:23;a:5:{s:1:"a";i:24;s:1:"b";s:15:"settings.update";s:1:"c";s:15:"Update settings";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:24;a:5:{s:1:"a";i:25;s:1:"b";s:16:"permissions.view";s:1:"c";s:16:"View permissions";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:25;a:5:{s:1:"a";i:26;s:1:"b";s:18:"permissions.create";s:1:"c";s:18:"Create permissions";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:26;a:5:{s:1:"a";i:27;s:1:"b";s:18:"permissions.update";s:1:"c";s:18:"Update permissions";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:27;a:5:{s:1:"a";i:28;s:1:"b";s:18:"permissions.delete";s:1:"c";s:18:"Delete permissions";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:28;a:5:{s:1:"a";i:29;s:1:"b";s:10:"roles.view";s:1:"c";s:10:"View roles";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:29;a:5:{s:1:"a";i:30;s:1:"b";s:12:"roles.create";s:1:"c";s:12:"Create roles";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:30;a:5:{s:1:"a";i:31;s:1:"b";s:12:"roles.update";s:1:"c";s:12:"Update roles";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:31;a:5:{s:1:"a";i:32;s:1:"b";s:12:"roles.delete";s:1:"c";s:12:"Delete roles";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:32;a:5:{s:1:"a";i:33;s:1:"b";s:12:"schools.view";s:1:"c";s:12:"View schools";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:33;a:5:{s:1:"a";i:34;s:1:"b";s:14:"schools.create";s:1:"c";s:14:"Create schools";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:34;a:5:{s:1:"a";i:35;s:1:"b";s:14:"schools.update";s:1:"c";s:14:"Update schools";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:35;a:5:{s:1:"a";i:36;s:1:"b";s:14:"schools.delete";s:1:"c";s:14:"Delete schools";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:4;i:1;i:6;}}i:36;a:5:{s:1:"a";i:37;s:1:"b";s:19:"support-center.view";s:1:"c";s:20:"Allow report support";s:1:"d";s:3:"web";s:1:"r";a:2:{i:0;i:3;i:1;i:4;}}}s:5:"roles";a:3:{i:0;a:4:{s:1:"a";i:4;s:1:"b";s:5:"admin";s:1:"c";s:5:"admin";s:1:"d";s:3:"web";}i:1;a:4:{s:1:"a";i:6;s:1:"b";s:2:"SA";s:1:"c";s:10:"SuperAdmin";s:1:"d";s:3:"web";}i:2;a:4:{s:1:"a";i:3;s:1:"b";s:9:"employees";s:1:"c";s:9:"employees";s:1:"d";s:3:"web";}}}', 1781141757),
-	('safetrack-cache-tenant_settings_1', 'O:24:"App\\Models\\POS\\POSTenant":34:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:11:"pos_tenants";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:19:{s:2:"id";i:1;s:15:"subscription_id";i:1;s:13:"business_name";s:27:"ANTONIO JR. PILOTON\'s Store";s:13:"business_code";s:14:"TEN-RES5CGOS5G";s:10:"owner_name";s:19:"ANTONIO JR. PILOTON";s:5:"email";s:26:"antoniojrpiloton@gmail.com";s:5:"phone";N;s:7:"address";N;s:4:"logo";N;s:18:"subscription_start";s:10:"2026-06-11";s:16:"subscription_end";N;s:13:"trial_ends_at";N;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-06-11 15:36:53";s:10:"updated_at";s:19:"2026-06-11 15:36:53";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:11:"\0*\0original";a:19:{s:2:"id";i:1;s:15:"subscription_id";i:1;s:13:"business_name";s:27:"ANTONIO JR. PILOTON\'s Store";s:13:"business_code";s:14:"TEN-RES5CGOS5G";s:10:"owner_name";s:19:"ANTONIO JR. PILOTON";s:5:"email";s:26:"antoniojrpiloton@gmail.com";s:5:"phone";N;s:7:"address";N;s:4:"logo";N;s:18:"subscription_start";s:10:"2026-06-11";s:16:"subscription_end";N;s:13:"trial_ends_at";N;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-06-11 15:36:53";s:10:"updated_at";s:19:"2026-06-11 15:36:53";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:5:{s:18:"subscription_start";s:4:"date";s:16:"subscription_end";s:4:"date";s:13:"trial_ends_at";s:8:"datetime";s:8:"archived";s:7:"boolean";s:10:"deleted_at";s:8:"datetime";}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:1:{s:12:"subscription";O:30:"App\\Models\\POS\\POSSubscription":33:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:17:"pos_subscriptions";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:23:{s:2:"id";i:1;s:4:"name";s:10:"Free Trial";s:11:"description";s:18:"14-day free trial.";s:5:"price";s:4:"0.00";s:13:"billing_cycle";s:7:"monthly";s:13:"duration_days";i:14;s:9:"max_users";i:1;s:12:"max_products";i:100;s:12:"max_branches";i:1;s:14:"max_storage_mb";i:512;s:15:"allow_inventory";i:1;s:13:"allow_reports";i:1;s:18:"allow_multi_branch";i:0;s:16:"allow_api_access";i:0;s:10:"trial_days";i:14;s:10:"sort_order";i:1;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-06-11 12:58:47";s:10:"updated_at";s:19:"2026-06-11 12:58:47";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:11:"\0*\0original";a:23:{s:2:"id";i:1;s:4:"name";s:10:"Free Trial";s:11:"description";s:18:"14-day free trial.";s:5:"price";s:4:"0.00";s:13:"billing_cycle";s:7:"monthly";s:13:"duration_days";i:14;s:9:"max_users";i:1;s:12:"max_products";i:100;s:12:"max_branches";i:1;s:14:"max_storage_mb";i:512;s:15:"allow_inventory";i:1;s:13:"allow_reports";i:1;s:18:"allow_multi_branch";i:0;s:16:"allow_api_access";i:0;s:10:"trial_days";i:14;s:10:"sort_order";i:1;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-06-11 12:58:47";s:10:"updated_at";s:19:"2026-06-11 12:58:47";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:0:{}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:0:{}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:15:{i:0;s:9:"tenant_id";i:1;s:13:"business_name";i:2;s:13:"business_code";i:3;s:10:"owner_name";i:4;s:5:"email";i:5;s:5:"phone";i:6;s:7:"address";i:7;s:4:"logo";i:8;s:18:"subscription_start";i:9;s:16:"subscription_end";i:10;s:13:"trial_ends_at";i:11;s:6:"status";i:12;s:8:"archived";i:13;s:10:"created_by";i:14;s:10:"updated_by";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}}}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:15:{i:0;s:15:"subscription_id";i:1;s:13:"business_name";i:2;s:13:"business_code";i:3;s:10:"owner_name";i:4;s:5:"email";i:5;s:5:"phone";i:6;s:7:"address";i:7;s:4:"logo";i:8;s:18:"subscription_start";i:9;s:16:"subscription_end";i:10;s:13:"trial_ends_at";i:11;s:6:"status";i:12;s:8:"archived";i:13;s:10:"created_by";i:14;s:10:"updated_by";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}s:16:"\0*\0forceDeleting";b:0;}', 1781167013);
+	('safetrack-cache-last_activity_3', 'b:1;', 1781255652);
 
 -- Dumping structure for table snsu_safetrack.cache_locks
 DROP TABLE IF EXISTS `cache_locks`;
@@ -171,7 +165,7 @@ CREATE TABLE IF NOT EXISTS `cache_locks` (
   PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table snsu_safetrack.cache_locks: ~0 rows (approximately)
+-- Dumping data for table snsu_safetrack.cache_locks: ~1 rows (approximately)
 DELETE FROM `cache_locks`;
 INSERT INTO `cache_locks` (`key`, `owner`, `expiration`) VALUES
 	('safetrack-a-qr-nfc-based-student-monitoring-and-alert-system-cache-framework\\schedule-7378ebb1f16e1d5e04a75a9faf10f26f7a954f0c', 'W5uQecleWa814o8g', 1778990640);
@@ -234,7 +228,7 @@ CREATE TABLE IF NOT EXISTS `class_schedules` (
   `created_at` timestamp NULL DEFAULT NULL,
   `created_by` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table snsu_safetrack.class_schedules: 0 rows
 DELETE FROM `class_schedules`;
@@ -262,7 +256,7 @@ CREATE TABLE IF NOT EXISTS `employees` (
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table snsu_safetrack.employees: 1 rows
 DELETE FROM `employees`;
@@ -332,7 +326,7 @@ CREATE TABLE IF NOT EXISTS `grades` (
   `created_at` timestamp NULL DEFAULT NULL,
   `created_by` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table snsu_safetrack.grades: 0 rows
 DELETE FROM `grades`;
@@ -355,7 +349,7 @@ CREATE TABLE IF NOT EXISTS `grade_levels` (
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 
 -- Dumping data for table snsu_safetrack.grade_levels: 6 rows
 DELETE FROM `grade_levels`;
@@ -446,7 +440,7 @@ CREATE TABLE IF NOT EXISTS `login_activities` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `login_activities_user_id_foreign` (`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table snsu_safetrack.login_activities: 23 rows
 DELETE FROM `login_activities`;
@@ -486,7 +480,7 @@ CREATE TABLE IF NOT EXISTS `migrations` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table snsu_safetrack.migrations: ~2 rows (approximately)
+-- Dumping data for table snsu_safetrack.migrations: ~3 rows (approximately)
 DELETE FROM `migrations`;
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 	(1, '2026_05_25_163042_create_login_activities_table', 1),
@@ -516,7 +510,7 @@ CREATE TABLE IF NOT EXISTS `model_has_roles` (
   KEY `model_has_roles_model_id_model_type_index` (`model_id`,`model_type`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table snsu_safetrack.model_has_roles: ~10 rows (approximately)
+-- Dumping data for table snsu_safetrack.model_has_roles: ~9 rows (approximately)
 DELETE FROM `model_has_roles`;
 INSERT INTO `model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES
 	(6, 'App\\Models\\User', 1),
@@ -544,7 +538,7 @@ CREATE TABLE IF NOT EXISTS `nfc_codes` (
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
 
 -- Dumping data for table snsu_safetrack.nfc_codes: 8 rows
 DELETE FROM `nfc_codes`;
@@ -628,7 +622,7 @@ CREATE TABLE IF NOT EXISTS `permissions` (
   UNIQUE KEY `permissions_name_guard_name_unique` (`name`,`guard_name`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table snsu_safetrack.permissions: ~36 rows (approximately)
+-- Dumping data for table snsu_safetrack.permissions: ~37 rows (approximately)
 DELETE FROM `permissions`;
 INSERT INTO `permissions` (`id`, `name`, `details`, `guard_name`, `created_at`, `updated_at`) VALUES
 	(1, 'dashboard.view', 'View dashboard', 'web', '2026-05-25 03:54:10', '2026-05-25 03:54:10'),
@@ -770,7 +764,7 @@ CREATE TABLE IF NOT EXISTS `pos_categories` (
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=34 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8;
 
 -- Dumping data for table snsu_safetrack.pos_categories: 31 rows
 DELETE FROM `pos_categories`;
@@ -809,6 +803,96 @@ INSERT INTO `pos_categories` (`id`, `tenant_id`, `name`, `description`, `created
 	(33, 1, 'Condiments', 'Condiments', 3, 3, '2026-06-11 20:50:02', '2026-06-11 12:50:02', 'active', 0, NULL);
 /*!40000 ALTER TABLE `pos_categories` ENABLE KEYS */;
 
+-- Dumping structure for table snsu_safetrack.pos_inventory_movements
+DROP TABLE IF EXISTS `pos_inventory_movements`;
+CREATE TABLE IF NOT EXISTS `pos_inventory_movements` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `tenant_id` bigint(20) unsigned NOT NULL,
+  `product_id` bigint(20) unsigned NOT NULL,
+  `movement_type` enum('purchase','sale','adjustment','return','transfer') NOT NULL,
+  `reference_type` varchar(50) NOT NULL,
+  `reference_id` bigint(20) unsigned NOT NULL,
+  `qty` decimal(15,2) NOT NULL,
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_product` (`product_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8;
+
+-- Dumping data for table snsu_safetrack.pos_inventory_movements: 0 rows
+DELETE FROM `pos_inventory_movements`;
+/*!40000 ALTER TABLE `pos_inventory_movements` DISABLE KEYS */;
+INSERT INTO `pos_inventory_movements` (`id`, `tenant_id`, `product_id`, `movement_type`, `reference_type`, `reference_id`, `qty`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 1, 3, 'sale', 'sale', 1, -2.00, 3, 3, '2026-06-12 15:58:25', '2026-06-12 07:58:25', 'active', 0, NULL),
+	(2, 1, 2, 'sale', 'sale', 1, -5.00, 3, 3, '2026-06-12 15:58:25', '2026-06-12 07:58:25', 'active', 0, NULL),
+	(3, 1, 3, 'sale', 'sale', 2, -6.00, 3, 3, '2026-06-12 16:01:01', '2026-06-12 08:01:01', 'active', 0, NULL),
+	(4, 1, 5, 'sale', 'sale', 2, -8.00, 3, 3, '2026-06-12 16:01:01', '2026-06-12 08:01:01', 'active', 0, NULL),
+	(5, 1, 5, 'sale', 'sale', 3, -7.00, 3, 3, '2026-06-12 16:01:56', '2026-06-12 08:01:56', 'active', 0, NULL),
+	(6, 1, 2, 'sale', 'sale', 3, -6.00, 3, 3, '2026-06-12 16:01:56', '2026-06-12 08:01:56', 'active', 0, NULL),
+	(7, 1, 3, 'sale', 'sale', 3, -11.00, 3, 3, '2026-06-12 16:01:56', '2026-06-12 08:01:56', 'active', 0, NULL),
+	(8, 1, 1, 'sale', 'sale', 3, -3.00, 3, 3, '2026-06-12 16:01:56', '2026-06-12 08:01:56', 'active', 0, NULL),
+	(9, 1, 1, 'sale', 'sale', 4, -3.00, 3, 3, '2026-06-12 16:08:58', '2026-06-12 08:08:58', 'active', 0, NULL),
+	(10, 1, 3, 'sale', 'sale', 4, -5.00, 3, 3, '2026-06-12 16:08:58', '2026-06-12 08:08:58', 'active', 0, NULL),
+	(11, 1, 5, 'sale', 'sale', 4, -1.00, 3, 3, '2026-06-12 16:08:58', '2026-06-12 08:08:58', 'active', 0, NULL),
+	(12, 1, 2, 'sale', 'sale', 4, -4.00, 3, 3, '2026-06-12 16:08:58', '2026-06-12 08:08:58', 'active', 0, NULL),
+	(13, 1, 2, 'sale', 'sale', 5, -4.00, 3, 3, '2026-06-12 16:12:57', '2026-06-12 08:12:57', 'active', 0, NULL),
+	(14, 1, 5, 'sale', 'sale', 6, -4.00, 3, 3, '2026-06-12 16:44:22', '2026-06-12 08:44:22', 'active', 0, NULL),
+	(15, 1, 3, 'sale', 'sale', 6, -3.00, 3, 3, '2026-06-12 16:44:22', '2026-06-12 08:44:22', 'active', 0, NULL),
+	(16, 1, 2, 'sale', 'sale', 6, -3.00, 3, 3, '2026-06-12 16:44:22', '2026-06-12 08:44:22', 'active', 0, NULL),
+	(17, 1, 2, 'sale', 'sale', 7, -2.00, 3, 3, '2026-06-12 16:45:07', '2026-06-12 08:45:07', 'active', 0, NULL),
+	(18, 1, 3, 'sale', 'sale', 7, -3.00, 3, 3, '2026-06-12 16:45:07', '2026-06-12 08:45:07', 'active', 0, NULL),
+	(19, 1, 5, 'sale', 'sale', 7, -4.00, 3, 3, '2026-06-12 16:45:07', '2026-06-12 08:45:07', 'active', 0, NULL),
+	(20, 1, 1, 'sale', 'sale', 8, -4.00, 3, 3, '2026-06-12 16:59:35', '2026-06-12 08:59:35', 'active', 0, NULL),
+	(21, 1, 3, 'sale', 'sale', 8, -3.00, 3, 3, '2026-06-12 16:59:35', '2026-06-12 08:59:35', 'active', 0, NULL);
+/*!40000 ALTER TABLE `pos_inventory_movements` ENABLE KEYS */;
+
+-- Dumping structure for table snsu_safetrack.pos_payments
+DROP TABLE IF EXISTS `pos_payments`;
+CREATE TABLE IF NOT EXISTS `pos_payments` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `sale_id` bigint(20) unsigned DEFAULT NULL,
+  `payment_method` varchar(50) DEFAULT NULL,
+  `amount` decimal(15,2) DEFAULT NULL,
+  `reference_number` varchar(100) DEFAULT NULL,
+  `tendered_amount` decimal(20,6) DEFAULT NULL,
+  `change_amount` decimal(20,6) DEFAULT NULL,
+  `payment_date` datetime DEFAULT NULL,
+  `notes` varchar(150) DEFAULT '',
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_sale` (`sale_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
+
+-- Dumping data for table snsu_safetrack.pos_payments: 7 rows
+DELETE FROM `pos_payments`;
+/*!40000 ALTER TABLE `pos_payments` DISABLE KEYS */;
+INSERT INTO `pos_payments` (`id`, `sale_id`, `payment_method`, `amount`, `reference_number`, `tendered_amount`, `change_amount`, `payment_date`, `notes`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 1, 'gcash', 1000.00, '6456456456', 1000.000000, 0.000000, '2026-06-12 15:58:25', '5412123', 3, 3, '2026-06-12 15:58:25', '2026-06-12 07:58:25', 'active', 0, NULL),
+	(2, 1, 'cash', 469.00, NULL, 469.000000, 0.000000, '2026-06-12 15:58:25', '5412123', 3, 3, '2026-06-12 15:58:25', '2026-06-12 07:58:25', 'active', 0, NULL),
+	(3, 2, 'cash', 6292.50, NULL, 6292.500000, 0.000000, '2026-06-12 16:01:01', NULL, 3, 3, '2026-06-12 16:01:01', '2026-06-12 08:01:01', 'active', 0, NULL),
+	(4, 3, 'cash', 5000.00, NULL, 5000.000000, 0.000000, '2026-06-12 16:01:56', NULL, 3, 3, '2026-06-12 16:01:56', '2026-06-12 08:01:56', 'active', 0, NULL),
+	(5, 3, 'gcash', 4000.00, '456456456', 4000.000000, 0.000000, '2026-06-12 16:01:56', NULL, 3, 3, '2026-06-12 16:01:56', '2026-06-12 08:01:56', 'active', 0, NULL),
+	(6, 3, 'bank_transfer', 312.25, '7878787', 312.250000, 0.000000, '2026-06-12 16:01:56', NULL, 3, 3, '2026-06-12 16:01:56', '2026-06-12 08:01:56', 'active', 0, NULL),
+	(7, 4, 'cash', 3431.13, NULL, 3431.130000, 0.000000, '2026-06-12 16:08:58', NULL, 3, 3, '2026-06-12 16:08:58', '2026-06-12 08:08:58', 'active', 0, NULL),
+	(8, 5, 'cash', 1000.00, NULL, 1000.000000, 265.000000, '2026-06-12 16:12:57', NULL, 3, 3, '2026-06-12 16:12:57', '2026-06-12 08:12:57', 'active', 0, NULL),
+	(9, 6, 'cash', 1000.00, NULL, 1000.000000, 0.000000, '2026-06-12 16:44:22', '454545', 3, 3, '2026-06-12 16:44:22', '2026-06-12 08:44:22', 'active', 0, NULL),
+	(10, 6, 'gcash', 1000.00, '12345', 1000.000000, 0.000000, '2026-06-12 16:44:22', '454545', 3, 3, '2026-06-12 16:44:22', '2026-06-12 08:44:22', 'active', 0, NULL),
+	(11, 6, 'bank_transfer', 958.00, '565', 958.000000, 0.000000, '2026-06-12 16:44:22', '454545', 3, 3, '2026-06-12 16:44:22', '2026-06-12 08:44:22', 'active', 0, NULL),
+	(12, 7, 'cash', 4000.00, NULL, 4000.000000, 486.250000, '2026-06-12 16:45:07', NULL, 3, 3, '2026-06-12 16:45:07', '2026-06-12 08:45:07', 'active', 0, NULL),
+	(13, 8, 'cash', 2000.00, NULL, 2000.000000, 535.750000, '2026-06-12 16:59:35', NULL, 3, 3, '2026-06-12 16:59:35', '2026-06-12 08:59:35', 'active', 0, NULL);
+/*!40000 ALTER TABLE `pos_payments` ENABLE KEYS */;
+
 -- Dumping structure for table snsu_safetrack.pos_products
 DROP TABLE IF EXISTS `pos_products`;
 CREATE TABLE IF NOT EXISTS `pos_products` (
@@ -839,15 +923,15 @@ CREATE TABLE IF NOT EXISTS `pos_products` (
 -- Dumping data for table snsu_safetrack.pos_products: ~585 rows (approximately)
 DELETE FROM `pos_products`;
 INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `unit_id`, `barcode`, `sku`, `name`, `description`, `cost_price`, `selling_price`, `wholesale_price`, `reorder_level`, `image`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
-	(1, 101, 1, 1, 1, '4800361410816', 'SKU-OCNIJIHQ', 'bear brand (w) 33g', 'Bear Brand | Milks', 327.00, 407.50, 374.90, 7, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 12:29:57', 'active', 0, NULL),
-	(2, 0, 1, 1, 1, '0750515018402', 'SKU-CS7ENT4R', 'SkyFlakes Crackers', 'SkyFlakes | Crackers (Appetizers)', 147.00, 183.75, 169.05, 19, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
-	(3, 0, 1, 1, 1, '0750515017429', 'SKU-SPTJEFX2', 'fita crackers 30g', 'My.san | Biscuits and crackers', 367.00, 458.75, 422.05, 12, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
-	(4, 0, 1, 1, 1, '4806502720615', 'SKU-GKJH6SBT', 'Gardenia White Bread Classic 600G', 'Gardenia | Sliced breads, White breads, Enriched white breads', 147.00, 183.75, 169.05, 10, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
-	(5, 0, 1, 1, 1, '4800016068010', 'SKU-NXZS5YOI', 'c2 apple 230ml', 'C2 | Green teas, Sweetened beverages, Flavored green teas, Green apple tea, Ready-to-drink teas', 354.00, 442.50, 407.10, 17, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
+	(1, 990, 1, 7, 2, '4800361410816', 'SKU-OCNIJIHQ', 'bear brand (w) 33g', 'Bear Brand | Milks', 18.00, 22.00, 20.00, 7, 'products/WHyV8rPu32iyhUFZKw6IT7fNmyW4tPAIinoCap8C.jpg', 1, 1, '2026-06-11 15:37:26', '2026-06-12 08:59:35', 'active', 0, NULL),
+	(2, 1976, 1, 2, 28, '0750515018402', 'SKU-CS7ENT4R', 'SkyFlakes Crackers 10 Single pack Condensada Falvor', 'SkyFlakes | Crackers (Appetizers)', 147.00, 183.75, 169.05, 19, 'products/u9U30Qu573ReL1vT640sOJiOWiB4YTJ3mckNcfFo.webp', 1, 1, '2026-06-11 15:37:26', '2026-06-12 08:45:07', 'active', 0, NULL),
+	(3, 467, 1, 9, 28, '0750515017429', 'SKU-SPTJEFX2', 'fita crackers 30g', 'My.san | Biscuits and crackers', 367.00, 458.75, 422.05, 12, 'products/wgco0gFPW75RCF3H70tcR6GunmZZIKGwQFgqx76b.webp', 1, 1, '2026-06-11 15:37:26', '2026-06-12 08:59:35', 'active', 0, NULL),
+	(4, 0, 1, 1, 1, '4806502720615', 'SKU-GKJH6SBT', 'Gardenia White Bread Classic 600G', 'Gardenia | Sliced breads, White breads, Enriched white breads', 147.00, 183.75, 169.05, 10, 'products/agazOcy3AVuzeJNMaZADBDB1VhQhNOKxnbZXgSmM.png', 1, 1, '2026-06-11 15:37:26', '2026-06-12 06:05:11', 'active', 0, NULL),
+	(5, 126, 1, 1, 15, '4800016068010', 'SKU-NXZS5YOI', 'c2 apple 500ml', 'C2 | Green teas, Sweetened beverages, Flavored green teas, Green apple tea, Ready-to-drink teas', 354.00, 442.50, 407.10, 17, 'products/dRO0Hn97Qs3sUwTfxMms19kVD43ALK7rISUEiyh2.jpg', 1, 1, '2026-06-11 15:37:26', '2026-06-12 08:45:07', 'active', 0, NULL),
 	(6, 0, 1, 1, 1, '4800092113338', 'SKU-EUS9E0E8', 'rebisco crackers (g) 33g', 'Rebisco | Crackers (Appetizers)', 58.00, 72.50, 66.70, 13, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
-	(7, 0, 1, 1, 1, '8997035600027', 'SKU-XDBIRTO4', 'pocari sweat 500ml', 'Pocari | Carbonated soft drinks without fruit juice with sugar and artificial sweeteners, Dietary drink for sport, Energy drink with sugar', 294.00, 367.50, 338.10, 18, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
-	(8, 0, 1, 1, 1, '4801981116072', 'SKU-GCQEGEUZ', 'Coca Cola original taste', 'coca cola | Colas', 355.00, 443.75, 408.25, 5, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
-	(9, 0, 1, 1, 1, '4801981118502', 'SKU-RFZMPZ3P', 'Coke Mismo 290mL', 'Coca Cola | Colas, Sweetened beverages', 454.00, 567.50, 522.10, 15, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
+	(7, 0, 1, 1, 1, '8997035600027', 'SKU-XDBIRTO4', 'pocari sweat 500ml', 'Pocari | Carbonated soft drinks without fruit juice with sugar and artificial sweeteners, Dietary drink for sport, Energy drink with sugar', 294.00, 367.50, 338.10, 18, 'products/dt6dZLXtIt9CO2r1RZgFaRabvrLnvG0kYYdtI6Af.webp', 1, 1, '2026-06-11 15:37:26', '2026-06-12 06:07:05', 'active', 0, NULL),
+	(8, 0, 1, 1, 16, '4801981116072', 'SKU-GCQEGEUZ', 'Coca Cola original taste', 'coca cola | Colas', 355.00, 443.75, 408.25, 5, 'products/UQSDoK9t9Djzu8l6e49wBkNtTXYhAO3L9Ao8ix5S.webp', 1, 1, '2026-06-11 15:37:26', '2026-06-12 06:35:16', 'active', 0, NULL),
+	(9, 0, 1, 1, 1, '4801981118502', 'SKU-RFZMPZ3P', 'Coke Mismo 290mL', 'Coca Cola | Colas, Sweetened beverages', 454.00, 567.50, 522.10, 15, 'products/p8FT7b9re8MhOUKJ200qC8cudB2JER8EOoKwFvIA.webp', 1, 1, '2026-06-11 15:37:26', '2026-06-12 06:37:54', 'active', 0, NULL),
 	(10, 0, 1, 1, 1, '0039000086639', 'SKU-SVRPPIAJ', 'Vienna Sausage', 'Libby\'s | Canned foods, Chicken preparations, Pork sausages, Chicken sausages, Industrial knacks', 242.00, 302.50, 278.30, 8, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(11, 0, 1, 1, 1, '0748485100401', 'SKU-ZUA0ZRGO', 'century tuna (p) 155g', 'Century Pacific Food Inc | Canned tunas', 152.00, 190.00, 174.80, 12, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(12, 0, 1, 1, 1, '4800010075069', 'SKU-4QKZCFNT', 'cream o (b) vanilla 30g', 'Jack n\' Jill, Jackwill | Chocolate sandwich cookies, Cookies with milk chocolate', 257.00, 321.25, 295.55, 16, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
@@ -857,7 +941,7 @@ INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `
 	(16, 0, 1, 1, 1, '4807770121326', 'SKU-BZKFQY93', 'Monde Special Mamon Classic', '', 66.00, 82.50, 75.90, 15, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(17, 0, 1, 1, 1, '4803925033551', 'SKU-S3BG33BX', 'Sting Energy Drink Strawberry', 'Pepsi | Artificially sweetened beverages, Energy drinks', 488.00, 610.00, 561.20, 16, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(18, 0, 1, 1, 1, '0750515031043', 'SKU-GRIETMUG', 'Sky Flakes', 'M.Y. San | Appetizers, Biscuits', 329.00, 411.25, 378.35, 12, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
-	(19, 0, 1, 1, 1, '4800361413480', 'SKU-J9SBB4FS', 'milo 24g', 'Nestlé | Flavoured Drinks', 135.00, 168.75, 155.25, 17, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
+	(19, 0, 1, 1, 1, '4800361413480', 'SKU-J9SBB4FS', 'milo 24g', 'NestlÃ© | Flavoured Drinks', 135.00, 168.75, 155.25, 17, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(20, 0, 1, 1, 1, '4807770270024', 'SKU-E4Y6ZSUC', 'lm chicken 55g', 'Lucky Me! | Instant noodle soups, Chicken-noodles', 268.00, 335.00, 308.20, 8, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(21, 0, 1, 1, 1, '8998666001719', 'SKU-M0EAF2ED', 'kopiko twin (bwn) 40g', 'Kopiko | Coffees, Coffee drinks', 275.00, 343.75, 316.25, 6, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(22, 0, 1, 1, 1, '4803925061141', 'SKU-UQWRIFKL', 'Gatorade blue bolt flavor', 'Gatorade | Energy drinks, Sweetened beverages, Gatorade', 179.00, 223.75, 205.85, 13, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
@@ -871,7 +955,7 @@ INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `
 	(30, 0, 1, 1, 1, '0748485200040', 'SKU-YSENTTGC', 'Spanish Style Sardines', '555 | Canned sardines', 197.00, 246.25, 226.55, 12, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(31, 0, 1, 1, 1, '4800016663802', 'SKU-TT3JRRBR', 'nova (r) cheddar 38g', 'Jack \'n Jill, Nova | Crisps, Plain salty snacks', 176.00, 220.00, 202.40, 14, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(32, 0, 1, 1, 1, '8992760121014', 'SKU-WN8GQFCC', 'oreo (w) vanilla 27.6g', 'OREO | Filled biscuits', 405.00, 506.25, 465.75, 9, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
-	(33, 0, 1, 1, 1, '4800361339568', 'SKU-X1QXUBGL', 'nescafe stick (r) classic 1.9g', 'Nescafé | Coffees, Instant coffees', 211.00, 263.75, 242.65, 11, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
+	(33, 0, 1, 1, 1, '4800361339568', 'SKU-X1QXUBGL', 'nescafe stick (r) classic 1.9g', 'NescafÃ© | Coffees, Instant coffees', 211.00, 263.75, 242.65, 11, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(34, 0, 1, 1, 1, '4800016671807', 'SKU-LW0L4M7Q', 'Piatto', 'JACK\'nJILL | Crisps', 89.00, 111.25, 102.35, 15, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(35, 0, 1, 1, 1, '4808680021355', 'SKU-CURCDEU1', 'ladys choice (b) mayonnaise 80ml', 'Lady\'s Choice | Mayonnaises, Groceries', 84.00, 105.00, 96.60, 5, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(36, 0, 1, 1, 1, '4801981127177', 'SKU-DYDZXQ8F', 'Coca-Cola Original Taste', 'Coca-Cola | Colas', 191.00, 238.75, 219.65, 17, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
@@ -881,19 +965,19 @@ INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `
 	(40, 0, 1, 1, 1, '4800194153225', 'SKU-JKOHMCNK', 'bread pan (g) cheese & onion 24g', 'Bread Pan, Oishi | Breads, Plain salty snacks', 451.00, 563.75, 518.65, 10, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(41, 0, 1, 1, 1, '4800092115707', 'SKU-UURQP2PK', 'Wafer time', 'Rebisco | Wafers, Chocolate biscuits', 375.00, 468.75, 431.25, 14, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(42, 0, 1, 1, 1, '4800092552779', 'SKU-U6LN8SZ0', 'doowee donut (b) 42g', 'DOOWEE DONUT | Doughnuts', 379.00, 473.75, 435.85, 18, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
-	(43, 0, 1, 1, 1, '4800361396677', 'SKU-HM3KFSVQ', 'Bear brand Adult plus', 'Nestlé', 318.00, 397.50, 365.70, 12, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
+	(43, 0, 1, 1, 1, '4800361396677', 'SKU-HM3KFSVQ', 'Bear brand Adult plus', 'NestlÃ©', 318.00, 397.50, 365.70, 12, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(44, 0, 1, 1, 1, '4800216120013', 'SKU-VWNDQSWB', 'clover (b) cheesier 24g', 'Leslies | Corn chips', 49.00, 61.25, 56.35, 12, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(45, 0, 1, 1, 1, '4806521793836', 'SKU-DALBOGXU', 'Wl Panda 3d biscuit', '| Biscuits', 155.00, 193.75, 178.25, 7, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
-	(46, 0, 1, 1, 1, '4806529230463', 'SKU-HIAQXVFN', 'Banana Chips', 'Member’s Value S&R', 264.00, 330.00, 303.60, 8, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
+	(46, 0, 1, 1, 1, '4806529230463', 'SKU-HIAQXVFN', 'Banana Chips', 'Memberâ€™s Value S&R', 264.00, 330.00, 303.60, 8, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(47, 0, 1, 1, 1, '8998666001726', 'SKU-DHXJAQRP', 'kopiko twin (w) blanca 40g', 'PT Torabika Eka Semesta | Coffees, Creamer, Sweetened beverages', 108.00, 135.00, 124.20, 15, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(48, 0, 1, 1, 1, '48025522', 'SKU-16SGFCZM', 'magic sarap 8g', 'Maggi | Culinary plants, Herbs and spices', 310.00, 387.50, 356.50, 15, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(49, 0, 1, 1, 1, '48036214', 'SKU-GMS4MQAR', 'star margarine (y) 100g', 'fortified | Salted spreads, Margarines', 113.00, 141.25, 129.95, 17, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(50, 0, 1, 1, 1, '4806502720301', 'SKU-F7QW15CE', 'High Fiber Whole Wheat Bread', 'Gardenia | Wheat breads', 49.00, 61.25, 56.35, 8, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
-	(51, 0, 1, 1, 1, '4800361061322', 'SKU-6FN3CAAL', 'All purpose  Cream', 'Nestlé | Creams', 117.00, 146.25, 134.55, 14, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
+	(51, 0, 1, 1, 1, '4800361061322', 'SKU-6FN3CAAL', 'All purpose  Cream', 'NestlÃ© | Creams', 117.00, 146.25, 134.55, 14, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(52, 0, 1, 1, 1, '4800110093888', 'SKU-7IZERRMT', 'Fortified milk', 'Selecta | Milks', 18.00, 22.50, 20.70, 19, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(53, 0, 1, 1, 1, '4806502727423', 'SKU-QNKIWHDY', 'Neu Bake Wheaten bread', 'Gardenia | Wheat breads', 394.00, 492.50, 453.10, 15, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
-	(54, 0, 1, 1, 1, '4800361415293', 'SKU-PJIO6DUJ', 'Milo Twin Pack', 'Nestlé | Cocoa and its products, Flavoured milks, Instant beverages', 118.00, 147.50, 135.70, 16, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
-	(55, 0, 1, 1, 1, '4800361395687', 'SKU-HTCEBVOX', 'Chuckie', 'Nestlé | Chocolate milks, Choco', 491.00, 613.75, 564.65, 7, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
+	(54, 0, 1, 1, 1, '4800361415293', 'SKU-PJIO6DUJ', 'Milo Twin Pack', 'NestlÃ© | Cocoa and its products, Flavoured milks, Instant beverages', 118.00, 147.50, 135.70, 16, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
+	(55, 0, 1, 1, 1, '4800361395687', 'SKU-HTCEBVOX', 'Chuckie', 'NestlÃ© | Chocolate milks, Choco', 491.00, 613.75, 564.65, 7, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(56, 0, 1, 1, 1, '4807770271229', 'SKU-SYCXJJDS', 'Pancit Canton', 'Lucky Me | Instant noodles', 217.00, 271.25, 249.55, 7, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(57, 0, 1, 1, 1, '4801981107971', 'SKU-BZQQ539F', 'Wilkins Pure Purified Drinking Water', 'Wilkins | Waters', 480.00, 600.00, 552.00, 20, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(58, 0, 1, 1, 1, '0748485401492', 'SKU-LYT6Q31A', 'Birch Tree Fortified Milk', 'Birch Tree | Milks', 240.00, 300.00, 276.00, 18, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
@@ -904,12 +988,12 @@ INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `
 	(63, 0, 1, 1, 1, '4800016644801', 'SKU-WSIFZ4DL', 'piattos (b) cheese 45g', 'Jack-n-Jill | Mustard crisps', 37.00, 46.25, 42.55, 12, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(64, 0, 1, 1, 1, '4800361316934', 'SKU-K1BQY3WX', 'Savor Liquid Seasoning Chilimansi', 'Maggi | Condiments', 51.00, 63.75, 58.65, 13, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(65, 0, 1, 1, 1, '4800092113291', 'SKU-YMJA3QHM', 'HANSEL SANDWICH MOCHA', 'Rebisco | Sandwich biscuits, Cream-Filled Biscuits', 448.00, 560.00, 515.20, 16, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
-	(66, 0, 1, 1, 1, '4800361410892', 'SKU-MZEQTVLY', 'Fortified Chocomilk Drink', 'Nestlé, Nestle Bear Brand | Milk powders', 10.00, 12.50, 11.50, 5, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
+	(66, 0, 1, 1, 1, '4800361410892', 'SKU-MZEQTVLY', 'Fortified Chocomilk Drink', 'NestlÃ©, Nestle Bear Brand | Milk powders', 10.00, 12.50, 11.50, 5, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(67, 0, 1, 1, 1, '4800344001949', 'SKU-6VYGUWBJ', 'Silver swan', '', 106.00, 132.50, 121.90, 15, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(68, 0, 1, 1, 1, '0748485800233', 'SKU-LRYSYZR2', 'Canned Meat Loaf', 'Argentina | Canned Meat Loaf', 287.00, 358.75, 330.05, 10, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(69, 0, 1, 1, 1, '4800092551604', 'SKU-LTOGZGHL', 'doowee donut (r) 42g', '| Doughnuts', 450.00, 562.50, 517.50, 5, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(70, 0, 1, 1, 1, '0748485100418', 'SKU-E3TXS4KF', 'century tuna (h) 155g', 'Century | Tunas in oil, tuna flakes in oil', 309.00, 386.25, 355.35, 18, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
-	(71, 0, 1, 1, 1, '4800361388313', 'SKU-S6EDOJPI', 'Chuckie 180mL', 'Nestlé | Beverages, Candies', 389.00, 486.25, 447.35, 12, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
+	(71, 0, 1, 1, 1, '4800361388313', 'SKU-S6EDOJPI', 'Chuckie 180mL', 'NestlÃ© | Beverages, Candies', 389.00, 486.25, 447.35, 12, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(72, 0, 1, 1, 1, '4800365100485', 'SKU-KL7FZSPB', 'Super crunch Cheese ring', 'Super crunch, super crunch | Crisps', 345.00, 431.25, 396.75, 11, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(73, 0, 1, 1, 1, '0745125547008', 'SKU-H7QYH3S4', 'Creatine Monohydrate', 'Athlene | Bodybuilding supplements', 411.00, 513.75, 472.65, 17, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(74, 0, 1, 1, 1, '4801032745046', 'SKU-XZIPVV3V', 'San Mig Light in Can', '', 177.00, 221.25, 203.55, 10, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
@@ -928,7 +1012,7 @@ INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `
 	(87, 0, 1, 1, 1, '4800016653094', 'SKU-SNAHWYS4', 'Mr. chips', 'Jack \'n Jill | Romaine lettuce', 208.00, 260.00, 239.20, 18, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(88, 0, 1, 1, 1, '4800110094465', 'SKU-LLWVB6G3', 'Fortified Low Fat Milk', 'Selecta | Semi-skimmed milks, UHT Milks', 382.00, 477.50, 439.30, 16, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(89, 0, 1, 1, 1, '4800092550904', 'SKU-2W72DCFR', 'Fudgee bar', 'Fudgee Barr | Cakes', 353.00, 441.25, 405.95, 20, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
-	(90, 0, 1, 1, 1, '4800361379557', 'SKU-F30EWPW2', 'nestea lemon 20g', 'Société des Produits Nestlé S.A. | Iced teas', 185.00, 231.25, 212.75, 20, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
+	(90, 0, 1, 1, 1, '4800361379557', 'SKU-F30EWPW2', 'nestea lemon 20g', 'SociÃ©tÃ© des Produits NestlÃ© S.A. | Iced teas', 185.00, 231.25, 212.75, 20, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(91, 0, 1, 1, 1, '4800092660634', 'SKU-O6WLPLTW', 'Choco Mucho Caramel', 'Choco Mucho, Multirich, Multirich Foods Corp. | Candy chocolate bars, Milk chocolate with caramel', 300.00, 375.00, 345.00, 14, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(92, 0, 1, 1, 1, '4800092113536', 'SKU-28RK7H1N', 'combi (b) choco 30g', 'Rebisco | Chocolate biscuits', 240.00, 300.00, 276.00, 8, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
 	(93, 0, 1, 1, 1, '4806521791696', 'SKU-95OSTSBU', 'EC Crunchy Choco Flakes', 'W.L. Foods | Crisps', 31.00, 38.75, 35.65, 14, NULL, 1, 1, '2026-06-11 15:37:26', '2026-06-11 07:37:26', 'active', 0, NULL),
@@ -942,7 +1026,7 @@ INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `
 	(101, 0, 1, 1, 1, '4807770100703', 'SKU-HJXGSMY2', 'Bread Stix', 'Nissin | Crackers (Appetizers), Breadsticks', 481.00, 601.25, 553.15, 20, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(102, 0, 1, 1, 1, '4807770273711', 'SKU-AMKAZSBO', 'lm pc sweet & spicy 80g', 'Lucky Me | Instant noodles, Foods', 67.00, 83.75, 77.05, 6, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(103, 0, 1, 1, 1, '4807770272646', 'SKU-UFA4YDKN', 'Lucky me jjamppong artificial spicy seafood flavor noodles', '| Instant noodles', 266.00, 332.50, 305.90, 9, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
-	(104, 0, 1, 1, 1, '8851028002505', 'SKU-3QQFOD85', 'Vitamilk Double Choco Shake Soy Milk Drink', 'vitamilk, ไวตามิ้ลค์ | Chocolate soy-based drinks', 232.00, 290.00, 266.80, 15, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
+	(104, 0, 1, 1, 1, '8851028002505', 'SKU-3QQFOD85', 'Vitamilk Double Choco Shake Soy Milk Drink', 'vitamilk, à¹„à¸§à¸•à¸²à¸¡à¸´à¹‰à¸¥à¸„à¹Œ | Chocolate soy-based drinks', 232.00, 290.00, 266.80, 15, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(105, 0, 1, 1, 1, '4807770273698', 'SKU-6EEM9Z6C', 'lm pc chilimansi 80g', 'Lucky Me | Instant noodles', 136.00, 170.00, 156.40, 5, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(106, 0, 1, 1, 1, '4807770120473', 'SKU-8V3VJPKF', 'Butter Coconut', 'Nissin | Crackers (Appetizers)', 306.00, 382.50, 351.90, 18, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(107, 0, 1, 1, 1, '4801981127207', 'SKU-ZOI5XBKY', 'tru-orange', 'Royal | Sodas, Softdrink', 149.00, 186.25, 171.35, 5, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
@@ -950,7 +1034,7 @@ INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `
 	(109, 0, 1, 1, 1, '4806502726822', 'SKU-D3KZTZNE', 'Neu Bake White Bread', 'Gardenia | Wheat breads', 227.00, 283.75, 261.05, 9, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(110, 0, 1, 1, 1, '8851013740498', 'SKU-PGF73YBU', 'Mixed Veggie & Mixed Fruit Juice', 'Del Monte, Tipco | Squeezed multifruit juices', 127.00, 158.75, 146.05, 18, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(111, 0, 1, 1, 1, '4807770121333', 'SKU-GHHI3JBL', 'Monde Special Mamon Classic', 'Monde, Monde Nissin | Sponge cakes, Mamon', 475.00, 593.75, 546.25, 20, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
-	(112, 0, 1, 1, 1, '4807770273704', 'SKU-NLIL2CI3', '✓ 6/2/26- (pc)- 15.50', 'Lucky Me | Instant noodles', 254.00, 317.50, 292.10, 18, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
+	(112, 0, 1, 1, 1, '4807770273704', 'SKU-NLIL2CI3', 'âœ“ 6/2/26- (pc)- 15.50', 'Lucky Me | Instant noodles', 254.00, 317.50, 292.10, 18, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(113, 0, 1, 1, 1, '12743995', 'SKU-ZZC5CIVU', 'Cheezee', '', 431.00, 538.75, 495.65, 17, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(114, 0, 1, 1, 1, '8993175539241', 'SKU-YTX6LKH5', 'richoco wafer (bwn) chocolate 48g', 'Nabati | Baon Favorites, Chocolate Wafers, Wafer Snacks', 88.00, 110.00, 101.20, 16, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(115, 0, 1, 1, 1, '8410128100155', 'SKU-XYIWSSGL', 'Nonfat Yogurt with Strawberry Bits', 'Pascual | Yogurts, non-fat', 429.00, 536.25, 493.35, 7, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
@@ -966,7 +1050,7 @@ INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `
 	(125, 0, 1, 1, 1, '4806504710812', 'SKU-O0MBESVI', 'FRIED SARDINES WITH TAUSI', 'MEGA | Sardines in oil', 264.00, 330.00, 303.60, 16, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(126, 0, 1, 1, 1, '4806018405808', 'SKU-ZZSJANQV', 'Lemon Square Whatta Tops Cookies \'n Cream Flavor (Cupcakes with Toppings)', 'Lemon Square | Biscuits', 485.00, 606.25, 557.75, 15, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(127, 0, 1, 1, 1, '4802222046141', 'SKU-F7CH2RGZ', 'Banana chips', 'Sm Bonus | Banana crisps', 124.00, 155.00, 142.60, 13, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
-	(128, 0, 1, 1, 1, '4800361399159', 'SKU-CY491DUV', 'Greek Flavored Yogurt', 'Société des Produits Nestlé S.A. | Greek-style yogurts', 449.00, 561.25, 516.35, 11, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
+	(128, 0, 1, 1, 1, '4800361399159', 'SKU-CY491DUV', 'Greek Flavored Yogurt', 'SociÃ©tÃ© des Produits NestlÃ© S.A. | Greek-style yogurts', 449.00, 561.25, 516.35, 11, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(129, 0, 1, 1, 1, '4800092660962', 'SKU-J7RGOOBR', 'Choco Mucho Dark Chocolate', 'Multirich Foods | Chocolate candies, Bars, Dark chocolate wafers rolls', 430.00, 537.50, 494.50, 18, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(130, 0, 1, 1, 1, '4806502721476', 'SKU-V1PM9STX', 'Chocolate Chip Loaf', 'Gardenia | Breads', 334.00, 417.50, 384.10, 7, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(131, 0, 1, 1, 1, '7622300743000', 'SKU-4VCFOVPQ', 'Tiger Vanilla', 'Mondelez | Crackers(Breakfast)', 50.00, 62.50, 57.50, 15, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
@@ -980,7 +1064,7 @@ INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `
 	(139, 0, 1, 1, 1, '4807770101533', 'SKU-LGBCI5Y7', '4807770101533', '| Biscuits, Orange cream filled chocolate sandwich cookies', 368.00, 460.00, 423.20, 14, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(140, 0, 1, 1, 1, '4806512230593', 'SKU-VVSHG0AH', 'Flour', 'Magnolia', 267.00, 333.75, 307.05, 16, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(141, 0, 1, 1, 1, '0014285000075', 'SKU-JDHOXP3A', 'Ufc ketchup', '| Ketchup', 140.00, 175.00, 161.00, 9, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
-	(142, 0, 1, 1, 1, '4800361416726', 'SKU-I0C1GEVJ', 'nescafe twin (b) creamy white 40g', 'Nestlé | Hot beverages, Coffees, Instant coffees', 229.00, 286.25, 263.35, 19, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
+	(142, 0, 1, 1, 1, '4800361416726', 'SKU-I0C1GEVJ', 'nescafe twin (b) creamy white 40g', 'NestlÃ© | Hot beverages, Coffees, Instant coffees', 229.00, 286.25, 263.35, 19, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(143, 0, 1, 1, 1, '4800274300013', 'SKU-Q4UE6XOO', 'Instant Oats Banana And Honey', 'Quaker | Rolled oats, Oat', 297.00, 371.25, 341.55, 6, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(144, 0, 1, 1, 1, '4805358373037', 'SKU-XLPTNKFR', 'Daily Quezo', 'Magnolia', 323.00, 403.75, 371.45, 20, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(145, 0, 1, 1, 1, '4801668602027', 'SKU-Q8QHFVGU', 'dp vinegar 200ml', 'Papa Banaba Ketchup', 499.00, 623.75, 573.85, 5, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
@@ -1016,7 +1100,7 @@ INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `
 	(175, 0, 1, 1, 1, '4807770123009', 'SKU-TWJOCHFF', 'Wheat Bread', 'Monde', 68.00, 85.00, 78.20, 15, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(176, 0, 1, 1, 1, '4800249008951', 'SKU-EIL13VWH', 'San Marino Paella', '| Canned tunas, Rice dishes', 409.00, 511.25, 470.35, 6, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(177, 0, 1, 1, 1, '4806014098721', 'SKU-F0EEOI2U', 'Diced Tomatoes', 'Dona Elena | Canned tomatoes', 363.00, 453.75, 417.45, 18, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
-	(178, 0, 1, 1, 1, '4800361423588', 'SKU-1BKMHTVF', 'Nescafé Creamy White 3-in-1 Coffee Mix (Sugar Free)', 'Nescafe | 3-in-1 Coffee, Diabetic-Friendly Options, Keto-Friendly (in moderation), Sugar-Free Coffee', 104.00, 130.00, 119.60, 20, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
+	(178, 0, 1, 1, 1, '4800361423588', 'SKU-1BKMHTVF', 'NescafÃ© Creamy White 3-in-1 Coffee Mix (Sugar Free)', 'Nescafe | 3-in-1 Coffee, Diabetic-Friendly Options, Keto-Friendly (in moderation), Sugar-Free Coffee', 104.00, 130.00, 119.60, 20, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(179, 0, 1, 1, 1, '4800194104937', 'SKU-LNVYEILC', 'Tater Thina Potato Snack (Cucumber Flavor)', 'Oishi | Potato crisps', 223.00, 278.75, 256.45, 6, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(180, 0, 1, 1, 1, '4800148532113', 'SKU-31REGQIY', 'Pinoy Loaf (John Pullman)', 'Marby', 35.00, 43.75, 40.25, 19, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
 	(181, 0, 1, 1, 1, '4806505854874', 'SKU-EESLX1JY', 'Popsnaks Crunchy Popnik', 'Centennial Food Corporation, Popsnaks | Crackers (Appetizers), Puffed salty snacks made from maize', 142.00, 177.50, 163.30, 15, NULL, 1, 1, '2026-06-11 15:37:27', '2026-06-11 07:37:27', 'active', 0, NULL),
@@ -1073,21 +1157,21 @@ INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `
 	(232, 0, 1, 1, 1, '4800194116169', 'SKU-I95EHWRJ', 'Oishi Spicy Seafood Curls', '| Shrimps', 347.00, 433.75, 399.05, 16, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(233, 0, 1, 1, 1, '4800016551611', 'SKU-R5VFYYUK', 'Yakisoba instant pancit savory beef flavor with real vegetables', 'Nissin', 350.00, 437.50, 402.50, 9, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(234, 0, 1, 1, 1, '7622210892126', 'SKU-PS2B6UYX', 'eden original 45g', 'Creamy & Cheesy taste', 495.00, 618.75, 569.25, 7, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
-	(235, 0, 1, 1, 1, '93698078', 'SKU-VPGMOIF7', 'Tic Tac Orange', 'Ferrero | Candies, fr:Bonbons dragéifiés', 53.00, 66.25, 60.95, 7, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
-	(236, 0, 1, 1, 1, '4800194179881', 'SKU-FK31DMJB', 'Marty’s Crackling Plain Salted', 'Oishi | Crisps, Chicharon, Cracklings', 131.00, 163.75, 150.65, 12, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
+	(235, 0, 1, 1, 1, '93698078', 'SKU-VPGMOIF7', 'Tic Tac Orange', 'Ferrero | Candies, fr:Bonbons dragÃ©ifiÃ©s', 53.00, 66.25, 60.95, 7, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
+	(236, 0, 1, 1, 1, '4800194179881', 'SKU-FK31DMJB', 'Martyâ€™s Crackling Plain Salted', 'Oishi | Crisps, Chicharon, Cracklings', 131.00, 163.75, 150.65, 12, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(237, 0, 1, 1, 1, '9556007000556', 'SKU-YLAKN0IV', 'Non-Dairy Soya With Calcium', 'Soyfresh | Soy-based drinks', 62.00, 77.50, 71.30, 5, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(238, 0, 1, 1, 1, '4800092113741', 'SKU-ZIBNJNON', 'Rebisco maxi mix', '', 313.00, 391.25, 359.95, 11, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(239, 0, 1, 1, 1, '4800249006650', 'SKU-MTLMGI6V', 'San Marino', 'San Marino | Canned tunas', 262.00, 327.50, 301.30, 16, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
-	(240, 0, 1, 1, 1, '4800361331265', 'SKU-YENTJEDN', 'Nestle Chuckie', 'Nestlé | Chocolate milks', 342.00, 427.50, 393.30, 8, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
+	(240, 0, 1, 1, 1, '4800361331265', 'SKU-YENTJEDN', 'Nestle Chuckie', 'NestlÃ© | Chocolate milks', 342.00, 427.50, 393.30, 8, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(241, 0, 1, 1, 1, '4800110095776', 'SKU-QO5WAKUA', 'Sterelized Milk', 'Selecta', 456.00, 570.00, 524.40, 10, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(242, 0, 1, 1, 1, '9331275010700', 'SKU-8OIGB6SX', 'rondoletti', '', 251.00, 313.75, 288.65, 13, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
-	(243, 0, 1, 1, 1, '4800361015103', 'SKU-ODYIJAIY', 'Nestle Fresh Milk', 'Nestlé | Milks', 282.00, 352.50, 324.30, 20, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
+	(243, 0, 1, 1, 1, '4800361015103', 'SKU-ODYIJAIY', 'Nestle Fresh Milk', 'NestlÃ© | Milks', 282.00, 352.50, 324.30, 20, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(244, 0, 1, 1, 1, '4800092113314', 'SKU-0DTOXLEZ', 'Hansel Milk Sandwhich', 'Rebisco | Biscuits or cookies variety packs', 127.00, 158.75, 146.05, 5, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(245, 0, 1, 1, 1, '6902131112925', 'SKU-QQ8TIUAT', 'MaLing Chicken Luncheon Meat', 'MaLing | Canned meats', 413.00, 516.25, 474.95, 14, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(246, 0, 1, 1, 1, '48042857', 'SKU-8QPWITEU', 'yakult light', 'Yakult | Fermented milk drinks', 388.00, 485.00, 446.20, 13, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(247, 0, 1, 1, 1, '4800016552120', 'SKU-AGETNDLZ', 'nissin cup chicken 40g', '', 390.00, 487.50, 448.50, 19, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
-	(248, 0, 1, 1, 1, '8851717907845', 'SKU-SUCR4T0R', 'Loading…', 'Dutchmill | Yogurt drinks', 308.00, 385.00, 354.20, 12, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
-	(249, 0, 1, 1, 1, '4800361331289', 'SKU-BBJTGXQT', 'Bear Brand sterilized', 'Nestlé | UHT Milks, Full Cream Milk, Liquid Milk, Ready-to-Drink', 311.00, 388.75, 357.65, 9, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
+	(248, 0, 1, 1, 1, '8851717907845', 'SKU-SUCR4T0R', 'Loadingâ€¦', 'Dutchmill | Yogurt drinks', 308.00, 385.00, 354.20, 12, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
+	(249, 0, 1, 1, 1, '4800361331289', 'SKU-BBJTGXQT', 'Bear Brand sterilized', 'NestlÃ© | UHT Milks, Full Cream Milk, Liquid Milk, Ready-to-Drink', 311.00, 388.75, 357.65, 9, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(250, 0, 1, 1, 1, '4002309006567', 'SKU-ERZGX27R', 'Ceres Choco Hazelnut Choco Spread', 'Goya | Chocolate spreads', 368.00, 460.00, 423.20, 19, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(251, 0, 1, 1, 1, '4800110097602', 'SKU-RDAA2A5G', 'Premium Apple Juice', 'Sunkist | Apple juices', 197.00, 246.25, 226.55, 20, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(252, 0, 1, 1, 1, '0748485100036', 'SKU-RIWDVLIG', 'Century Tuna Premium Red', 'Century | Canned tunas, Tunas in brine', 425.00, 531.25, 488.75, 17, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
@@ -1096,7 +1180,7 @@ INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `
 	(255, 0, 1, 1, 1, '4800361392549', 'SKU-YTPLPQAL', 'Nestea Cranberry', 'Nestle Phils. | Beverages, Powdered Juice Drink', 22.00, 27.50, 25.30, 18, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(256, 0, 1, 1, 1, '8995227502234', 'SKU-LCEXEOSB', 'Lola Remedios', '| Dietary supplements', 389.00, 486.25, 447.35, 20, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(257, 0, 1, 1, 1, '4800010075243', 'SKU-YPBPYQKO', 'cream o (bwn) choco 30g', 'Jack n\' Jill | Biscuit with a chocolate bar covering', 70.00, 87.50, 80.50, 18, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
-	(258, 0, 1, 1, 1, '4800361381581', 'SKU-8UVY2DRK', 'Non-Fat Milk', 'Nestlé | Dairy drinks, Milks', 136.00, 170.00, 156.40, 13, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
+	(258, 0, 1, 1, 1, '4800361381581', 'SKU-8UVY2DRK', 'Non-Fat Milk', 'NestlÃ© | Dairy drinks, Milks', 136.00, 170.00, 156.40, 13, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(259, 0, 1, 1, 1, '4806526075135', 'SKU-1GBCKLWD', 'Oat Choco Original Flavor', 'Coco | Cocoa and its products, Chocolate cereal bars, Oat', 22.00, 27.50, 25.30, 12, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(260, 0, 1, 1, 1, '4807770122644', 'SKU-LCI6IV5D', 'nissin wafer (r) double chocolate 55g', 'Nissin', 157.00, 196.25, 180.55, 19, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(261, 0, 1, 1, 1, '9555192507833', 'SKU-QEUQGI4F', '9555192507833', '', 347.00, 433.75, 399.05, 19, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
@@ -1109,7 +1193,7 @@ INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `
 	(268, 0, 1, 1, 1, '4800016633799', 'SKU-VEZ8QKW0', 'ROADHOUSE BARBEQUE Flavored Potato Crisps', 'Piattos | Potato crisps', 445.00, 556.25, 511.75, 12, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(269, 0, 1, 1, 1, '8850343011322', 'SKU-BRPIWQSA', 'Mayonnaise', 'Heinz [Seriously] Good', 345.00, 431.25, 396.75, 11, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(270, 0, 1, 1, 1, '8997035600010', 'SKU-FDONLK6W', 'pocari sweat 350ml', '| Dietary drink for sport', 40.00, 50.00, 46.00, 18, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
-	(271, 0, 1, 1, 1, '4800361380737', 'SKU-DNDSGA7N', 'Coffee mate', 'Nestlé | Coffees', 80.00, 100.00, 92.00, 6, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
+	(271, 0, 1, 1, 1, '4800361380737', 'SKU-DNDSGA7N', 'Coffee mate', 'NestlÃ© | Coffees', 80.00, 100.00, 92.00, 6, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(272, 0, 1, 1, 1, '4801981120000', 'SKU-JQ6LKW4Y', 'Coca-Cola', 'Coca-Cola, The Coca-Cola Company | Colas, Sweetened beverages', 44.00, 55.00, 50.60, 17, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(273, 0, 1, 1, 1, '4807770100529', 'SKU-G6RGFPGD', 'NISSIN BUTTER COCONUT', 'MONDE | Biscuits, Butter and Coconut Biscuit, Coconut biscuits', 115.00, 143.75, 132.25, 18, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(274, 0, 1, 1, 1, '8801056000332', 'SKU-1BHOMGDM', 'Mandarin orange', 'Lotte', 110.00, 137.50, 126.50, 20, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
@@ -1118,7 +1202,7 @@ INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `
 	(277, 0, 1, 1, 1, '0037600240345', 'SKU-DV865WSI', 'SPAM', 'Hormel | Canned meats, Luncheon meat', 174.00, 217.50, 200.10, 10, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(278, 0, 1, 1, 1, '4800047820014', 'SKU-Y5ZTTCQ7', 'Isopropyl alcohol', 'GreenCross', 200.00, 250.00, 230.00, 12, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(279, 0, 1, 1, 1, '4800092115288', 'SKU-HOXBUOSG', 'Rebisco Fiesta Pastillas', '', 468.00, 585.00, 538.20, 10, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
-	(280, 0, 1, 1, 1, '4800361403764', 'SKU-WAUFJ7WG', 'nescafe original 20g', 'Nestlé | Beverages, Coffees, Instant coffees', 303.00, 378.75, 348.45, 15, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
+	(280, 0, 1, 1, 1, '4800361403764', 'SKU-WAUFJ7WG', 'nescafe original 20g', 'NestlÃ© | Beverages, Coffees, Instant coffees', 303.00, 378.75, 348.45, 15, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(281, 0, 1, 1, 1, '8885013130058', 'SKU-AWPYDSI2', 'Chocolate Crispy', 'Aice | Ice cream bars, vanilla-ice-cream-bars', 110.00, 137.50, 126.50, 7, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(282, 0, 1, 1, 1, '4800054210327', 'SKU-XIJG6VNM', 'NutriBar Apple Cinnamon', 'Growers | Cereal bars', 404.00, 505.00, 464.60, 12, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
 	(283, 0, 1, 1, 1, '7622300742164', 'SKU-T1XBTYMO', 'Tiger Chocolate', 'Mondelez, Tiger | Chocolate biscuits', 353.00, 441.25, 405.95, 14, NULL, 1, 1, '2026-06-11 15:37:29', '2026-06-11 07:37:29', 'active', 0, NULL),
@@ -1182,7 +1266,7 @@ INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `
 	(341, 0, 1, 1, 1, '4800318000701', 'SKU-JOV4M2CN', 'Scotts orange', '', 319.00, 398.75, 366.85, 15, NULL, 1, 1, '2026-06-11 15:37:31', '2026-06-11 07:37:31', 'active', 0, NULL),
 	(342, 0, 1, 1, 1, '4800016091117', 'SKU-VUANOUEO', 'Swiss Miss Dark Chocolate', '', 50.00, 62.50, 57.50, 19, NULL, 1, 1, '2026-06-11 15:37:31', '2026-06-11 07:37:31', 'active', 0, NULL),
 	(343, 0, 1, 1, 1, '4800888602299', 'SKU-IUHVOEE3', 'Lady\'s Choice Sandwich Spread', 'lady\'s choice', 129.00, 161.25, 148.35, 10, NULL, 1, 1, '2026-06-11 15:37:31', '2026-06-11 07:37:31', 'active', 0, NULL),
-	(344, 0, 1, 1, 1, '4800361413992', 'SKU-B1OLYBNH', 'nescafe twin (bwn) creamy latte 40g', 'Nescafé | 3-in-1 Coffee, Dessert Coffee, Flavored Coffee', 384.00, 480.00, 441.60, 11, NULL, 1, 1, '2026-06-11 15:37:31', '2026-06-11 07:37:31', 'active', 0, NULL),
+	(344, 0, 1, 1, 1, '4800361413992', 'SKU-B1OLYBNH', 'nescafe twin (bwn) creamy latte 40g', 'NescafÃ© | 3-in-1 Coffee, Dessert Coffee, Flavored Coffee', 384.00, 480.00, 441.60, 11, NULL, 1, 1, '2026-06-11 15:37:31', '2026-06-11 07:37:31', 'active', 0, NULL),
 	(345, 0, 1, 1, 1, '4800575480254', 'SKU-9ZL611CJ', 'alaska crema all purpose 250ml', 'Alaska', 212.00, 265.00, 243.80, 12, NULL, 1, 1, '2026-06-11 15:37:31', '2026-06-11 07:37:31', 'active', 0, NULL),
 	(346, 0, 1, 1, 1, '0748485800738', 'SKU-6FLHK53S', 'argentina beef loaf 150g', 'Argentina | Beef, Meatloafs', 420.00, 525.00, 483.00, 10, NULL, 1, 1, '2026-06-11 15:37:31', '2026-06-11 07:37:31', 'active', 0, NULL),
 	(347, 0, 1, 1, 1, '4800361339186', 'SKU-IZDX1LMN', 'nescafe (r) 20g', '', 12.00, 15.00, 13.80, 15, NULL, 1, 1, '2026-06-11 15:37:31', '2026-06-11 07:37:31', 'active', 0, NULL),
@@ -1255,7 +1339,7 @@ INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `
 	(414, 0, 1, 1, 1, '4800194106788', 'SKU-9QFMYNXR', 'Potato Crisps', '', 150.00, 187.50, 172.50, 7, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
 	(415, 0, 1, 1, 1, '9557727929202', 'SKU-KEVUVTXG', 'DAIRY MILK CORPORATION', 'Doreen', 115.00, 143.75, 132.25, 15, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
 	(416, 0, 1, 1, 1, '4803925061110', 'SKU-KIZOGIWD', 'Gatorade', '', 31.00, 38.75, 35.65, 10, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
-	(417, 0, 1, 1, 1, '4806026205803', 'SKU-CVTIOB5W', 'Clara Ole Jalapeño cheese', '', 89.00, 111.25, 102.35, 19, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
+	(417, 0, 1, 1, 1, '4806026205803', 'SKU-CVTIOB5W', 'Clara Ole JalapeÃ±o cheese', '', 89.00, 111.25, 102.35, 19, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
 	(418, 0, 1, 1, 1, '4806026205797', 'SKU-DBV4I9TF', 'CHEDDAR CHEESE', 'Clara Ole', 272.00, 340.00, 312.80, 10, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
 	(419, 0, 1, 1, 1, '1200108000103', 'SKU-HCAE62C0', 'lays stax extra cheese', 'Lay\'s', 39.00, 48.75, 44.85, 10, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
 	(420, 0, 1, 1, 1, '0071615901105', 'SKU-GL32JB9W', 'corned beef & hot peppers', '| Beef dishes, Canned meats, Corned beef', 123.00, 153.75, 141.45, 11, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
@@ -1281,7 +1365,7 @@ INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `
 	(440, 0, 1, 1, 1, '4806533323373', 'SKU-6DPNV5E1', 'Goya Black Cookie Crunch', '', 75.00, 93.75, 86.25, 13, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
 	(441, 0, 1, 1, 1, '4800016105098', 'SKU-YWCSF0BJ', 'Kack n jill Chiz Curls', 'Jack \'n Jill', 370.00, 462.50, 425.50, 9, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
 	(442, 0, 1, 1, 1, '4800365101239', 'SKU-HADNQVBF', 'Super Crunch Sweet Corn', 'Super Crunch', 452.00, 565.00, 519.80, 11, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
-	(443, 0, 1, 1, 1, '4800216125919', 'SKU-UDQJGACS', 'Leslie\'s Cheezy Corn Crunch', 'Leslie\'s, Leslie’s (Cheezy) | Corn snacks, Filipino snacks', 379.00, 473.75, 435.85, 17, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
+	(443, 0, 1, 1, 1, '4800216125919', 'SKU-UDQJGACS', 'Leslie\'s Cheezy Corn Crunch', 'Leslie\'s, Leslieâ€™s (Cheezy) | Corn snacks, Filipino snacks', 379.00, 473.75, 435.85, 17, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
 	(444, 0, 1, 1, 1, '4710022045427', 'SKU-ZDOZYVAA', 'His and Her Roasted Mix Nuts', '', 78.00, 97.50, 89.70, 11, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
 	(445, 0, 1, 1, 1, '4800631001928', 'SKU-RMQBLXKB', 'Assorted Nuts', 'BOY BAWANG | Appetizers, Peanuts', 121.00, 151.25, 139.15, 15, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
 	(446, 0, 1, 1, 1, '0840069674626', 'SKU-ZJTIRLJJ', 'Choco Mucho Cookies and Cream', '', 103.00, 128.75, 118.45, 17, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
@@ -1307,7 +1391,7 @@ INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `
 	(466, 0, 1, 1, 1, '6922877760686', 'SKU-EPOMZYQC', 'Skippy Crunchy', 'Skippy | Peanut butters, Nut butters', 53.00, 66.25, 60.95, 17, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
 	(467, 0, 1, 1, 1, '4806503244080', 'SKU-6T411SGK', 'family brand sardines', '| Sardines in oil and chili', 193.00, 241.25, 221.95, 17, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
 	(468, 0, 1, 1, 1, '4806504721016', 'SKU-OVOBJUDY', 'mega tuna', '| Canned tunas', 152.00, 190.00, 174.80, 14, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
-	(469, 0, 1, 1, 1, '4800016666452', 'SKU-TWISE5K1', 'Jack n Jill Mr.Chips Manamis Mais', 'Jack’nJill', 480.00, 600.00, 552.00, 14, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
+	(469, 0, 1, 1, 1, '4800016666452', 'SKU-TWISE5K1', 'Jack n Jill Mr.Chips Manamis Mais', 'Jackâ€™nJill', 480.00, 600.00, 552.00, 14, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
 	(470, 0, 1, 1, 1, '4801981109197', 'SKU-HINWWPJR', 'Minute maid nutri orange mango', 'Minute Maid', 125.00, 156.25, 143.75, 11, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
 	(471, 0, 1, 1, 1, '0750515031029', 'SKU-LRBETTD4', 'SkyFlakes Cracker Sandwich Tsokolate', 'SkyFlakes | Cracker sandwich', 272.00, 340.00, 312.80, 5, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
 	(472, 0, 1, 1, 1, '0052100009841', 'SKU-VONZ53EZ', 'Oregano', '', 274.00, 342.50, 315.10, 11, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
@@ -1320,7 +1404,7 @@ INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `
 	(479, 0, 1, 1, 1, '4801962413152', 'SKU-8GCATULF', 'Berocca (Multivitamins and Minerals)', '| Multivitamin', 81.00, 101.25, 93.15, 19, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
 	(480, 0, 1, 1, 1, '8996001351826', 'SKU-U25PD99M', 'wafello (bwn) 21g', 'Wafello', 55.00, 68.75, 63.25, 9, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
 	(481, 0, 1, 1, 1, '4804888889728', 'SKU-KPGFQH0F', 'ZEsto Big 25o', '', 23.00, 28.75, 26.45, 7, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
-	(482, 0, 1, 1, 1, '8120001446804', 'SKU-5N86R3RZ', '𝗙𝗼𝘂𝗻𝗱𝗲𝗿𝘀 𝗠𝘂𝘀𝗵𝗿𝗼𝗼𝗺 𝟰𝟬𝟬𝗴', '', 258.00, 322.50, 296.70, 14, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
+	(482, 0, 1, 1, 1, '8120001446804', 'SKU-5N86R3RZ', 'ð—™ð—¼ð˜‚ð—»ð—±ð—²ð—¿ð˜€ ð— ð˜‚ð˜€ð—µð—¿ð—¼ð—¼ð—º ðŸ°ðŸ¬ðŸ¬ð—´', '', 258.00, 322.50, 296.70, 14, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
 	(483, 0, 1, 1, 1, '4806534440253', 'SKU-PKZJ0QB0', 'Matcha Bun', 'Fuwa Fuwa | Breads, Fairy cakes, Matcha bun', 369.00, 461.25, 424.35, 15, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
 	(484, 0, 1, 1, 1, '4800611029942', 'SKU-FAPQAGB3', 'Sunkist Yoghurt Zero', 'Sunkist | Sugar-free colas with artificial sweeteners and without caffeine', 218.00, 272.50, 250.70, 12, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
 	(485, 0, 1, 1, 1, '4901515004865', 'SKU-S9QN0DG4', 'Kikkoman oyster', 'Kikkoman', 320.00, 400.00, 368.00, 14, NULL, 1, 1, '2026-06-11 15:37:35', '2026-06-11 07:37:35', 'active', 0, NULL),
@@ -1361,15 +1445,15 @@ INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `
 	(520, 0, 1, 1, 1, '4903001039047', 'SKU-V2LDMRTU', 'Soba Noodle Sauce', 'Yamasa', 120.00, 150.00, 138.00, 13, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
 	(521, 0, 1, 1, 1, '4805358289031', 'SKU-MQI59QRY', 'Magnolia Butter-licious Unsalted', 'Magnolia', 178.00, 222.50, 204.70, 8, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
 	(522, 0, 1, 1, 1, '4809012803977', 'SKU-NRF3TB7E', 'Pro Matrix 7 Multiple source Protein', 'Pro Matrix 7', 378.00, 472.50, 434.70, 7, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
-	(523, 0, 1, 1, 1, '8935217412112', 'SKU-SD38XL5Q', 'Sữa TH true yogurt vị Dâu 180', 'True Happiness', 26.00, 32.50, 29.90, 15, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
+	(523, 0, 1, 1, 1, '8935217412112', 'SKU-SD38XL5Q', 'Sá»¯a TH true yogurt vá»‹ DÃ¢u 180', 'True Happiness', 26.00, 32.50, 29.90, 15, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
 	(524, 0, 1, 1, 1, '4800016115011', 'SKU-QE9ZTVLY', 'chicken skin', 'Jack \'n Jill | Chicken and its products, Crisps', 359.00, 448.75, 412.85, 19, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
 	(525, 0, 1, 1, 1, '4894514047028', 'SKU-BBQOPDOY', 'Chocolate Banana Flavoured Crisy Crepes', 'Meadows', 40.00, 50.00, 46.00, 16, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
 	(526, 0, 1, 1, 1, '4807770273049', 'SKU-HCI9XW5Y', 'Baked Mac Style Instant Pasta', 'Lucky Me! | Instant noodle soups', 268.00, 335.00, 308.20, 5, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
-	(527, 0, 1, 1, 1, '4800361424813', 'SKU-QNPNYPAY', 'Sterilized Save 15', 'Nestlé', 417.00, 521.25, 479.55, 5, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
+	(527, 0, 1, 1, 1, '4800361424813', 'SKU-QNPNYPAY', 'Sterilized Save 15', 'NestlÃ©', 417.00, 521.25, 479.55, 5, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
 	(528, 0, 1, 1, 1, '4800016551574', 'SKU-FACRZYIC', 'nissin ramen chicken 55g', 'Nissim', 484.00, 605.00, 556.60, 12, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
 	(529, 0, 1, 1, 1, '4800365881087', 'SKU-9KMHEBIJ', 'Super Delight Brownie Bites', 'Super Delight', 290.00, 362.50, 333.50, 14, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
 	(530, 0, 1, 1, 1, '4800040311212', 'SKU-SGYMF2MZ', 'Butter Cookies', 'Fibisco', 269.00, 336.25, 309.35, 16, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
-	(531, 0, 1, 1, 1, '4800016113017', 'SKU-LAL5M44M', 'Jack ’n Jill Dewberry Strawberry (27g)', 'Jack ’n Jill | Biscuit with milk, Cream cookies', 243.00, 303.75, 279.45, 10, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
+	(531, 0, 1, 1, 1, '4800016113017', 'SKU-LAL5M44M', 'Jack â€™n Jill Dewberry Strawberry (27g)', 'Jack â€™n Jill | Biscuit with milk, Cream cookies', 243.00, 303.75, 279.45, 10, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
 	(532, 0, 1, 1, 1, '4800024573544', 'SKU-CI9A3ZEG', 'Sweet style spaghetti sauce', '', 100.00, 125.00, 115.00, 8, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
 	(533, 0, 1, 1, 1, '4806525940328', 'SKU-J3KNP1AA', 'Gulaman king white', '', 15.00, 18.75, 17.25, 16, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
 	(534, 0, 1, 1, 1, '4800086043627', 'SKU-GWP9XLH9', 'Cookies & Cream Ice Cream', 'Selecta', 34.00, 42.50, 39.10, 15, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
@@ -1399,7 +1483,7 @@ INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `
 	(558, 0, 1, 1, 1, '4800194105859', 'SKU-4BBPZCVM', 'Oishi Baked Porky Popps Lean Pork Skin Classic Vinegar Flavor', 'Oishi | Pork rind, Chicharon, Keto Snacks, Low Carb Snacks', 354.00, 442.50, 407.10, 14, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
 	(559, 0, 1, 1, 1, '1503254322243', 'SKU-CCENTEPW', 'Sandwich Loaf', '| Breads', 34.00, 42.50, 39.10, 19, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
 	(560, 0, 1, 1, 1, '4806532870007', 'SKU-UE515AMH', 'Chili Garlic Sauce', 'TFC Hao Hao (PH)', 36.00, 45.00, 41.40, 5, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
-	(561, 0, 1, 1, 1, '9331275012063', 'SKU-RGTINGBI', 'Roasted Choc-Hazelnut Créme Filled Wafer Rolls', 'Café Se Lucca', 257.00, 321.25, 295.55, 18, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
+	(561, 0, 1, 1, 1, '9331275012063', 'SKU-RGTINGBI', 'Roasted Choc-Hazelnut CrÃ©me Filled Wafer Rolls', 'CafÃ© Se Lucca', 257.00, 321.25, 295.55, 18, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
 	(562, 0, 1, 1, 1, '4805358801325', 'SKU-BY80MRTN', 'Real Mayonnaise', 'Magnolia', 427.00, 533.75, 491.05, 13, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
 	(563, 0, 1, 1, 1, '14800006003875', 'SKU-ETDBYOWF', 'KA-KA', 'Keiko | Candies', 477.00, 596.25, 548.55, 14, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
 	(564, 0, 1, 1, 1, '01502152', 'SKU-DMIA6KRX', 'Corn Pops', '', 17.00, 21.25, 19.55, 8, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
@@ -1452,9 +1536,9 @@ CREATE TABLE IF NOT EXISTS `pos_product_price_histories` (
   KEY `idx_product_id` (`product_id`),
   KEY `idx_created_at` (`created_at`),
   CONSTRAINT `fk_product_price_history_product` FOREIGN KEY (`product_id`) REFERENCES `pos_products` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table snsu_safetrack.pos_product_price_histories: ~6 rows (approximately)
+-- Dumping data for table snsu_safetrack.pos_product_price_histories: ~8 rows (approximately)
 DELETE FROM `pos_product_price_histories`;
 INSERT INTO `pos_product_price_histories` (`id`, `tenant_id`, `product_id`, `cost_price`, `new_cost_price`, `selling_price`, `new_selling_price`, `wholesale_price`, `new_wholesale_price`, `reason`, `remarks`, `effective_date`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
 	(1, 0, 1, 18.00, 18.00, 26.00, 26.00, 23.00, 23.00, NULL, 'Product price updated', '2026-06-10 10:20:22', 11, 11, '2026-06-10 10:20:22', '2026-06-10 02:20:22', 'active', 0, NULL),
@@ -1462,42 +1546,109 @@ INSERT INTO `pos_product_price_histories` (`id`, `tenant_id`, `product_id`, `cos
 	(3, 0, 1, 18.00, 18.00, 25.00, 25.00, 23.00, 23.00, NULL, 'Product price updated', '2026-06-10 10:21:21', 11, 11, '2026-06-10 10:21:21', '2026-06-10 02:21:21', 'active', 0, NULL),
 	(4, 0, 1, 18.00, 18.00, 35.00, 35.00, 23.00, 23.00, NULL, 'Product price updated', '2026-06-10 10:25:05', 11, 11, '2026-06-10 10:25:05', '2026-06-10 02:25:05', 'active', 0, NULL),
 	(5, 0, 1, 18.00, 18.00, 35.00, 34.00, 23.00, 23.00, NULL, 'Product price updated', '2026-06-10 10:27:45', 11, 11, '2026-06-10 10:27:45', '2026-06-10 02:27:45', 'active', 0, NULL),
-	(6, 0, 6, 89.73, 89.73, 95.00, 100.00, 92.00, 92.00, NULL, 'Product price updated', '2026-06-10 10:28:15', 11, 11, '2026-06-10 10:28:15', '2026-06-10 02:28:15', 'active', 0, NULL);
+	(6, 0, 6, 89.73, 89.73, 95.00, 100.00, 92.00, 92.00, NULL, 'Product price updated', '2026-06-10 10:28:15', 11, 11, '2026-06-10 10:28:15', '2026-06-10 02:28:15', 'active', 0, NULL),
+	(7, 1, 1, 311.72, 311.72, 407.50, 410.00, 374.90, 374.90, NULL, 'Product price updated', '2026-06-12 13:43:25', 3, 3, '2026-06-12 13:43:25', '2026-06-12 05:43:25', 'active', 0, NULL),
+	(8, 1, 1, 311.72, 18.00, 410.00, 22.00, 374.90, 20.00, NULL, 'Product price updated', '2026-06-12 13:44:58', 3, 3, '2026-06-12 13:44:58', '2026-06-12 05:44:58', 'active', 0, NULL);
 
 -- Dumping structure for table snsu_safetrack.pos_sales
 DROP TABLE IF EXISTS `pos_sales`;
 CREATE TABLE IF NOT EXISTS `pos_sales` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `tenant_id` bigint(20) unsigned NOT NULL,
-  `branch_id` bigint(20) unsigned NOT NULL,
+  `tenant_id` bigint(20) unsigned DEFAULT NULL,
   `customer_id` bigint(20) unsigned DEFAULT NULL,
-  `cashier_id` bigint(20) unsigned NOT NULL,
-  `invoice_no` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `subtotal` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `cashier_id` bigint(20) unsigned DEFAULT NULL,
+  `invoice_no` varchar(50) DEFAULT NULL,
+  `sale_date` datetime DEFAULT NULL,
+  `subtotal` decimal(15,2) DEFAULT '0.00',
+  `payment_method` varchar(50) DEFAULT '0.00',
+  `discount_amount` decimal(15,2) DEFAULT '0.00',
+  `discount_type` varchar(20) DEFAULT '0.00',
+  `discount_holder` varchar(40) DEFAULT '0.00',
+  `discount_id_no` varchar(40) DEFAULT '0.00',
+  `tax_amount` decimal(15,2) DEFAULT '0.00',
+  `total_amount` decimal(15,2) DEFAULT '0.00',
+  `reference_number` varchar(50) DEFAULT '0.00',
+  `notes` text,
+  `sale_status` enum('completed','voided','refunded') NOT NULL DEFAULT 'completed',
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_invoice_no` (`invoice_no`),
+  KEY `idx_tenant` (`tenant_id`),
+  KEY `idx_sale_date` (`sale_date`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+
+-- Dumping data for table snsu_safetrack.pos_sales: 8 rows
+DELETE FROM `pos_sales`;
+/*!40000 ALTER TABLE `pos_sales` DISABLE KEYS */;
+INSERT INTO `pos_sales` (`id`, `tenant_id`, `customer_id`, `cashier_id`, `invoice_no`, `sale_date`, `subtotal`, `payment_method`, `discount_amount`, `discount_type`, `discount_holder`, `discount_id_no`, `tax_amount`, `total_amount`, `reference_number`, `notes`, `sale_status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 1, NULL, 3, 'S20260612-311819', '2026-06-12 15:58:25', 1836.25, 'split', 367.25, 'senior', '14545', '6456456', 157.39, 1469.00, '6456456456', '5412123', 'completed', 3, 3, '2026-06-12 15:58:25', '2026-06-12 07:58:25', 'active', 0, NULL),
+	(2, 1, NULL, 3, 'S20260612-371196', '2026-06-12 16:01:01', 6292.50, 'cash', 0.00, NULL, NULL, NULL, 674.20, 6292.50, NULL, NULL, 'completed', 3, 3, '2026-06-12 16:01:01', '2026-06-12 08:01:01', 'active', 0, NULL),
+	(3, 1, NULL, 3, 'S20260612-680640', '2026-06-12 16:01:56', 9312.25, 'split', 0.00, NULL, NULL, NULL, 997.74, 9312.25, '456456456, 7878787', NULL, 'completed', 3, 3, '2026-06-12 16:01:56', '2026-06-12 08:01:56', 'active', 0, NULL),
+	(4, 1, NULL, 3, 'S20260612-141605', '2026-06-12 16:08:58', 3537.25, 'cash', 106.12, 'manual', NULL, NULL, 367.62, 3431.13, NULL, NULL, 'completed', 3, 3, '2026-06-12 16:08:58', '2026-06-12 08:08:58', 'active', 0, NULL),
+	(5, 1, NULL, 3, 'S20260612-598760', '2026-06-12 16:12:57', 735.00, 'cash', 0.00, NULL, NULL, NULL, 78.75, 735.00, NULL, NULL, 'completed', 3, 3, '2026-06-12 16:12:57', '2026-06-12 08:12:57', 'active', 0, NULL),
+	(6, 1, NULL, 3, 'S20260612-846626', '2026-06-12 16:44:22', 3697.50, 'split', 739.50, 'senior', '12145', '4545', 316.93, 2958.00, '12345, 565', '454545', 'completed', 3, 3, '2026-06-12 16:44:22', '2026-06-12 08:44:22', 'active', 0, NULL),
+	(7, 1, NULL, 3, 'S20260612-216891', '2026-06-12 16:45:07', 3513.75, 'cash', 0.00, NULL, NULL, NULL, 376.47, 3513.75, NULL, NULL, 'completed', 3, 3, '2026-06-12 16:45:07', '2026-06-12 08:45:07', 'active', 0, NULL),
+	(8, 1, NULL, 3, 'S20260612-187220', '2026-06-12 16:59:35', 1464.25, 'cash', 0.00, NULL, NULL, NULL, 156.88, 1464.25, NULL, NULL, 'completed', 3, 3, '2026-06-12 16:59:35', '2026-06-12 08:59:35', 'active', 0, NULL);
+/*!40000 ALTER TABLE `pos_sales` ENABLE KEYS */;
+
+-- Dumping structure for table snsu_safetrack.pos_sale_items
+DROP TABLE IF EXISTS `pos_sale_items`;
+CREATE TABLE IF NOT EXISTS `pos_sale_items` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `sale_id` bigint(20) unsigned NOT NULL,
+  `product_id` bigint(20) unsigned NOT NULL,
+  `barcode` varchar(100) DEFAULT NULL,
+  `sku` varchar(100) DEFAULT NULL,
+  `product_name` varchar(255) NOT NULL,
+  `qty` decimal(15,2) NOT NULL,
+  `unit_price` decimal(15,2) NOT NULL,
   `discount_amount` decimal(15,2) NOT NULL DEFAULT '0.00',
   `tax_amount` decimal(15,2) NOT NULL DEFAULT '0.00',
-  `total_amount` decimal(15,2) NOT NULL DEFAULT '0.00',
-  `amount_paid` decimal(15,2) NOT NULL DEFAULT '0.00',
-  `change_amount` decimal(15,2) NOT NULL DEFAULT '0.00',
-  `payment_status` enum('pending','partial','paid') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'paid',
-  `sale_date` datetime NOT NULL,
+  `line_total` decimal(15,2) NOT NULL,
   `created_by` bigint(20) unsigned DEFAULT NULL,
   `updated_by` bigint(20) unsigned DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `status` enum('active','inactive','locked','unlocked') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `tenant_id` (`tenant_id`),
-  KEY `branch_id` (`branch_id`),
-  KEY `customer_id` (`customer_id`),
-  KEY `cashier_id` (`cashier_id`),
-  KEY `invoice_no` (`invoice_no`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  KEY `idx_sale` (`sale_id`),
+  KEY `idx_product` (`product_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8;
 
--- Dumping data for table snsu_safetrack.pos_sales: ~0 rows (approximately)
-DELETE FROM `pos_sales`;
+-- Dumping data for table snsu_safetrack.pos_sale_items: 19 rows
+DELETE FROM `pos_sale_items`;
+/*!40000 ALTER TABLE `pos_sale_items` DISABLE KEYS */;
+INSERT INTO `pos_sale_items` (`id`, `sale_id`, `product_id`, `barcode`, `sku`, `product_name`, `qty`, `unit_price`, `discount_amount`, `tax_amount`, `line_total`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 1, 3, '0750515017429', 'SKU-SPTJEFX2', 'fita crackers 30g', 2.00, 458.75, 0.00, 0.00, 917.50, 3, 3, '2026-06-12 15:58:25', '2026-06-12 07:58:25', 'active', 0, NULL),
+	(2, 1, 2, '0750515018402', 'SKU-CS7ENT4R', 'SkyFlakes Crackers 10 Single pack Condensada Falvor', 5.00, 183.75, 0.00, 0.00, 918.75, 3, 3, '2026-06-12 15:58:25', '2026-06-12 07:58:25', 'active', 0, NULL),
+	(3, 2, 3, '0750515017429', 'SKU-SPTJEFX2', 'fita crackers 30g', 6.00, 458.75, 0.00, 0.00, 2752.50, 3, 3, '2026-06-12 16:01:01', '2026-06-12 08:01:01', 'active', 0, NULL),
+	(4, 2, 5, '4800016068010', 'SKU-NXZS5YOI', 'c2 apple 500ml', 8.00, 442.50, 0.00, 0.00, 3540.00, 3, 3, '2026-06-12 16:01:01', '2026-06-12 08:01:01', 'active', 0, NULL),
+	(5, 3, 5, '4800016068010', 'SKU-NXZS5YOI', 'c2 apple 500ml', 7.00, 442.50, 0.00, 0.00, 3097.50, 3, 3, '2026-06-12 16:01:56', '2026-06-12 08:01:56', 'active', 0, NULL),
+	(6, 3, 2, '0750515018402', 'SKU-CS7ENT4R', 'SkyFlakes Crackers 10 Single pack Condensada Falvor', 6.00, 183.75, 0.00, 0.00, 1102.50, 3, 3, '2026-06-12 16:01:56', '2026-06-12 08:01:56', 'active', 0, NULL),
+	(7, 3, 3, '0750515017429', 'SKU-SPTJEFX2', 'fita crackers 30g', 11.00, 458.75, 0.00, 0.00, 5046.25, 3, 3, '2026-06-12 16:01:56', '2026-06-12 08:01:56', 'active', 0, NULL),
+	(8, 3, 1, '4800361410816', 'SKU-OCNIJIHQ', 'bear brand (w) 33g', 3.00, 22.00, 0.00, 0.00, 66.00, 3, 3, '2026-06-12 16:01:56', '2026-06-12 08:01:56', 'active', 0, NULL),
+	(9, 4, 1, '4800361410816', 'SKU-OCNIJIHQ', 'bear brand (w) 33g', 3.00, 22.00, 0.00, 0.00, 66.00, 3, 3, '2026-06-12 16:08:58', '2026-06-12 08:08:58', 'active', 0, NULL),
+	(10, 4, 3, '0750515017429', 'SKU-SPTJEFX2', 'fita crackers 30g', 5.00, 458.75, 0.00, 0.00, 2293.75, 3, 3, '2026-06-12 16:08:58', '2026-06-12 08:08:58', 'active', 0, NULL),
+	(11, 4, 5, '4800016068010', 'SKU-NXZS5YOI', 'c2 apple 500ml', 1.00, 442.50, 0.00, 0.00, 442.50, 3, 3, '2026-06-12 16:08:58', '2026-06-12 08:08:58', 'active', 0, NULL),
+	(12, 4, 2, '0750515018402', 'SKU-CS7ENT4R', 'SkyFlakes Crackers 10 Single pack Condensada Falvor', 4.00, 183.75, 0.00, 0.00, 735.00, 3, 3, '2026-06-12 16:08:58', '2026-06-12 08:08:58', 'active', 0, NULL),
+	(13, 5, 2, '0750515018402', 'SKU-CS7ENT4R', 'SkyFlakes Crackers 10 Single pack Condensada Falvor', 4.00, 183.75, 0.00, 0.00, 735.00, 3, 3, '2026-06-12 16:12:57', '2026-06-12 08:12:57', 'active', 0, NULL),
+	(14, 6, 5, '4800016068010', 'SKU-NXZS5YOI', 'c2 apple 500ml', 4.00, 442.50, 0.00, 0.00, 1770.00, 3, 3, '2026-06-12 16:44:22', '2026-06-12 08:44:22', 'active', 0, NULL),
+	(15, 6, 3, '0750515017429', 'SKU-SPTJEFX2', 'fita crackers 30g', 3.00, 458.75, 0.00, 0.00, 1376.25, 3, 3, '2026-06-12 16:44:22', '2026-06-12 08:44:22', 'active', 0, NULL),
+	(16, 6, 2, '0750515018402', 'SKU-CS7ENT4R', 'SkyFlakes Crackers 10 Single pack Condensada Falvor', 3.00, 183.75, 0.00, 0.00, 551.25, 3, 3, '2026-06-12 16:44:22', '2026-06-12 08:44:22', 'active', 0, NULL),
+	(17, 7, 2, '0750515018402', 'SKU-CS7ENT4R', 'SkyFlakes Crackers 10 Single pack Condensada Falvor', 2.00, 183.75, 0.00, 0.00, 367.50, 3, 3, '2026-06-12 16:45:07', '2026-06-12 08:45:07', 'active', 0, NULL),
+	(18, 7, 3, '0750515017429', 'SKU-SPTJEFX2', 'fita crackers 30g', 3.00, 458.75, 0.00, 0.00, 1376.25, 3, 3, '2026-06-12 16:45:07', '2026-06-12 08:45:07', 'active', 0, NULL),
+	(19, 7, 5, '4800016068010', 'SKU-NXZS5YOI', 'c2 apple 500ml', 4.00, 442.50, 0.00, 0.00, 1770.00, 3, 3, '2026-06-12 16:45:07', '2026-06-12 08:45:07', 'active', 0, NULL),
+	(20, 8, 1, '4800361410816', 'SKU-OCNIJIHQ', 'bear brand (w) 33g', 4.00, 22.00, 0.00, 0.00, 88.00, 3, 3, '2026-06-12 16:59:35', '2026-06-12 08:59:35', 'active', 0, NULL),
+	(21, 8, 3, '0750515017429', 'SKU-SPTJEFX2', 'fita crackers 30g', 3.00, 458.75, 0.00, 0.00, 1376.25, 3, 3, '2026-06-12 16:59:35', '2026-06-12 08:59:35', 'active', 0, NULL);
+/*!40000 ALTER TABLE `pos_sale_items` ENABLE KEYS */;
 
 -- Dumping structure for table snsu_safetrack.pos_stock_transactions
 DROP TABLE IF EXISTS `pos_stock_transactions`;
@@ -1524,14 +1675,16 @@ CREATE TABLE IF NOT EXISTS `pos_stock_transactions` (
   KEY `idx_product` (`product_id`),
   KEY `idx_tenant` (`tenant_id`),
   KEY `idx_reference` (`reference_type`,`reference_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table snsu_safetrack.pos_stock_transactions: ~3 rows (approximately)
+-- Dumping data for table snsu_safetrack.pos_stock_transactions: ~5 rows (approximately)
 DELETE FROM `pos_stock_transactions`;
 INSERT INTO `pos_stock_transactions` (`id`, `tenant_id`, `product_id`, `transaction_type`, `quantity`, `stock_before`, `stock_after`, `unit_cost`, `reference_type`, `reference_id`, `remarks`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
 	(1, 1, 1, 'IN', 60.00, 0.00, 60.00, 327.00, 'STOCK_RECEIVING', NULL, NULL, 3, 3, '2026-06-11 15:54:56', '2026-06-11 07:54:56', 'active', 0, NULL),
 	(2, 1, 1, 'ADJUSTMENT', 40.00, 60.00, 100.00, NULL, 'STOCK_ADJUSTMENT', NULL, 'Physical Count', 3, NULL, '2026-06-11 20:26:16', '2026-06-11 12:26:16', 'active', 0, NULL),
-	(3, 1, 1, 'ADJUSTMENT', 1.00, 100.00, 101.00, NULL, 'STOCK_ADJUSTMENT', NULL, 'Physical Count - none', 3, NULL, '2026-06-11 20:29:57', '2026-06-11 12:29:57', 'active', 0, NULL);
+	(3, 1, 1, 'ADJUSTMENT', 1.00, 100.00, 101.00, NULL, 'STOCK_ADJUSTMENT', NULL, 'Physical Count - none', 3, NULL, '2026-06-11 20:29:57', '2026-06-11 12:29:57', 'active', 0, NULL),
+	(4, 1, 1, 'IN', 120.00, 92.00, 212.00, 300.00, 'STOCK_RECEIVING', NULL, NULL, 3, 3, '2026-06-12 13:42:34', '2026-06-12 05:42:34', 'active', 0, NULL),
+	(5, 1, 2, 'IN', 30.00, 0.00, 30.00, 147.00, 'STOCK_RECEIVING', NULL, NULL, 3, 3, '2026-06-12 13:49:35', '2026-06-12 05:49:35', 'active', 0, NULL);
 
 -- Dumping structure for table snsu_safetrack.pos_subscriptions
 DROP TABLE IF EXISTS `pos_subscriptions`;
@@ -1617,7 +1770,7 @@ CREATE TABLE IF NOT EXISTS `pos_units` (
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=29 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8;
 
 -- Dumping data for table snsu_safetrack.pos_units: 28 rows
 DELETE FROM `pos_units`;
@@ -1702,7 +1855,7 @@ CREATE TABLE IF NOT EXISTS `qr_codes` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table snsu_safetrack.qr_codes: ~15 rows (approximately)
+-- Dumping data for table snsu_safetrack.qr_codes: ~18 rows (approximately)
 DELETE FROM `qr_codes`;
 INSERT INTO `qr_codes` (`id`, `school_id`, `prefix`, `UserID`, `last_number`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
 	(1, 2, '304855', NULL, 1, 0, 0, '2026-05-25 10:40:00', '2026-05-25 02:40:00', 'active', 0, NULL),
@@ -1889,7 +2042,7 @@ CREATE TABLE IF NOT EXISTS `scan_logs` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table snsu_safetrack.scan_logs: ~18 rows (approximately)
+-- Dumping data for table snsu_safetrack.scan_logs: ~21 rows (approximately)
 DELETE FROM `scan_logs`;
 INSERT INTO `scan_logs` (`id`, `school_id`, `VerificationCode`, `UserID`, `Mode`, `lat`, `lng`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`, `scan_type`, `direction`, `attendance_status`, `gate_name`, `remarks`) VALUES
 	(1, 1, 'VC-0000000001', 7, 1, NULL, NULL, 7, 7, '2026-05-26 08:12:57', '2026-05-26 00:12:57', 'active', 0, NULL, 'nfc', 'entry', 'late', NULL, NULL),
@@ -1960,7 +2113,7 @@ CREATE TABLE IF NOT EXISTS `school` (
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 -- Dumping data for table snsu_safetrack.school: 4 rows
 DELETE FROM `school`;
@@ -1990,7 +2143,7 @@ CREATE TABLE IF NOT EXISTS `school_years` (
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 -- Dumping data for table snsu_safetrack.school_years: 4 rows
 DELETE FROM `school_years`;
@@ -2019,7 +2172,7 @@ CREATE TABLE IF NOT EXISTS `sessions` (
 -- Dumping data for table snsu_safetrack.sessions: ~1 rows (approximately)
 DELETE FROM `sessions`;
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-	('FzDH2h0Vl97Lzb7bnaHHlydtvdxKbEAPdb0PiYKm', 3, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoic3JyMzFIWEFGUXVWV1dtVGxCM0hzdWtYT2JvNDB0UUZVVDRCU283SSI7czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MztzOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czoyNDU6Imh0dHA6Ly9wb3MuZGV2LmNvbS9wcm9kdWN0cy9zdG9jay9hZGp1c3RtZW50L2V5SnBkaUk2SW5KTVVtdFlUMWszVDBsRGNVcHNOQ3RxTjNacFExRTlQU0lzSW5aaGJIVmxJam9pYmxScE5WSnhTMEp1TUM5TE0zbDRjV0l6U1ROdlFUMDlJaXdpYldGaklqb2laVGxtWkRSa09XUXhOakZpTnpBd05EUTRZbU5tT0RReU5qRXhNamxsWm1NM1lXVmhaR1ZoT0dRNE56WmtOek01T1dZMVpXVmhaR001WldNM1pqWTRNQ0lzSW5SaFp5STZJaUo5IjtzOjU6InJvdXRlIjtzOjI1OiJwcm9kdWN0cy5zdG9jay5hZGp1c3RtZW50Ijt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==', 1781182447);
+	('DLtIDPIugN9pZbcgrznxvsVbIlCDKhKHq0LGjYvq', 3, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiWk5yeTdkOFgzcE9zQzZvNWdTbTN6eVF5aFdlOUZMMXRqS2ZUQkRxMSI7czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MztzOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czozMToiaHR0cDovL3Bvcy5kZXYuY29tL3NhbGVzL2NyZWF0ZSI7czo1OiJyb3V0ZSI7czoxMjoic2FsZXMuY3JlYXRlIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==', 1781255352);
 
 -- Dumping structure for table snsu_safetrack.sms_queues
 DROP TABLE IF EXISTS `sms_queues`;
@@ -2039,7 +2192,7 @@ CREATE TABLE IF NOT EXISTS `sms_queues` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table snsu_safetrack.sms_queues: ~43 rows (approximately)
+-- Dumping data for table snsu_safetrack.sms_queues: ~45 rows (approximately)
 DELETE FROM `sms_queues`;
 INSERT INTO `sms_queues` (`id`, `school_id`, `PhoneNumber`, `Message`, `remark`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
 	(1, 0, '639813581109', 'Dear Mr/Mrs. MORALES, \nMARK LOUIEJE MORALES just entered TUBAJON NATIONAL HIGH SCHOOL (LATE) @ May 22, 2026 10:14:36 AM. Code: VC-0000000026', 'sent', 0, 0, '2026-05-22 10:14:36', '2026-05-22 02:14:48', 'active', 0, NULL),
@@ -2062,9 +2215,9 @@ INSERT INTO `sms_queues` (`id`, `school_id`, `PhoneNumber`, `Message`, `remark`,
 	(18, 0, '639858224872', 'Dear Mr/Mrs. Garcia, \nJustin Ganaganag just entered TUBAJON NATIONAL HIGH SCHOOL @ May 22, 2026 03:18:02 PM. Code: VC-0000000050', 'sent', 0, 0, '2026-05-22 15:18:02', '2026-05-22 07:21:03', 'active', 0, NULL),
 	(19, 0, '639817101537', 'Dear Mr/Mrs. PACUNLA, \nLYCA REMOLISAN just entered TUBAJON NATIONAL HIGH SCHOOL (LATE) @ May 22, 2026 03:18:31 PM. Code: VC-0000000051', 'sent', 0, 0, '2026-05-22 15:18:31', '2026-05-22 07:21:17', 'active', 0, NULL),
 	(20, 0, '639468019180', 'Dear Mr/Mrs. ANGOB, \nJV ANGOB just entered TUBAJON NATIONAL HIGH SCHOOL (LATE) @ May 22, 2026 03:29:17 PM. Code: VC-0000000054', 'sent', 0, 0, '2026-05-22 15:29:17', '2026-05-22 07:29:31', 'active', 0, NULL),
-	(21, 0, '639855793446', 'Dear Mr/Mrs. DELA PENA, \nKHALIL DELA PEÅƒA just entered TUBAJON NATIONAL HIGH SCHOOL (LATE) @ May 22, 2026 03:29:21 PM. Code: VC-0000000055', 'sent', 0, 0, '2026-05-22 15:29:21', '2026-05-26 00:31:10', 'active', 0, NULL),
+	(21, 0, '639855793446', 'Dear Mr/Mrs. DELA PENA, \nKHALIL DELA PEÃ…Æ’A just entered TUBAJON NATIONAL HIGH SCHOOL (LATE) @ May 22, 2026 03:29:21 PM. Code: VC-0000000055', 'sent', 0, 0, '2026-05-22 15:29:21', '2026-05-26 00:31:10', 'active', 0, NULL),
 	(22, 0, '639468019180', 'Dear Mr/Mrs. ANGOB, \nJV ANGOB just entered TUBAJON NATIONAL HIGH SCHOOL @ May 22, 2026 03:30:14 PM. Code: VC-0000000059', 'sent', 0, 0, '2026-05-22 15:30:14', '2026-05-22 07:33:56', 'active', 0, NULL),
-	(23, 0, '639855793446', 'Dear Mr/Mrs. DELA PENA, \nKHALIL DELA PEÅƒA just entered TUBAJON NATIONAL HIGH SCHOOL @ May 22, 2026 03:30:18 PM. Code: VC-0000000060', 'sent', 0, 0, '2026-05-22 15:30:18', '2026-05-26 00:31:24', 'active', 0, NULL),
+	(23, 0, '639855793446', 'Dear Mr/Mrs. DELA PENA, \nKHALIL DELA PEÃ…Æ’A just entered TUBAJON NATIONAL HIGH SCHOOL @ May 22, 2026 03:30:18 PM. Code: VC-0000000060', 'sent', 0, 0, '2026-05-22 15:30:18', '2026-05-26 00:31:24', 'active', 0, NULL),
 	(24, 3, '639128941731', 'Dear Mr/Mrs. loreto P,\nloreto PILOTON just entered LORETO NATIONAL HIGH SCHOOL (LATE) @ May 25, 2026 11:14:33 AM. Code: VC-0000000014', 'sent', 0, 0, '2026-05-25 11:14:33', '2026-05-26 00:31:38', 'active', 0, NULL),
 	(25, 1, '639128941731', 'Dear Mr/Mrs. PILOTON,\nloreto PILOTON just entered TUBAJON NATIONAL HIGH SCHOOL (LATE) @ May 26, 2026 08:12:57 AM. Code: VC-0000000001', 'sent', NULL, NULL, '2026-05-26 08:12:57', '2026-05-26 00:31:53', 'active', 0, NULL),
 	(26, 1, '639128941731', 'Dear Mr/Mrs. PILOTON,\nloreto PILOTON just left TUBAJON NATIONAL HIGH SCHOOL (EARLY OUT) @ May 26, 2026 08:33:26 AM. Code: VC-0000000002', 'sent', NULL, NULL, '2026-05-26 08:33:27', '2026-05-26 00:34:29', 'active', 0, NULL),
@@ -2172,7 +2325,7 @@ CREATE TABLE IF NOT EXISTS `students_contact_person` (
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table snsu_safetrack.students_contact_person: 0 rows
 DELETE FROM `students_contact_person`;
@@ -2192,7 +2345,7 @@ CREATE TABLE IF NOT EXISTS `subjects` (
   `created_at` timestamp NULL DEFAULT NULL,
   `created_by` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table snsu_safetrack.subjects: 0 rows
 DELETE FROM `subjects`;
@@ -2264,7 +2417,7 @@ CREATE TABLE IF NOT EXISTS `support_ticket_replies` (
   KEY `support_ticket_replies_ticket_created_index` (`ticket_id`,`created_at`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table snsu_safetrack.support_ticket_replies: ~5 rows (approximately)
+-- Dumping data for table snsu_safetrack.support_ticket_replies: ~6 rows (approximately)
 DELETE FROM `support_ticket_replies`;
 INSERT INTO `support_ticket_replies` (`id`, `ticket_id`, `user_id`, `message`, `attachment`, `is_internal`, `status_record`, `archived`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES
 	(1, 1, 1, 'Hello po', NULL, 0, 'active', 0, 1, 1, '2026-05-25 11:21:04', '2026-05-25 11:21:04'),
@@ -2289,7 +2442,7 @@ CREATE TABLE IF NOT EXISTS `suspicious_activities` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `suspicious_activities_user_id_foreign` (`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table snsu_safetrack.suspicious_activities: 6 rows
 DELETE FROM `suspicious_activities`;
@@ -2325,7 +2478,7 @@ CREATE TABLE IF NOT EXISTS `system_settings` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table snsu_safetrack.system_settings: 1 rows
 DELETE FROM `system_settings`;
@@ -2367,14 +2520,14 @@ CREATE TABLE IF NOT EXISTS `users` (
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_email_unique` (`email`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table snsu_safetrack.users: 2 rows
 DELETE FROM `users`;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` (`id`, `system_name`, `is_super_admin`, `school_id`, `tenant_id`, `filepath`, `qr_code`, `nfc_code`, `conn_id`, `user_type`, `name`, `email`, `email_verified_at`, `avatar`, `fcm_token`, `profile_pic`, `password`, `remember_token`, `google_id`, `verified`, `created_by`, `updated_by`, `created_at`, `updated_at`, `last_activity_at`, `status`, `archived`, `deleted_at`) VALUES
 	(1, '0', 0, 0, 0, '0', '0', NULL, 0, 0, 'Antonio Jr Piloton', 'apiloton1@snsu.edu.ph', NULL, 'https://lh3.googleusercontent.com/a/ACg8ocICxZuvbmnED8B5vH9nAzZ75oj4EyyJOq04YOMO7jxaSaNGZqsv=s96-c', NULL, NULL, '$2y$12$XxNZYMM3BRXkyG7uxpcJ..t20eaiHvmc94Bso6fQ59X7lMeaxFmSy', 'VNcae30NHgfl3aSRItLJ4rdf0u1zxK2ckbIAWRIOOTK44puXUxhHcYLSJ68r', '117952079880321133596', 1, NULL, NULL, '2026-06-11 14:22:46', '2026-06-11 06:25:50', '2026-06-11 14:22:46', NULL, 0, NULL),
-	(3, '0', 0, 0, 1, '0', '0', NULL, 0, 0, 'ANTONIO JR. PILOTON', 'antoniojrpiloton@gmail.com', NULL, 'https://lh3.googleusercontent.com/a/ACg8ocKkyDZe64PBZKwzpp0RZycR0EkIrvLozpRb9PuWO14e-MU6Upk=s96-c', NULL, NULL, '$2y$12$RYW2A3QIydsMUY99to4OnOMGrQxet5Lnvyi2DtfzTYm7jZnQ6oIqm', 'fY82EnXs7AeU4yGOxRE8rR1IrgC5Hgg3vGgxNN1eu9dDR6Fk4PB01aUpTyK6', '112090857259724913006', 1, NULL, NULL, '2026-06-11 15:36:53', '2026-06-11 12:52:27', '2026-06-11 20:52:27', NULL, 0, NULL);
+	(3, '0', 0, 0, 1, '0', '0', NULL, 0, 0, 'ANTONIO JR. PILOTON', 'antoniojrpiloton@gmail.com', NULL, 'https://lh3.googleusercontent.com/a/ACg8ocKkyDZe64PBZKwzpp0RZycR0EkIrvLozpRb9PuWO14e-MU6Upk=s96-c', NULL, NULL, '$2y$12$RYW2A3QIydsMUY99to4OnOMGrQxet5Lnvyi2DtfzTYm7jZnQ6oIqm', 'fY82EnXs7AeU4yGOxRE8rR1IrgC5Hgg3vGgxNN1eu9dDR6Fk4PB01aUpTyK6', '112090857259724913006', 1, NULL, NULL, '2026-06-11 15:36:53', '2026-06-12 09:09:12', '2026-06-12 17:09:12', NULL, 0, NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 
 -- Dumping structure for table snsu_safetrack.user_phones
@@ -2391,7 +2544,7 @@ CREATE TABLE IF NOT EXISTS `user_phones` (
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table snsu_safetrack.user_phones: 0 rows
 DELETE FROM `user_phones`;
@@ -2411,7 +2564,7 @@ CREATE TABLE IF NOT EXISTS `year_level` (
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Dumping data for table snsu_safetrack.year_level: 0 rows
 DELETE FROM `year_level`;

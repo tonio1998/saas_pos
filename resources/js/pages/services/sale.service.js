@@ -1,10 +1,10 @@
 const SaleService = {
 
     async checkout(payload) {
-
+        console.log(payload);
         const response =
             await fetch(
-                '/api/pos/sales',
+                '/sales/store',
                 {
                     method: 'POST',
 
