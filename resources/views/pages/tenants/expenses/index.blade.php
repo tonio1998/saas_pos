@@ -1,17 +1,17 @@
 @extends('layouts.app')
 
-@section('title', 'Product Categories')
+@section('title', 'Customers')
 
 @section('content')
 
     <x-page-header>
         <x-slot:action>
             <a
-                href="{{ route('products.categories.create') }}"
+                href="{{ route('customers.create') }}"
                 class="btn btn-primary btn-md"
             >
                 <i class="bi bi-plus"></i>
-                Add Category
+                Add Customer
             </a>
         </x-slot:action>
     </x-page-header>
@@ -19,20 +19,28 @@
     <x-card>
 
         <x-datatable
-            id="categoriesTable"
+            id="customersTable"
             :columns="[
                 'Actions',
-                'Category Name',
-                'Description',
+                'Customer Code',
+                'Customer Name',
+                'Customer Type',
+                'Mobile Number',
+                'Email',
+                'Current Balance',
                 'Status',
                 'Created At',
                 'Created By'
             ]"
-            :ajax="route('products.categories.data')"
+            :ajax="route('customers.data')"
             :datatableColumns="[
                 ['data' => 'actions', 'orderable' => false, 'searchable' => false],
-                ['data' => 'name'],
-                ['data' => 'description'],
+                ['data' => 'customer_code'],
+                ['data' => 'customer_name'],
+                ['data' => 'customer_type'],
+                ['data' => 'mobile_number'],
+                ['data' => 'email'],
+                ['data' => 'current_balance'],
                 ['data' => 'status'],
                 ['data' => 'createdAt'],
                 ['data' => 'createdBy']

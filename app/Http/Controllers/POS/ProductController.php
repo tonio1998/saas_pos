@@ -215,17 +215,12 @@ class ProductController extends Controller
 
     public function ajaxData(Request $request)
     {
-        $query = POSProducts::with([
-            'category',
-            'unit',
-            'createdBy',
-        ]);
-
+        $query = POSProducts::with(['category', 'unit', 'createdBy'])
+            ->where('tenant_id', auth()->user()->tenant_id)
+        ;
         return datatables()
             ->eloquent($query)
-
             ->addColumn('actions', function ($product) {
-
                 $encryptedId = encrypt($product->id);
 
                 $viewUrl = route(
@@ -256,95 +251,86 @@ class ProductController extends Controller
                 $modalId = 'productActionModal' . $product->id;
 
                 return '
-        <button
-            type="button"
-            class="btn btn-soft-primary btn-sm"
-            data-bs-toggle="modal"
-            data-bs-target="#' . $modalId . '"
-        >
-            <i class="bi bi-gear"></i>
-            Actions
-        </button>
+                    <button
+                        type="button"
+                        class="btn btn-soft-primary btn-sm"
+                        data-bs-toggle="modal"
+                        data-bs-target="#' . $modalId . '"
+                    >
+                        <i class="bi bi-gear"></i>
+                        Actions
+                    </button>
 
-        <div
-            class="modal fade"
-            id="' . $modalId . '"
-            tabindex="-1"
-            aria-hidden="true"
-        >
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content border-0 shadow">
+                    <div
+                        class="modal fade"
+                        id="' . $modalId . '"
+                        tabindex="-1"
+                        aria-hidden="true"
+                    >
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content border-0 shadow">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">
+                                        Product Actions
+                                    </h5>
+                                    <button
+                                        type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"
+                                    ></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="d-grid gap-2">
+                                        <a href="' . $viewUrl . '" class="btn btn-light text-start">
+                                            <i class="bi bi-eye text-info me-2"></i>
+                                            View Product
+                                        </a>
 
-                    <div class="modal-header">
-                        <h5 class="modal-title">
-                            Product Actions
-                        </h5>
+                                        <a
+                                            href="' . $editUrl . '"
+                                            class="btn btn-light text-start"
+                                        >
+                                            <i class="bi bi-pencil text-primary me-2"></i>
+                                            Edit Product
+                                        </a>
 
-                        <button
-                            type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal"
-                        ></button>
-                    </div>
+                                        <hr class="my-2">
 
-                    <div class="modal-body">
+                                        <a
+                                            href="' . $receiveStockUrl . '"
+                                            class="btn btn-success text-start"
+                                        >
+                                            <i class="bi bi-box-arrow-in-down me-2"></i>
+                                            Receive Stock
+                                        </a>
 
-                        <div class="d-grid gap-2">
+                                        <a
+                                            href="' . $stockAdjustmentUrl . '"
+                                            class="btn btn-warning text-start"
+                                        >
+                                            <i class="bi bi-sliders me-2"></i>
+                                            Stock Adjustment
+                                        </a>
 
-                            <a
-                                href="' . $viewUrl . '"
-                                class="btn btn-light text-start"
-                            >
-                                <i class="bi bi-eye text-info me-2"></i>
-                                View Product
-                            </a>
+                                        <a
+                                            href="' . $stockHistoryUrl . '"
+                                            class="btn btn-secondary text-start"
+                                        >
+                                            <i class="bi bi-clock-history me-2"></i>
+                                            Stock History
+                                        </a>
 
-                            <a
-                                href="' . $editUrl . '"
-                                class="btn btn-light text-start"
-                            >
-                                <i class="bi bi-pencil text-primary me-2"></i>
-                                Edit Product
-                            </a>
+                                    </div>
 
-                            <hr class="my-2">
+                                </div>
 
-                            <a
-                                href="' . $receiveStockUrl . '"
-                                class="btn btn-success text-start"
-                            >
-                                <i class="bi bi-box-arrow-in-down me-2"></i>
-                                Receive Stock
-                            </a>
-
-                            <a
-                                href="' . $stockAdjustmentUrl . '"
-                                class="btn btn-warning text-start"
-                            >
-                                <i class="bi bi-sliders me-2"></i>
-                                Stock Adjustment
-                            </a>
-
-                            <a
-                                href="' . $stockHistoryUrl . '"
-                                class="btn btn-secondary text-start"
-                            >
-                                <i class="bi bi-clock-history me-2"></i>
-                                Stock History
-                            </a>
-
+                            </div>
                         </div>
-
                     </div>
-
-                </div>
-            </div>
-        </div>
-    ';
+                ';
             })
 
             ->addColumn('image', function ($product) {
-
                 $image = $product->image
                     ? Storage::url($product->image)
                     : asset('images/no_image.jpg');
@@ -355,7 +341,7 @@ class ProductController extends Controller
                         class="img-thumbnail"
                         style="max-height:120px"
                         alt="Product Image"
-                    >
+                    />
                 ';
             })
             ->addColumn('barcode', function ($product) {
@@ -473,7 +459,6 @@ class ProductController extends Controller
                 'createdBy',
                 'estimated_profit'
             ])
-
             ->make(true);
     }
 

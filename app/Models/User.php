@@ -25,6 +25,7 @@ class User extends Authenticatable implements AuditableContract
     protected $fillable = [
         'tenant_id',
         'name',
+        'username',
         'email',
         'filepath',
         'password',

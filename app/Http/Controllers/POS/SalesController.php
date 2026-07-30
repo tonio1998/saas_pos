@@ -14,6 +14,7 @@ use App\Models\POS\POSSales;
 use App\Traits\TCommonFunctions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -255,7 +256,7 @@ class SalesController extends Controller
 
                 return $sale->customer
                     ? '<span class="fw-semibold">' .
-                    e($sale->customer->name) .
+                    e($sale->customer->CustomerName) .
                     '</span>'
                     : '<span class="badge bg-light text-dark">
                     Walk-in
@@ -445,152 +446,192 @@ class SalesController extends Controller
             ->make(true);
     }
 
+    public function complete(Request $request)
+    {
+        $data = $request->validate([
+            'sale_id' => ['required'],
+            'customer_id' => ['nullable', 'integer'],
+            'subtotal' => ['required', 'numeric', 'min:0'],
+            'discount' => ['required', 'numeric', 'min:0'],
+            'total' => ['required', 'numeric', 'min:0'],
+            'discount_type' => ['nullable', 'string'],
+            'discount_mode' => ['nullable', 'string'],
+            'discount_value' => ['nullable', 'numeric'],
+            'discount_holder' => ['nullable', 'string', 'max:255'],
+            'discount_id_no' => ['nullable', 'string', 'max:255'],
+            'notes' => ['nullable', 'string', 'max:1000'],
+            'payments' => ['required', 'array', 'min:1'],
+            'payments.*.method' => ['required', 'string', 'in:cash,gcash,bank_transfer'],
+            'payments.*.amount' => ['required', 'numeric', 'min:0.01'],
+            'payments.*.reference_number' => ['nullable', 'string', 'max:255'],
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.product_id' => ['required', 'integer'],
+            'items.*.qty' => ['required', 'numeric', 'min:0.01'],
+            'items.*.price' => ['required', 'numeric', 'min:0'],
+        ]);
+
+        $saleID = decryptId($request->sale_id);
+
+        $totalPaid = collect($data['payments'])->sum('amount');
+        if ($totalPaid < $data['total']) {
+            throw ValidationException::withMessages([
+                'payments' => [
+                    'Insufficient payment.'
+                ]
+            ]);
+        }
+
+        $change = max(0, $totalPaid - $data['total']);
+        $sale = null;
+
+        DB::transaction(function () use (
+            $saleID,
+            $data,
+            $totalPaid,
+            $change,
+            &$sale
+        ) {
+
+            $taxRate = 12;
+
+            $vatableSales = $data['total'] / (1 + ($taxRate / 100));
+            $taxAmount = $data['total'] - $vatableSales;
+
+            $sale = POSSale::query()
+                ->where('id', $saleID)
+                ->where('tenant_id', auth()->user()->tenant_id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($sale->sale_status === 'completed') {
+                return response()->json([
+                    'message' => 'Sale already completed.'
+                ], 409);
+            }
+
+            $sale->cashier_id = auth()->id();
+            $sale->customer_id = $data['customer_id'];
+            $sale->payment_method = count($data['payments']) === 1
+                ? $data['payments'][0]['method']
+                : 'split';
+
+            $sale->subtotal = $data['subtotal'];
+            $sale->discount_amount = $data['discount'];
+            $sale->discount_type = $data['discount_type'] ?? null;
+            $sale->discount_holder = $data['discount_holder'] ?? null;
+            $sale->discount_id_no = $data['discount_id_no'] ?? null;
+            $sale->tax_amount = round($taxAmount, 2);
+            $sale->total_amount = $data['total'];
+            $sale->sale_status = 'completed';
+            $sale->sale_date = now();
+            $sale->reference_number = collect($data['payments'])
+                ->pluck('reference_number')
+                ->filter()
+                ->implode(', ') ?: null;
+
+            $sale->notes = $data['notes'] ?? null;
+            $sale->save();
+
+            foreach ($data['items'] as $item) {
+                $product = POSProducts::findOrFail($item['product_id']);
+                if ($product->stock_on_hand < $item['qty']) {
+                    throw ValidationException::withMessages([
+                        'stock' => [
+                            "{$product->name} has insufficient stock."
+                        ]
+                    ]);
+                }
+
+                $newSaleItem = new POSSaleItem();
+                $newSaleItem->sale_id = $saleID;
+                $newSaleItem->product_id = $product->id;
+                $newSaleItem->barcode = $product->barcode;
+                $newSaleItem->sku = $product->sku;
+                $newSaleItem->product_name = $product->name;
+                $newSaleItem->qty = $item['qty'];
+                $newSaleItem->unit_price = $item['price'];
+                $newSaleItem->discount_amount = 0;
+                $newSaleItem->tax_amount = 0;
+                $newSaleItem->line_total = $item['qty'] * $item['price'];
+                $this->setCommonFields($newSaleItem);
+                $newSaleItem->save();
+
+                $newInv = new InventoryMovement();
+                $newInv->tenant_id = auth()->user()->tenant_id;
+                $newInv->product_id = $product->id;
+                $newInv->movement_type = 'sale';
+                $newInv->reference_type = 'sale';
+                $newInv->reference_id = $sale->id;
+                $newInv->qty = -1 * $item['qty'];
+                $this->setCommonFields($newInv);
+                $newInv->save();
+                $product->decrement('stock_on_hand', $item['qty']);
+            }
+
+            foreach ($data['payments'] as $index => $payment) {
+
+                $newPayment = new POSPayment();
+                $newPayment->sale_id = $saleID;
+                $newPayment->payment_method = $payment['method'];
+                $newPayment->amount = $payment['amount'];
+                $newPayment->tendered_amount = $payment['amount'];
+                $newPayment->change_amount = $index === 0 ? $change : 0;
+                $newPayment->reference_number = $payment['reference_number'];
+                $newPayment->notes = $data['notes'] ?? null;
+                $newPayment->payment_date = now();
+                $this->setCommonFields($newPayment);
+                $this->setCommonFields($newPayment);
+                $newPayment->save();
+
+            }
+
+        });
+
+        return response()->json([
+            'success' => true,
+            'sale_id' => $saleID,
+            'invoice_no' => $sale->invoice_no,
+            'payment_method' => $sale->payment_method,
+            'reference_number' => $sale->reference_number,
+            'payments' => POSPayment::where('sale_id', $sale->id)->get(),
+            'message' => 'Sale completed successfully.',
+        ]);
+
+    }
+
     public function store(Request $request): \Illuminate\Http\JsonResponse
     {
         $data = $request->validate([
-
-            'customer_id' => [
-                'nullable',
-                'integer'
-            ],
-
-            'subtotal' => [
-                'required',
-                'numeric',
-                'min:0'
-            ],
-
-            'discount' => [
-                'required',
-                'numeric',
-                'min:0'
-            ],
-
-            'total' => [
-                'required',
-                'numeric',
-                'min:0'
-            ],
-
-            'change' => [
-                'required',
-                'numeric',
-                'min:0'
-            ],
-
-            'discount_type' => [
-                'nullable',
-                'string'
-            ],
-
-            'discount_mode' => [
-                'nullable',
-                'string'
-            ],
-
-            'discount_value' => [
-                'nullable',
-                'numeric'
-            ],
-
-            'discount_holder' => [
-                'nullable',
-                'string',
-                'max:255'
-            ],
-
-            'discount_id_no' => [
-                'nullable',
-                'string',
-                'max:255'
-            ],
-
-            'notes' => [
-                'nullable',
-                'string',
-                'max:1000'
-            ],
-
-            'payments' => [
-                'required',
-                'array',
-                'min:1'
-            ],
-
-            'payments.*.method' => [
-                'required',
-                'string',
-                'in:cash,gcash,bank_transfer'
-            ],
-
-            'payments.*.amount' => [
-                'required',
-                'numeric',
-                'min:0.01'
-            ],
-
-            'payments.*.reference_number' => [
-                'nullable',
-                'string',
-                'max:255'
-            ],
-
-            'items' => [
-                'required',
-                'array',
-                'min:1'
-            ],
-
-            'items.*.product_id' => [
-                'required',
-                'integer'
-            ],
-
-            'items.*.qty' => [
-                'required',
-                'numeric',
-                'min:0.01'
-            ],
-
-            'items.*.price' => [
-                'required',
-                'numeric',
-                'min:0'
-            ],
-
+            'customer_id' => ['nullable', 'integer'],
+            'subtotal' => ['required', 'numeric', 'min:0'],
+            'discount' => ['required', 'numeric', 'min:0'],
+            'total' => ['required', 'numeric', 'min:0'],
+            'discount_type' => ['nullable', 'string'],
+            'discount_mode' => ['nullable', 'string'],
+            'discount_value' => ['nullable', 'numeric'],
+            'discount_holder' => ['nullable', 'string', 'max:255'],
+            'discount_id_no' => ['nullable', 'string', 'max:255'],
+            'notes' => ['nullable', 'string', 'max:1000'],
+            'payments' => ['required', 'array', 'min:1'],
+            'payments.*.method' => ['required', 'string', 'in:cash,gcash,bank_transfer'],
+            'payments.*.amount' => ['required', 'numeric', 'min:0.01'],
+            'payments.*.reference_number' => ['nullable', 'string', 'max:255'],
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.product_id' => ['required', 'integer'],
+            'items.*.qty' => ['required', 'numeric', 'min:0.01'],
+            'items.*.price' => ['required', 'numeric', 'min:0'],
         ]);
 
-        $totalPaid =
-            collect(
-                $data['payments']
-            )->sum(
-                'amount'
-            );
-
-        if (
-            $totalPaid <
-            $data['total']
-        ) {
-
+        $totalPaid = collect($data['payments'])->sum('amount');
+        if ($totalPaid < $data['total']) {
             throw ValidationException::withMessages([
-
                 'payments' => [
-
                     'Insufficient payment.'
-
                 ]
-
             ]);
-
         }
 
-        $change =
-            max(
-                0,
-                $totalPaid -
-                $data['total']
-            );
-
+        $change = max(0, $totalPaid - $data['total']);
         $sale = null;
 
         DB::transaction(function () use (
@@ -602,74 +643,26 @@ class SalesController extends Controller
 
             $taxRate = 12;
 
-            $vatableSales =
-                $data['total'] /
-                (
-                    1 +
-                    (
-                        $taxRate / 100
-                    )
-                );
+            $vatableSales = $data['total'] / (1 + ($taxRate / 100));
+            $taxAmount = $data['total'] - $vatableSales;
 
-            $taxAmount =
-                $data['total'] -
-                $vatableSales;
-
-            $sale =
-                new POSSale();
-
-            $sale->tenant_id =
-                auth()->user()->tenant_id;
-
-            $sale->invoice_no =
-                generateSaleInvoiceNo();
-
-            $sale->cashier_id =
-                auth()->id();
-
-            $sale->customer_id =
-                $data['customer_id'];
-
-            $sale->payment_method =
-                count(
-                    $data['payments']
-                ) === 1
+            $sale = new POSSale();
+            $sale->tenant_id = auth()->user()->tenant_id;
+            $sale->invoice_no = generateSaleInvoiceNo();
+            $sale->cashier_id = auth()->id();
+            $sale->customer_id = $data['customer_id'];
+            $sale->payment_method = count($data['payments']) === 1
                     ? $data['payments'][0]['method']
                     : 'split';
-
-            $sale->subtotal =
-                $data['subtotal'];
-
-            $sale->discount_amount =
-                $data['discount'];
-
-            $sale->discount_type =
-                $data['discount_type']
-                ?? null;
-
-            $sale->discount_holder =
-                $data['discount_holder']
-                ?? null;
-
-            $sale->discount_id_no =
-                $data['discount_id_no']
-                ?? null;
-
-            $sale->tax_amount =
-                round(
-                    $taxAmount,
-                    2
-                );
-
-            $sale->total_amount =
-                $data['total'];
-
-            $sale->sale_status =
-                'completed';
-
-            $sale->sale_date =
-                now();
-
+            $sale->subtotal = $data['subtotal'];
+            $sale->discount_amount = $data['discount'];
+            $sale->discount_type = $data['discount_type'] ?? null;
+            $sale->discount_holder = $data['discount_holder'] ?? null;
+            $sale->discount_id_no = $data['discount_id_no'] ?? null;
+            $sale->tax_amount = round($taxAmount, 2);
+            $sale->total_amount = $data['total'];
+            $sale->sale_status = 'completed';
+            $sale->sale_date = now();
             $sale->reference_number =
                 collect(
                     $data['payments']
@@ -682,158 +675,60 @@ class SalesController extends Controller
                         ', '
                     ) ?: null;
 
-            $sale->notes =
-                $data['notes']
-                ?? null;
-
-            $this->setCommonFields(
-                $sale
-            );
-
+            $sale->notes = $data['notes'] ?? null;
+            $this->setCommonFields($sale);
             $sale->save();
 
-            foreach (
-                $data['items']
-                as $item
-            ) {
-
-                $product =
-                    POSProducts::findOrFail(
-                        $item['product_id']
-                    );
-
-                if (
-                    $product->stock_on_hand <
-                    $item['qty']
-                ) {
-
+            foreach ($data['items'] as $item) {
+                $product = POSProducts::findOrFail($item['product_id']);
+                if ($product->stock_on_hand < $item['qty']) {
                     throw ValidationException::withMessages([
-
                         'stock' => [
-
                             "{$product->name} has insufficient stock."
-
                         ]
-
                     ]);
-
                 }
 
-                $newSaleItem =
-                    new POSSaleItem();
-
-                $newSaleItem->sale_id =
-                    $sale->id;
-
-                $newSaleItem->product_id =
-                    $product->id;
-
-                $newSaleItem->barcode =
-                    $product->barcode;
-
-                $newSaleItem->sku =
-                    $product->sku;
-
-                $newSaleItem->product_name =
-                    $product->name;
-
-                $newSaleItem->qty =
-                    $item['qty'];
-
-                $newSaleItem->unit_price =
-                    $item['price'];
-
-                $newSaleItem->discount_amount =
-                    0;
-
-                $newSaleItem->tax_amount =
-                    0;
-
-                $newSaleItem->line_total =
-                    $item['qty'] *
-                    $item['price'];
-
-                $this->setCommonFields(
-                    $newSaleItem
-                );
-
+                $newSaleItem = new POSSaleItem();
+                $newSaleItem->sale_id = $sale->id;
+                $newSaleItem->product_id = $product->id;
+                $newSaleItem->barcode = $product->barcode;
+                $newSaleItem->sku = $product->sku;
+                $newSaleItem->product_name = $product->name;
+                $newSaleItem->qty = $item['qty'];
+                $newSaleItem->unit_price = $item['price'];
+                $newSaleItem->discount_amount = 0;
+                $newSaleItem->tax_amount = 0;
+                $newSaleItem->line_total = $item['qty'] * $item['price'];
+                $this->setCommonFields($newSaleItem);
                 $newSaleItem->save();
 
-                $newInv =
-                    new InventoryMovement();
+                $newInv = new InventoryMovement();
 
-                $newInv->tenant_id =
-                    auth()->user()->tenant_id;
-
-                $newInv->product_id =
-                    $product->id;
-
-                $newInv->movement_type =
-                    'sale';
-
-                $newInv->reference_type =
-                    'sale';
-
-                $newInv->reference_id =
-                    $sale->id;
-
-                $newInv->qty =
-                    -1 *
-                    $item['qty'];
-
-                $this->setCommonFields(
-                    $newInv
-                );
-
+                $newInv->tenant_id = auth()->user()->tenant_id;
+                $newInv->product_id = $product->id;
+                $newInv->movement_type = 'sale';
+                $newInv->reference_type = 'sale';
+                $newInv->reference_id = $sale->id;
+                $newInv->qty = -1 * $item['qty'];
+                $this->setCommonFields($newInv);
                 $newInv->save();
-
-                $product->decrement(
-                    'stock_on_hand',
-                    $item['qty']
-                );
-
+                $product->decrement('stock_on_hand', $item['qty']);
             }
 
-            foreach (
-                $data['payments']
-                as $index => $payment
-            ) {
+            foreach ($data['payments'] as $index => $payment) {
 
-                $newPayment =
-                    new POSPayment();
-
-                $newPayment->sale_id =
-                    $sale->id;
-
-                $newPayment->payment_method =
-                    $payment['method'];
-
-                $newPayment->amount =
-                    $payment['amount'];
-
-                $newPayment->tendered_amount =
-                    $payment['amount'];
-
-                $newPayment->change_amount =
-                    $index === 0
-                        ? $change
-                        : 0;
-
-                $newPayment->reference_number =
-                    $payment['reference_number']
-                    ?? null;
-
-                $newPayment->notes =
-                    $data['notes']
-                    ?? null;
-
-                $newPayment->payment_date =
-                    now();
-
-                $this->setCommonFields(
-                    $newPayment
-                );
-
+                $newPayment = new POSPayment();
+                $newPayment->sale_id = $sale->id;
+                $newPayment->payment_method = $payment['method'];
+                $newPayment->amount = $payment['amount'];
+                $newPayment->tendered_amount = $payment['amount'];
+                $newPayment->change_amount = $index === 0 ? $change : 0;
+                $newPayment->reference_number = $payment['reference_number'];
+                $newPayment->notes = $data['notes'] ?? null;
+                $newPayment->payment_date = now();
+                $this->setCommonFields($newPayment);
+                $this->setCommonFields($newPayment);
                 $newPayment->save();
 
             }
@@ -841,82 +736,93 @@ class SalesController extends Controller
         });
 
         return response()->json([
-
             'success' => true,
-
-            'sale_id' =>
-                $sale->id,
-
-            'invoice_no' =>
-                $sale->invoice_no,
-
-            'payment_method' =>
-                $sale->payment_method,
-
-            'reference_number' =>
-                $sale->reference_number,
-
-            'payments' =>
-                POSPayment::where(
-                    'sale_id',
-                    $sale->id
-                )->get(),
-
-            'message' =>
-                'Sale completed successfully.',
-
+            'sale_id' => $sale->id,
+            'invoice_no' => $sale->invoice_no,
+            'payment_method' => $sale->payment_method,
+            'reference_number' => $sale->reference_number,
+            'payments' => POSPayment::where('sale_id', $sale->id)->get(),
+            'message' => 'Sale completed successfully.',
         ]);
 
     }
 
     public function index()
     {
-
+        $tenantId = auth()->user()->tenant_id;
         $salesToday = POSSale::query()
+            ->where('tenant_id', $tenantId)
             ->where('sale_date', '>=', now()->subDays(1))
             ->where('sale_date', '<=', now())
             ->sum('subtotal');
 
         $transactionsToday = POSSale::query()
+            ->where('tenant_id', $tenantId)
             ->where('sale_date', '>=', now()->subDays(1))
             ->where('sale_date', '<=', now())
             ->count();
 
         $averageSale = POSSale::query()
+            ->where('tenant_id', $tenantId)
             ->where('sale_date', '>=', now()->subDays(1))
             ->where('sale_date', '<=', now())
             ->avg('subtotal');
 
         return view('pages.tenants.terminal.index', [
-
-            'salesToday' =>
-                $salesToday,
-
-
-            'transactionsToday' =>
-                $transactionsToday,
-
-            'averageSale' =>
-                $averageSale,
-
+            'salesToday' => $salesToday,
+            'transactionsToday' => $transactionsToday,
+            'averageSale' => $averageSale,
         ]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        $products = POSProducts::query()
-            ->with('createdBy')
-            ->orderByDesc('stock_on_hand')
-            ->orderBy('name')
-//            ->limit(12)
-            ->get();
+        $sale = POSSale::with('customer')->findOrFail(decryptId($request->segment(3)));
+        abort_if(
+            $sale->tenant_id !== auth()->user()->tenant_id,
+            403
+        );
 
         $categories = POSCategories::query()
+            ->where('tenant_id', auth()->user()->tenant_id)
             ->get();
 
-        return view('pages.tenants.terminal.create', [
-            'products' => $products,
-            'categories' => $categories
-        ]);
+        $previousSale = POSSale::query()
+            ->where('tenant_id', auth()->user()->tenant_id)
+            ->where('id', '<', $sale->id)
+            ->orderByDesc('id')
+            ->first();
+
+        $nextSale = POSSale::query()
+            ->where('tenant_id', auth()->user()->tenant_id)
+            ->where('id', '>', $sale->id)
+            ->orderBy('id')
+            ->first();
+
+        return view(
+            'pages.tenants.terminal.create',
+            compact(
+                'sale',
+                'categories',
+                'previousSale',
+                'nextSale'
+            )
+        );
+    }
+
+    public function create1()
+    {
+        $sale = new POSSale();
+        $sale->tenant_id = auth()->user()->tenant_id;
+        $this->setCommonFields($sale);
+        $sale->save();
+
+        $sale->sale_code = str_pad((string) $sale->id, 8, '0', STR_PAD_LEFT);
+        $sale->save();
+
+        return redirect()->route(
+            'sales.create',
+            encryptId($sale->id)
+        );
     }
 }

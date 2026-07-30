@@ -24,7 +24,7 @@
 
         <div class="pos-right">
             <div class="pos-status-panel">
-
+                <input type="hidden" id="saleId" value="{{ encryptId($sale->id) }}">
                 <div
                     class="pos-status-bar"
                 >

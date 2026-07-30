@@ -11,6 +11,41 @@ function generateSaleInvoiceNo(): string
     return 'S' . now()->format('Ymd') . '-' . strtoupper(generateSerialNumber(6));
 }
 
+if (!function_exists('encryptId')) {
+    function encryptId($id, int $times = 4): string
+    {
+        $value = (string) $id;
+
+        for ($i = 0; $i < $times; $i++) {
+            $value = base64_encode($value);
+        }
+
+        return rtrim(strtr($value, '+/', '-_'), '=');
+    }
+}
+
+if (!function_exists('decryptId')) {
+    function decryptId($value, int $times = 4): ?string
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        $value = strtr($value, '-_', '+/');
+        $value .= str_repeat('=', (4 - strlen($value) % 4) % 4);
+
+        for ($i = 0; $i < $times; $i++) {
+            $value = base64_decode($value, true);
+
+            if ($value === false) {
+                return null;
+            }
+        }
+
+        return $value;
+    }
+}
+
 function generateSerialNumber(int $length = 6): string
 {
     $characters = '0123456789';

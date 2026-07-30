@@ -1,9 +1,5 @@
 import './bootstrap'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
-import * as bootstrap from 'bootstrap';
-
-window.bootstrap = bootstrap;
-
 import $ from 'jquery'
 window.$ = window.jQuery = $
 import select2 from 'select2'
@@ -25,10 +21,8 @@ import './permissions-drag.js'
 import Chart from 'chart.js/auto';
 window.Chart = Chart;
 
-import './pages/dashboard.js'
-import './pages/db.js'
-import './pages/terminal.js'
-import './custon.js'
+import './photo-crop.js'
+
 
 document.addEventListener("DOMContentLoaded",function(){
     document.querySelectorAll(".password-toggle").forEach(toggle=> {
@@ -40,9 +34,62 @@ document.addEventListener("DOMContentLoaded",function(){
             this.classList.toggle("bi-eye-slash")
         })
     })
+
+    const phone = document.getElementById('PhoneNumber');
+
+    if (!phone) return;
+
+    phone.addEventListener('keyup', function () {
+
+        let value = this.value.trim();
+
+        if (value.startsWith('09')) {
+            this.value = '+63' + value.substring(1);
+        }
+
+    });
 })
 
 $(function(){
+    $(document).on('click', '.activate-user', function () {
+        const id = $(this).data('id');
+
+        Swal.fire({
+            title: 'Activate User?',
+            text: 'This user will be able to log in again.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Activate',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+
+            $.ajax({
+                url: `/school-users/${id}/activate`,
+                type: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: response.message
+                    });
+
+                    $('#your-table-id').DataTable().ajax.reload(null, false);
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Unable to activate user.'
+                    });
+                }
+            });
+        });
+    });
+
     $('.select2').each(function(){
         let ajaxUrl = $(this).data('ajax')
 
@@ -194,4 +241,3 @@ document.addEventListener("DOMContentLoaded", () => {
         })
     }
 })
-

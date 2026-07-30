@@ -1,16 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Unit')
+@section('title', "Edit ".$unit->name)
 
 @section('content')
 
     <div class="container-fluid">
-
-        <x-page-header
-            title="Edit Unit"
-            subtitle="{{ $unit->name }}"
-        />
-
         <div class="card border-0 shadow-sm">
 
             <div class="card-body">

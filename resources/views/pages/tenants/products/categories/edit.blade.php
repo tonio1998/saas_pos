@@ -1,16 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Category')
+@section('title', 'Edit Category ['.$category->name.']')
 
 @section('content')
 
     <div class="container-fluid">
-
-        <x-page-header
-            title="Edit Category"
-            subtitle="{{ $category->name }}"
-        />
-
         <div class="card border-0 shadow-sm">
 
             <div class="card-body">

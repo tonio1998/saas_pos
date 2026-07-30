@@ -270,215 +270,156 @@ class AuthController extends Controller
     public function handleGoogleCallback()
     {
         try {
+            $googleUser = Socialite::driver('google')->user();
+            $email = strtolower(trim($googleUser->getEmail()));
+            DB::beginTransaction();
 
-            $googleUser = Socialite::driver('google')
-                ->user();
-
-            $email = strtolower(
-                trim(
-                    $googleUser->getEmail()
-                )
-            );
-
-            $user = User::where(
-                'email',
-                $email
-            )->first();
-
-            if (!$user) {
-
-                DB::beginTransaction();
-
-                try {
-
-                    $googleRoles = config(
-                        'google_roles',
-                        []
-                    );
-
+            try {
+                $user = User::where('email', $email)->lockForUpdate()->first();
+                if (!$user) {
+                    $googleRoles = config('google_roles', []);
                     $assignedRoles = [];
-
-                    foreach (
-                        $googleRoles as $role => $emails
-                    ) {
-
+                    foreach ($googleRoles as $role => $emails) {
                         $normalizedEmails = array_map(
-                            fn ($item) => strtolower(
-                                trim($item)
-                            ),
+                            fn($item) => strtolower(trim($item)),
                             $emails
                         );
 
-                        if (
-                            in_array(
-                                $email,
-                                $normalizedEmails
-                            )
-                        ) {
+                        if (in_array($email, $normalizedEmails, true)) {
                             $assignedRoles[] = $role;
                         }
                     }
 
-                    $isSA = in_array(
-                        'SA',
-                        $assignedRoles
-                    );
+                    $isSA = in_array('SA', $assignedRoles, true);
 
                     $tenantId = null;
 
                     if (!$isSA) {
-                        $tenant = new POSTenant();
-                        $tenant->subscription_id = 1;
-                        $tenant->business_name = $googleUser->getName() . "'s Store";
-                        $tenant->business_code = 'TEN-' . strtoupper(Str::random(10));
-                        $tenant->owner_name = $googleUser->getName();
-                        $tenant->email = $email;
-                        $tenant->subscription_start = now()->toDateString();
-                        $tenant->save();
+
+                        $tenant = POSTenant::create([
+                            'subscription_id'   => 1,
+                            'business_name'     => $googleUser->getName() . "'s Store",
+                            'business_code'     => 'TEN-' . strtoupper(Str::random(10)),
+                            'owner_name'        => $googleUser->getName(),
+                            'email'             => $email,
+                            'subscription_start'=> now()->toDateString(),
+                        ]);
 
                         $tenantId = $tenant->id;
                     }
 
                     $user = User::create([
-                        'tenant_id' => $tenantId,
-                        'name' => $googleUser->getName(),
-                        'email' => $email,
-                        'google_id' => $googleUser->getId(),
-                        'avatar' => $googleUser->getAvatar(),
-                        'verified' => 1,
-                        'password' => Hash::make(
-                            \Illuminate\Support\Str::random(
-                                32
-                            )
-                        ),
+                        'tenant_id'  => $tenantId,
+                        'name'       => $googleUser->getName(),
+                        'email'      => $email,
+                        'google_id'  => $googleUser->getId(),
+                        'avatar'     => $googleUser->getAvatar(),
+                        'username'   => $email,
+                        'verified'   => 1,
+                        'password'   => Hash::make(Str::random(32)),
                     ]);
 
                     if ($isSA) {
 
-                        if (
-                            Role::where(
-                                'name',
-                                'SA'
-                            )->exists()
-                        ) {
-                            $user->assignRole(
-                                'SA'
-                            );
+                        if (Role::where('name', 'SA')->exists()) {
+                            $user->assignRole('SA');
                         }
 
                     } else {
 
-                        if (
-                            Role::where(
-                                'name',
-                                'tenant'
-                            )->exists()
-                        ) {
-                            $user->assignRole(
-                                'tenant'
-                            );
+                        if (Role::where('name', 'tenant')->exists()) {
+                            $user->assignRole('tenant');
                         }
                     }
 
-                    DB::commit();
+                } else {
 
-                } catch (\Throwable $e) {
+                    if (
+                        !empty($user->google_id) &&
+                        $user->google_id !== $googleUser->getId()
+                    ) {
 
-                    DB::rollBack();
+                        DB::rollBack();
 
-                    throw $e;
+                        return redirect()
+                            ->route('login')
+                            ->withErrors([
+                                'google' => 'This email is already linked to another Google account.',
+                            ]);
+                    }
+
+                    $user->update([
+                        'name'      => $googleUser->getName(),
+                        'google_id' => $googleUser->getId(),
+                        'avatar'    => $googleUser->getAvatar(),
+                        'verified'  => 1,
+                    ]);
                 }
+
+                DB::commit();
+
+            } catch (\Throwable $e) {
+
+                DB::rollBack();
+
+                throw $e;
             }
 
-            $user->update([
-                'name' => $googleUser->getName(),
-                'google_id' => $googleUser->getId(),
-                'avatar' => $googleUser->getAvatar(),
-                'verified' => 1,
-            ]);
+            Auth::login($user, true);
 
-            Auth::login(
-                $user,
-                true
-            );
-
-            request()
-                ->session()
-                ->regenerate();
+            request()->session()->regenerate();
 
             if (
                 !$user->hasRole('SA') &&
                 $user->tenant_id
             ) {
 
-                $tenant = POSTenant::find(
-                    $user->tenant_id
-                );
+                $tenant = POSTenant::find($user->tenant_id);
 
                 if ($tenant) {
 
                     session([
-                        'tenant_id' => $tenant->id,
+                        'tenant_id'   => $tenant->id,
                         'tenant_name' => $tenant->business_name,
                     ]);
 
-                    app()->instance(
-                        'currentTenant',
-                        $tenant
-                    );
+                    app()->instance('currentTenant', $tenant);
                 }
             }
 
-            app(SecurityService::class)
-                ->logLogin(
-                    request(),
-                    $user,
-                    'success'
-                );
+            app(SecurityService::class)->logLogin(
+                request(),
+                $user,
+                'success'
+            );
 
-            if (
-                $user->hasRole('SA')
-            ) {
-
+            if ($user->hasRole('SA')) {
                 return redirect()->intended(
-                    route(
-                        'sa.dashboard.index'
-                    )
+                    route('sa.dashboard.index')
                 );
             }
 
             return redirect()->intended(
-                route(
-                    'dashboard.index'
-                )
+                route('dashboard.index')
             );
 
         } catch (\Throwable $e) {
 
-            dd($e);
+            Log::error('Google login error', [
+                'message' => $e->getMessage(),
+                'trace'   => $e->getTraceAsString(),
+            ]);
 
-            Log::error(
-                'Google login error',
-                [
-                    'message' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString(),
-                ]
+            app(SecurityService::class)->logLogin(
+                request(),
+                null,
+                'failed'
             );
 
-            app(SecurityService::class)
-                ->logLogin(
-                    request(),
-                    null,
-                    'failed'
-                );
-
             return redirect()
-                ->route(
-                    'login'
-                )
+                ->route('login')
                 ->withErrors([
-                    'google' =>
-                        'Google login failed.',
+                    'google' => 'Google login failed.',
                 ]);
         }
     }

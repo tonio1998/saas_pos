@@ -1,13 +1,7 @@
 @extends('layouts.app')
-
 @section('title', 'Product Units')
-
 @section('content')
-
-    <x-page-header
-        title="Product Units"
-        subtitle="Manage Product Units"
-    >
+    <x-page-header>
         <x-slot:action>
             <a
                 href="{{ route('products.units.create') }}"

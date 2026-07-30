@@ -1,4 +1,4 @@
-@extends('layouts.sa')
+@extends('layouts.app')
 
 @section('title', 'Super Admin Dashboard')
 
