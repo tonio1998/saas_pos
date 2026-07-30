@@ -43,22 +43,14 @@ class TenantsController extends Controller
         $previousTenantId = session('tenant_id');
 
         if ($previousTenantId) {
-
-            Cache::forget(
-                'tenant_settings_' . $previousTenantId
-            );
+            Cache::forget('tenant_settings_' . $previousTenantId);
         }
 
         $tenant = POSTenant::findOrFail($id);
-
         session([
-
             'tenant_id' => $tenant->id,
-
             'tenant_name' => $tenant->business_name,
-
             'tenant_code' => $tenant->business_code,
-
         ]);
 
         return redirect()

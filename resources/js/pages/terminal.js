@@ -2,18 +2,128 @@ import ProductDB from './db.js';
 import ProductService from './services/product.service.js';
 import { Modal } from 'bootstrap';
 
+$(function () {
+
+    $('#btnSaveCustomer').on('click', function () {
+
+        const $btn = $(this);
+
+        $btn
+            .prop('disabled', true)
+            .html(
+                '<span class="spinner-border spinner-border-sm me-2"></span>Saving...'
+            );
+
+        $.ajax({
+
+            url: '/sales/customers/quick-store',
+
+            type: 'POST',
+
+            data: $('#newCustomerForm').serialize(),
+
+            headers: {
+
+                'X-CSRF-TOKEN':
+                    $('meta[name="csrf-token"]').attr('content')
+
+            },
+
+            success(response) {
+
+                if (!response.status) {
+
+                    toastr.error(
+                        response.message ??
+                        'Unable to create customer.'
+                    );
+
+                    return;
+                }
+
+                const option = new Option(
+
+                    response.customer.text,
+
+                    response.customer.id,
+
+                    true,
+
+                    true
+
+                );
+
+                $('#Customer')
+                    .append(option)
+                    .trigger('change');
+
+                $('#newCustomerCollapse')
+                    .collapse('hide');
+
+                $('#newCustomerForm')[0]
+                    .reset();
+
+                bootstrap.Modal
+                    .getInstance(
+                        document.getElementById('customerModal')
+                    )
+                    .hide();
+
+                toastr.success(
+                    response.message
+                );
+
+            },
+
+            error(xhr) {
+
+                if (xhr.status === 422) {
+
+                    const errors =
+                        xhr.responseJSON.errors;
+
+                    Object.values(errors).forEach(function (messages) {
+
+                        toastr.error(
+                            messages[0]
+                        );
+
+                    });
+
+                } else {
+
+                    toastr.error(
+                        'An unexpected error occurred.'
+                    );
+
+                }
+
+            },
+
+            complete() {
+
+                $btn
+                    .prop('disabled', false)
+                    .html(
+                        '<i class="bi bi-person-plus-fill me-1"></i>Create & Select Customer'
+                    );
+
+            }
+
+        });
+
+    });
+
+});
+
 const POS = {
 
     state: {
-
         cart: [],
-
-        customer: null,
-
+        customer_id: null,
+        saleId: document.getElementById('saleId')?.value || 0,
         subtotal: 0,
-
         discount: 0,
-
         total: 0,
         productMap: {},
         payments: [
@@ -26,7 +136,6 @@ const POS = {
         ],
 
         tendered: 0,
-
         change: 0,
 
     },
@@ -279,7 +388,8 @@ const POS = {
 
     },
     cache() {
-
+        this.saleId = document.getElementById('saleId');
+        this.customer_id = document.getElementById('customer_id');
         this.cartItemsList =
             document.getElementById('cartItemsList');
 
@@ -1028,85 +1138,42 @@ const POS = {
         }
 
         try {
+            this.btnConfirmPayment.disabled = true;
 
-            this.btnConfirmPayment.disabled =
-                true;
+            const payload = this.buildPayload();
 
-            const payload =
-                this.buildPayload();
+            const response = await fetch('/sales/complete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document
+                        .querySelector('meta[name="csrf-token"]')
+                        .content,
+                },
+                body: JSON.stringify(payload),
+            });
 
-            const response =
-                await fetch(
-                    '/sales/create',
-                    {
-                        method: 'POST',
+            const result = await response.json().catch(() => ({}));
 
-                        headers: {
-
-                            'Content-Type':
-                                'application/json',
-
-                            'X-CSRF-TOKEN':
-                            document
-                                .querySelector(
-                                    'meta[name="csrf-token"]'
-                                )
-                                .content,
-
-                        },
-
-                        body:
-                            JSON.stringify(
-                                payload
-                            ),
-
-                    }
-                );
-
-            const result =
-                await response.json();
-
-            if (
-                !response.ok
-            ) {
-
-                throw new Error(
-                    result.message ||
-                    'Checkout failed.'
-                );
-
+            if (!response.ok) {
+                throw new Error(result.message || `Request failed (${response.status}).`);
             }
 
-            bootstrap.Modal
-                .getInstance(
-                    this.paymentModal
-                )
-                ?.hide();
+            Modal.getInstance(this.paymentModal)?.hide();
 
             await this.updateCachedStocks();
 
-            this.printReceipt(
-                result
-            );
+            this.printReceipt(result);
 
             this.reset();
 
         } catch (error) {
+            console.error(error);
 
-            console.error(
-                error
-            );
-
-            alert(
-                error.message ||
-                'Checkout failed.'
-            );
+            alert(error.message || 'Checkout failed.');
 
         } finally {
-
-            this.btnConfirmPayment.disabled =
-                false;
-
+            this.btnConfirmPayment.disabled = false;
         }
 
     },
@@ -1218,7 +1285,7 @@ const POS = {
             window.open(
                 '',
                 '_blank',
-                'width=320,height=900'
+                'width=300,height=900'
             );
 
         receipt.document.write(`
@@ -1236,28 +1303,25 @@ Receipt
 </title>
 
 <style>
+@page {
+    size: 70mm auto;
+    margin: 0;
+}
 
+html,
+body {
+    width: 70mm;
+    margin: 0;
+    font-family: monospace;
+    font-size: 16px;
+    box-sizing: border-box;
+}
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-body {
-
-    font-family:
-        monospace;
-
-    font-size:
-        12px;
-
-    padding:
-        10px;
-
-    width:
-        80mm;
-
-}
 
 .center {
     text-align: center;
@@ -1329,24 +1393,17 @@ body {
 <body>
 
 <div class="center">
-
-    <strong
-        style="
-            font-size:16px;
-        "
-    >
+    <div style="font-size:16px;font-weight:bold;">
         BaryaPOS
-    </strong>
+    </div>
 
-    <br>
+    <div>
+        Your Store Name
+    </div>
 
-    Your Store Name
-
-    <br>
-
-    Invoice:
-    ${sale.invoice_no ?? '-'}
-
+    <div>
+        Invoice #${sale.invoice_no ?? '-'}
+    </div>
 </div>
 
 <div class="line"></div>
@@ -1780,46 +1837,21 @@ window.onload = () => {
 
     },
     buildPayload() {
-
         return {
-
-            customer_id:
-            this.state.customer,
-
-            subtotal:
-            this.state.subtotal,
-
-            discount:
-            this.state.discount,
-
-            total:
-            this.state.total,
-
-            discount_type:
-                this.discountType?.value || null,
-
-            discount_mode:
-                this.discountMode?.value || null,
-
-            discount_value:
-                this.discountValue?.value || null,
-
-            discount_holder:
-                this.discountHolder?.value?.trim() || null,
-
-            discount_id_no:
-                this.discountIdNo?.value?.trim() || null,
-
-            notes:
-                this.paymentNotes?.value?.trim() || null,
-            payments:
-            this.state.payments,
-
-            paid:
-            this.state.paid,
-
-            change:
-            this.state.change,
+            sale_id: this.state.saleId,
+            customer_id: this.state.customer_id,
+            subtotal: this.state.subtotal,
+            discount: this.state.discount,
+            total: this.state.total,
+            discount_type: this.discountType?.value || null,
+            discount_mode: this.discountMode?.value || null,
+            discount_value: this.discountValue?.value || null,
+            discount_holder: this.discountHolder?.value?.trim() || null,
+            discount_id_no: this.discountIdNo?.value?.trim() || null,
+            notes: this.paymentNotes?.value?.trim() || null,
+            payments: this.state.payments,
+            paid: this.state.paid,
+            change: this.state.change,
             items:
                 this.state.cart.map(
                     item => ({
@@ -1907,10 +1939,9 @@ window.onload = () => {
                 this.state.total
             );
 
-        const modal =
-            bootstrap.Modal.getOrCreateInstance(
-                this.paymentModal
-            );
+        const modal = Modal.getOrCreateInstance(
+            this.paymentModal
+        );
 
         modal.show();
 

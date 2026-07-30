@@ -15,9 +15,9 @@ class POSCustomers extends Model
     protected $fillable = [
         'tenant_id',
         'customer_code',
-        'first_name',
-        'middle_name',
-        'last_name',
+        'CustomerName',
+        'TotalPoints',
+        'CustomerAddress',
         'company_name',
         'email',
         'mobile_number',

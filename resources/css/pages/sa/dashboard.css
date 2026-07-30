@@ -1,28 +1,18 @@
 .sa-card{
     position:relative;
     overflow:hidden;
-
-    border-radius:24px;
-
+    border-radius:12px;
     padding:22px;
-
     min-height:150px;
-
     color:#fff;
-
     transition:.25s ease;
-
-    box-shadow:
-        0 10px 30px rgba(15,23,42,.12);
-
+    box-shadow: 0 10px 30px rgba(15,23,42,.12);
     border:1px solid rgba(255,255,255,.08);
 }
 
 .sa-card:hover{
     transform:translateY(-4px);
-
-    box-shadow:
-        0 18px 40px rgba(15,23,42,.18);
+    box-shadow: 0 18px 40px rgba(15,23,42,.18);
 }
 
 .sa-primary{
@@ -142,7 +132,7 @@
 .sa-panel{
     background:#fff;
 
-    border-radius:24px;
+    border-radius:12px;
 
     padding:22px;
 

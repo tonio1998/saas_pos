@@ -135,13 +135,13 @@
 
 .sidebar{
     width:260px;
-    background:var(--theme-bg);
+    background: #FFFFFF;
     border-right:1px solid var(--theme-border);
     padding:14px 10px;
     height:calc(100vh - 64px);
     position:fixed;
     left:-260px;
-    top:64px;
+    top:0;
     overflow-y:auto;
     transition:.25s ease;
     z-index:1050;
@@ -303,3 +303,503 @@
     background:transparent;
 }
 
+.app-navbar{
+    height:72px;
+    background:#fff;
+    border-bottom:1px solid #edf1f7;
+    box-shadow:0 2px 18px rgba(15,23,42,.04);
+    z-index:1040;
+}
+
+.app-brand{
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+.app-brand-logo{
+    width:48px;
+    height:48px;
+    border-radius:14px;
+    background:#fff;
+    border:1px solid #eef2f7;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    flex-shrink:0;
+}
+
+.app-brand-logo img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+}
+
+.app-brand-text{
+    display:flex;
+    flex-direction:column;
+}
+
+.app-brand-text h6{
+    margin:0;
+    font-size:15px;
+    font-weight:700;
+    color:#182230;
+}
+
+.app-brand-text small{
+    color:#98a2b3;
+    font-size:12px;
+    font-weight:500;
+}
+
+.app-menu-btn{
+    width:42px;
+    height:42px;
+    border-radius:12px;
+    border:1px solid #e5e7eb;
+    background:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:.25s;
+}
+
+.app-menu-btn:hover{
+    background:#f8fafc;
+    transform:translateY(-1px);
+}
+
+.app-context-btn{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    background:#fff;
+    border:1px solid #e9edf3 !important;
+    border-radius:16px;
+    padding:10px 16px;
+    min-width:270px;
+    transition:.25s;
+
+}
+
+.app-context-btn:hover{
+    background:#f8fafc;
+    border-color:#d0d5dd;
+    box-shadow:0 .75rem 2rem rgba(15,23,42,.08);
+    transform:translateY(-1px);
+}
+
+.context-icon{
+    width:42px;
+    height:42px;
+    border-radius:14px;
+    background:#eef4ff;
+    color:#335cff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:18px;
+    flex-shrink:0;
+}
+
+.context-body{
+    display:flex;
+    flex-direction:column;
+    flex:1;
+    text-align:left;
+}
+
+.context-title{
+    font-size:14px;
+    font-weight:700;
+    color:#182230;
+    line-height:1.1;
+}
+
+.context-subtitle{
+    margin-top:4px;
+    color:#98a2b3;
+    font-size:12px;
+}
+
+.context-arrow{
+    color:#98a2b3;
+}
+
+.app-icon-btn{
+    width:44px;
+    height:44px;
+    border-radius:14px;
+    border:1px solid #e5e7eb;
+    background:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    transition:.25s;
+}
+
+.app-icon-btn i{
+    font-size:18px;
+    color:#344054;
+}
+
+.app-icon-btn:hover{
+    background:#f8fafc;
+    transform:translateY(-1px);
+    box-shadow:0 .6rem 1.4rem rgba(15,23,42,.08);
+}
+
+.notification-dot{
+    position:absolute;
+    top:8px;
+    right:8px;
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    background:#ef4444;
+    border:2px solid #fff;
+    font-size:0;
+}
+
+.app-user-btn{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:16px;
+    padding:8px 14px;
+    transition:.25s;
+}
+
+.app-user-btn:hover{
+    background:#f8fafc;
+    border-color:#d0d5dd;
+    transform:translateY(-1px);
+}
+
+.user-avatar{
+    width:42px;
+    height:42px;
+    border-radius:14px;
+    background:linear-gradient(135deg,#4f46e5,#7c3aed);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+    font-weight:700;
+    flex-shrink:0;
+}
+
+.user-avatar.large{
+    width:60px;
+    height:60px;
+    font-size:18px;
+    border-radius:18px;
+}
+
+.user-info{
+    display:flex;
+    flex-direction:column;
+    text-align:left;
+}
+
+.user-name{
+    font-size:14px;
+    font-weight:700;
+    color:#182230;
+    line-height:1.1;
+}
+
+.user-role{
+    margin-top:4px;
+    font-size:12px;
+    color:#98a2b3;
+}
+
+.app-user-dropdown{
+    width:320px;
+    margin-top:14px;
+    padding:0;
+    overflow:hidden;
+}
+
+.profile-header{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:24px;
+    background:#fafbfc;
+}
+
+.profile-header h6{
+    margin:0;
+    font-weight:700;
+}
+
+.profile-header small{
+    color:#98a2b3;
+}
+
+.dropdown-item{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:14px 22px;
+    font-weight:500;
+    transition:.2s;
+}
+
+.dropdown-item i{
+    width:22px;
+    text-align:center;
+    font-size:18px;
+}
+
+.dropdown-item:hover{
+    background:#f8fafc;
+}
+
+.academic-context-card{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#fff;
+    border:1px solid #e9edf3;
+    border-radius:20px;
+    padding:22px 26px;
+    cursor:pointer;
+    transition:.25s;
+    box-shadow:0 .75rem 2rem rgba(15,23,42,.04);
+}
+
+.academic-context-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 1rem 2.5rem rgba(15,23,42,.08);
+}
+
+.context-left{
+    display:flex;
+    align-items:center;
+    gap:20px;
+}
+
+.context-right{
+    display:flex;
+    align-items:center;
+}
+
+.context-icon-large{
+    width:62px;
+    height:62px;
+    border-radius:20px;
+    background:#eef4ff;
+    color:#335cff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:26px;
+}
+
+.current-context-panel{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    padding:22px;
+    border-radius:18px;
+    background:#f8fafc;
+    border:1px solid #edf2f7;
+}
+
+.context-panel-icon{
+    width:56px;
+    height:56px;
+    border-radius:18px;
+    background:#eef4ff;
+    color:#335cff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+}
+
+.modal-content{
+    overflow:hidden;
+}
+
+.modal-header{
+    padding:26px 28px 0;
+}
+
+.modal-body{
+    padding:24px 28px;
+}
+
+.modal-footer{
+    padding:0 28px 28px;
+}
+
+.form-select-lg{
+    min-height:56px;
+    border-radius:14px;
+    border-color:#d0d5dd;
+}
+
+.form-select-lg:focus{
+    border-color:#4f46e5;
+    box-shadow:0 0 0 .18rem rgba(79,70,229,.12);
+}
+
+.btn-primary{
+    border-radius:14px;
+}
+
+.btn-light{
+    border-radius:14px;
+}
+
+@media(max-width:991px){
+
+    .app-navbar{
+        height:auto;
+        padding:12px 0;
+    }
+
+    .app-brand-text{
+        display:none;
+    }
+
+    .app-context-btn{
+        display:none;
+    }
+
+    .academic-context-card{
+        padding:18px;
+    }
+
+    .context-right .badge{
+        display:none;
+    }
+
+    .app-user-dropdown{
+        width:100%;
+        min-width:280px;
+    }
+
+}
+
+
+:root{
+    --lms-primary:#6C5CE7;
+    --lms-primary-light:#F4F2FF;
+    --lms-success:#22C55E;
+    --lms-warning:#F59E0B;
+    --lms-border:#E9ECEF;
+    --lms-sidebar:270px;
+    --lms-topbar:72px;
+}
+
+html, body{
+    height:100%;
+    background:#F8FAFC;
+}
+
+.wrapper{
+    min-height:100vh;
+}
+
+.lms-sidebar{
+    width:var(--lms-sidebar);
+    min-width:var(--lms-sidebar);
+    background:#fff;
+    border-right:1px solid var(--lms-border);
+    position:sticky;
+    top:0;
+    height:100vh;
+    overflow-y:auto;
+    z-index:1040;
+}
+
+.lms-content{
+    display:flex;
+    flex-direction:column;
+    min-height:100vh;
+    background:#F8FAFC;
+}
+
+main{
+
+    flex:1;
+
+}
+.table-responsive {
+    width: 100% !important;
+    overflow-x: auto !important;
+}
+
+.table-responsive > .dataTables_wrapper {
+    width: 100% !important;
+}
+
+.table-responsive .dataTables_scroll {
+    width: 100% !important;
+}
+
+.table-responsive .dataTables_scrollHead,
+.table-responsive .dataTables_scrollBody,
+.table-responsive .dataTables_scrollFoot {
+    width: 100% !important;
+}
+
+.table-responsive table.dataTable {
+    width: 100% !important;
+}
+
+.table-responsive .dataTables_scrollHeadInner {
+    width: 100% !important;
+}
+
+.table-responsive .dataTables_scrollHeadInner table {
+    width: 100% !important;
+}
+.wrapper{
+    display:flex;
+    width:100%;
+    min-width:0;
+    overflow:hidden;
+}
+
+.lms-sidebar{
+    flex-shrink:0;
+}
+
+.lms-content{
+    flex:1 1 auto;
+    min-width:0;
+    width:100%;
+    overflow:hidden;
+}
+
+.lms-content main{
+    width:100%;
+    min-width:0;
+}
+
+.table-responsive{
+    width:100%;
+    max-width:100%;
+    overflow-x:auto;
+}
+
+.table-responsive .dataTables_wrapper{
+    width:100% !important;
+    max-width:100%;
+}
+
+table.dataTable{
+    width:100% !important;
+}

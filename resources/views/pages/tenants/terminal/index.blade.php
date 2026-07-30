@@ -3,24 +3,6 @@
 @section('title', 'Sales History')
 
 @section('content')
-
-    <x-page-header
-        title="Sales History"
-        subtitle="View and Manage Sales Transactions"
-    >
-        <x-slot:action>
-
-            <a
-                href="{{ route('sales.create') }}"
-                class="btn btn-success btn-md"
-            >
-                <i class="bi bi-cart-check"></i>
-                New Sale
-            </a>
-
-        </x-slot:action>
-    </x-page-header>
-
     <div class="row g-3 mb-3">
 
         <div class="col-md-3">

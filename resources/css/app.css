@@ -8,11 +8,9 @@
 @import "./base.css";
 @import "./layout.css";
 @import "./components.css";
-@import "./auth.css";
 @import "./utilities.css";
 @import "./datatables.css";
 @import "./select2.css";
-@import "./pages/dashboard.css";
 @import "./pages/sa/dashboard.css";
 @import "./pages/sa/sidebar.css";
 @import "./pages/sa/backup.css";
@@ -20,7 +18,9 @@
 @import "./confirmation.css";
 @import "./id.css";
 @import "./body.css";
-@import "./pages/pos.css";
+@import "./pages/login.css";
+@import "pages/pos.css";
+@import "pages/dashboard.css";
 
 @import "@fontsource/inter/400.css";
 @import "@fontsource/inter/500.css";
@@ -28,12 +28,7 @@
 @import "@fontsource/inter/700.css";
 
 :root{
-
-    --font-sans:-apple-system,'Inter',BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,
-    Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
-
-    /* DYNAMIC THEME */
-
+    --font-sans:Inter,system-ui,-apple-system,sans-serif;
     --theme-bg:#008000;
     --theme-text:#ffffff;
     --theme-hover:rgba(255,255,255,0.10);
@@ -46,11 +41,8 @@
     --color-primary:var(--theme-bg);
     --color-primary-600:var(--theme-bg);
     --color-primary-700:var(--theme-bg);
-
     --color-primary-soft:rgba(0,0,0,.04);
-
     --color-brand:var(--theme-bg);
-
     --color-accent:var(--theme-bg);
     --color-accent-600:var(--theme-bg);
     --color-accent-soft:rgba(0,0,0,.05);
@@ -60,7 +52,6 @@
     --color-bg:#F8FAF9;
     --color-surface:#FFFFFF;
     --color-surface-muted:#F3F4F6;
-
     --color-sidebar:var(--theme-bg);
     --color-sidebar-active:var(--theme-active);
 
@@ -89,13 +80,10 @@
     --table-hover:#F3F4F6;
 
     /* BUTTONS */
-
     --btn-primary-bg:var(--theme-bg);
     --btn-primary-text:var(--theme-text);
-
     --btn-accent-bg:var(--theme-bg);
     --btn-accent-text:var(--theme-text);
-
     --btn-danger-bg:#DC2626;
     --btn-danger-text:#fff;
 
@@ -509,4 +497,215 @@ a{
 
 ::-webkit-scrollbar-track{
     background:transparent;
+}
+
+.academic-card{
+    display:block;
+    cursor:pointer;
+    border:1px solid #e5e7eb;
+    border-radius:18px;
+    padding:22px;
+    background:#fff;
+    transition:.25s;
+    height:100%;
+}
+
+.academic-card:hover{
+    border-color:#6366f1;
+    transform:translateY(-2px);
+    box-shadow:0 .75rem 2rem rgba(15,23,42,.08);
+}
+
+.academic-card.active{
+    border:2px solid #4f46e5;
+    background:#eef2ff;
+}
+
+.academic-icon{
+    width:56px;
+    height:56px;
+    border-radius:16px;
+    background:#eef4ff;
+    color:#4f46e5;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:22px;
+    flex-shrink:0;
+}
+
+.sidebar{
+    width:var(--lms-sidebar);
+    min-width:var(--lms-sidebar);
+    background:#fff;
+    border-right:1px solid var(--lms-border);
+    position:fixed;
+    top:0;
+    left:0;
+    height:100vh;
+    overflow-y:auto;
+    z-index:1040;
+}
+
+.sidebar-scroll{
+    overflow-y:auto;
+}
+
+.sidebar-menu{
+    list-style:none;
+    margin:0;
+    padding:0 .75rem;
+}
+
+.sidebar-item{
+    margin-bottom:.25rem;
+}
+
+.sidebar-link{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    width:100%;
+    padding:.85rem 1rem;
+    border-radius:12px;
+    color:#475569;
+    text-decoration:none;
+    font-weight:500;
+    transition:.2s;
+}
+
+.sidebar-link:hover{
+    background:#F8FAFC;
+    color:#4F46E5;
+}
+
+.sidebar-link.active{
+    background:#EEF2FF;
+    color:#4F46E5;
+    font-weight:600;
+}
+
+.sidebar-link.active *{
+    color:#000;
+    font-weight:600;
+}
+
+.sidebar-link .d-flex{
+    gap:14px;
+}
+
+.sidebar-icon{
+    width:22px;
+    font-size:1.05rem;
+}
+
+.dropdown-icon{
+    transition:.25s ease;
+    font-size:.85rem;
+}
+
+.sidebar-link:not(.collapsed) .dropdown-icon{
+    transform:rotate(180deg);
+}
+
+.sidebar-dropdown{
+    margin:.35rem 0 .35rem 2rem;
+}
+
+.sidebar-sublink{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:.7rem .9rem;
+    border-radius:10px;
+    text-decoration:none;
+    color:#64748B;
+    font-size:.92rem;
+    transition:.2s;
+    margin-bottom:.2rem;
+}
+
+.sidebar-sublink:hover{
+    background:#F8FAFC;
+    color:#4F46E5;
+}
+
+.sidebar-sublink.active{
+    background:#EEF2FF;
+    color:#4F46E5;
+    font-weight:600;
+}
+
+.sidebar-subicon{
+    width:18px;
+    font-size:.9rem;
+}
+
+.lms-topbar{
+    height:80px !important;
+    background:#fff;
+    border-bottom:1px solid #E9ECEF;
+    position:sticky;
+    top:0;
+    z-index:1030;
+    display:flex;
+    align-items:center;
+    padding:0 1.25rem;
+    padding-top:20px;
+}
+
+.search-input{
+
+    height:44px;
+
+    padding-left:42px;
+
+    border-radius:12px;
+
+    border:1px solid #E5E7EB;
+
+    background:#F8FAFC;
+
+}
+
+.search-input:focus{
+
+    box-shadow:none;
+
+    border-color:#6C5CE7;
+
+    background:#fff;
+
+}
+
+.search-icon{
+
+    position:absolute;
+
+    top:50%;
+
+    left:15px;
+
+    transform:translateY(-50%);
+
+    color:#94A3B8;
+
+    z-index:5;
+
+}
+
+.dropdown-toggle::after{
+
+    margin-left:.75rem;
+
+}
+
+@media (max-width:991px){
+
+    .lms-topbar{
+
+        padding:0 .75rem;
+
+    }
+
 }

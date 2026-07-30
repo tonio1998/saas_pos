@@ -4,10 +4,7 @@
 
 @section('content')
 
-    <x-page-header
-        title="Product Masterlist"
-        subtitle="Manage Products"
-    >
+    <x-page-header>
         <x-slot:action>
             <a href="{{ route('products.create') }}" class="btn btn-primary btn-md">
                 <i class="bi bi-plus"></i> Add Product
@@ -17,7 +14,7 @@
 
     <x-card>
         <x-datatable
-            id="productsTables"
+            id="productssTables"
             :columns="[
                 'Actions',
                 'Image',
@@ -31,9 +28,6 @@
                 'Selling Price',
                 'Wholesale Price',
                 'Estimated Profit',
-                'Status',
-                'Created At',
-                'Created By'
             ]"
             :ajax="route('products.data')"
             :datatableColumns="[
@@ -49,9 +43,6 @@
                 ['data' => 'selling_price'],
                 ['data' => 'wholesale_price'],
                 ['data' => 'estimated_profit'],
-                ['data' => 'status'],
-                ['data' => 'created_at'],
-                ['data' => 'createdBy']
             ]"
         />
     </x-card>

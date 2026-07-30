@@ -1,38 +1,55 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title')</title>
-
-    @vite(['resources/css/app.css','resources/js/app.js'])
-    @include('theme')
+    <title>@yield('title', 'BantayEskwela')</title>
+    @vite(['resources/css/app.css',  'resources/js/app.js'])
     @stack('styles')
 </head>
-<body>
-@include('components.navbar')
 
-@include('components.sa_sidebar')
+<div class="wrapper d-flex">
+    <aside id="lmsSidebar" class="lms-sidebar">
+        <x-main.sidebar />
+    </aside>
 
-<div id="sidebarOverlay" class="sidebar-overlay"></div>
-
-<main class="page">
-    @yield('content')
-</main>
+    <div class="lms-content flex-grow-1">
+        <x-main.topbar />
+        <main class="container-fluid py-4 px-4">
+            @yield('content')
+        </main>
+    </div>
+</div>
 
 <x-alerts />
 <x-ios-confirm />
 @include('components.footer')
 @stack('scripts')
 <script>
-    window.analyticsRoutes = {
-        overview: "{{ route('sa.platform-analytics.overview-data') }}",
-        login: "{{ route('sa.platform-analytics.login-trends') }}",
-        security: "{{ route('sa.platform-analytics.security-trends') }}",
-        device: "{{ route('sa.platform-analytics.device-analytics') }}",
-        school: "{{ route('sa.platform-analytics.school-analytics') }}"
-    }
+
+    document.addEventListener('DOMContentLoaded',()=>{
+
+        const toggle=document.getElementById('sidebarToggle');
+
+        const sidebar=document.getElementById('lmsSidebar');
+
+        if(toggle && sidebar){
+
+            toggle.addEventListener('click',()=>{
+
+                sidebar.classList.toggle('show');
+
+            });
+
+        }
+
+    });
+
 </script>
+
 </body>
+
 </html>
+
+

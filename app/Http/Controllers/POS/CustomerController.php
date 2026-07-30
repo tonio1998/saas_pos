@@ -3,13 +3,57 @@
 namespace App\Http\Controllers\POS;
 
 use App\Http\Controllers\Controller;
+use App\Models\POS\Customers;
 use App\Models\POS\POSCustomers;
+use App\Models\SchoolUsers;
 use App\Traits\TCommonFunctions;
 use Illuminate\Http\Request;
 
 class CustomerController extends Controller
 {
     use TCommonFunctions;
+
+    public function quickStore(Request $request)
+    {
+        $validated = $request->validate([
+            'customer_name' => ['required','string','max:255'],
+            'customer_address' => ['nullable','string','max:255'],
+        ]);
+
+        $customer = new POSCustomers();
+        $customer->tenant_id = auth()->user()->tenant_id;
+        $customer->CustomerName = $validated['customer_name'];
+        $customer->CustomerAddress = $validated['customer_address'];
+        $this->setCommonFields($customer);
+        $customer->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Customer created successfully.',
+            'customer' => [
+                'id' => $customer->id,
+                'text' => $customer->CustomerName . ' [' . $customer->CustomerAddress . ']'
+            ]
+        ]);
+    }
+
+    public function customers_search(Request $request)
+    {
+        $search = $request->search;
+        $users = POSCustomers::query()
+            ->when($search,function($q) use ($search){
+                $q->where('CustomerName','like',"%{$search}%");
+            })
+            ->where('tenant_id',auth()->user()->tenant_id)
+            ->limit(10)
+            ->get();
+        return $users->map(function($user){
+            return [
+                'id'=>$user->id,
+                'text'=>$user->CustomerName . ' [' . $user->CustomerAddress . ']'
+            ];
+        });
+    }
 
     public function index()
     {

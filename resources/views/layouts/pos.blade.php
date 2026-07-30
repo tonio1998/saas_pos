@@ -6,7 +6,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title')</title>
 
-    @vite(['resources/css/app.css','resources/js/app.js'])
+    @vite([
+        'resources/css/app.css',
+        'resources/js/app.js',
+        'resources/js/pages/terminal.js'
+    ])
     @include('theme')
     @stack('styles')
 </head>
@@ -21,14 +25,5 @@
 <x-ios-confirm />
 @include('components.footer')
 @stack('scripts')
-<script>
-    window.analyticsRoutes = {
-        overview: "{{ route('sa.platform-analytics.overview-data') }}",
-        login: "{{ route('sa.platform-analytics.login-trends') }}",
-        security: "{{ route('sa.platform-analytics.security-trends') }}",
-        device: "{{ route('sa.platform-analytics.device-analytics') }}",
-        school: "{{ route('sa.platform-analytics.school-analytics') }}"
-    }
-</script>
 </body>
 </html>
