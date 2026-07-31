@@ -12,9 +12,9 @@
                 'pages.tenants.terminal.search_bar'
             )
 
-            @include(
-                'pages.tenants.terminal.category_tabs'
-            )
+{{--            @include(--}}
+{{--                'pages.tenants.terminal.category_tabs'--}}
+{{--            )--}}
 
             @include(
                 'pages.tenants.terminal.products.product_grid'
@@ -94,7 +94,7 @@
                 </div>
 
                 <div class="modal-body py-3">
-
+                    <div class="saleStatusContainer"></div>
                     <div class="row g-3">
 
                         <div class="col-lg-7">
@@ -115,7 +115,7 @@
                                                 id="paymentTotal"
                                                 class="fw-bold"
                                                 style="
-                                                font-size:3rem;
+                                                font-size:2rem;
                                                 line-height:1;
                                                 color:#22c55e;
                                             "
@@ -143,7 +143,7 @@
                                                 id="paymentBalance"
                                                 class="fw-bold"
                                                 style="
-                                                font-size:3rem;
+                                                font-size:2rem;
                                                 line-height:1;
                                                 color:#ef4444;
                                             "
@@ -405,11 +405,11 @@
 
                                     <div class="d-flex justify-content-between mb-2">
 
-                                    <span>
+                                    <span class="form-label">
                                         Subtotal
                                     </span>
 
-                                        <strong id="summarySubtotalModal">
+                                        <strong id="summarySubtotalModal"  class="text-warning fs-6">
                                             ₱0.00
                                         </strong>
 
@@ -417,11 +417,9 @@
 
                                     <div class="d-flex justify-content-between mb-2">
 
-                                    <span>
-                                        Discount
-                                    </span>
+                                    <span class="form-label">Discount</span>
 
-                                        <strong id="summaryDiscountModal">
+                                        <strong id="summaryDiscountModal" class="text-warning fs-6">
                                             ₱0.00
                                         </strong>
 
@@ -429,13 +427,13 @@
 
                                     <div class="d-flex justify-content-between mb-2">
 
-                                    <span>
+                                    <span class="form-label">
                                         Paid
                                     </span>
 
                                         <strong
                                             id="paymentPaid"
-                                            class="text-primary"
+                                            class="text-primary fs-6"
                                         >
                                             ₱0.00
                                         </strong>
@@ -444,13 +442,13 @@
 
                                     <div class="d-flex justify-content-between">
 
-                                    <span>
+                                    <span class="form-label">
                                         Balance
                                     </span>
 
                                         <strong
                                             id="paymentBalanceSummary"
-                                            class="text-danger"
+                                            class="text-danger  fs-6"
                                         >
                                             ₱0.00
                                         </strong>
@@ -461,7 +459,7 @@
 
                                     <div class="text-center my-auto">
 
-                                        <div class="text-uppercase text-muted fw-semibold mb-2">
+                                        <div class="text-uppercase fw-semibold mb-2 form-label">
                                             Change
                                         </div>
 
@@ -550,5 +548,88 @@
         </div>
 
     </div>
+
+    <script>
+        function renderSaleStatus(type, success, status, message = '') {
+            const statuses = {
+                pending: {
+                    icon: 'bi-cart-fill',
+                    title: 'ACTIVE SALE'
+                },
+                completed: {
+                    icon: 'bi-check-circle-fill',
+                    title: 'SALE COMPLETED'
+                },
+                cancelled: {
+                    icon: 'bi-x-circle-fill',
+                    title: 'SALE CANCELLED'
+                },
+                on_hold: {
+                    icon: 'bi-pause-circle-fill',
+                    title: 'SALE ON HOLD'
+                }
+            };
+
+            const s = statuses[status] || statuses.pending;
+
+            const html = `
+                <div class="sale-status sale-status-${type}">
+                    <i class="bi ${s.icon}"></i>
+                    <div class="sale-status-content">
+                        <strong>${s.title}</strong>
+                        ${message ? `<small>${message}</small>` : ''}
+                    </div>
+                </div>
+            `;
+
+            document.querySelectorAll('.saleStatusContainer').forEach(el => {
+                el.innerHTML = html;
+            });
+        }
+
+
+
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const toggle = document.getElementById('themeToggle');
+
+            if (!toggle) return;
+
+            // Restore saved theme
+            const savedTheme =
+                localStorage.getItem('theme') || 'light';
+
+            document.documentElement.setAttribute(
+                'data-theme',
+                savedTheme
+            );
+
+            toggle.checked = savedTheme === 'dark';
+
+            // Switch theme
+            toggle.addEventListener('change', function () {
+
+                const theme =
+                    this.checked
+                        ? 'dark'
+                        : 'light';
+
+                document.documentElement.setAttribute(
+                    'data-theme',
+                    theme
+                );
+
+                localStorage.setItem(
+                    'theme',
+                    theme
+                );
+
+            });
+
+        });
+
+    </script>
 
 @endsection

@@ -11,7 +11,12 @@ export default defineConfig({
     },
     plugins: [
         laravel({
-            input: ['resources/css/app.css','resources/js/app.js', 'resources/js/pages/terminal.js'],
+            input: [
+                'resources/css/app.css',
+                'resources/js/app.js',
+                'resources/js/pages/terminal.js',
+                'resources/js/pages/pos/product-suggestions.js'
+            ],
             refresh: true,
         }),
     ],

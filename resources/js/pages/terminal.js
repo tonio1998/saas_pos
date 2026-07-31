@@ -1,32 +1,82 @@
 import ProductDB from './db.js';
 import ProductService from './services/product.service.js';
 import { Modal } from 'bootstrap';
-
+import * as bootstrap from 'bootstrap';
+window.bootstrap = bootstrap;
 $(function () {
+    document.getElementById('btnSelectCustomer').addEventListener('click', async function () {
 
-    $('#btnSaveCustomer').on('click', function () {
+        const customerId = document.getElementById('customer_id').value;
+        const saleId = this.dataset.sale;
+        this.disabled = true;
 
-        const $btn = $(this);
-
-        $btn
-            .prop('disabled', true)
-            .html(
-                '<span class="spinner-border spinner-border-sm me-2"></span>Saving...'
+        try {
+            const response = await fetch(
+                `/sales/${saleId}/customer`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document
+                            .querySelector('meta[name="csrf-token"]')
+                            .content,
+                    },
+                    body: JSON.stringify({
+                        customer_id: customerId || null,
+                        sale_id: saleId,
+                    }),
+                }
             );
 
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || 'Unable to update customer.');
+            }
+
+            if(result.success){
+                document.getElementById('cartCustomerName').textContent =
+                    result.customer?.name || 'Current Order';
+
+                document.getElementById('cartCustomerAddress').textContent =
+                    result.customer?.address || 'Walk-in Customer';
+
+                const modalEl = document.getElementById('customerModal');
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.hide();
+                modalEl.addEventListener('hidden.bs.modal', () => {
+                    document.querySelectorAll('.modal-backdrop').forEach(e => e.remove());
+                    document.body.classList.remove('modal-open');
+                    document.body.style.removeProperty('padding-right');
+                    document.body.style.removeProperty('overflow');
+                }, { once: true });
+            }else{
+                renderSaleStatus(result.type, result.success, result.sale_status, result.message);
+            }
+
+        } catch (error) {
+
+            alert(error.message);
+
+        } finally {
+
+            this.disabled = false;
+
+        }
+
+    });
+
+    $('#btnSaveCustomer').on('click', function () {
+        const $btn = $(this);
+        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Saving...');
+
         $.ajax({
-
             url: '/sales/customers/quick-store',
-
             type: 'POST',
-
             data: $('#newCustomerForm').serialize(),
-
             headers: {
-
                 'X-CSRF-TOKEN':
                     $('meta[name="csrf-token"]').attr('content')
-
             },
 
             success(response) {
@@ -42,7 +92,6 @@ $(function () {
                 }
 
                 const option = new Option(
-
                     response.customer.text,
 
                     response.customer.id,
@@ -63,15 +112,15 @@ $(function () {
                 $('#newCustomerForm')[0]
                     .reset();
 
-                bootstrap.Modal
-                    .getInstance(
-                        document.getElementById('customerModal')
-                    )
-                    .hide();
-
-                toastr.success(
-                    response.message
-                );
+                const modalEl = document.getElementById('customerModal');
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.hide();
+                modalEl.addEventListener('hidden.bs.modal', () => {
+                    document.querySelectorAll('.modal-backdrop').forEach(e => e.remove());
+                    document.body.classList.remove('modal-open');
+                    document.body.style.removeProperty('padding-right');
+                    document.body.style.removeProperty('overflow');
+                }, { once: true });
 
             },
 
@@ -235,70 +284,39 @@ const POS = {
 
                 }
 
-                console.log(product);
 
                 return `
-
-            <div
-                class="product-card"
-                data-id="${product.id}"
-                data-name="${product.name}"
-                data-price="${product.selling_price}"
-                data-stock="${stock}"
-                data-barcode="${product.barcode ?? ''}"
-                data-category="${product.category_id ?? ''}"
-            >
-
-                <div class="product-image">
-
-                    <img
-                        src="${
-                                        product.image
-                                            ? `/storage/${product.image}?v=${new Date(product.updated_at).getTime()}`
-                                            : '/images/no_image.jpg'
-                                    }"
-                        alt="${product.name}"
+                    <div
+                        class="product-card"
+                        data-id="${product.id}"
+                        data-name="${product.name}"
+                        data-price="${product.selling_price}"
+                        data-stock="${stock}"
+                        data-barcode="${product.barcode ?? ''}"
+                        data-category="${product.category_id ?? ''}"
                     >
-
-                </div>
-
-                <div class="product-info">
-
-                    <div class="product-name">
-
-                        ${product.name}
-
-                    </div>
-
-                    <div class="product-stock">
-
-                        <span class="stock-label">
-
-                            Stock:
-
-                        </span>
-
-                        ${stockBadge}
-
-                    </div>
-
-                    <div class="product-bottom">
-
-                        <div class="product-price">
-
-                            ${this.formatCurrency(
-                                product.selling_price
-                            )}
-
+                        <div class="product-image">
+                            <img src="${product.image
+                                                    ? `/storage/${product.image}?v=${new Date(product.updated_at).getTime()}`
+                                                    : '/images/no_image.jpg'
+                                            }"
+                                alt="${product.name}"
+                            >
                         </div>
-
+                        <div class="product-info">
+                            <div class="product-name text-truncate">${product.name}</div>
+                            <div class="product-stock">
+                                <span class="stock-label"> Stock:</span>
+                                ${stockBadge}
+                            </div>
+                            <div class="product-bottom">
+                                <div class="product-price">
+                                    ${this.formatCurrency(product.selling_price)}
+                                </div>
+                            </div>
+                        </div>
                     </div>
-
-                </div>
-
-            </div>
-
-        `;
+                `;
 
             }).join('');
 
@@ -743,6 +761,12 @@ const POS = {
                     >
                         Bank Transfer
                     </option>
+                    <option
+                        value="utang"
+                        ${payment.method === 'utang' ? 'selected' : ''}
+                    >
+                        Utang
+                    </option>
 
                 </select>
 
@@ -1130,18 +1154,13 @@ const POS = {
 
     },
     async completeSale() {
-
-        if (
-            !this.validateCheckout()
-        ) {
+        if (!this.validateCheckout()) {
             return;
         }
 
         try {
             this.btnConfirmPayment.disabled = true;
-
             const payload = this.buildPayload();
-
             const response = await fetch('/sales/complete', {
                 method: 'POST',
                 headers: {
@@ -1159,17 +1178,18 @@ const POS = {
                 throw new Error(result.message || `Request failed (${response.status}).`);
             }
 
-            Modal.getInstance(this.paymentModal)?.hide();
-
-            await this.updateCachedStocks();
-
-            this.printReceipt(result);
-
-            this.reset();
+            if(result.success){
+                const modal = bootstrap.Modal.getOrCreateInstance(this.paymentModal);
+                modal.hide();
+                await this.updateCachedStocks();
+                this.printReceipt(result);
+                this.reset();
+            }else{
+                renderSaleStatus(result.type, result.success, result.sale_status, result.message);
+            }
 
         } catch (error) {
             console.error(error);
-
             alert(error.message || 'Checkout failed.');
 
         } finally {
@@ -1790,10 +1810,8 @@ window.onload = () => {
             this.state.balance > 0
         ) {
 
-            alert(
-                'Insufficient payment.'
-            );
 
+            renderSaleStatus('error','WATCH OUT!', 'Insufficient payment.', 'The total amount paid is less than the total amount due.');
             return false;
 
         }

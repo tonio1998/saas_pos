@@ -1,13 +1,9 @@
 @extends('layouts.app')
-
 @section('title', 'Customers')
-
+@section('shortText', 'Manage customers')
 @section('content')
 
-    <x-page-header
-        title="Customers"
-        subtitle="Manage Customers"
-    >
+    <x-page-header>
         <x-slot:action>
             <a
                 href="{{ route('customers.create') }}"
@@ -27,10 +23,9 @@
                 'Actions',
                 'Customer Code',
                 'Customer Name',
-                'Customer Type',
-                'Mobile Number',
-                'Email',
-                'Current Balance',
+                'Customer Address',
+                'Credit',
+                'Total Points',
                 'Status',
                 'Created At',
                 'Created By'
@@ -38,12 +33,11 @@
             :ajax="route('customers.data')"
             :datatableColumns="[
                 ['data' => 'actions', 'orderable' => false, 'searchable' => false],
-                ['data' => 'customer_code'],
-                ['data' => 'customer_name'],
-                ['data' => 'customer_type'],
-                ['data' => 'mobile_number'],
-                ['data' => 'email'],
-                ['data' => 'current_balance'],
+                ['data' => 'CustomerCode'],
+                ['data' => 'CustomerName'],
+                ['data' => 'CustomerAddress'],
+                ['data' => 'credit'],
+                ['data' => 'TotalPoints'],
                 ['data' => 'status'],
                 ['data' => 'createdAt'],
                 ['data' => 'createdBy']

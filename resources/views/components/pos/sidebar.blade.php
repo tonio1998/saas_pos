@@ -1,31 +1,12 @@
 <div class="sidebar d-flex flex-column">
-
     <div class="border-bottom px-4 pb-3">
-
-        <a
-            href="{{ route('dashboard.index') }}"
-            class="d-flex align-items-center text-decoration-none"
-        >
-
+        <a href="{{ route('dashboard.index') }}" class="d-flex align-items-center text-decoration-none">
             <img
                 src="{{ asset('images/logo.png') }}"
                 alt="POS Logo"
                 class="me-3"
-                style="width:52px;height:52px;object-fit:contain;"
+                style="width:220px;object-fit:contain;"
             >
-
-            <div>
-
-                <h5 class="fw-bold text-dark mb-0">
-                    RetailPOS
-                </h5>
-
-                <small class="text-muted">
-                    Business Management
-                </small>
-
-            </div>
-
         </a>
 
     </div>

@@ -55,4 +55,15 @@ class POSCustomers extends Model
             $this->last_name
         );
     }
+
+    public function credit()
+    {
+        return $this->hasOne(POSCustomerLedger::class, 'customer_id')
+            ->latestOfMany();
+    }
+
+    public function ledger()
+    {
+        return $this->hasMany(POSCustomerLedger::class, 'customer_id');
+    }
 }

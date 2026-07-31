@@ -26,12 +26,14 @@ class ProductController extends Controller
     public function create()
     {
         $units = POSUnits::query()
-            ->with('createdBy')
+            ->select('name', 'id')
+            ->distinct()
             ->orderBy('name')
             ->get();
 
         $categories = POSCategories::query()
-            ->with('createdBy')
+            ->select('name', 'id')
+            ->distinct()
             ->orderBy('name')
             ->get();
 
@@ -211,6 +213,87 @@ class ProductController extends Controller
                 'success',
                 'Product updated successfully.'
             );
+    }
+
+    public function suggestions(Request $request)
+    {
+        $keyword = trim($request->keyword);
+
+        if (strlen($keyword) < 2) {
+            return response()->json([]);
+        }
+
+        $tenantId = auth()->user()->tenant_id;
+
+        $products = POSProducts::query()
+            ->select([
+                'barcode',
+                'name',
+                'description',
+                'category_id',
+                'unit_id',
+                'image',
+                'cost_price',
+                'selling_price',
+                'sku',
+                DB::raw('COUNT(*) as usage_count')
+            ])
+            ->where('tenant_id', '!=', $tenantId)
+            ->with([
+                'category' => function ($query) {
+                    $query->select('name', 'id');
+                    $query->distinct();
+                },
+                'unit' => function ($query) {
+                    $query->select('name', 'id');
+                    $query->distinct();
+                }
+            ])
+            ->where(function ($query) use ($keyword) {
+                foreach (preg_split('/\s+/', $keyword) as $word) {
+                    $query->where(function ($q) use ($word) {
+                        $q->where('name', 'like', "%{$word}%")
+                            ->orWhere('barcode', 'like', "%{$word}%");
+                    });
+                }
+            })
+            ->groupBy([
+                'barcode',
+                'name',
+                'description',
+                'category_id',
+                'unit_id',
+                'image',
+                'cost_price',
+                'selling_price',
+                'sku'
+            ])
+            ->orderByDesc('usage_count')
+            ->orderBy('name')
+            ->limit(8)
+            ->get();
+
+        return response()->json(
+            $products->map(function ($product) {
+                return [
+                    'barcode'      => $product->barcode,
+                    'name'         => $product->name,
+                    'description'  => $product->description,
+                    'category_id'  => $product->category_id,
+                    'unit_id'      => $product->unit_id,
+                    'image'        => $product->image
+                        ? '/storage/'.$product->image
+                        : null,
+                    'usage_count'  => $product->usage_count,
+                    'cost_price'   => $product->cost_price,
+                    'selling_price'=> $product->selling_price,
+                    'sku'          => $product->sku,
+                    'category'     => $product->category?->name,
+                    'unit'         => $product->unit?->name,
+                ];
+
+            })
+        );
     }
 
     public function ajaxData(Request $request)
