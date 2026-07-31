@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\POS;
 
+use App\Helpers\StatusHelper;
 use App\Http\Controllers\Controller;
 use App\Models\POS\Customers;
 use App\Models\POS\POSCustomers;
+use App\Models\POS\POSSale;
 use App\Models\SchoolUsers;
 use App\Traits\TCommonFunctions;
 use Illuminate\Http\Request;
@@ -16,6 +18,7 @@ class CustomerController extends Controller
     public function quickStore(Request $request)
     {
         $validated = $request->validate([
+            'sale_id' => ['required','integer'],
             'customer_name' => ['required','string','max:255'],
             'customer_address' => ['nullable','string','max:255'],
         ]);
@@ -26,6 +29,14 @@ class CustomerController extends Controller
         $customer->CustomerAddress = $validated['customer_address'];
         $this->setCommonFields($customer);
         $customer->save();
+
+        if($validated['sale_id']){
+            $sale = POSSale::find($validated['sale_id']);
+            if($sale){
+                $sale->customer_id = $customer->id;
+                $sale->save();
+            }
+        }
 
         return response()->json([
             'status' => true,
@@ -265,21 +276,15 @@ class CustomerController extends Controller
 
     public function ajaxData(Request $request)
     {
-        $query = POSCustomers::with([
-            'createdBy'
-        ])
-            ->where(
-                'tenant_id',
-                auth()->user()->tenant_id
-            )
+        $query = POSCustomers::with(['createdBy'])
+            ->where('tenant_id', auth()->user()->tenant_id)
+            ->with('credit')
             ->latest();
 
         return datatables()
             ->eloquent($query)
-
             ->addColumn('actions', function ($customer) {
-
-                return '
+                $btn = '
                     <a
                         href="' . route(
                         'customers.edit',
@@ -288,50 +293,48 @@ class CustomerController extends Controller
                         class="btn btn-soft-primary btn-sm"
                     >
                         <i class="bi bi-pencil"></i>
-                        Edit Customer
                     </a>
                 ';
+
+                $btn .= '
+                        <a
+                            href="' . route(
+                        'customers.credit.show',
+                        encryptId($customer->id)
+                    ) . '"
+                            class="btn btn-soft-danger btn-sm"
+                        >
+                            <i class="bi bi-credit-card"></i>
+                        </a>
+                    ';
+
+                return $btn;
             })
-
-            ->addColumn('customer_name', function ($customer) {
-
-                return trim(
-                    $customer->first_name . ' ' .
-                    $customer->middle_name . ' ' .
-                    $customer->last_name
-                );
+            ->addColumn('CustomerCode', function ($customer) {
+                return getCustomerCode($customer->id);
             })
-
-            ->addColumn('customer_type', function ($customer) {
-
-                return ucfirst(
-                    $customer->customer_type
-                );
-            })
-
             ->addColumn('createdAt', function ($customer) {
-
-                return $customer->created_at
-                    ? format_date(
-                        $customer->created_at
-                    )
-                    : 'N/A';
+                return $customer->created_at ? format_date($customer->created_at) : 'N/A';
             })
+            ->addColumn('credit', function ($customer) {
+                $balance = optional($customer->credit)->running_balance ?? 0;
 
+                return $balance > 0
+                    ? '<span class="text-danger fw-bold">₱' . number_format($balance, 2) . '</span>'
+                    : '<span class="text-muted">₱0.00</span>';
+            })
             ->addColumn('createdBy', function ($customer) {
-
-                return $customer->createdBy
-                    ? '<span class="fw-semibold">' .
-                    $customer->createdBy->name .
-                    '</span>'
-                    : '<span class="badge bg-light text-dark">System</span>';
+                return $customer->createdBy ? $customer->createdBy->name : 'System';
             })
-
+            ->editColumn('status', function ($customer) {
+                return StatusHelper::badge($customer->status);
+            })
             ->rawColumns([
                 'actions',
-                'createdBy'
+                'createdBy',
+                'status',
+                'credit'
             ])
-
             ->make(true);
     }
 }

@@ -1,14 +1,7 @@
 @extends('layouts.app')
-
-@section('title', 'Dashboard')
-
+@section('title', 'Business Dashboard')
+@section('shortText', 'Sales, inventory, profit, and business performance overview')
 @section('content')
-
-    <x-page-header
-        title="Business Dashboard"
-        subtitle="Sales, inventory, profit, and business performance overview"
-    />
-
     <div class="row g-3 mb-4">
 
         <div class="col-12 col-sm-6 col-xl-2">

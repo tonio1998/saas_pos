@@ -1,7 +1,307 @@
 import $ from 'jquery'
+
 window.$ = window.jQuery = $
 
 $(document).ready(function () {
+
+    document.addEventListener('click', async function (e) {
+        const link = e.target.closest('.view-sale');
+
+        if (!link) {
+            return;
+        }
+
+        e.preventDefault();
+
+        const modal = new bootstrap.Modal(
+            document.getElementById('saleDetailsModal')
+        );
+
+        modal.show();
+
+        const content = document.getElementById('saleDetailsContent');
+
+        content.innerHTML = `
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary"></div>
+        </div>
+    `;
+
+        try {
+
+            const response = await fetch(`/sales/${link.dataset.id}/sales_details`);
+
+            const result = await response.json();
+
+            const sale = result.sale;
+
+            console.log('sale', sale);
+
+            let rows = '';
+
+            let itemRows = '';
+            let paymentRows = '';
+
+            sale.items.forEach(item => {
+                itemRows += `
+                    <tr>
+                        <td>
+                            <div class="fw-semibold">${item.product.name}</div>
+                            <small class="text-muted">${item.barcode}</small>
+                        </td>
+                        <td class="text-center">${item.qty}</td>
+                        <td class="text-end">${item.unit_price}</td>
+                        <td class="text-end">${item.line_total}</td>
+                    </tr>
+                `;
+            });
+
+            sale.payments.forEach(payment => {
+                paymentRows += `
+                    <tr>
+                        <td>${payment.payment_date}</td>
+                        <td>${payment.payment_method}</td>
+                        <td>${payment.reference_number}</td>
+                        <td class="text-end">${payment.amount}</td>
+                    </tr>
+                `;
+            });
+
+            content.innerHTML = `
+                <div class="container-fluid">
+
+                    <div class="row g-3 mb-4">
+
+                        <div class="col-md-8">
+
+                            <div class="card border-0 bg-light">
+
+                                <div class="card-body">
+
+                                    <div class="d-flex justify-content-between align-items-start">
+
+                                        <div>
+
+                                            <h5 class="fw-bold mb-1">
+                                                Sale Details
+                                            </h5>
+
+                                            <div class="text-muted">
+                                                ${sale.invoice_no ?? 'No Invoice'}
+                                            </div>
+
+                                        </div>
+
+                                        <span class="badge bg-success">
+                                            ${sale.sale_status}
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <div class="card border-0 bg-success text-white">
+
+                                <div class="card-body text-center">
+
+                                    <small class="text-dark">Total Sale</small>
+
+                                    <div class="display-6 fw-bold text-dark">
+                                        ${sale.total_amount}
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row g-3 mb-4">
+
+                        <div class="col-md-6">
+
+                            <table class="table table-sm mb-0">
+
+                                <tr>
+                                    <th width="140">Customer</th>
+                                    <td>${sale.customer.CustomerName}</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Cashier</th>
+                                    <td>${sale.cashier.name}</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Sale Date</th>
+                                    <td>${sale.sale_date}</td>
+                                </tr>
+
+                            </table>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <table class="table table-sm mb-0">
+
+                                <tr>
+                                    <th width="140">Subtotal</th>
+                                    <td class="text-end">${sale.subtotal}</td>
+                                </tr>
+
+                                <tr>
+                                    <th>Discount</th>
+                                    <td class="text-end">${sale.discount_amount}</td>
+                                </tr>
+
+                                <tr class="fw-bold">
+
+                                    <th>Total</th>
+
+                                    <td class="text-end text-success">
+                                        ${sale.total_amount}
+                                    </td>
+
+                                </tr>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                    <div class="card border-0 shadow-sm mb-4">
+
+                        <div class="card-header bg-white">
+
+                            <strong>
+                                Purchased Items
+                            </strong>
+
+                        </div>
+
+                        <div class="table-responsive">
+
+                            <table class="table table-hover align-middle mb-0">
+
+                                <thead class="table-light">
+
+                                    <tr>
+
+                                        <th>Product</th>
+
+                                        <th width="100" class="text-center">
+                                            Qty
+                                        </th>
+
+                                        <th width="120" class="text-end">
+                                            Price
+                                        </th>
+
+                                        <th width="120" class="text-end">
+                                            Total
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+                                <tbody>
+
+                                    ${itemRows}
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                    <div class="card border-0 shadow-sm mb-3">
+
+                        <div class="card-header bg-white">
+
+                            <strong>
+                                Payment History
+                            </strong>
+
+                        </div>
+
+                        <div class="table-responsive">
+
+                            <table class="table table-sm align-middle mb-0">
+
+                                <thead class="table-light">
+
+                                    <tr>
+
+                                        <th>Date</th>
+
+                                        <th>Method</th>
+
+                                        <th>Reference</th>
+
+                                        <th class="text-end">
+                                            Amount
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+                                <tbody>
+
+                                    ${paymentRows}
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                    ${sale.notes
+                                ? `
+                        <div class="alert alert-light border mb-0">
+
+                            <strong>Notes</strong>
+
+                            <div class="mt-2">
+                                ${sale.notes}
+                            </div>
+
+                        </div>
+                        `
+                                : ''
+                            }
+
+                </div>
+                `;
+
+        }  catch (error) {
+
+        console.error(error);
+
+        content.innerHTML = `
+        <div class="alert alert-danger">
+            ${error.message}
+        </div>
+    `;
+
+    }
+
+    });
 
     function calculateAverageCost() {
 

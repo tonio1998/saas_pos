@@ -1,18 +1,3 @@
-@php
-    $semesterNames = [
-        1 => '1st Semester',
-        2 => '2nd Semester',
-        3 => '3rd Semester',
-        4 => '4th Semester',
-        5 => 'Summer',
-    ];
-
-    $currentSemester = session('Semester', 1);
-    $AYFrom          = session('AYFrom', 2026);
-    $AYTo            = session('AYTo', 2027);
-
-@endphp
-
 <header class="lms-topbar">
     <div class="container-fluid">
         <div class="d-flex align-items-center justify-content-between">

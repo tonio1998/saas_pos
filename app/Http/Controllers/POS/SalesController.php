@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\POS;
 
+use App\Helpers\StatusHelper;
 use App\Http\Controllers\Controller;
+use App\Models\POS\POSCustomerLedger;
 use App\Models\POS\InventoryMovement;
 use App\Models\POS\POSCategories;
 use App\Models\POS\POSCustomers;
@@ -37,7 +39,22 @@ class SalesController extends Controller
             ->get();
     }
 
-    public function details(POSSale $sale): \Illuminate\Http\JsonResponse
+    public function sales_details(Request $request, $sale)
+    {
+        $sale = POSSale::with([
+            'customer',
+            'items.product',
+            'payments',
+            'cashier'
+        ])->findOrFail(($sale));
+
+        return response()->json([
+            'success' => true,
+            'sale' => $sale
+        ]);
+    }
+
+    public function details(POSSale $sale)
     {
         abort_if(
             $sale->tenant_id !== auth()->user()->tenant_id,
@@ -196,64 +213,45 @@ class SalesController extends Controller
 
     public function ajaxData(Request $request)
     {
-        $query = POSSale::with([
-            'customer',
-            'cashier',
-            'payments',
-            'items',
-            'items.product',
-        ])
-            ->where(
-                'tenant_id',
-                auth()->user()->tenant_id
-            )
+        $query = POSSale::with(['customer', 'cashier', 'payments', 'items', 'items.product',])
+            ->where('tenant_id', auth()->user()->tenant_id)
             ->latest();
 
         return datatables()
             ->eloquent($query)
-
             ->addColumn('actions', function ($sale) {
-
                 return '
-        <div class="btn-group">
-
-            <button
-                type="button"
-                class="btn btn-soft-primary btn-sm btn-view-sale"
-                data-id="' . $sale->id . '"
-            >
-                <i class="bi bi-eye"></i>
-            </button>
-
-            <button
-                type="button"
-                class="btn btn-soft-success btn-sm btn-print-sale"
-                data-id="' . $sale->id . '"
-            >
-                <i class="bi bi-printer"></i>
-            </button>
-
-        </div>
-    ';
+                    <div class="btn-group">
+                        <button
+                            type="button"
+                            class="btn btn-soft-primary btn-sm btn-view-sale"
+                            data-id="' . $sale->id . '"
+                        >
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-soft-success btn-sm btn-print-sale"
+                            data-id="' . $sale->id . '"
+                        >
+                            <i class="bi bi-printer"></i>
+                        </button>
+                    </div>
+                ';
             })
             ->addColumn('invoice_number', function ($sale) {
-
                 return '
                 <span class="fw-semibold">
-                    ' . ($sale->invoice_no ?? '-') . '
+                    ' . ($sale->sale_code ?? '-') . '
                 </span>
             ';
             })
-
             ->addColumn('sale_date', function ($sale) {
-
                 return $sale->sale_date
                     ? format_date($sale->sale_date)
                     : 'N/A';
             })
-
             ->addColumn('customer', function ($sale) {
-
                 return $sale->customer
                     ? '<span class="fw-semibold">' .
                     e($sale->customer->CustomerName) .
@@ -262,145 +260,68 @@ class SalesController extends Controller
                     Walk-in
                 </span>';
             })
-
             ->addColumn('total_items', function ($sale) {
-
                 return '
-                <span class="badge bg-info">
-                    ' . $sale->items->sum('qty') . '
-                </span>
-            ';
+                    <span class="badge bg-info">
+                        ' . $sale->items->sum('qty') . '
+                    </span>
+                ';
             })
-
             ->addColumn('subtotal', function ($sale) {
-
                 return '₱' . number_format(
                         $sale->subtotal ?? 0,
                         2
                     );
             })
-
             ->addColumn('discount', function ($sale) {
-
                 return '₱' . number_format(
                         $sale->discount_amount ?? 0,
                         2
                     );
             })
-
             ->addColumn('total', function ($sale) {
-
                 return '
-                <span class="fw-bold text-success">
-                    ₱' . number_format(
-                        $sale->total_amount ?? 0,
-                        2
-                    ) . '
-                </span>
-            ';
+                    <span class="fw-bold text-success">
+                        ₱' . number_format(
+                            $sale->total_amount ?? 0,
+                            2
+                        ) . '
+                    </span>
+                ';
             })
-
             ->addColumn('profit', function ($sale) {
-
                 $profit = $sale->items->sum(function ($item) {
-
-                    $cost =
-                        $item->product->cost_price ?? 0;
-
-                    return (
-                        ($item->selling_price - $cost)
-                        * $item->qty
-                    );
+                    $cost = $item->product->cost_price ?? 0;
+                    return (($item->selling_price - $cost) * $item->qty);
                 });
-
                 return '
-                <span class="fw-bold text-primary">
-                    ₱' . number_format(
-                        $profit,
-                        2
-                    ) . '
-                </span>
-            ';
+                        <span class="fw-bold text-primary">
+                            ₱' . number_format(
+                                $profit,
+                                2
+                            ) . '
+                        </span>
+                    ';
             })
-
             ->addColumn('payment_method', function ($sale) {
-
-                return match ($sale->payment_method) {
-
-                    'cash' => '
-                    <span class="badge bg-success">
-                        Cash
-                    </span>
-                ',
-
-                    'gcash' => '
-                    <span class="badge bg-primary">
-                        GCash
-                    </span>
-                ',
-
-                    'bank_transfer' => '
-                    <span class="badge bg-info">
-                        Bank
-                    </span>
-                ',
-
-                    default => '
-                    <span class="badge bg-secondary">
-                        Unknown
-                    </span>
-                '
-                };
+                return StatusHelper::badge($sale->payment_method);
             })
-
             ->addColumn('tendered', function ($sale) {
-
                 return '₱' . number_format(
                         $sale->tendered_amount ?? 0,
                         2
                     );
             })
-
             ->addColumn('change_amount', function ($sale) {
-
                 return '₱' . number_format(
                         $sale->change_amount ?? 0,
                         2
                     );
             })
-
             ->addColumn('status', function ($sale) {
-
-                return match ($sale->sale_status) {
-
-                    'completed' => '
-                    <span class="badge bg-success">
-                        Completed
-                    </span>
-                ',
-
-                    'voided' => '
-                    <span class="badge bg-danger">
-                        Voided
-                    </span>
-                ',
-
-                    'refunded' => '
-                    <span class="badge bg-warning text-dark">
-                        Refunded
-                    </span>
-                ',
-
-                    default => '
-                    <span class="badge bg-secondary">
-                        Pending
-                    </span>
-                '
-                };
+                return StatusHelper::badge($sale->sale_status);
             })
-
             ->addColumn('cashier', function ($sale) {
-
                 return $sale->cashier
                     ? '<span class="fw-semibold">' .
                     e($sale->cashier->name) .
@@ -409,28 +330,16 @@ class SalesController extends Controller
                     System
                 </span>';
             })
-
             ->editColumn('created_at', function ($sale) {
-
-                return $sale->created_at
-                    ? $sale->created_at->format(
-                        'M d, Y h:i A'
-                    )
-                    : 'N/A';
+                return $sale->created_at ? $sale->created_at->format('M d, Y h:i A') : 'N/A';
             })
-
-            ->filterColumn(
-                'invoice_number',
-                function ($query, $keyword) {
-
+            ->filterColumn('invoice_number', function ($query, $keyword) {
                     $query->where(
                         'invoice_no',
                         'like',
                         "%{$keyword}%"
                     );
-                }
-            )
-
+            })
             ->rawColumns([
                 'actions',
                 'invoice_number',
@@ -442,15 +351,48 @@ class SalesController extends Controller
                 'status',
                 'cashier',
             ])
-
             ->make(true);
+    }
+
+    public function updateCustomer(Request $request)
+    {
+        $data = $request->validate([
+            'customer_id' => ['nullable', 'exists:pos_customers,id'],
+        ]);
+
+        $sale = POSSale::with(['customer'])->find($request->sale_id);
+
+        if($sale->sale_status === 'completed'){
+            return response()->json([
+                'status' => false,
+                'type' => 'warning',
+                'sale_status' => $sale->sale_status,
+                'message' => 'Sale already completed. Create a new sale to continue.'
+            ]);
+        }
+
+        $sale->update([
+            'customer_id' => $data['customer_id'],
+        ]);
+
+        $sale->load('customer');
+
+        return response()->json([
+            'success' => true,
+            'type' => 'success',
+            'message' => 'Customer selected successfully.',
+            'customer' => [
+                'id' => $sale->customer?->id,
+                'name' => $sale->customer?->CustomerName,
+                'address' => $sale->customer?->CustomerAddress,
+            ],
+        ]);
     }
 
     public function complete(Request $request)
     {
         $data = $request->validate([
             'sale_id' => ['required'],
-            'customer_id' => ['nullable', 'integer'],
             'subtotal' => ['required', 'numeric', 'min:0'],
             'discount' => ['required', 'numeric', 'min:0'],
             'total' => ['required', 'numeric', 'min:0'],
@@ -461,7 +403,7 @@ class SalesController extends Controller
             'discount_id_no' => ['nullable', 'string', 'max:255'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'payments' => ['required', 'array', 'min:1'],
-            'payments.*.method' => ['required', 'string', 'in:cash,gcash,bank_transfer'],
+            'payments.*.method' => ['required', 'string', 'in:cash,gcash,bank_transfer,utang'],
             'payments.*.amount' => ['required', 'numeric', 'min:0.01'],
             'payments.*.reference_number' => ['nullable', 'string', 'max:255'],
             'items' => ['required', 'array', 'min:1'],
@@ -472,12 +414,43 @@ class SalesController extends Controller
 
         $saleID = decryptId($request->sale_id);
 
+        $hasUtang = collect($data['payments'])
+            ->contains(fn ($payment) => $payment['method'] === 'utang');
+
+        if ($hasUtang) {
+            $customerId = POSSale::where('id', $saleID)->value('customer_id');
+
+            if (!$customerId) {
+                return response()->json([
+                    'success' => false,
+                    'type' => 'warning',
+                    'sale_status' => 'missing_customer',
+                    'message' => 'Please select a customer before proceeding with a credit (Utang) sale.'
+                ]);
+            }
+        }
+
         $totalPaid = collect($data['payments'])->sum('amount');
         if ($totalPaid < $data['total']) {
-            throw ValidationException::withMessages([
-                'payments' => [
-                    'Insufficient payment.'
-                ]
+            return response()->json([
+                'success' => false,
+                'type' => 'warning',
+                'sale_status' => "Insufficient payment.",
+                'message' => 'The total amount paid is less than the total amount due.'
+            ]);
+        }
+
+        $sale = POSSale::query()
+            ->where('id', $saleID)
+            ->lockForUpdate()
+            ->firstOrFail();
+
+        if ($sale->sale_status === 'completed') {
+            return response()->json([
+                'success' => false,
+                'type' => 'warning',
+                'sale_status' => $sale->sale_status,
+                'message' => 'Sale already completed. Create a new sale to continue.'
             ]);
         }
 
@@ -499,18 +472,10 @@ class SalesController extends Controller
 
             $sale = POSSale::query()
                 ->where('id', $saleID)
-                ->where('tenant_id', auth()->user()->tenant_id)
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            if ($sale->sale_status === 'completed') {
-                return response()->json([
-                    'message' => 'Sale already completed.'
-                ], 409);
-            }
-
             $sale->cashier_id = auth()->id();
-            $sale->customer_id = $data['customer_id'];
             $sale->payment_method = count($data['payments']) === 1
                 ? $data['payments'][0]['method']
                 : 'split';
@@ -568,21 +533,58 @@ class SalesController extends Controller
                 $product->decrement('stock_on_hand', $item['qty']);
             }
 
-            foreach ($data['payments'] as $index => $payment) {
+            $paymentIndex = 0;
+            $utangAmount = 0;
+
+            foreach ($data['payments'] as $payment) {
+
+                if ($payment['method'] === 'utang') {
+                    $utangAmount += $payment['amount'];
+                    continue;
+                }
 
                 $newPayment = new POSPayment();
                 $newPayment->sale_id = $saleID;
+                $newPayment->tenant_id = auth()->user()->tenant_id;
                 $newPayment->payment_method = $payment['method'];
                 $newPayment->amount = $payment['amount'];
                 $newPayment->tendered_amount = $payment['amount'];
-                $newPayment->change_amount = $index === 0 ? $change : 0;
+                $newPayment->change_amount = $paymentIndex === 0 ? $change : 0;
                 $newPayment->reference_number = $payment['reference_number'];
                 $newPayment->notes = $data['notes'] ?? null;
                 $newPayment->payment_date = now();
                 $this->setCommonFields($newPayment);
-                $this->setCommonFields($newPayment);
                 $newPayment->save();
 
+                $paymentIndex++;
+            }
+
+            if ($utangAmount > 0) {
+                if (!$sale->customer_id) {
+                    throw ValidationException::withMessages([
+                        'customer' => ['Customer is required for credit sales.']
+                    ]);
+                }
+
+                $lastBalance = POSCustomerLedger::query()
+                    ->where('tenant_id', auth()->user()->tenant_id)
+                    ->where('customer_id', $sale->customer_id)
+                    ->latest('id')
+                    ->value('running_balance') ?? 0;
+
+                $newLedger = new POSCustomerLedger();
+                $newLedger->tenant_id = auth()->user()->tenant_id;
+                $newLedger->customer_id = $sale->customer_id;
+                $newLedger->sale_id = $sale->id;
+                $newLedger->payment_id = null;
+                $newLedger->reference_no = $sale->invoice_no;
+                $newLedger->transaction_type = 'SALE';
+                $newLedger->debit = $utangAmount;
+                $newLedger->credit = 0;
+                $newLedger->running_balance = $lastBalance + $utangAmount;
+                $newLedger->remarks = $data['notes'] ?? null;
+                $this->setCommonFields($newLedger);
+                $newLedger->save();
             }
 
         });
@@ -778,10 +780,7 @@ class SalesController extends Controller
     public function create(Request $request)
     {
         $sale = POSSale::with('customer')->findOrFail(decryptId($request->segment(3)));
-        abort_if(
-            $sale->tenant_id !== auth()->user()->tenant_id,
-            403
-        );
+        abort_if($sale->tenant_id !== auth()->user()->tenant_id, 403);
 
         $categories = POSCategories::query()
             ->where('tenant_id', auth()->user()->tenant_id)
@@ -817,7 +816,7 @@ class SalesController extends Controller
         $this->setCommonFields($sale);
         $sale->save();
 
-        $sale->sale_code = str_pad((string) $sale->id, 8, '0', STR_PAD_LEFT);
+        $sale->sale_code = generateSalesCode(auth()->user()->tenant_id);
         $sale->save();
 
         return redirect()->route(

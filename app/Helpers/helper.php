@@ -1,9 +1,11 @@
 <?php
 
 
+use App\Models\POS\POSSale;
 use App\Models\QrCodes;
 use App\Models\SmsQueuingModel;
 use App\Models\SystemSetting;
+use Carbon\Carbon;
 use Illuminate\Support\Str;
 
 function generateSaleInvoiceNo(): string
@@ -44,6 +46,29 @@ if (!function_exists('decryptId')) {
 
         return $value;
     }
+}
+
+function getCustomerCode(int $id): string
+{
+    return 'CUS-' . str_pad($id, 8, '0', STR_PAD_LEFT);
+}
+
+
+
+function generateSalesCode(int $tenantId): string
+{
+    $today = Carbon::today();
+
+    $lastCode = POSSale::where('tenant_id', $tenantId)
+        ->whereDate('created_at', $today)
+        ->orderByRaw('CAST(SUBSTRING_INDEX(sale_code, "-", -1) AS UNSIGNED) DESC')
+        ->value('sale_code');
+
+    $next = $lastCode
+        ? ((int) substr($lastCode, strrpos($lastCode, '-') + 1)) + 1
+        : 1;
+
+    return $today->format('ymd') . '-' . str_pad($next, 4, '0', STR_PAD_LEFT);
 }
 
 function generateSerialNumber(int $length = 6): string

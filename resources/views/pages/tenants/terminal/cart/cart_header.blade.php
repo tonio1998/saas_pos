@@ -1,13 +1,16 @@
 <div class="cart-header">
     <div class="cart-header-top">
+
         <div>
-            @if($sale->customer)
-                <h4>{{ $sale->customer->CustomerName }}</h4>
-                <span>{{ $sale->customer->CustomerAddress }}</span>
-            @else
-                <h4>Current Order</h4>
-                <span>Walk-in Customer</span>
-            @endif
+
+            <h4 id="cartCustomerName">
+                {{ $sale->customer?->CustomerName ?? 'Current Order' }}
+            </h4>
+
+            <span id="cartCustomerAddress">
+                {{ $sale->customer?->CustomerAddress ?? 'Walk-in Customer' }}
+            </span>
+
         </div>
 
         <button
@@ -19,6 +22,7 @@
             <i class="bi bi-person-plus"></i>
             Customer
         </button>
+
     </div>
 </div>
 
@@ -98,69 +102,41 @@
 
                 </div>
 
-                <div
-                    class="collapse mt-4"
-                    id="newCustomerCollapse"
-                >
-
+                <div class="collapse mt-4" id="newCustomerCollapse">
                     <form id="newCustomerForm">
-
                         <div class="card border-0 bg-light rounded-4">
-
                             <div class="card-header bg-transparent border-0 pb-0">
-
                                 <h6 class="fw-bold mb-1">
                                     <i class="bi bi-person-plus me-2 text-primary"></i>
                                     New Customer
                                 </h6>
-
                                 <small class="text-muted">
                                     Enter the basic customer information.
                                 </small>
-
                             </div>
-
                             <div class="card-body">
-
                                 <div class="row">
-
                                     <div class="col-12">
-
-                                        <x-form.group
-                                            name="customer_name"
-                                            label="Customer Name"
-                                            required
-                                        >
-
+                                        <x-form.group name="customer_name" label="Customer Name" required>
                                             <x-form.input
                                                 name="customer_name"
                                                 placeholder="Enter customer name"
                                                 autocomplete="off"
                                             />
-
                                         </x-form.group>
-
                                     </div>
-
                                     <div class="col-12">
-
-                                        <x-form.group
-                                            name="customer_address"
-                                            label="Customer Address"
-                                        >
-
+                                        <x-form.group name="customer_address" label="Customer Address">
                                             <x-form.input
                                                 name="customer_address"
                                                 rows="2"
                                                 placeholder="Enter customer address"
                                             />
-
                                         </x-form.group>
 
+                                        <input type="hidden" name="sale_id" value="{{ $sale->id }}">
                                     </div>
-
                                 </div>
-
                             </div>
 
                             <div class="card-footer bg-transparent border-0 text-end">
@@ -176,10 +152,10 @@
 
                                 <button
                                     type="button"
-                                    class="btn btn-primary"
+                                    class="btn btn-link text-decoration-none"
                                     id="btnSaveCustomer"
                                 >
-                                    <i class="bi bi-person-plus-fill me-1"></i>
+                                    <i class="bi bi-person-plus"></i>
                                     Create & Select Customer
                                 </button>
 
@@ -207,6 +183,7 @@
                     type="button"
                     class="btn btn-primary"
                     id="btnSelectCustomer"
+                    data-sale="{{ $sale->id }}"
                 >
                     Select Customer
                 </button>

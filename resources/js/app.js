@@ -1,6 +1,9 @@
 import './bootstrap'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import $ from 'jquery'
+import * as bootstrap from 'bootstrap';
+
+window.bootstrap = bootstrap;
 window.$ = window.jQuery = $
 import select2 from 'select2'
 select2($)
@@ -18,6 +21,7 @@ import Swal from 'sweetalert2'
 window.Swal = Swal
 import './roles-drag.js'
 import './permissions-drag.js'
+import './custom.js'
 import Chart from 'chart.js/auto';
 window.Chart = Chart;
 

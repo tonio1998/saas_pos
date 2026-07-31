@@ -10,6 +10,8 @@ class POSPayment extends Model
 
     protected $fillable = [
         'sale_id',
+        'tenant_id',
+        'customer_id',
         'payment_method',
         'amount',
         'reference_number',

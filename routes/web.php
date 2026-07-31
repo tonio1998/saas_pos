@@ -246,7 +246,10 @@ Route::middleware('auth')->group(function(){
         Route::get('/{sale}/details', [SalesController::class, 'details'])->name('details');
         Route::post('/complete', [SalesController::class, 'complete'])->name('complete');
 
+        Route::get('/{sale}/sales_details', [SalesController::class, 'sales_details']);
+
         Route::post('/customers/quick-store', [CustomerController::class, 'quickStore'])->name('quick-store');
+        Route::post('/{customers}/customer', [SalesController::class, 'updateCustomer'])->name('quick-store-2');
     });
 
     Route::prefix('cashiering')->name('cashiering.')->group(function () {
@@ -293,6 +296,7 @@ Route::middleware('auth')->group(function(){
         Route::put('/update/{id}', [ProductController::class, 'update'])->name('update');
         Route::delete('/delete/{id}', [ProductController::class, 'destroy'])->name('destroy');
         Route::get('/data', [ProductController::class, 'ajaxData'])->name('data');
+        Route::get('suggestions', [ProductController::class, 'suggestions'])->name('suggestions');
 
         Route::prefix('price-history')->name('price-history.')->group(function () {
             Route::get('/', [PriceHistoryController::class, 'index'])->name('index');
@@ -372,10 +376,8 @@ Route::middleware('auth')->group(function(){
         Route::get('/', [CustomerController::class, 'index'])->name('index');
         Route::get('/create', [CustomerController::class, 'create'])->name('create');
         Route::post('/create', [CustomerController::class, 'store'])->name('store');
-        Route::get('/view/{id}', [CustomerController::class, 'show'])->name('show');
         Route::get('/edit/{id}', [CustomerController::class, 'edit'])->name('edit');
         Route::put('/update/{id}', [CustomerController::class, 'update'])->name('update');
-        Route::delete('/delete/{id}', [CustomerController::class, 'destroy'])->name('destroy');
         Route::get('/data', [CustomerController::class, 'ajaxData'])->name('data');
 
         Route::prefix('credit')->name('credit.')->group(function () {
@@ -387,11 +389,14 @@ Route::middleware('auth')->group(function(){
             Route::put('/update/{id}', [CustomerCreditController::class, 'update'])->name('update');
             Route::delete('/delete/{id}', [CustomerCreditController::class, 'destroy'])->name('destroy');
             Route::get('/data', [CustomerCreditController::class, 'ajaxData'])->name('data');
+
+            Route::get('/ledger/{CustomerID}', [CustomerCreditController::class, 'show'])->name('ledger.show');
+            Route::get('/ledger/{CustomerID}/data', [CustomerCreditController::class, 'ledgerData'])->name('ledger.data');
         });
 
         Route::prefix('collections')->name('collections.')->group(function () {
             Route::get('/', [CustomerCollectionController::class, 'index'])->name('index');
-            Route::get('/create', [CustomerCollectionController::class, 'create'])->name('create');
+            Route::get('/{customerId}/create', [CustomerCollectionController::class, 'create'])->name('create');
             Route::post('/create', [CustomerCollectionController::class, 'store'])->name('store');
             Route::get('/view/{id}', [CustomerCollectionController::class, 'show'])->name('show');
             Route::get('/edit/{id}', [CustomerCollectionController::class, 'edit'])->name('edit');
