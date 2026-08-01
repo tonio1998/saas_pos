@@ -19,6 +19,9 @@ class POSPayment extends Model
         'notes',
         'tendered_amount',
         'change_amount',
+        'terminal_id',
+        'drawer_id',
+        'shift_id',
     ];
 
     protected $casts = [

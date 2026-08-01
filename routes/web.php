@@ -16,6 +16,8 @@ use App\Http\Controllers\POS\ExpenseReportController;
 use App\Http\Controllers\POS\InventoryController;
 use App\Http\Controllers\POS\InventoryReportController;
 use App\Http\Controllers\POS\PaymentsController;
+use App\Http\Controllers\POS\POSTerminal;
+use App\Http\Controllers\POS\POSTerminalController;
 use App\Http\Controllers\POS\PriceHistoryController;
 use App\Http\Controllers\POS\ProductController;
 use App\Http\Controllers\POS\ProfitReportController;
@@ -24,6 +26,7 @@ use App\Http\Controllers\POS\PurchaseReportController;
 use App\Http\Controllers\POS\ReturnController;
 use App\Http\Controllers\POS\SalesAshShiftController;
 use App\Http\Controllers\POS\SalesCashDrawerController;
+use App\Http\Controllers\POS\SalesCashShiftController;
 use App\Http\Controllers\POS\SalesCashTransactionController;
 use App\Http\Controllers\POS\SalesController;
 use App\Http\Controllers\POS\SalesReportController;
@@ -222,6 +225,7 @@ Route::middleware('auth')->group(function(){
         Route::get('roles/search',[RoleController::class,'search'])->name('roles');
         Route::get('users/search',[UserController::class,'users_search'])->name('users');
         Route::get('customers/search',[CustomerController::class,'customers_search'])->name('customers');
+        Route::get('cash-drawers/search',[SalesCashDrawerController::class,'cashDrawers_search'])->name('cash-drawers');
     });
 
 
@@ -233,9 +237,17 @@ Route::middleware('auth')->group(function(){
 
 //    POS
 
+    Route::prefix('terminal')->name('terminal.')->group(function () {
+        Route::get('/', [POSTerminalController::class, 'index'])->name('index');
+        Route::get('create', [POSTerminalController::class, 'create'])->name('create');
+        Route::post('/create', [POSTerminalController::class, 'store'])->name('store');
+        Route::post('/select', [POSTerminalController::class, 'select'])->name('select');
+
+    });
+
     Route::prefix('sales')->name('sales.')->group(function () {
         Route::get('/', [SalesController::class, 'index'])->name('index');
-        Route::get('/terminal/{sale}', [SalesController::class, 'create'])->name('create');
+        Route::get('/terminal/{sale}/sale', [SalesController::class, 'create'])->name('create');
         Route::get('/new', [SalesController::class, 'create1'])->name('create1');
         Route::post('/create', [SalesController::class, 'store'])->name('store');
         Route::get('/edit/{id}', [SalesController::class, 'edit'])->name('edit');
@@ -245,8 +257,8 @@ Route::middleware('auth')->group(function(){
         Route::get('/products',[SalesController::class, 'products']);
         Route::get('/{sale}/details', [SalesController::class, 'details'])->name('details');
         Route::post('/complete', [SalesController::class, 'complete'])->name('complete');
-
         Route::get('/{sale}/sales_details', [SalesController::class, 'sales_details']);
+        Route::get('/terminal/{sale}/new-sale', [SalesController::class, 'create'])->name('new');
 
         Route::post('/customers/quick-store', [CustomerController::class, 'quickStore'])->name('quick-store');
         Route::post('/{customers}/customer', [SalesController::class, 'updateCustomer'])->name('quick-store-2');
@@ -276,15 +288,20 @@ Route::middleware('auth')->group(function(){
         });
 
         Route::prefix('cash-shifts')->name('cash-shifts.')->group(function () {
-            Route::get('/', [SalesAshShiftController::class, 'index'])->name('index');
-            Route::get('/create', [SalesAshShiftController::class, 'create'])->name('create');
-            Route::post('/create', [SalesAshShiftController::class, 'store'])->name('store');
-            Route::get('/view/{id}', [SalesAshShiftController::class, 'show'])->name('show');
-            Route::get('/edit/{id}', [SalesAshShiftController::class, 'edit'])->name('edit');
-            Route::put('/update/{id}', [SalesAshShiftController::class, 'update'])->name('update');
-            Route::delete('/delete/{id}', [SalesAshShiftController::class, 'destroy'])->name('destroy');
-            Route::get('/data', [SalesAshShiftController::class, 'ajaxData'])->name('data');
+            Route::get('/', [SalesCashShiftController::class, 'index'])->name('index');
+//            Route::get('/{terminal}/{drawer}/create', [SalesCashShiftController::class, 'create'])->name('create');
+            Route::get('/{drawer}/create', [SalesCashShiftController::class, 'create'])->name('create');
+            Route::post('/create', [SalesCashShiftController::class, 'store'])->name('store');
+            Route::get('/view/{id}', [SalesCashShiftController::class, 'show'])->name('show');
+            Route::get('/edit/{id}', [SalesCashShiftController::class, 'edit'])->name('edit');
+            Route::put('/update/{id}', [SalesCashShiftController::class, 'update'])->name('update');
+            Route::get('/shifts/{id}', [SalesCashShiftController::class, 'shifts'])->name('shifts');
+            Route::delete('/delete/{id}', [SalesCashShiftController::class, 'destroy'])->name('destroy');
+            Route::get('/data', [SalesCashShiftController::class, 'ajaxData'])->name('data');
+            Route::get('/close/{id}', [SalesCashShiftController::class, 'close'])->name('close');
+            Route::post('/close/store', [SalesCashShiftController::class, 'closeStore'])->name('close.store');
         });
+
     });
 
     Route::prefix('products')->name('products.')->group(function () {

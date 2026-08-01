@@ -1,6 +1,7 @@
 <?php
 
 
+use App\Models\POS\POSCashDrawer;
 use App\Models\POS\POSSale;
 use App\Models\QrCodes;
 use App\Models\SmsQueuingModel;
@@ -81,6 +82,11 @@ function generateSerialNumber(int $length = 6): string
     }
     return $randomString;
 }
+
+ function generateTerminalCode($id): string
+ {
+     return 'TCH-' . str_pad($id, 6, '0', STR_PAD_LEFT);
+ }
 
 function format_date($date)
 {
@@ -185,6 +191,17 @@ function queueSMSSend($phoneNumber, $message)
     $queue->created_by = 0;
     $queue->updated_by = 0;
     $queue->save();
+}
+
+
+function getCashDrawerCode(int $id): string
+{
+    return 'CDR-' . str_pad($id, 6, '0', STR_PAD_LEFT);
+}
+
+function generateCashShiftCode(int $id): string
+{
+    return 'CSH-' . str_pad($id, 6, '0', STR_PAD_LEFT);
 }
 
 function generateQrCode()

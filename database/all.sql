@@ -23060,19 +23060,11 @@ CREATE TABLE IF NOT EXISTS `cache` (
   PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table saas_pos.cache: ~9 rows (approximately)
+-- Dumping data for table saas_pos.cache: ~2 rows (approximately)
 DELETE FROM `cache`;
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-	('laravel-cache-last_activity_1', 'b:1;', 1785493439),
-	('likhapos-cache-last_activity_1', 'b:1;', 1785493919),
-	('likhapos-cache-last_activity_2', 'b:1;', 1785476821),
-	('likhapos-cache-last_activity_3', 'b:1;', 1785493737),
-	('likhapos-cache-tenant_settings_2', 'O:24:"App\\Models\\POS\\POSTenant":34:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:11:"pos_tenants";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:19:{s:2:"id";i:2;s:15:"subscription_id";i:1;s:13:"business_name";s:14:"DyTech\'s Store";s:13:"business_code";s:14:"TEN-W37PSJ3WXG";s:10:"owner_name";s:6:"DyTech";s:5:"email";s:18:"dytech98@gmail.com";s:5:"phone";N;s:7:"address";N;s:4:"logo";N;s:18:"subscription_start";s:10:"2026-07-30";s:16:"subscription_end";N;s:13:"trial_ends_at";N;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-07-30 16:22:15";s:10:"updated_at";s:19:"2026-07-30 16:22:15";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:11:"\0*\0original";a:19:{s:2:"id";i:2;s:15:"subscription_id";i:1;s:13:"business_name";s:14:"DyTech\'s Store";s:13:"business_code";s:14:"TEN-W37PSJ3WXG";s:10:"owner_name";s:6:"DyTech";s:5:"email";s:18:"dytech98@gmail.com";s:5:"phone";N;s:7:"address";N;s:4:"logo";N;s:18:"subscription_start";s:10:"2026-07-30";s:16:"subscription_end";N;s:13:"trial_ends_at";N;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-07-30 16:22:15";s:10:"updated_at";s:19:"2026-07-30 16:22:15";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:5:{s:18:"subscription_start";s:4:"date";s:16:"subscription_end";s:4:"date";s:13:"trial_ends_at";s:8:"datetime";s:8:"archived";s:7:"boolean";s:10:"deleted_at";s:8:"datetime";}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:1:{s:12:"subscription";O:30:"App\\Models\\POS\\POSSubscription":33:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:17:"pos_subscriptions";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:23:{s:2:"id";i:1;s:4:"name";s:10:"Free Trial";s:11:"description";s:18:"14-day free trial.";s:5:"price";s:4:"0.00";s:13:"billing_cycle";s:7:"monthly";s:13:"duration_days";i:14;s:9:"max_users";i:1;s:12:"max_products";i:100;s:12:"max_branches";i:1;s:14:"max_storage_mb";i:512;s:15:"allow_inventory";i:1;s:13:"allow_reports";i:1;s:18:"allow_multi_branch";i:0;s:16:"allow_api_access";i:0;s:10:"trial_days";i:14;s:10:"sort_order";i:1;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-06-11 12:58:47";s:10:"updated_at";s:19:"2026-06-11 12:58:47";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:11:"\0*\0original";a:23:{s:2:"id";i:1;s:4:"name";s:10:"Free Trial";s:11:"description";s:18:"14-day free trial.";s:5:"price";s:4:"0.00";s:13:"billing_cycle";s:7:"monthly";s:13:"duration_days";i:14;s:9:"max_users";i:1;s:12:"max_products";i:100;s:12:"max_branches";i:1;s:14:"max_storage_mb";i:512;s:15:"allow_inventory";i:1;s:13:"allow_reports";i:1;s:18:"allow_multi_branch";i:0;s:16:"allow_api_access";i:0;s:10:"trial_days";i:14;s:10:"sort_order";i:1;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-06-11 12:58:47";s:10:"updated_at";s:19:"2026-06-11 12:58:47";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:0:{}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:0:{}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:15:{i:0;s:9:"tenant_id";i:1;s:13:"business_name";i:2;s:13:"business_code";i:3;s:10:"owner_name";i:4;s:5:"email";i:5;s:5:"phone";i:6;s:7:"address";i:7;s:4:"logo";i:8;s:18:"subscription_start";i:9;s:16:"subscription_end";i:10;s:13:"trial_ends_at";i:11;s:6:"status";i:12;s:8:"archived";i:13;s:10:"created_by";i:14;s:10:"updated_by";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}}}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:15:{i:0;s:15:"subscription_id";i:1;s:13:"business_name";i:2;s:13:"business_code";i:3;s:10:"owner_name";i:4;s:5:"email";i:5;s:5:"phone";i:6;s:7:"address";i:7;s:4:"logo";i:8;s:18:"subscription_start";i:9;s:16:"subscription_end";i:10;s:13:"trial_ends_at";i:11;s:6:"status";i:12;s:8:"archived";i:13;s:10:"created_by";i:14;s:10:"updated_by";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}s:16:"\0*\0forceDeleting";b:0;}', 1785410599),
-	('likhapos-cache-tenant_settings_3', 'O:24:"App\\Models\\POS\\POSTenant":34:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:11:"pos_tenants";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:19:{s:2:"id";i:3;s:15:"subscription_id";i:1;s:13:"business_name";s:22:"SNSU CCIS NEXA\'s Store";s:13:"business_code";s:14:"TEN-XJ42SY6XCY";s:10:"owner_name";s:14:"SNSU CCIS NEXA";s:5:"email";s:22:"snsuccisnexa@gmail.com";s:5:"phone";N;s:7:"address";N;s:4:"logo";N;s:18:"subscription_start";s:10:"2026-07-31";s:16:"subscription_end";N;s:13:"trial_ends_at";N;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-07-31 13:42:56";s:10:"updated_at";s:19:"2026-07-31 13:42:56";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:11:"\0*\0original";a:19:{s:2:"id";i:3;s:15:"subscription_id";i:1;s:13:"business_name";s:22:"SNSU CCIS NEXA\'s Store";s:13:"business_code";s:14:"TEN-XJ42SY6XCY";s:10:"owner_name";s:14:"SNSU CCIS NEXA";s:5:"email";s:22:"snsuccisnexa@gmail.com";s:5:"phone";N;s:7:"address";N;s:4:"logo";N;s:18:"subscription_start";s:10:"2026-07-31";s:16:"subscription_end";N;s:13:"trial_ends_at";N;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-07-31 13:42:56";s:10:"updated_at";s:19:"2026-07-31 13:42:56";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:5:{s:18:"subscription_start";s:4:"date";s:16:"subscription_end";s:4:"date";s:13:"trial_ends_at";s:8:"datetime";s:8:"archived";s:7:"boolean";s:10:"deleted_at";s:8:"datetime";}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:1:{s:12:"subscription";O:30:"App\\Models\\POS\\POSSubscription":33:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:17:"pos_subscriptions";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:23:{s:2:"id";i:1;s:4:"name";s:10:"Free Trial";s:11:"description";s:18:"14-day free trial.";s:5:"price";s:4:"0.00";s:13:"billing_cycle";s:7:"monthly";s:13:"duration_days";i:14;s:9:"max_users";i:1;s:12:"max_products";i:100;s:12:"max_branches";i:1;s:14:"max_storage_mb";i:512;s:15:"allow_inventory";i:1;s:13:"allow_reports";i:1;s:18:"allow_multi_branch";i:0;s:16:"allow_api_access";i:0;s:10:"trial_days";i:14;s:10:"sort_order";i:1;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-06-11 12:58:47";s:10:"updated_at";s:19:"2026-06-11 12:58:47";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:11:"\0*\0original";a:23:{s:2:"id";i:1;s:4:"name";s:10:"Free Trial";s:11:"description";s:18:"14-day free trial.";s:5:"price";s:4:"0.00";s:13:"billing_cycle";s:7:"monthly";s:13:"duration_days";i:14;s:9:"max_users";i:1;s:12:"max_products";i:100;s:12:"max_branches";i:1;s:14:"max_storage_mb";i:512;s:15:"allow_inventory";i:1;s:13:"allow_reports";i:1;s:18:"allow_multi_branch";i:0;s:16:"allow_api_access";i:0;s:10:"trial_days";i:14;s:10:"sort_order";i:1;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-06-11 12:58:47";s:10:"updated_at";s:19:"2026-06-11 12:58:47";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:0:{}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:0:{}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:15:{i:0;s:9:"tenant_id";i:1;s:13:"business_name";i:2;s:13:"business_code";i:3;s:10:"owner_name";i:4;s:5:"email";i:5;s:5:"phone";i:6;s:7:"address";i:7;s:4:"logo";i:8;s:18:"subscription_start";i:9;s:16:"subscription_end";i:10;s:13:"trial_ends_at";i:11;s:6:"status";i:12;s:8:"archived";i:13;s:10:"created_by";i:14;s:10:"updated_by";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}}}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:15:{i:0;s:15:"subscription_id";i:1;s:13:"business_name";i:2;s:13:"business_code";i:3;s:10:"owner_name";i:4;s:5:"email";i:5;s:5:"phone";i:6;s:7:"address";i:7;s:4:"logo";i:8;s:18:"subscription_start";i:9;s:16:"subscription_end";i:10;s:13:"trial_ends_at";i:11;s:6:"status";i:12;s:8:"archived";i:13;s:10:"created_by";i:14;s:10:"updated_by";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}s:16:"\0*\0forceDeleting";b:0;}', 1785495083),
-	('safetrack-cache-last_activity_1', 'b:1;', 1785398749),
-	('safetrack-cache-last_activity_988', 'b:1;', 1785397179),
-	('safetrack-cache-tenant_settings_1', 'O:24:"App\\Models\\POS\\POSTenant":34:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:11:"pos_tenants";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:19:{s:2:"id";i:1;s:15:"subscription_id";i:1;s:13:"business_name";s:27:"ANTONIO JR. PILOTON\'s Store";s:13:"business_code";s:14:"TEN-RES5CGOS5G";s:10:"owner_name";s:19:"ANTONIO JR. PILOTON";s:5:"email";s:26:"antoniojrpiloton@gmail.com";s:5:"phone";N;s:7:"address";N;s:4:"logo";N;s:18:"subscription_start";s:10:"2026-06-11";s:16:"subscription_end";N;s:13:"trial_ends_at";N;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-06-11 15:36:53";s:10:"updated_at";s:19:"2026-06-11 15:36:53";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:11:"\0*\0original";a:19:{s:2:"id";i:1;s:15:"subscription_id";i:1;s:13:"business_name";s:27:"ANTONIO JR. PILOTON\'s Store";s:13:"business_code";s:14:"TEN-RES5CGOS5G";s:10:"owner_name";s:19:"ANTONIO JR. PILOTON";s:5:"email";s:26:"antoniojrpiloton@gmail.com";s:5:"phone";N;s:7:"address";N;s:4:"logo";N;s:18:"subscription_start";s:10:"2026-06-11";s:16:"subscription_end";N;s:13:"trial_ends_at";N;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-06-11 15:36:53";s:10:"updated_at";s:19:"2026-06-11 15:36:53";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:5:{s:18:"subscription_start";s:4:"date";s:16:"subscription_end";s:4:"date";s:13:"trial_ends_at";s:8:"datetime";s:8:"archived";s:7:"boolean";s:10:"deleted_at";s:8:"datetime";}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:1:{s:12:"subscription";O:30:"App\\Models\\POS\\POSSubscription":33:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:17:"pos_subscriptions";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:23:{s:2:"id";i:1;s:4:"name";s:10:"Free Trial";s:11:"description";s:18:"14-day free trial.";s:5:"price";s:4:"0.00";s:13:"billing_cycle";s:7:"monthly";s:13:"duration_days";i:14;s:9:"max_users";i:1;s:12:"max_products";i:100;s:12:"max_branches";i:1;s:14:"max_storage_mb";i:512;s:15:"allow_inventory";i:1;s:13:"allow_reports";i:1;s:18:"allow_multi_branch";i:0;s:16:"allow_api_access";i:0;s:10:"trial_days";i:14;s:10:"sort_order";i:1;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-06-11 12:58:47";s:10:"updated_at";s:19:"2026-06-11 12:58:47";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:11:"\0*\0original";a:23:{s:2:"id";i:1;s:4:"name";s:10:"Free Trial";s:11:"description";s:18:"14-day free trial.";s:5:"price";s:4:"0.00";s:13:"billing_cycle";s:7:"monthly";s:13:"duration_days";i:14;s:9:"max_users";i:1;s:12:"max_products";i:100;s:12:"max_branches";i:1;s:14:"max_storage_mb";i:512;s:15:"allow_inventory";i:1;s:13:"allow_reports";i:1;s:18:"allow_multi_branch";i:0;s:16:"allow_api_access";i:0;s:10:"trial_days";i:14;s:10:"sort_order";i:1;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-06-11 12:58:47";s:10:"updated_at";s:19:"2026-06-11 12:58:47";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:0:{}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:0:{}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:15:{i:0;s:9:"tenant_id";i:1;s:13:"business_name";i:2;s:13:"business_code";i:3;s:10:"owner_name";i:4;s:5:"email";i:5;s:5:"phone";i:6;s:7:"address";i:7;s:4:"logo";i:8;s:18:"subscription_start";i:9;s:16:"subscription_end";i:10;s:13:"trial_ends_at";i:11;s:6:"status";i:12;s:8:"archived";i:13;s:10:"created_by";i:14;s:10:"updated_by";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}}}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:15:{i:0;s:15:"subscription_id";i:1;s:13:"business_name";i:2;s:13:"business_code";i:3;s:10:"owner_name";i:4;s:5:"email";i:5;s:5:"phone";i:6;s:7:"address";i:7;s:4:"logo";i:8;s:18:"subscription_start";i:9;s:16:"subscription_end";i:10;s:13:"trial_ends_at";i:11;s:6:"status";i:12;s:8:"archived";i:13;s:10:"created_by";i:14;s:10:"updated_by";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}s:16:"\0*\0forceDeleting";b:0;}', 1785397757),
-	('safetrack-cache-tenant_settings_3', 'O:24:"App\\Models\\POS\\POSTenant":34:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:11:"pos_tenants";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:19:{s:2:"id";i:3;s:15:"subscription_id";i:1;s:13:"business_name";s:27:"ANTONIO JR. PILOTON\'s Store";s:13:"business_code";s:14:"TEN-ARPGBW7H6V";s:10:"owner_name";s:19:"ANTONIO JR. PILOTON";s:5:"email";s:26:"antoniojrpiloton@gmail.com";s:5:"phone";N;s:7:"address";N;s:4:"logo";N;s:18:"subscription_start";s:10:"2026-07-30";s:16:"subscription_end";N;s:13:"trial_ends_at";N;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-07-30 15:34:39";s:10:"updated_at";s:19:"2026-07-30 15:34:39";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:11:"\0*\0original";a:19:{s:2:"id";i:3;s:15:"subscription_id";i:1;s:13:"business_name";s:27:"ANTONIO JR. PILOTON\'s Store";s:13:"business_code";s:14:"TEN-ARPGBW7H6V";s:10:"owner_name";s:19:"ANTONIO JR. PILOTON";s:5:"email";s:26:"antoniojrpiloton@gmail.com";s:5:"phone";N;s:7:"address";N;s:4:"logo";N;s:18:"subscription_start";s:10:"2026-07-30";s:16:"subscription_end";N;s:13:"trial_ends_at";N;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-07-30 15:34:39";s:10:"updated_at";s:19:"2026-07-30 15:34:39";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:5:{s:18:"subscription_start";s:4:"date";s:16:"subscription_end";s:4:"date";s:13:"trial_ends_at";s:8:"datetime";s:8:"archived";s:7:"boolean";s:10:"deleted_at";s:8:"datetime";}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:1:{s:12:"subscription";O:30:"App\\Models\\POS\\POSSubscription":33:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:17:"pos_subscriptions";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:23:{s:2:"id";i:1;s:4:"name";s:10:"Free Trial";s:11:"description";s:18:"14-day free trial.";s:5:"price";s:4:"0.00";s:13:"billing_cycle";s:7:"monthly";s:13:"duration_days";i:14;s:9:"max_users";i:1;s:12:"max_products";i:100;s:12:"max_branches";i:1;s:14:"max_storage_mb";i:512;s:15:"allow_inventory";i:1;s:13:"allow_reports";i:1;s:18:"allow_multi_branch";i:0;s:16:"allow_api_access";i:0;s:10:"trial_days";i:14;s:10:"sort_order";i:1;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-06-11 12:58:47";s:10:"updated_at";s:19:"2026-06-11 12:58:47";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:11:"\0*\0original";a:23:{s:2:"id";i:1;s:4:"name";s:10:"Free Trial";s:11:"description";s:18:"14-day free trial.";s:5:"price";s:4:"0.00";s:13:"billing_cycle";s:7:"monthly";s:13:"duration_days";i:14;s:9:"max_users";i:1;s:12:"max_products";i:100;s:12:"max_branches";i:1;s:14:"max_storage_mb";i:512;s:15:"allow_inventory";i:1;s:13:"allow_reports";i:1;s:18:"allow_multi_branch";i:0;s:16:"allow_api_access";i:0;s:10:"trial_days";i:14;s:10:"sort_order";i:1;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-06-11 12:58:47";s:10:"updated_at";s:19:"2026-06-11 12:58:47";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:0:{}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:0:{}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:15:{i:0;s:9:"tenant_id";i:1;s:13:"business_name";i:2;s:13:"business_code";i:3;s:10:"owner_name";i:4;s:5:"email";i:5;s:5:"phone";i:6;s:7:"address";i:7;s:4:"logo";i:8;s:18:"subscription_start";i:9;s:16:"subscription_end";i:10;s:13:"trial_ends_at";i:11;s:6:"status";i:12;s:8:"archived";i:13;s:10:"created_by";i:14;s:10:"updated_by";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}}}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:15:{i:0;s:15:"subscription_id";i:1;s:13:"business_name";i:2;s:13:"business_code";i:3;s:10:"owner_name";i:4;s:5:"email";i:5;s:5:"phone";i:6;s:7:"address";i:7;s:4:"logo";i:8;s:18:"subscription_start";i:9;s:16:"subscription_end";i:10;s:13:"trial_ends_at";i:11;s:6:"status";i:12;s:8:"archived";i:13;s:10:"created_by";i:14;s:10:"updated_by";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}s:16:"\0*\0forceDeleting";b:0;}', 1785400479);
+	('likhapos-cache-last_activity_1', 'b:1;', 1785558406),
+	('likhapos-cache-last_activity_3', 'b:1;', 1785569764);
 
 -- Dumping structure for table saas_pos.cache_locks
 DROP TABLE IF EXISTS `cache_locks`;
@@ -42702,6 +42694,187 @@ INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `n
 	(1314, 'App\\Models\\User', 603, 'mobile', 'c889877e92af2d1e7699ad91af8ba938489971b7a97d343f05aaf1559bbf48f7', '["*"]', '2026-07-30 03:24:23', NULL, '2026-07-30 03:23:37', '2026-07-30 03:24:23'),
 	(1315, 'App\\Models\\User', 40, 'mobile', 'ef8b98e8f8de72f86ed54a648c0c9ef143532b5eb6fd1e56f8c15d6590784f6a', '["*"]', '2026-07-30 03:47:01', NULL, '2026-07-30 03:44:38', '2026-07-30 03:47:01');
 
+-- Dumping structure for table saas_pos.pos_cash_counts
+DROP TABLE IF EXISTS `pos_cash_counts`;
+CREATE TABLE IF NOT EXISTS `pos_cash_counts` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `tenant_id` bigint(20) unsigned DEFAULT NULL,
+  `shift_id` bigint(20) unsigned DEFAULT NULL,
+  `denomination` decimal(10,2) DEFAULT NULL,
+  `quantity` int(11) DEFAULT '0',
+  `amount` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `created_by` int(11) DEFAULT NULL,
+  `updated_by` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_shift` (`shift_id`),
+  KEY `idx_tenant` (`tenant_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+
+-- Dumping data for table saas_pos.pos_cash_counts: 7 rows
+DELETE FROM `pos_cash_counts`;
+/*!40000 ALTER TABLE `pos_cash_counts` DISABLE KEYS */;
+INSERT INTO `pos_cash_counts` (`id`, `tenant_id`, `shift_id`, `denomination`, `quantity`, `amount`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 3, 4, 1000.00, 4, 4000.00, 3, 3, '2026-08-01 15:31:43', '2026-08-01 07:32:25', 'active', 0, NULL),
+	(2, 3, 4, 500.00, 3, 1500.00, 3, 3, '2026-08-01 15:31:43', '2026-08-01 07:32:26', 'active', 0, NULL),
+	(3, 3, 4, 100.00, 2, 200.00, 3, 3, '2026-08-01 15:31:43', '2026-08-01 07:32:28', 'active', 0, NULL),
+	(4, 3, 4, 20.00, 25, 500.00, 3, 3, '2026-08-01 15:31:43', '2026-08-01 07:31:43', 'active', 0, NULL),
+	(5, 3, 4, 10.00, 100, 1000.00, 3, 3, '2026-08-01 15:31:43', '2026-08-01 07:31:43', 'active', 0, NULL),
+	(6, 3, 4, 1.00, 18, 18.00, 3, 3, '2026-08-01 15:31:43', '2026-08-01 07:31:43', 'active', 0, NULL),
+	(7, 3, 4, 0.00, 1, 0.56, 3, 3, '2026-08-01 15:31:43', '2026-08-01 07:31:43', 'active', 0, NULL);
+/*!40000 ALTER TABLE `pos_cash_counts` ENABLE KEYS */;
+
+-- Dumping structure for table saas_pos.pos_cash_drawers
+DROP TABLE IF EXISTS `pos_cash_drawers`;
+CREATE TABLE IF NOT EXISTS `pos_cash_drawers` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `drawer_code` varchar(20) DEFAULT NULL,
+  `tenant_id` int(11) NOT NULL DEFAULT '0',
+  `drawer_name` varchar(100) DEFAULT NULL,
+  `remarks` varchar(100) DEFAULT NULL,
+  `branch_id` int(11) DEFAULT NULL,
+  `terminal_id` int(11) DEFAULT NULL,
+  `is_default` tinyint(1) NOT NULL DEFAULT '0',
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked') NOT NULL DEFAULT 'active',
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_tenant` (`tenant_id`) USING BTREE,
+  KEY `idx_name` (`drawer_name`) USING BTREE,
+  KEY `idx_status` (`status`) USING BTREE
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+
+-- Dumping data for table saas_pos.pos_cash_drawers: 2 rows
+DELETE FROM `pos_cash_drawers`;
+/*!40000 ALTER TABLE `pos_cash_drawers` DISABLE KEYS */;
+INSERT INTO `pos_cash_drawers` (`id`, `drawer_code`, `tenant_id`, `drawer_name`, `remarks`, `branch_id`, `terminal_id`, `is_default`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 'CDR-000001', 3, 'Terminal 1 Drawer', NULL, NULL, NULL, 0, 3, 3, '2026-08-01 13:32:54', '2026-08-01 05:32:54', 'active', 0, NULL),
+	(2, 'CDR-000002', 3, 'Terminal 2 Drawer', NULL, NULL, NULL, 0, 3, 3, '2026-08-01 13:33:03', '2026-08-01 05:33:03', 'active', 0, NULL);
+/*!40000 ALTER TABLE `pos_cash_drawers` ENABLE KEYS */;
+
+-- Dumping structure for table saas_pos.pos_cash_movements
+DROP TABLE IF EXISTS `pos_cash_movements`;
+CREATE TABLE IF NOT EXISTS `pos_cash_movements` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `movement_code` varchar(50) DEFAULT NULL,
+  `tenant_id` bigint(20) unsigned DEFAULT NULL,
+  `cash_shift_id` bigint(20) unsigned DEFAULT NULL,
+  `drawer_id` bigint(20) unsigned DEFAULT NULL,
+  `cashier_id` bigint(20) unsigned DEFAULT NULL,
+  `type` enum('IN','OUT') DEFAULT NULL,
+  `category` varchar(50) DEFAULT NULL,
+  `amount` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `reference_no` varchar(100) DEFAULT NULL,
+  `remarks` text,
+  `movement_date` datetime NOT NULL,
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_movement_code` (`movement_code`) USING BTREE,
+  KEY `idx_tenant` (`tenant_id`) USING BTREE,
+  KEY `idx_drawer` (`drawer_id`) USING BTREE,
+  KEY `idx_cashier` (`cashier_id`) USING BTREE,
+  KEY `idx_type` (`type`) USING BTREE,
+  KEY `idx_date` (`movement_date`) USING BTREE,
+  KEY `idx_shift` (`cash_shift_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Dumping data for table saas_pos.pos_cash_movements: ~0 rows (approximately)
+DELETE FROM `pos_cash_movements`;
+
+-- Dumping structure for table saas_pos.pos_cash_shifts
+DROP TABLE IF EXISTS `pos_cash_shifts`;
+CREATE TABLE IF NOT EXISTS `pos_cash_shifts` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `shift_code` varchar(20) NOT NULL DEFAULT '0',
+  `tenant_id` int(11) NOT NULL DEFAULT '0',
+  `drawer_id` int(11) NOT NULL DEFAULT '0',
+  `cashier_id` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `opening_cash` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `cash_sales` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `cash_in` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `cash_out` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `expected_cash` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `actual_cash` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `over_amount` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `short_amount` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `opened_at` datetime NOT NULL,
+  `closed_at` datetime DEFAULT NULL,
+  `remarks` text,
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('open','closed','cancelled') NOT NULL DEFAULT 'open',
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_tenant` (`tenant_id`) USING BTREE,
+  KEY `idx_drawer` (`drawer_id`) USING BTREE,
+  KEY `idx_cashier` (`cashier_id`) USING BTREE,
+  KEY `idx_status` (`status`) USING BTREE,
+  KEY `idx_opened_at` (`opened_at`) USING BTREE
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+
+-- Dumping data for table saas_pos.pos_cash_shifts: 4 rows
+DELETE FROM `pos_cash_shifts`;
+/*!40000 ALTER TABLE `pos_cash_shifts` DISABLE KEYS */;
+INSERT INTO `pos_cash_shifts` (`id`, `shift_code`, `tenant_id`, `drawer_id`, `cashier_id`, `opening_cash`, `cash_sales`, `cash_in`, `cash_out`, `expected_cash`, `actual_cash`, `over_amount`, `short_amount`, `opened_at`, `closed_at`, `remarks`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 'CSH-000001', 3, 1, 3, 2500.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, '2026-08-01 13:35:30', '2026-08-01 13:37:44', NULL, 3, 3, '2026-08-01 13:35:30', '2026-08-01 05:37:45', 'closed', 0, NULL),
+	(2, 'CSH-000002', 3, 2, 3, 1000.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, '2026-08-01 13:36:22', '2026-08-01 13:37:45', NULL, 3, 3, '2026-08-01 13:36:22', '2026-08-01 05:37:45', 'closed', 0, NULL),
+	(3, 'CSH-000003', 3, 1, 3, 3500.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, '2026-08-01 13:37:57', '2026-08-01 13:45:40', NULL, 3, 3, '2026-08-01 13:37:57', '2026-08-01 05:45:40', 'closed', 0, NULL),
+	(4, 'CSH-000004', 3, 1, 3, 1500.00, 8512.50, 0.00, 0.00, 10012.50, 7218.56, 0.00, 2793.94, '2026-08-01 13:46:08', '2026-08-01 15:31:43', NULL, 3, 3, '2026-08-01 13:46:08', '2026-08-01 07:31:43', 'closed', 0, NULL);
+/*!40000 ALTER TABLE `pos_cash_shifts` ENABLE KEYS */;
+
+-- Dumping structure for table saas_pos.pos_cash_transactions
+DROP TABLE IF EXISTS `pos_cash_transactions`;
+CREATE TABLE IF NOT EXISTS `pos_cash_transactions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `transaction_code` varchar(20) NOT NULL DEFAULT '0',
+  `tenant_id` int(11) NOT NULL DEFAULT '0',
+  `shift_id` int(11) NOT NULL DEFAULT '0',
+  `drawer_id` int(11) NOT NULL DEFAULT '0',
+  `cashier_id` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `transaction_type` enum('cash_in','cash_out') NOT NULL,
+  `category` varchar(100) NOT NULL,
+  `amount` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `reference_no` varchar(50) DEFAULT NULL,
+  `approved_by` bigint(20) unsigned DEFAULT NULL,
+  `remarks` text,
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','void') NOT NULL DEFAULT 'active',
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_tenant` (`tenant_id`) USING BTREE,
+  KEY `idx_shift` (`shift_id`) USING BTREE,
+  KEY `idx_drawer` (`drawer_id`) USING BTREE,
+  KEY `idx_cashier` (`cashier_id`) USING BTREE,
+  KEY `idx_type` (`transaction_type`) USING BTREE,
+  KEY `idx_status` (`status`) USING BTREE
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- Dumping data for table saas_pos.pos_cash_transactions: 0 rows
+DELETE FROM `pos_cash_transactions`;
+/*!40000 ALTER TABLE `pos_cash_transactions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `pos_cash_transactions` ENABLE KEYS */;
+
 -- Dumping structure for table saas_pos.pos_categories
 DROP TABLE IF EXISTS `pos_categories`;
 CREATE TABLE IF NOT EXISTS `pos_categories` (
@@ -42758,36 +42931,51 @@ INSERT INTO `pos_categories` (`id`, `tenant_id`, `name`, `description`, `created
 DROP TABLE IF EXISTS `pos_customers`;
 CREATE TABLE IF NOT EXISTS `pos_customers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `customer_code` varchar(20) NOT NULL DEFAULT '0',
   `tenant_id` int(11) NOT NULL DEFAULT '0',
   `CustomerName` varchar(100) NOT NULL DEFAULT '0',
-  `TotalPoints` double NOT NULL DEFAULT '0',
-  `CustomerAddress` varchar(255) NOT NULL DEFAULT '0',
+  `company_name` varchar(150) DEFAULT NULL,
+  `customer_type` enum('regular','business','senior','pwd','credit') NOT NULL DEFAULT 'regular',
+  `mobile_number` varchar(20) DEFAULT NULL,
+  `email` varchar(150) DEFAULT NULL,
+  `TotalPoints` int(10) unsigned NOT NULL DEFAULT '0',
+  `remarks` text,
+  `CustomerAddress` text,
+  `discount_percent` decimal(5,2) NOT NULL DEFAULT '0.00',
+  `credit_limit` decimal(15,2) NOT NULL DEFAULT '0.00',
   `created_by` bigint(20) unsigned DEFAULT NULL,
   `updated_by` bigint(20) unsigned DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `status` enum('active','inactive','locked','unlocked') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `status` enum('active','inactive','locked') NOT NULL DEFAULT 'active',
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
+  PRIMARY KEY (`id`),
+  KEY `idx_tenant` (`tenant_id`),
+  KEY `idx_name` (`CustomerName`),
+  KEY `idx_mobile` (`mobile_number`),
+  KEY `idx_email` (`email`),
+  KEY `idx_status` (`status`)
+) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
 
--- Dumping data for table saas_pos.pos_customers: 12 rows
+-- Dumping data for table saas_pos.pos_customers: 14 rows
 DELETE FROM `pos_customers`;
 /*!40000 ALTER TABLE `pos_customers` DISABLE KEYS */;
-INSERT INTO `pos_customers` (`id`, `tenant_id`, `CustomerName`, `TotalPoints`, `CustomerAddress`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
-	(1, 2, 'Antoneth Piloton', 1500, 'Sta. Cruz, Tubajon', 1, 1, '2026-07-30 16:50:07', '2026-07-30 08:51:09', 'active', 0, NULL),
-	(2, 2, 'Mary Jane Libay', 0, 'STC', 2, 2, '2026-07-30 17:06:04', '2026-07-30 09:06:59', 'active', 0, NULL),
-	(3, 2, 'gfdg', 0, 'fdgfg', 2, 2, '2026-07-31 09:32:42', '2026-07-31 01:32:42', 'active', 0, NULL),
-	(4, 2, 'Norma Piloton', 0, 'gsdfgdfg', 2, 2, '2026-07-31 11:18:29', '2026-07-31 03:18:29', 'active', 0, NULL),
-	(5, 3, 'jfghj', 0, 'fghjfghj', 3, 3, '2026-07-31 16:15:15', '2026-07-31 08:15:15', 'active', 0, NULL),
-	(6, 3, 'ngfhfgh', 0, 'fghfgh', 3, 3, '2026-07-31 16:30:23', '2026-07-31 08:30:23', 'active', 0, NULL),
-	(7, 3, 'kghjk', 0, 'ghjkghjk', 3, 3, '2026-07-31 16:31:13', '2026-07-31 08:31:13', 'active', 0, NULL),
-	(8, 3, 'yuityui', 0, 'tyuityui', 3, 3, '2026-07-31 16:32:52', '2026-07-31 08:32:52', 'active', 0, NULL),
-	(9, 3, 'ryutyu', 0, 'rtyutyu', 3, 3, '2026-07-31 16:34:34', '2026-07-31 08:34:34', 'active', 0, NULL),
-	(10, 3, 'hehehe', 0, 'heheh', 3, 3, '2026-07-31 16:34:47', '2026-07-31 08:34:47', 'active', 0, NULL),
-	(11, 3, ';jkl;jkl;', 0, 'jkl;jkl;', 3, 3, '2026-07-31 16:35:17', '2026-07-31 08:35:17', 'active', 0, NULL),
-	(12, 3, '\'kl;\'l', 0, 'yjtyjtyui', 3, 3, '2026-07-31 16:35:27', '2026-07-31 08:35:27', 'active', 0, NULL);
+INSERT INTO `pos_customers` (`id`, `customer_code`, `tenant_id`, `CustomerName`, `company_name`, `customer_type`, `mobile_number`, `email`, `TotalPoints`, `remarks`, `CustomerAddress`, `discount_percent`, `credit_limit`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, '0', 2, 'Antoneth Piloton', NULL, 'regular', NULL, NULL, 1500, NULL, 'Sta. Cruz, Tubajon', 0.00, 0.00, 1, 1, '2026-07-30 16:50:07', '2026-07-30 08:51:09', 'active', 0, NULL),
+	(2, '0', 2, 'Mary Jane Libay', NULL, 'regular', NULL, NULL, 0, NULL, 'STC', 0.00, 0.00, 2, 2, '2026-07-30 17:06:04', '2026-07-30 09:06:59', 'active', 0, NULL),
+	(3, '0', 2, 'gfdg', NULL, 'regular', NULL, NULL, 0, NULL, 'fdgfg', 0.00, 0.00, 2, 2, '2026-07-31 09:32:42', '2026-07-31 01:32:42', 'active', 0, NULL),
+	(4, '0', 2, 'Norma Piloton', NULL, 'regular', NULL, NULL, 0, NULL, 'gsdfgdfg', 0.00, 0.00, 2, 2, '2026-07-31 11:18:29', '2026-07-31 03:18:29', 'active', 0, NULL),
+	(5, '0', 3, 'jfghj', NULL, 'regular', NULL, NULL, 0, NULL, 'fghjfghj', 0.00, 0.00, 3, 3, '2026-07-31 16:15:15', '2026-07-31 08:15:15', 'active', 0, NULL),
+	(6, '0', 3, 'ngfhfgh', NULL, 'regular', NULL, NULL, 0, NULL, 'fghfgh', 0.00, 0.00, 3, 3, '2026-07-31 16:30:23', '2026-07-31 08:30:23', 'active', 0, NULL),
+	(7, '0', 3, 'kghjk', NULL, 'regular', NULL, NULL, 0, NULL, 'ghjkghjk', 0.00, 0.00, 3, 3, '2026-07-31 16:31:13', '2026-07-31 08:31:13', 'active', 0, NULL),
+	(8, '0', 3, 'yuityui', NULL, 'regular', NULL, NULL, 0, NULL, 'tyuityui', 0.00, 0.00, 3, 3, '2026-07-31 16:32:52', '2026-07-31 08:32:52', 'active', 0, NULL),
+	(9, '0', 3, 'ryutyu', NULL, 'regular', NULL, NULL, 0, NULL, 'rtyutyu', 0.00, 0.00, 3, 3, '2026-07-31 16:34:34', '2026-07-31 08:34:34', 'active', 0, NULL),
+	(10, '0', 3, 'hehehe', NULL, 'regular', NULL, NULL, 0, NULL, 'heheh', 0.00, 0.00, 3, 3, '2026-07-31 16:34:47', '2026-07-31 08:34:47', 'active', 0, NULL),
+	(11, '0', 3, ';jkl;jkl;', NULL, 'regular', NULL, NULL, 0, NULL, 'jkl;jkl;', 0.00, 0.00, 3, 3, '2026-07-31 16:35:17', '2026-07-31 08:35:17', 'active', 0, NULL),
+	(12, '0', 3, '\'kl;\'l', NULL, 'regular', NULL, NULL, 0, NULL, 'yjtyjtyui', 0.00, 0.00, 3, 3, '2026-07-31 16:35:27', '2026-07-31 08:35:27', 'active', 0, NULL),
+	(13, '0', 3, 'ANTONIO JR LUIB PILOTON', 'SURIGAO DEL NORTE STATE UNIVERSITY', 'regular', '09128941731', 'apiloton1@ssct.edu.ph', 0, 'none', 'Sitio Cayutan, Brgy. Cagniog', 5.00, 1500.00, 3, 3, '2026-08-01 09:34:27', '2026-08-01 01:34:27', 'active', 0, NULL),
+	(14, 'CUS-00000014', 3, 'MARYJANE LIBAY-edited', 'SURIGAO DEL NORTE STATE UNIVERSITY', 'business', '09128941731', 'apiloton1@ssct.edu.ph', 0, 'none', 'STC', 5.00, 5.00, 3, 3, '2026-08-01 09:36:54', '2026-08-01 01:36:54', 'active', 0, NULL);
 /*!40000 ALTER TABLE `pos_customers` ENABLE KEYS */;
 
 -- Dumping structure for table saas_pos.pos_customer_ledgers
@@ -42799,7 +42987,7 @@ CREATE TABLE IF NOT EXISTS `pos_customer_ledgers` (
   `sale_id` bigint(20) unsigned DEFAULT NULL,
   `payment_id` bigint(20) unsigned DEFAULT NULL,
   `reference_no` varchar(50) DEFAULT NULL,
-  `transaction_type` enum('OPENING_BALANCE','SALE','PAYMENT','ADJUSTMENT','WRITE_OFF','REFUND') NOT NULL,
+  `transaction_type` enum('OPENING_BALANCE','SALE','PAYMENT','ADJUSTMENT','WRITE_OFF','REFUND','CUSTOMER_REGISTRATION') NOT NULL,
   `debit` decimal(12,2) NOT NULL DEFAULT '0.00',
   `credit` decimal(12,2) NOT NULL DEFAULT '0.00',
   `running_balance` decimal(12,2) NOT NULL DEFAULT '0.00',
@@ -42817,9 +43005,9 @@ CREATE TABLE IF NOT EXISTS `pos_customer_ledgers` (
   KEY `idx_payment` (`payment_id`),
   KEY `idx_reference` (`reference_no`),
   KEY `idx_tenant_customer` (`tenant_id`,`customer_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=27 DEFAULT CHARSET=utf8;
 
--- Dumping data for table saas_pos.pos_customer_ledgers: 11 rows
+-- Dumping data for table saas_pos.pos_customer_ledgers: 22 rows
 DELETE FROM `pos_customer_ledgers`;
 /*!40000 ALTER TABLE `pos_customer_ledgers` DISABLE KEYS */;
 INSERT INTO `pos_customer_ledgers` (`id`, `tenant_id`, `customer_id`, `sale_id`, `payment_id`, `reference_no`, `transaction_type`, `debit`, `credit`, `running_balance`, `remarks`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
@@ -42836,7 +43024,15 @@ INSERT INTO `pos_customer_ledgers` (`id`, `tenant_id`, `customer_id`, `sale_id`,
 	(15, 3, 6, 18, NULL, NULL, 'SALE', 2448.50, 0.00, 2448.50, '4545', 3, 3, '2026-07-31 17:51:23', '2026-07-31 09:51:23', 'active', 0, NULL),
 	(16, 3, 6, NULL, 35, NULL, 'PAYMENT', 0.00, 612.13, 1836.37, NULL, 3, 3, '2026-07-31 17:52:52', '2026-07-31 09:52:52', 'active', 0, NULL),
 	(17, 3, 6, NULL, 36, NULL, 'PAYMENT', 0.00, 1377.28, 459.09, NULL, 3, 3, '2026-07-31 17:53:16', '2026-07-31 09:53:16', 'active', 0, NULL),
-	(18, 3, 6, NULL, 37, NULL, 'PAYMENT', 0.00, 459.09, 0.00, NULL, 3, 3, '2026-07-31 17:53:22', '2026-07-31 09:53:22', 'active', 0, NULL);
+	(18, 3, 6, NULL, 37, NULL, 'PAYMENT', 0.00, 459.09, 0.00, NULL, 3, 3, '2026-07-31 17:53:22', '2026-07-31 09:53:22', 'active', 0, NULL),
+	(19, 3, 10, 20, NULL, NULL, 'SALE', 2117.50, 0.00, 2117.50, NULL, 3, 3, '2026-08-01 08:39:00', '2026-08-01 00:39:00', 'active', 0, NULL),
+	(20, 3, 10, NULL, 38, NULL, 'PAYMENT', 0.00, 1058.75, 1058.75, NULL, 3, 3, '2026-08-01 08:39:35', '2026-08-01 00:39:35', 'active', 0, NULL),
+	(21, 3, 10, NULL, 39, NULL, 'PAYMENT', 0.00, 150.00, 908.75, NULL, 3, 3, '2026-08-01 08:41:10', '2026-08-01 00:41:10', 'active', 0, NULL),
+	(22, 3, 10, NULL, 40, NULL, 'PAYMENT', 0.00, 500.00, 408.75, NULL, 3, 3, '2026-08-01 08:41:31', '2026-08-01 00:41:31', 'active', 0, NULL),
+	(23, 3, 10, NULL, 41, NULL, 'PAYMENT', 0.00, 408.75, 0.00, NULL, 3, 3, '2026-08-01 08:42:10', '2026-08-01 00:42:10', 'active', 0, NULL),
+	(24, 3, 10, 21, NULL, NULL, 'SALE', 210.00, 0.00, 210.00, NULL, 3, 3, '2026-08-01 08:55:39', '2026-08-01 00:55:39', 'active', 0, NULL),
+	(25, 3, 13, NULL, NULL, NULL, 'CUSTOMER_REGISTRATION', 0.00, 0.00, 0.00, 'Customer registration', 3, 3, '2026-08-01 09:34:27', '2026-08-01 01:34:27', 'active', 0, NULL),
+	(26, 3, 14, NULL, NULL, NULL, 'CUSTOMER_REGISTRATION', 0.00, 0.00, 0.00, 'Customer registration', 3, 3, '2026-08-01 09:35:20', '2026-08-01 01:35:20', 'active', 0, NULL);
 /*!40000 ALTER TABLE `pos_customer_ledgers` ENABLE KEYS */;
 
 -- Dumping structure for table saas_pos.pos_inventory_movements
@@ -42858,9 +43054,9 @@ CREATE TABLE IF NOT EXISTS `pos_inventory_movements` (
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_product` (`product_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8;
 
--- Dumping data for table saas_pos.pos_inventory_movements: ~33 rows (approximately)
+-- Dumping data for table saas_pos.pos_inventory_movements: ~47 rows (approximately)
 DELETE FROM `pos_inventory_movements`;
 INSERT INTO `pos_inventory_movements` (`id`, `tenant_id`, `product_id`, `movement_type`, `reference_type`, `reference_id`, `qty`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
 	(1, 2, 3, 'sale', 'sale', 1, -2.00, 2, 2, '2026-07-30 18:17:47', '2026-07-30 10:17:47', 'active', 0, NULL),
@@ -42896,7 +43092,20 @@ INSERT INTO `pos_inventory_movements` (`id`, `tenant_id`, `product_id`, `movemen
 	(35, 3, 586, 'sale', 'sale', 14, -6.00, 3, 3, '2026-07-31 16:37:54', '2026-07-31 08:37:54', 'active', 0, NULL),
 	(39, 3, 586, 'sale', 'sale', 15, -5.00, 3, 3, '2026-07-31 16:40:39', '2026-07-31 08:40:39', 'active', 0, NULL),
 	(40, 3, 586, 'sale', 'sale', 16, -6.00, 3, 3, '2026-07-31 16:44:50', '2026-07-31 08:44:50', 'active', 0, NULL),
-	(41, 3, 586, 'sale', 'sale', 18, -12.00, 3, 3, '2026-07-31 17:51:23', '2026-07-31 09:51:23', 'active', 0, NULL);
+	(41, 3, 586, 'sale', 'sale', 18, -12.00, 3, 3, '2026-07-31 17:51:23', '2026-07-31 09:51:23', 'active', 0, NULL),
+	(42, 3, 586, 'sale', 'sale', 20, -7.00, 3, 3, '2026-08-01 08:39:00', '2026-08-01 00:39:00', 'active', 0, NULL),
+	(43, 3, 586, 'sale', 'sale', 21, -4.00, 3, 3, '2026-08-01 08:55:39', '2026-08-01 00:55:39', 'active', 0, NULL),
+	(44, 3, 586, 'sale', 'sale', 1, -6.00, 3, 3, '2026-08-01 12:32:52', '2026-08-01 04:32:52', 'active', 0, NULL),
+	(45, 3, 586, 'sale', 'sale', 3, -4.00, 3, 3, '2026-08-01 13:16:35', '2026-08-01 05:16:35', 'active', 0, NULL),
+	(46, 3, 586, 'sale', 'sale', 8, -7.00, 3, 3, '2026-08-01 13:25:24', '2026-08-01 05:25:24', 'active', 0, NULL),
+	(47, 3, 586, 'sale', 'sale', 8, -15.00, 3, 3, '2026-08-01 13:47:41', '2026-08-01 05:47:41', 'active', 0, NULL),
+	(48, 3, 586, 'sale', 'sale', 10, -9.00, 3, 3, '2026-08-01 14:08:56', '2026-08-01 06:08:56', 'active', 0, NULL),
+	(49, 3, 586, 'sale', 'sale', 11, -10.00, 3, 3, '2026-08-01 14:27:34', '2026-08-01 06:27:34', 'active', 0, NULL),
+	(50, 3, 586, 'sale', 'sale', 1, -7.00, 3, 3, '2026-08-01 14:31:44', '2026-08-01 06:31:44', 'active', 0, NULL),
+	(51, 3, 586, 'sale', 'sale', 2, -2.00, 3, 3, '2026-08-01 14:31:56', '2026-08-01 06:31:56', 'active', 0, NULL),
+	(52, 3, 586, 'sale', 'sale', 3, -5.00, 3, 3, '2026-08-01 14:32:09', '2026-08-01 06:32:09', 'active', 0, NULL),
+	(53, 3, 586, 'sale', 'sale', 4, -23.00, 3, 3, '2026-08-01 14:37:31', '2026-08-01 06:37:31', 'active', 0, NULL),
+	(54, 3, 586, 'sale', 'sale', 5, -6.00, 3, 3, '2026-08-01 15:10:03', '2026-08-01 07:10:03', 'active', 0, NULL);
 
 -- Dumping structure for table saas_pos.pos_payments
 DROP TABLE IF EXISTS `pos_payments`;
@@ -42905,13 +43114,21 @@ CREATE TABLE IF NOT EXISTS `pos_payments` (
   `tenant_id` bigint(20) unsigned NOT NULL DEFAULT '0',
   `customer_id` bigint(20) unsigned NOT NULL DEFAULT '0',
   `sale_id` bigint(20) unsigned DEFAULT NULL,
+  `shift_id` bigint(20) unsigned DEFAULT NULL,
+  `drawer_id` bigint(20) unsigned DEFAULT NULL,
+  `terminal_id` bigint(20) unsigned DEFAULT NULL,
   `payment_method` varchar(50) DEFAULT NULL,
   `amount` decimal(15,2) DEFAULT NULL,
   `reference_number` varchar(100) DEFAULT NULL,
+  `or_number` varchar(50) DEFAULT NULL,
   `tendered_amount` decimal(20,6) DEFAULT NULL,
   `change_amount` decimal(20,6) DEFAULT NULL,
   `payment_date` datetime DEFAULT NULL,
   `notes` varchar(150) DEFAULT '',
+  `is_void` tinyint(1) NOT NULL DEFAULT '0',
+  `void_reason` text,
+  `void_by` bigint(20) unsigned DEFAULT NULL,
+  `void_at` datetime DEFAULT NULL,
   `created_by` bigint(20) unsigned DEFAULT NULL,
   `updated_by` bigint(20) unsigned DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
@@ -42920,39 +43137,53 @@ CREATE TABLE IF NOT EXISTS `pos_payments` (
   `archived` tinyint(4) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `idx_sale` (`sale_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8;
+  KEY `idx_sale` (`sale_id`),
+  KEY `idx_shift` (`shift_id`) USING BTREE,
+  KEY `idx_drawer` (`drawer_id`) USING BTREE,
+  KEY `idx_payment_date` (`payment_date`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
 
--- Dumping data for table saas_pos.pos_payments: ~23 rows (approximately)
+-- Dumping data for table saas_pos.pos_payments: ~9 rows (approximately)
 DELETE FROM `pos_payments`;
-INSERT INTO `pos_payments` (`id`, `tenant_id`, `customer_id`, `sale_id`, `payment_method`, `amount`, `reference_number`, `tendered_amount`, `change_amount`, `payment_date`, `notes`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
-	(1, 3, 0, 1, 'cash', 2000.00, NULL, 2000.000000, 347.500000, '2026-07-30 18:17:47', NULL, 2, 2, '2026-07-30 18:17:47', '2026-07-31 09:28:06', 'active', 0, NULL),
-	(2, 3, 0, 2, 'cash', 2000.00, NULL, 2000.000000, 762.250000, '2026-07-31 09:32:58', NULL, 2, 2, '2026-07-31 09:32:58', '2026-07-31 09:28:06', 'active', 0, NULL),
-	(3, 3, 0, 3, 'cash', 1500.00, NULL, 1500.000000, 149.000000, '2026-07-31 11:18:06', NULL, 2, 2, '2026-07-31 11:18:06', '2026-07-31 09:28:07', 'active', 0, NULL),
-	(4, 3, 0, 4, 'cash', 1500.00, NULL, 1500.000000, 427.250000, '2026-07-31 11:26:58', NULL, 2, 2, '2026-07-31 11:26:58', '2026-07-31 09:28:08', 'active', 0, NULL),
-	(5, 1, 0, 5, 'cash', 1500.00, NULL, 1500.000000, 213.750000, '2026-07-31 11:50:26', NULL, 2, 2, '2026-07-31 11:50:26', '2026-07-31 09:28:29', 'active', 0, NULL),
-	(6, 1, 0, 6, 'cash', 500.00, NULL, 500.000000, 22.500000, '2026-07-31 11:51:47', NULL, 2, 2, '2026-07-31 11:51:47', '2026-07-31 09:28:30', 'active', 0, NULL),
-	(7, 1, 0, 7, 'cash', 2000.00, NULL, 2000.000000, 762.250000, '2026-07-31 11:53:01', NULL, 2, 2, '2026-07-31 11:53:01', '2026-07-31 09:28:30', 'active', 0, NULL),
-	(8, 1, 0, 8, 'cash', 1000.00, NULL, 1000.000000, 221.000000, '2026-07-31 11:54:36', NULL, 2, 2, '2026-07-31 11:54:36', '2026-07-31 09:28:31', 'active', 0, NULL),
-	(9, 1, 0, 9, 'cash', 2500.00, NULL, 2500.000000, 47.750000, '2026-07-31 11:58:14', NULL, 2, 2, '2026-07-31 11:58:14', '2026-07-31 09:28:32', 'active', 0, NULL),
-	(10, 3, 0, 10, 'cash', 1500.00, NULL, 1500.000000, 171.000000, '2026-07-31 11:58:48', NULL, 2, 2, '2026-07-31 11:58:48', '2026-07-31 09:28:08', 'active', 0, NULL),
-	(11, 1, 0, 11, 'cash', 500.00, NULL, 500.000000, 0.500000, '2026-07-31 11:59:19', NULL, 2, 2, '2026-07-31 11:59:19', '2026-07-31 09:28:29', 'active', 0, NULL),
-	(12, 1, 0, 12, 'cash', 3500.00, NULL, 3500.000000, 336.000000, '2026-07-31 11:59:56', NULL, 2, 2, '2026-07-31 11:59:56', '2026-07-31 09:28:28', 'active', 0, NULL),
-	(13, 3, 0, 13, 'cash', 2000.00, NULL, 2000.000000, 0.000000, '2026-07-31 16:02:43', NULL, 3, 3, '2026-07-31 16:02:43', '2026-07-31 09:28:24', 'active', 0, NULL),
-	(14, 3, 0, 13, 'utang', 117.50, 'dfgd', 117.500000, 0.000000, '2026-07-31 16:02:43', NULL, 3, 3, '2026-07-31 16:02:43', '2026-07-31 09:28:24', 'active', 0, NULL),
-	(21, 3, 0, 14, 'cash', 1000.00, NULL, 1000.000000, 0.000000, '2026-07-31 16:37:54', NULL, 3, 3, '2026-07-31 16:37:54', '2026-07-31 09:28:25', 'active', 0, NULL),
-	(22, 3, 0, 16, 'cash', 1000.00, NULL, 1000.000000, 0.000000, '2026-07-31 16:44:50', NULL, 3, 3, '2026-07-31 16:44:50', '2026-07-31 09:28:26', 'active', 0, NULL),
-	(27, 3, 10, NULL, 'cash', 785.63, '5441141545151', NULL, NULL, '2026-07-31 00:00:00', NULL, 3, 3, '2026-07-31 17:42:50', '2026-07-31 09:42:50', 'active', 0, NULL),
-	(28, 3, 10, NULL, 'cash', 589.22, NULL, NULL, NULL, '2026-07-31 00:00:00', NULL, 3, 3, '2026-07-31 17:43:46', '2026-07-31 09:43:46', 'active', 0, NULL),
-	(29, 3, 10, NULL, 'cash', 589.22, NULL, NULL, NULL, '2026-07-31 00:00:00', NULL, 3, 3, '2026-07-31 17:44:10', '2026-07-31 09:44:10', 'active', 0, NULL),
-	(30, 3, 10, NULL, 'cash', 500.00, NULL, NULL, NULL, '2026-07-31 00:00:00', NULL, 3, 3, '2026-07-31 17:44:20', '2026-07-31 09:44:20', 'active', 0, NULL),
-	(31, 3, 10, NULL, 'cash', 500.00, NULL, NULL, NULL, '2026-07-31 00:00:00', NULL, 3, 3, '2026-07-31 17:44:50', '2026-07-31 09:44:50', 'active', 0, NULL),
-	(32, 3, 10, NULL, 'cash', 133.82, NULL, NULL, NULL, '2026-07-31 00:00:00', NULL, 3, 3, '2026-07-31 17:44:58', '2026-07-31 09:44:58', 'active', 0, NULL),
-	(33, 3, 10, NULL, 'cash', 44.61, NULL, NULL, NULL, '2026-07-31 00:00:00', NULL, 3, 3, '2026-07-31 17:45:06', '2026-07-31 09:45:06', 'active', 0, NULL),
-	(34, 3, 0, 18, 'cash', 1000.00, NULL, 1000.000000, 0.000000, '2026-07-31 17:51:23', '4545', 3, 3, '2026-07-31 17:51:23', '2026-07-31 09:51:23', 'active', 0, NULL),
-	(35, 3, 6, NULL, 'cash', 612.13, NULL, NULL, NULL, '2026-07-31 00:00:00', NULL, 3, 3, '2026-07-31 17:52:52', '2026-07-31 09:52:52', 'active', 0, NULL),
-	(36, 3, 6, NULL, 'cash', 1377.28, NULL, NULL, NULL, '2026-07-31 00:00:00', NULL, 3, 3, '2026-07-31 17:53:16', '2026-07-31 09:53:16', 'active', 0, NULL),
-	(37, 3, 6, NULL, 'cash', 459.09, NULL, NULL, NULL, '2026-07-31 00:00:00', NULL, 3, 3, '2026-07-31 17:53:22', '2026-07-31 09:53:22', 'active', 0, NULL);
+INSERT INTO `pos_payments` (`id`, `tenant_id`, `customer_id`, `sale_id`, `shift_id`, `drawer_id`, `terminal_id`, `payment_method`, `amount`, `reference_number`, `or_number`, `tendered_amount`, `change_amount`, `payment_date`, `notes`, `is_void`, `void_reason`, `void_by`, `void_at`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, 3, 0, 1, 4, 1, 1, 'cash', 2000.00, NULL, NULL, 2000.000000, 0.000000, '2026-08-01 14:31:44', NULL, 0, NULL, NULL, NULL, 3, 3, '2026-08-01 14:31:44', '2026-08-01 06:31:44', 'active', 0, NULL),
+	(2, 3, 0, 1, 4, 1, 1, 'gcash', 117.50, '54545', NULL, 117.500000, 0.000000, '2026-08-01 14:31:44', NULL, 0, NULL, NULL, NULL, 3, 3, '2026-08-01 14:31:44', '2026-08-01 06:31:44', 'active', 0, NULL),
+	(3, 3, 0, 2, 4, 1, 1, 'cash', 1000.00, NULL, NULL, 1000.000000, 395.000000, '2026-08-01 14:31:56', NULL, 0, NULL, NULL, NULL, 3, 3, '2026-08-01 14:31:56', '2026-08-01 06:31:56', 'active', 0, NULL),
+	(4, 3, 0, 3, 4, 1, 1, 'cash', 1512.50, NULL, NULL, 1512.500000, 0.000000, '2026-08-01 14:32:09', NULL, 0, NULL, NULL, NULL, 3, 3, '2026-08-01 14:32:09', '2026-08-01 06:32:09', 'active', 0, NULL),
+	(5, 3, 0, 4, 4, 1, 1, 'cash', 2000.00, NULL, NULL, 2000.000000, 0.000000, '2026-08-01 14:37:31', NULL, 0, NULL, NULL, NULL, 3, 3, '2026-08-01 14:37:31', '2026-08-01 06:37:31', 'active', 0, NULL),
+	(6, 3, 0, 4, 4, 1, 1, 'gcash', 2500.00, '5454', NULL, 2500.000000, 0.000000, '2026-08-01 14:37:31', NULL, 0, NULL, NULL, NULL, 3, 3, '2026-08-01 14:37:31', '2026-08-01 06:37:31', 'active', 0, NULL),
+	(7, 3, 0, 4, 4, 1, 1, 'bank_transfer', 1500.00, '454', NULL, 1500.000000, 0.000000, '2026-08-01 14:37:31', NULL, 0, NULL, NULL, NULL, 3, 3, '2026-08-01 14:37:31', '2026-08-01 06:37:31', 'active', 0, NULL),
+	(8, 3, 0, 4, 4, 1, 1, 'gcash', 957.50, '4545', NULL, 957.500000, 0.000000, '2026-08-01 14:37:31', NULL, 0, NULL, NULL, NULL, 3, 3, '2026-08-01 14:37:31', '2026-08-01 06:37:31', 'active', 0, NULL),
+	(9, 3, 0, 5, 4, 1, 1, 'cash', 2000.00, NULL, NULL, 2000.000000, 185.000000, '2026-08-01 15:10:03', NULL, 0, NULL, NULL, NULL, 3, 3, '2026-08-01 15:10:03', '2026-08-01 07:10:03', 'active', 0, NULL);
+
+-- Dumping structure for table saas_pos.pos_payment_methods
+DROP TABLE IF EXISTS `pos_payment_methods`;
+CREATE TABLE IF NOT EXISTS `pos_payment_methods` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `payment_code` varchar(20) NOT NULL DEFAULT '0',
+  `tenant_id` int(11) NOT NULL DEFAULT '0',
+  `payment_name` varchar(100) NOT NULL,
+  `payment_type` enum('cash','digital_wallet','bank','card','cheque','credit','other') NOT NULL DEFAULT 'cash',
+  `requires_reference` tinyint(4) NOT NULL DEFAULT '0',
+  `remarks` text,
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_tenant` (`tenant_id`) USING BTREE,
+  KEY `idx_name` (`payment_name`) USING BTREE,
+  KEY `idx_type` (`payment_type`) USING BTREE,
+  KEY `idx_status` (`status`) USING BTREE
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- Dumping data for table saas_pos.pos_payment_methods: 0 rows
+DELETE FROM `pos_payment_methods`;
+/*!40000 ALTER TABLE `pos_payment_methods` DISABLE KEYS */;
+/*!40000 ALTER TABLE `pos_payment_methods` ENABLE KEYS */;
 
 -- Dumping structure for table saas_pos.pos_products
 DROP TABLE IF EXISTS `pos_products`;
@@ -43572,7 +43803,7 @@ INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `
 	(583, 0, 1, 1, 1, '0748485804170', 'SKU-1KWM8T5A', 'argentina pork giniling 150g', 'Argentina', 106.00, 132.50, 121.90, 20, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
 	(584, 0, 1, 1, 1, '4800249886030', 'SKU-YOEFPJD0', 'Ulam Burger CDO', 'CDO', 228.00, 285.00, 262.20, 11, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
 	(585, 0, 1, 1, 1, '4804888624107', 'SKU-82QUNUSC', 'Hazelnut coffee Drink', 'Bo\'s Coffee', 386.00, 482.50, 443.90, 15, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
-	(586, 464, 3, 1, 1, '0039000086639', 'SKU-SVRPPIAJ', 'Vienna Sausage', 'Libby\'s | Canned foods, Chicken preparations, Pork sausages, Chicken sausages, Industrial knacks', 250.00, 302.50, 0.00, 0, NULL, 3, 3, '2026-07-31 15:11:06', '2026-07-31 09:51:23', 'active', 0, NULL);
+	(586, 359, 3, 1, 1, '0039000086639', 'SKU-SVRPPIAJ', 'Vienna Sausage', 'Libby\'s | Canned foods, Chicken preparations, Pork sausages, Chicken sausages, Industrial knacks', 250.00, 302.50, 0.00, 0, NULL, 3, 3, '2026-07-31 15:11:06', '2026-08-01 07:10:03', 'active', 0, NULL);
 
 -- Dumping structure for table saas_pos.pos_product_price_histories
 DROP TABLE IF EXISTS `pos_product_price_histories`;
@@ -43623,6 +43854,9 @@ CREATE TABLE IF NOT EXISTS `pos_sales` (
   `sale_code` varchar(50) NOT NULL DEFAULT '0',
   `tenant_id` bigint(20) unsigned DEFAULT NULL,
   `customer_id` bigint(20) unsigned DEFAULT NULL,
+  `cash_shift_id` bigint(20) unsigned DEFAULT NULL,
+  `drawer_id` bigint(20) unsigned DEFAULT NULL,
+  `terminal_id` bigint(20) unsigned DEFAULT NULL,
   `cashier_id` bigint(20) unsigned DEFAULT NULL,
   `invoice_no` varchar(50) DEFAULT NULL,
   `sale_date` datetime DEFAULT NULL,
@@ -43647,30 +43881,20 @@ CREATE TABLE IF NOT EXISTS `pos_sales` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_invoice_no` (`invoice_no`),
   KEY `idx_tenant` (`tenant_id`),
-  KEY `idx_sale_date` (`sale_date`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8;
+  KEY `idx_sale_date` (`sale_date`),
+  KEY `idx_drawer` (`drawer_id`) USING BTREE,
+  KEY `idx_shift` (`cash_shift_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
 
--- Dumping data for table saas_pos.pos_sales: ~18 rows (approximately)
+-- Dumping data for table saas_pos.pos_sales: ~6 rows (approximately)
 DELETE FROM `pos_sales`;
-INSERT INTO `pos_sales` (`id`, `sale_code`, `tenant_id`, `customer_id`, `cashier_id`, `invoice_no`, `sale_date`, `subtotal`, `payment_method`, `discount_amount`, `discount_type`, `discount_holder`, `discount_id_no`, `tax_amount`, `total_amount`, `reference_number`, `notes`, `sale_status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
-	(1, '260731-0001', 3, NULL, NULL, NULL, NULL, 0.00, '0.00', 0.00, '0.00', '0.00', '0.00', 0.00, 0.00, '0.00', NULL, 'pending', 3, 3, '2026-07-31 13:56:31', '2026-07-31 05:56:31', 'active', 0, NULL),
-	(2, '260731-0002', 3, NULL, NULL, NULL, NULL, 0.00, '0.00', 0.00, '0.00', '0.00', '0.00', 0.00, 0.00, '0.00', NULL, 'pending', 3, 3, '2026-07-31 13:56:32', '2026-07-31 05:56:32', 'active', 0, NULL),
-	(3, '260731-0003', 3, NULL, NULL, NULL, NULL, 0.00, '0.00', 0.00, '0.00', '0.00', '0.00', 0.00, 0.00, '0.00', NULL, 'pending', 3, 3, '2026-07-31 13:56:33', '2026-07-31 05:56:33', 'active', 0, NULL),
-	(4, '260731-0004', 3, NULL, NULL, NULL, NULL, 0.00, '0.00', 0.00, '0.00', '0.00', '0.00', 0.00, 0.00, '0.00', NULL, 'pending', 3, 3, '2026-07-31 13:56:34', '2026-07-31 05:56:34', 'active', 0, NULL),
-	(5, '260731-0001', 1, NULL, NULL, NULL, NULL, 0.00, '0.00', 0.00, '0.00', '0.00', '0.00', 0.00, 0.00, '0.00', NULL, 'pending', 1, 1, '2026-07-31 13:56:40', '2026-07-31 05:56:40', 'active', 0, NULL),
-	(6, '260731-0002', 1, NULL, NULL, NULL, NULL, 0.00, '0.00', 0.00, '0.00', '0.00', '0.00', 0.00, 0.00, '0.00', NULL, 'pending', 1, 1, '2026-07-31 13:56:41', '2026-07-31 05:56:41', 'active', 0, NULL),
-	(7, '260731-0003', 1, NULL, NULL, NULL, NULL, 0.00, '0.00', 0.00, '0.00', '0.00', '0.00', 0.00, 0.00, '0.00', NULL, 'pending', 1, 1, '2026-07-31 13:56:42', '2026-07-31 05:56:42', 'active', 0, NULL),
-	(8, '260731-0004', 1, NULL, NULL, NULL, NULL, 0.00, '0.00', 0.00, '0.00', '0.00', '0.00', 0.00, 0.00, '0.00', NULL, 'pending', 1, 1, '2026-07-31 13:56:43', '2026-07-31 05:56:43', 'active', 0, NULL),
-	(9, '260731-0005', 1, NULL, NULL, NULL, NULL, 0.00, '0.00', 0.00, '0.00', '0.00', '0.00', 0.00, 0.00, '0.00', NULL, 'pending', 1, 1, '2026-07-31 13:56:45', '2026-07-31 05:56:45', 'active', 0, NULL),
-	(10, '260731-0005', 3, NULL, NULL, NULL, NULL, 0.00, '0.00', 0.00, '0.00', '0.00', '0.00', 0.00, 0.00, '0.00', NULL, 'pending', 3, 3, '2026-07-31 15:34:06', '2026-07-31 07:34:06', 'active', 0, NULL),
-	(11, '260731-0006', 1, NULL, NULL, NULL, NULL, 0.00, '0.00', 0.00, '0.00', '0.00', '0.00', 0.00, 0.00, '0.00', NULL, 'pending', 1, 1, '2026-07-31 15:43:35', '2026-07-31 07:43:35', 'active', 0, NULL),
-	(12, '260731-0007', 1, NULL, NULL, NULL, NULL, 0.00, '0.00', 0.00, '0.00', '0.00', '0.00', 0.00, 0.00, '0.00', NULL, 'pending', 1, 1, '2026-07-31 15:43:38', '2026-07-31 07:43:38', 'active', 0, NULL),
-	(13, '260731-0006', 3, NULL, 3, NULL, '2026-07-31 16:02:43', 2117.50, 'split', 0.00, NULL, NULL, NULL, 226.88, 2117.50, 'dfgd', NULL, 'completed', 3, 3, '2026-07-31 15:59:08', '2026-07-31 08:02:43', 'active', 0, NULL),
-	(14, '260731-0007', 3, 10, 3, NULL, '2026-07-31 16:37:53', 1815.00, 'split', 0.00, NULL, NULL, NULL, 194.46, 1815.00, 'hfghfgh', NULL, 'completed', 3, 3, '2026-07-31 16:10:09', '2026-07-31 08:37:53', 'active', 0, NULL),
-	(15, '260731-0008', 3, 10, 3, NULL, '2026-07-31 16:40:39', 1512.50, 'utang', 0.00, NULL, NULL, NULL, 162.05, 1512.50, '45454', NULL, 'completed', 3, 3, '2026-07-31 16:39:13', '2026-07-31 08:40:39', 'active', 0, NULL),
-	(16, '260731-0009', 3, 10, 3, NULL, '2026-07-31 16:44:50', 1815.00, 'split', 0.00, NULL, NULL, NULL, 194.46, 1815.00, '54545', NULL, 'completed', 3, 3, '2026-07-31 16:44:04', '2026-07-31 08:44:50', 'active', 0, NULL),
-	(17, '260731-0010', 3, NULL, NULL, NULL, NULL, 0.00, '0.00', 0.00, '0.00', '0.00', '0.00', 0.00, 0.00, '0.00', NULL, 'pending', 3, 3, '2026-07-31 16:45:56', '2026-07-31 08:45:56', 'active', 0, NULL),
-	(18, '260731-0011', 3, 6, 3, NULL, '2026-07-31 17:51:23', 3630.00, 'split', 181.50, 'student', '121', '4545', 369.48, 3448.50, '5655353', '4545', 'completed', 3, 3, '2026-07-31 17:49:49', '2026-07-31 09:51:23', 'active', 0, NULL);
+INSERT INTO `pos_sales` (`id`, `sale_code`, `tenant_id`, `customer_id`, `cash_shift_id`, `drawer_id`, `terminal_id`, `cashier_id`, `invoice_no`, `sale_date`, `subtotal`, `payment_method`, `discount_amount`, `discount_type`, `discount_holder`, `discount_id_no`, `tax_amount`, `total_amount`, `reference_number`, `notes`, `sale_status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, '260801-0001', 3, NULL, 4, 1, 1, 3, NULL, '2026-08-01 14:31:44', 2117.50, 'split', 0.00, NULL, NULL, NULL, 226.88, 2117.50, '54545', NULL, 'completed', 3, 3, '2026-08-01 14:31:25', '2026-08-01 06:31:44', 'active', 0, NULL),
+	(2, '260801-0002', 3, NULL, 4, 1, 1, 3, NULL, '2026-08-01 14:31:56', 605.00, 'cash', 0.00, NULL, NULL, NULL, 64.82, 605.00, NULL, NULL, 'completed', 3, 3, '2026-08-01 14:31:48', '2026-08-01 06:31:56', 'active', 0, NULL),
+	(3, '260801-0003', 3, NULL, 4, 1, 1, 3, NULL, '2026-08-01 14:32:09', 1512.50, 'cash', 0.00, NULL, NULL, NULL, 162.05, 1512.50, NULL, NULL, 'completed', 3, 3, '2026-08-01 14:31:59', '2026-08-01 06:32:09', 'active', 0, NULL),
+	(4, '260801-0004', 3, NULL, 4, 1, 1, 3, NULL, '2026-08-01 14:37:31', 6957.50, 'split', 0.00, NULL, NULL, NULL, 745.45, 6957.50, '5454, 454, 4545', NULL, 'completed', 3, 3, '2026-08-01 14:36:48', '2026-08-01 06:37:31', 'active', 0, NULL),
+	(5, '260801-0005', 3, NULL, 4, 1, 1, 3, NULL, '2026-08-01 15:10:03', 1815.00, 'cash', 0.00, NULL, NULL, NULL, 194.46, 1815.00, NULL, NULL, 'completed', 3, 3, '2026-08-01 15:09:56', '2026-08-01 07:10:03', 'active', 0, NULL),
+	(6, '260801-0006', 3, NULL, 4, 1, 1, NULL, NULL, NULL, 0.00, '0.00', 0.00, '0.00', '0.00', '0.00', 0.00, 0.00, '0.00', NULL, 'pending', 3, 3, '2026-08-01 15:31:06', '2026-08-01 07:31:06', 'active', 0, NULL);
 
 -- Dumping structure for table saas_pos.pos_sale_items
 DROP TABLE IF EXISTS `pos_sale_items`;
@@ -43696,16 +43920,16 @@ CREATE TABLE IF NOT EXISTS `pos_sale_items` (
   PRIMARY KEY (`id`),
   KEY `idx_sale` (`sale_id`),
   KEY `idx_product` (`product_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
--- Dumping data for table saas_pos.pos_sale_items: ~4 rows (approximately)
+-- Dumping data for table saas_pos.pos_sale_items: ~5 rows (approximately)
 DELETE FROM `pos_sale_items`;
 INSERT INTO `pos_sale_items` (`id`, `sale_id`, `product_id`, `barcode`, `sku`, `product_name`, `qty`, `unit_price`, `discount_amount`, `tax_amount`, `line_total`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
-	(1, 13, 586, '0039000086639', 'SKU-SVRPPIAJ', 'Vienna Sausage', 7.00, 302.50, 0.00, 0.00, 2117.50, 3, 3, '2026-07-31 16:02:43', '2026-07-31 08:02:43', 'active', 0, NULL),
-	(6, 14, 586, '0039000086639', 'SKU-SVRPPIAJ', 'Vienna Sausage', 6.00, 302.50, 0.00, 0.00, 1815.00, 3, 3, '2026-07-31 16:37:53', '2026-07-31 08:37:53', 'active', 0, NULL),
-	(10, 15, 586, '0039000086639', 'SKU-SVRPPIAJ', 'Vienna Sausage', 5.00, 302.50, 0.00, 0.00, 1512.50, 3, 3, '2026-07-31 16:40:39', '2026-07-31 08:40:39', 'active', 0, NULL),
-	(11, 16, 586, '0039000086639', 'SKU-SVRPPIAJ', 'Vienna Sausage', 6.00, 302.50, 0.00, 0.00, 1815.00, 3, 3, '2026-07-31 16:44:50', '2026-07-31 08:44:50', 'active', 0, NULL),
-	(12, 18, 586, '0039000086639', 'SKU-SVRPPIAJ', 'Vienna Sausage', 12.00, 302.50, 0.00, 0.00, 3630.00, 3, 3, '2026-07-31 17:51:23', '2026-07-31 09:51:23', 'active', 0, NULL);
+	(1, 1, 586, '0039000086639', 'SKU-SVRPPIAJ', 'Vienna Sausage', 7.00, 302.50, 0.00, 0.00, 2117.50, 3, 3, '2026-08-01 14:31:44', '2026-08-01 06:31:44', 'active', 0, NULL),
+	(2, 2, 586, '0039000086639', 'SKU-SVRPPIAJ', 'Vienna Sausage', 2.00, 302.50, 0.00, 0.00, 605.00, 3, 3, '2026-08-01 14:31:56', '2026-08-01 06:31:56', 'active', 0, NULL),
+	(3, 3, 586, '0039000086639', 'SKU-SVRPPIAJ', 'Vienna Sausage', 5.00, 302.50, 0.00, 0.00, 1512.50, 3, 3, '2026-08-01 14:32:09', '2026-08-01 06:32:09', 'active', 0, NULL),
+	(4, 4, 586, '0039000086639', 'SKU-SVRPPIAJ', 'Vienna Sausage', 23.00, 302.50, 0.00, 0.00, 6957.50, 3, 3, '2026-08-01 14:37:31', '2026-08-01 06:37:31', 'active', 0, NULL),
+	(5, 5, 586, '0039000086639', 'SKU-SVRPPIAJ', 'Vienna Sausage', 6.00, 302.50, 0.00, 0.00, 1815.00, 3, 3, '2026-08-01 15:10:03', '2026-08-01 07:10:03', 'active', 0, NULL);
 
 -- Dumping structure for table saas_pos.pos_stock_transactions
 DROP TABLE IF EXISTS `pos_stock_transactions`;
@@ -43815,6 +44039,38 @@ INSERT INTO `pos_tenants` (`id`, `subscription_id`, `business_name`, `business_c
 	(1, 1, 'ANTONIO JR. PILOTON\'s Store', 'TEN-UT6Y3AUSYU', 'ANTONIO JR. PILOTON', 'antoniojrpiloton@gmail.com', NULL, NULL, NULL, '2026-07-30', NULL, NULL, NULL, NULL, '2026-07-30 15:39:05', '2026-07-30 07:39:05', 'active', 0, NULL),
 	(2, 1, 'DyTech\'s Store', 'TEN-W37PSJ3WXG', 'DyTech', 'dytech98@gmail.com', NULL, NULL, NULL, '2026-07-30', NULL, NULL, NULL, NULL, '2026-07-30 16:22:15', '2026-07-30 08:22:15', 'active', 0, NULL),
 	(3, 1, 'SNSU CCIS NEXA\'s Store', 'TEN-XJ42SY6XCY', 'SNSU CCIS NEXA', 'snsuccisnexa@gmail.com', NULL, NULL, NULL, '2026-07-31', NULL, NULL, NULL, NULL, '2026-07-31 13:42:56', '2026-07-31 05:42:56', 'active', 0, NULL);
+
+-- Dumping structure for table saas_pos.pos_terminals
+DROP TABLE IF EXISTS `pos_terminals`;
+CREATE TABLE IF NOT EXISTS `pos_terminals` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `terminal_code` varchar(50) DEFAULT NULL,
+  `terminal_name` varchar(100) DEFAULT NULL,
+  `tenant_id` bigint(20) unsigned DEFAULT NULL,
+  `drawer_id` bigint(20) unsigned DEFAULT NULL,
+  `device_name` varchar(100) DEFAULT NULL,
+  `device_uuid` varchar(100) DEFAULT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `remarks` text,
+  `created_by` bigint(20) unsigned DEFAULT NULL,
+  `updated_by` bigint(20) unsigned DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('active','inactive','maintenance') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `archived` tinyint(4) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_terminal_code` (`terminal_code`) USING BTREE,
+  KEY `idx_tenant` (`tenant_id`) USING BTREE,
+  KEY `idx_drawer` (`drawer_id`) USING BTREE,
+  KEY `idx_status` (`status`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+
+-- Dumping data for table saas_pos.pos_terminals: ~2 rows (approximately)
+DELETE FROM `pos_terminals`;
+INSERT INTO `pos_terminals` (`id`, `terminal_code`, `terminal_name`, `tenant_id`, `drawer_id`, `device_name`, `device_uuid`, `ip_address`, `remarks`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
+	(1, NULL, 'Terminal 1', 3, 1, NULL, NULL, NULL, NULL, 3, 3, '2026-08-01 13:34:55', '2026-08-01 05:34:55', 'active', 0, NULL),
+	(2, NULL, 'Terminal 2', 3, 2, NULL, NULL, NULL, NULL, 3, 3, '2026-08-01 13:35:03', '2026-08-01 05:35:03', 'active', 0, NULL);
 
 -- Dumping structure for table saas_pos.pos_units
 DROP TABLE IF EXISTS `pos_units`;
@@ -44054,13 +44310,10 @@ CREATE TABLE IF NOT EXISTS `sessions` (
   KEY `sessions_last_activity_index` (`last_activity`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table saas_pos.sessions: ~3 rows (approximately)
+-- Dumping data for table saas_pos.sessions: ~1 rows (approximately)
 DELETE FROM `sessions`;
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-	('7N9msUb8xOHPHJKuq50hcR0r68wPDSyG6gZU4Xk3', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiM20yeFFzQjlnU05ac3ZZazZiMlROc01RdG5RNXROZmNnUzRYU3lubSI7czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MTtzOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czo1MDoiaHR0cDovL3Bvcy5kZXYuY29tL3NhbGVzL3Rlcm1pbmFsL1ZrWmFVMU5zUWxKUVZEQTkiO3M6NToicm91dGUiO3M6MTI6InNhbGVzLmNyZWF0ZSI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1785493139),
-	('fbCKHNPGkq5Wvh2In2qEdj4CU9UaTrgyCxiz2zBp', 1, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiRmFidVNzanNucG81eWF2NkE0WGdOUUswV2M4U3oxTHptOUZQaHQwZSI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NTA6Imh0dHA6Ly9wb3MuZGV2LmNvbS9zYWxlcy90ZXJtaW5hbC9Wa1phVTFOc1FsSlFWREE5IjtzOjU6InJvdXRlIjtzOjEyOiJzYWxlcy5jcmVhdGUiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToxO30=', 1785493666),
-	('lXBtALDiyQGsefAJLp613Kd7h0e2ZoSUIsrQREQa', 3, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoicUd2RVVaMkJVcU15aFFjTUhaemp4RGhnVXdwZm1WbEE5WE85emJIVCI7czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MztzOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19', 1785488371),
-	('UzctHGMTSgfj85h3Vl7CZGwF8QhglbfvIEXuCbsd', 3, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0', 'YTo2OntzOjY6Il90b2tlbiI7czo0MDoiRDY4aEpTenVsNXB0N090SUdZVEplZ1hzUFdMU2oxVzFWUm14NDJzRSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDE6Imh0dHA6Ly9wb3MuZGV2LmNvbS9zYWxlcy8xOC9zYWxlc19kZXRhaWxzIjtzOjU6InJvdXRlIjtzOjY6InNhbGVzLiI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjM7czo5OiJ0ZW5hbnRfaWQiO2k6MztzOjExOiJ0ZW5hbnRfbmFtZSI7czoyMjoiU05TVSBDQ0lTIE5FWEEncyBTdG9yZSI7fQ==', 1785493668);
+	('3wKJYsJW0I2BT4vih0hibJPYYGhh59jAukJ1RzzB', 3, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0', 'YTo4OntzOjY6Il90b2tlbiI7czo0MDoiYmJyMmhEV3RuT3hQbHlkSEprblIzdHU5QmhZVzhOWVptc0o0RXkwNiI7czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MztzOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czo2MzoiaHR0cDovL3Bvcy5kZXYuY29tL2Nhc2hpZXJpbmcvY2FzaC1zaGlmdHMvdmlldy9Wa2QwUms5V1FsSlFWREE5IjtzOjU6InJvdXRlIjtzOjI3OiJjYXNoaWVyaW5nLmNhc2gtc2hpZnRzLnNob3ciO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjExOiJ0ZXJtaW5hbF9pZCI7aToxO3M6OToiZHJhd2VyX2lkIjtpOjE7czoxMzoiY2FzaF9zaGlmdF9pZCI7aTo0O3M6Nzoic2FsZV9pZCI7aTo2O30=', 1785569564);
 
 -- Dumping structure for table saas_pos.support_tickets
 DROP TABLE IF EXISTS `support_tickets`;
@@ -44811,9 +45064,9 @@ CREATE TABLE IF NOT EXISTS `users` (
 DELETE FROM `users`;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` (`id`, `username`, `is_super_admin`, `school_id`, `tenant_id`, `filepath`, `signature_path`, `qr_code`, `nfc_code`, `conn_id`, `user_type`, `name`, `email`, `email_verified_at`, `avatar`, `fcm_token`, `profile_pic`, `password`, `remember_token`, `google_id`, `verified`, `created_by`, `updated_by`, `created_at`, `updated_at`, `last_activity_at`, `status`, `archived`, `deleted_at`) VALUES
-	(1, 'antoniojrpiloton@gmail.com', 0, 0, 1, '0', NULL, '0', NULL, 0, 0, 'ANTONIO JR. PILOTON', 'antoniojrpiloton@gmail.com', NULL, 'https://lh3.googleusercontent.com/a/ACg8ocKkyDZe64PBZKwzpp0RZycR0EkIrvLozpRb9PuWO14e-MU6Upk=s96-c', NULL, NULL, '$2y$12$OIjiPropP.pcoUHpHlz9bORh.JxGbPI8TViAK/7GM7E6f/O9W8taK', 'IIYkvMHcwhhNZT7cM1KcJNoT1xRshpD32bT7eGrHE8uVfFizycMUzsCXbKHU', '112090857259724913006', 1, NULL, NULL, '2026-07-30 15:39:06', '2026-07-31 10:26:59', '2026-07-31 18:26:59', NULL, 0, NULL),
+	(1, 'antoniojrpiloton@gmail.com', 0, 0, 1, '0', NULL, '0', NULL, 0, 0, 'ANTONIO JR. PILOTON', 'antoniojrpiloton@gmail.com', NULL, 'https://lh3.googleusercontent.com/a/ACg8ocKkyDZe64PBZKwzpp0RZycR0EkIrvLozpRb9PuWO14e-MU6Upk=s96-c', NULL, NULL, '$2y$12$OIjiPropP.pcoUHpHlz9bORh.JxGbPI8TViAK/7GM7E6f/O9W8taK', 'IIYkvMHcwhhNZT7cM1KcJNoT1xRshpD32bT7eGrHE8uVfFizycMUzsCXbKHU', '112090857259724913006', 1, NULL, NULL, '2026-07-30 15:39:06', '2026-08-01 04:21:46', '2026-08-01 12:21:46', NULL, 0, NULL),
 	(2, 'dytech98@gmail.com', 0, 0, 2, '0', NULL, '0', NULL, 0, 0, 'DyTech', 'dytech98@gmail.com', NULL, 'https://lh3.googleusercontent.com/a/ACg8ocJUJDi_i5pzs5u7JtSUzVT23fDhzW2OZtRJfYcT18slRdol3g=s96-c', NULL, NULL, '$2y$12$0aO/VLYT821ZszZxbGNuVOko4OhIBvXex/QuszwyIWPSMnVzX4mY6', '3YgqLBFFUAWwfyFAtvSWAFRjhycARzHtUM4QSxfnWAzPX9ToHdUedxit6IHB', '109712363337127066789', 1, NULL, NULL, '2026-07-30 16:22:15', '2026-07-31 05:42:44', '2026-07-31 13:42:01', NULL, 0, NULL),
-	(3, 'snsuccisnexa@gmail.com', 0, 0, 3, '0', NULL, '0', NULL, 0, 0, 'SNSU CCIS NEXA', 'snsuccisnexa@gmail.com', NULL, 'https://lh3.googleusercontent.com/a/ACg8ocK0n_TnBOkbp8dgxqrHuZ8dnavyLZl-THySCuMMVVfaofZsuQ=s96-c', NULL, NULL, '$2y$12$LZzC6SKOCcItj5jI6lkNj.7b6b73JVrJ7dbe8IoM.SRd9GtECYFsG', 'C9aAO1xnEw4ojEeSllVZAZshbPWeHVVZdDg9R2Ivn1jdh4toPqEq1kQbpnxj', '103137281334282690476', 1, NULL, NULL, '2026-07-31 13:42:56', '2026-07-31 10:23:57', '2026-07-31 18:23:57', NULL, 0, NULL);
+	(3, 'snsuccisnexa@gmail.com', 0, 0, 3, '0', NULL, '0', NULL, 0, 0, 'SNSU CCIS NEXA', 'snsuccisnexa@gmail.com', NULL, 'https://lh3.googleusercontent.com/a/ACg8ocK0n_TnBOkbp8dgxqrHuZ8dnavyLZl-THySCuMMVVfaofZsuQ=s96-c', NULL, NULL, '$2y$12$LZzC6SKOCcItj5jI6lkNj.7b6b73JVrJ7dbe8IoM.SRd9GtECYFsG', 'C9aAO1xnEw4ojEeSllVZAZshbPWeHVVZdDg9R2Ivn1jdh4toPqEq1kQbpnxj', '103137281334282690476', 1, NULL, NULL, '2026-07-31 13:42:56', '2026-08-01 07:31:04', '2026-08-01 15:31:04', NULL, 0, NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 
 -- Dumping structure for table saas_pos.user_fcm_tokens

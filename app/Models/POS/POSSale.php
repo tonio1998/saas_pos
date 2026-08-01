@@ -14,9 +14,12 @@ class POSSale extends Model
 
     protected $fillable = [
         'tenant_id',
+        'sale_code',
         'customer_id',
         'cashier_id',
+        'terminal_id',
         'invoice_no',
+        'cash_shift_id',
         'subtotal',
         'discount_amount',
         'payment_method',
@@ -42,6 +45,13 @@ class POSSale extends Model
         'tax_amount' => 'decimal:2',
         'total_amount' => 'decimal:2',
     ];
+
+    protected static function booted()
+    {
+        static::creating(function ($sale) {
+            $sale->sale_code = generateSalesCode($sale->tenant_id);
+        });
+    }
 
     public function cashier()
     {
@@ -73,4 +83,49 @@ class POSSale extends Model
             'customer_id'
         );
     }
+
+    public function scopeCompleted($query)
+    {
+        return $query->where('sale_status', 'completed');
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('sale_status', 'active');
+    }
+
+    public function terminal()
+    {
+        return $this->belongsTo(
+            POSTerminal::class,
+            'terminal_id'
+        );
+    }
+
+    public function cashShift()
+    {
+        return $this->belongsTo(
+            POSCashShift::class,
+            'cash_shift_id'
+        );
+    }
+
+    public function cashMovements()
+    {
+        return $this->hasMany(
+            POSCashMovement::class,
+            'sale_id'
+        );
+    }
+
+
+    public function drawer()
+    {
+        return $this->belongsTo(
+            POSCashDrawer::class,
+            'drawer_id'
+        );
+    }
+
+
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\POS;
 
 use App\Helpers\StatusHelper;
 use App\Http\Controllers\Controller;
+use App\Models\POS\POSCashShift;
 use App\Models\POS\POSCustomerLedger;
 use App\Models\POS\InventoryMovement;
 use App\Models\POS\POSCategories;
@@ -13,6 +14,7 @@ use App\Models\POS\POSProducts;
 use App\Models\POS\POSSale;
 use App\Models\POS\POSSaleItem;
 use App\Models\POS\POSSales;
+use App\Models\POS\POSTerminal;
 use App\Traits\TCommonFunctions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -553,6 +555,9 @@ class SalesController extends Controller
                 $newPayment->reference_number = $payment['reference_number'];
                 $newPayment->notes = $data['notes'] ?? null;
                 $newPayment->payment_date = now();
+                $newPayment->terminal_id = $sale->terminal_id;
+                $newPayment->drawer_id = $sale->drawer_id;
+                $newPayment->shift_id = $sale->cash_shift_id;
                 $this->setCommonFields($newPayment);
                 $newPayment->save();
 
@@ -777,9 +782,47 @@ class SalesController extends Controller
         ]);
     }
 
+    protected function createSale(Request $request){
+        $terminalId = session('terminal_id');
+        $drawerId = session('drawer_id');
+        $cashShiftId = session('cash_shift_id');
+
+        $sale = new POSSale();
+        $sale->tenant_id = auth()->user()->tenant_id;
+        $sale->terminal_id = $terminalId;
+        $sale->drawer_id = $drawerId;
+        $sale->cash_shift_id = $cashShiftId;
+        $this->setCommonFields($sale);
+        $sale->save();
+
+        session()->put([
+            'terminal_id'   => $terminalId,
+            'drawer_id'     => $drawerId,
+            'cash_shift_id' => $cashShiftId,
+            'sale_id'       => $sale->id,
+        ]);
+
+        return redirect()->route(
+            'sales.new',
+            [
+                encryptId($sale->id)
+            ]
+        );
+    }
+
     public function create(Request $request)
     {
-        $sale = POSSale::with('customer')->findOrFail(decryptId($request->segment(3)));
+        if ($request->query('q') === 'new') {
+            return $this->createSale($request);
+        }
+
+        $sale = POSSale::with([
+            'customer',
+            'terminal',
+            'drawer',
+            'cashShift.cashier',
+        ])->findOrFail(decryptId($request->segment(3)));
+
         abort_if($sale->tenant_id !== auth()->user()->tenant_id, 403);
 
         $categories = POSCategories::query()
@@ -809,19 +852,48 @@ class SalesController extends Controller
         );
     }
 
-    public function create1()
+    public function newSale(Request $request)
     {
+        $terminal = POSTerminal::findOrFail(decryptId($request->segment(3)));
+        $shift = POSCashShift::findOrFail(decryptId($request->segment(4)));
+
         $sale = new POSSale();
         $sale->tenant_id = auth()->user()->tenant_id;
+        $sale->terminal_id = $terminal->id;
+        $sale->drawer_id = $terminal->drawer_id;
+        $sale->cash_shift_id = $shift->id;
+        $sale->cashier_id = auth()->id();
         $this->setCommonFields($sale);
-        $sale->save();
-
-        $sale->sale_code = generateSalesCode(auth()->user()->tenant_id);
         $sale->save();
 
         return redirect()->route(
             'sales.create',
-            encryptId($sale->id)
+            [
+                encryptId($sale->id),
+                encryptId($terminal->id),
+                encryptId($shift->id)
+            ]
         );
+    }
+
+//    public function create1()
+//    {
+//        $sale = new POSSale();
+//        $sale->tenant_id = auth()->user()->tenant_id;
+//        $this->setCommonFields($sale);
+//        $sale->save();
+//
+//        $sale->sale_code = generateSalesCode(auth()->user()->tenant_id);
+//        $sale->save();
+//
+//        return redirect()->route(
+//            'sales.create',
+//            encryptId($sale->id)
+//        );
+//    }
+
+    public function create1()
+    {
+        return redirect()->route('terminal.index');
     }
 }

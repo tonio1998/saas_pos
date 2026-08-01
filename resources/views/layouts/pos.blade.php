@@ -25,11 +25,11 @@
     @stack('styles')
 </head>
 <body>
-<div id="sidebarOverlay" class="sidebar-overlay"></div>
 
 <main class="pag">
     @yield('content')
 </main>
+@include('pages.pos.terminal.footer')
 
 <x-alerts />
 <x-ios-confirm />

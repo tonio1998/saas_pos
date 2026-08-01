@@ -63,7 +63,7 @@
 
             </div>
 
-            <a href="{{ route('sales.create1') }}"
+            <a href="{{ route('sales.create', [encryptId(session('sale_id')), 'q=new']) }}"
                class="sale-btn sale-btn-primary d-flex align-items-center justify-content-center">
 
                 <i class="bi bi-plus-lg fs-2"></i>

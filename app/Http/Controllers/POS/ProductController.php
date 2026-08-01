@@ -304,115 +304,52 @@ class ProductController extends Controller
         return datatables()
             ->eloquent($query)
             ->addColumn('actions', function ($product) {
-                $encryptedId = encrypt($product->id);
 
-                $viewUrl = route(
-                    'products.show',
-                    $encryptedId
-                );
+                $id = encrypt($product->id);
 
-                $editUrl = route(
-                    'products.edit',
-                    $encryptedId
-                );
+                $links = [
+                    ['products.show', $id, 'bi-eye text-info', 'View Product', 'btn-light'],
+                    ['products.edit', $id, 'bi-pencil text-primary', 'Edit Product', 'btn-light'],
+                    ['divider'],
+                    ['products.stock.receive', $id, 'bi-box-arrow-in-down', 'Receive Stock', 'btn-success'],
+                    ['products.stock.adjustment', $id, 'bi-sliders', 'Stock Adjustment', 'btn-warning'],
+                    ['products.stock.history', $id, 'bi-clock-history', 'Stock History', 'btn-secondary'],
+                ];
 
-                $receiveStockUrl = route(
-                    'products.stock.receive',
-                    $encryptedId
-                );
+                $btn = '';
 
-                $stockHistoryUrl = route(
-                    'products.stock.history',
-                    $encryptedId
-                );
+                foreach ($links as $link) {
 
-                $stockAdjustmentUrl = route(
-                    'products.stock.adjustment',
-                    $encryptedId
-                );
+                    if ($link[0] === 'divider') {
+                        $btn .= '<hr class="my-2">';
+                        continue;
+                    }
 
-                $modalId = 'productActionModal' . $product->id;
+                    [$route, $param, $icon, $label, $class] = $link;
+
+                    $btn .= '
+                        <a href="' . route($route, $param) . '" class="btn ' . $class . ' text-start">
+                            <i class="bi ' . $icon . ' me-2"></i>
+                            ' . $label . '
+                        </a>
+                    ';
+                            }
 
                 return '
                     <button
-                        type="button"
-                        class="btn btn-soft-primary btn-sm"
-                        data-bs-toggle="modal"
-                        data-bs-target="#' . $modalId . '"
+                        class="btn btn-soft-primary btn-sm btn-actions"
+                        data-title="Product Actions"
+                        data-template="product-actions-' . $product->id . '"
                     >
                         <i class="bi bi-gear"></i>
                         Actions
                     </button>
 
-                    <div
-                        class="modal fade"
-                        id="' . $modalId . '"
-                        tabindex="-1"
-                        aria-hidden="true"
-                    >
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content border-0 shadow">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">
-                                        Product Actions
-                                    </h5>
-                                    <button
-                                        type="button"
-                                        class="btn-close"
-                                        data-bs-dismiss="modal"
-                                    ></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="d-grid gap-2">
-                                        <a href="' . $viewUrl . '" class="btn btn-light text-start">
-                                            <i class="bi bi-eye text-info me-2"></i>
-                                            View Product
-                                        </a>
-
-                                        <a
-                                            href="' . $editUrl . '"
-                                            class="btn btn-light text-start"
-                                        >
-                                            <i class="bi bi-pencil text-primary me-2"></i>
-                                            Edit Product
-                                        </a>
-
-                                        <hr class="my-2">
-
-                                        <a
-                                            href="' . $receiveStockUrl . '"
-                                            class="btn btn-success text-start"
-                                        >
-                                            <i class="bi bi-box-arrow-in-down me-2"></i>
-                                            Receive Stock
-                                        </a>
-
-                                        <a
-                                            href="' . $stockAdjustmentUrl . '"
-                                            class="btn btn-warning text-start"
-                                        >
-                                            <i class="bi bi-sliders me-2"></i>
-                                            Stock Adjustment
-                                        </a>
-
-                                        <a
-                                            href="' . $stockHistoryUrl . '"
-                                            class="btn btn-secondary text-start"
-                                        >
-                                            <i class="bi bi-clock-history me-2"></i>
-                                            Stock History
-                                        </a>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
+                    <template id="product-actions-' . $product->id . '">
+                        <div class="d-grid gap-2">' . $btn . '</div>
+                    </template>
                 ';
             })
-
             ->addColumn('image', function ($product) {
                 $image = $product->image
                     ? Storage::url($product->image)

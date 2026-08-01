@@ -44,31 +44,29 @@
         <x-datatable
             id="customerLedgerTable"
             :columns="[
-            '#',
-            'Date',
-            'Reference No.',
-            'Transaction',
-            'Debit',
-            'Credit',
-            'Running Balance',
-            'Remarks'
-        ]"
-
+                '#',
+                'Date',
+                'Reference No.',
+                'Transaction',
+                'Debit',
+                'Credit',
+                'Running Balance',
+                'Remarks'
+            ]"
+            :pageLength="100"
             :ajax="route('customers.credit.ledger.data', [
-            'CustomerID' => encryptId($customer->id)
-        ])"
-
+                'CustomerID' => encryptId($customer->id)
+            ])"
             :datatableColumns="[
-            ['data' => 'DT_RowIndex', 'searchable' => false],
-            ['data' => 'date'],
-            ['data' => 'reference_no'],
-            ['data' => 'transaction_type'],
-            ['data' => 'debit'],
-            ['data' => 'credit'],
-            ['data' => 'running_balance'],
-            ['data' => 'remarks']
-        ]"
-
+                ['data' => 'DT_RowIndex', 'searchable' => false],
+                ['data' => 'date'],
+                ['data' => 'reference_no'],
+                ['data' => 'transaction_type'],
+                ['data' => 'debit'],
+                ['data' => 'credit'],
+                ['data' => 'running_balance'],
+                ['data' => 'remarks']
+            ]"
         />
     </x-card>
 
