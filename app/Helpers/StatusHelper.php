@@ -4,6 +4,18 @@ namespace App\Helpers;
 
 class StatusHelper
 {
+    public static function formatDateTime(string $dateTime): string
+    {
+        return $dateTime != ''
+            ? date('M d, Y h:i A', strtotime($dateTime))
+            : 'N/A';
+    }
+    public static function formatDate(string $date): string
+    {
+        return $date != ''
+            ? format_date($date)
+            : 'N/A';
+    }
     public static function badge(?string $status): string
     {
         $status = strtolower(trim($status ?? ''));
@@ -49,6 +61,12 @@ class StatusHelper
             'bank_transfer'=> ['info', 'bi-wallet2', 'Bank Transfer'],
             'payment'      => ['success', 'bi-cash-stack', 'Payment'],
             'sale'         => ['success', 'bi-cart-check-fill', 'SALE'],
+            'regular'  => ['primary', 'bi-person-fill', 'Regular'],
+            'business' => ['info', 'bi-building', 'Business'],
+            'credit'   => ['warning', 'bi-credit-card', 'Credit'],
+            'senior'   => ['secondary', 'bi-person-badge-fill', 'Senior Citizen'],
+            'pwd'      => ['success', 'bi-universal-access-circle', 'PWD'],
+            'walkin'   => ['dark', 'bi-person-walking', 'Walk-in'],
         ];
 
         [$color, $icon, $label] = $map[$status]

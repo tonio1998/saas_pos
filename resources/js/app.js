@@ -1,5 +1,4 @@
 import './bootstrap'
-import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import $ from 'jquery'
 import * as bootstrap from 'bootstrap';
 
@@ -25,10 +24,27 @@ import './custom.js'
 import Chart from 'chart.js/auto';
 window.Chart = Chart;
 
-import './photo-crop.js'
+import './utils.js'
+
 
 
 document.addEventListener("DOMContentLoaded",function(){
+    document.addEventListener('click', function (e) {
+
+        const btn = e.target.closest('.btn-actions');
+
+        if (!btn) return;
+
+        actionModalTitle.textContent = btn.dataset.title;
+
+        const template = document.getElementById(btn.dataset.template);
+
+        actionModalBody.innerHTML = template.innerHTML;
+
+        bootstrap.Modal.getOrCreateInstance(actionModal).show();
+
+    });
+
     document.querySelectorAll(".password-toggle").forEach(toggle=> {
         toggle.addEventListener("click",function(){
             const input = this.previousElementSibling

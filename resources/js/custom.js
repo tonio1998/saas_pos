@@ -50,8 +50,8 @@ $(document).ready(function () {
                             <small class="text-muted">${item.barcode}</small>
                         </td>
                         <td class="text-center">${item.qty}</td>
-                        <td class="text-end">${item.unit_price}</td>
-                        <td class="text-end">${item.line_total}</td>
+                        <td class="text-end">${Utils.formatCurrency(item.unit_price)}</td>
+                        <td class="text-end">${Utils.formatCurrency(item.line_total)}</td>
                     </tr>
                 `;
             });
@@ -59,10 +59,10 @@ $(document).ready(function () {
             sale.payments.forEach(payment => {
                 paymentRows += `
                     <tr>
-                        <td>${payment.payment_date}</td>
+                        <td>${Utils.formatDateTime(payment.payment_date)}</td>
                         <td>${payment.payment_method}</td>
-                        <td>${payment.reference_number}</td>
-                        <td class="text-end">${payment.amount}</td>
+                        <td>${payment.reference_number ?? '-'}</td>
+                        <td class="text-end">${Utils.formatCurrency(payment.amount)}</td>
                     </tr>
                 `;
             });
@@ -113,7 +113,7 @@ $(document).ready(function () {
                                     <small class="text-dark">Total Sale</small>
 
                                     <div class="display-6 fw-bold text-dark">
-                                        ${sale.total_amount}
+                                        ${Utils.formatCurrency(sale.total_amount)}
                                     </div>
 
                                 </div>
@@ -142,7 +142,7 @@ $(document).ready(function () {
 
                                 <tr>
                                     <th>Sale Date</th>
-                                    <td>${sale.sale_date}</td>
+                                    <td>${Utils.formatDateTime(sale.sale_date)}</td>
                                 </tr>
 
                             </table>
@@ -155,12 +155,12 @@ $(document).ready(function () {
 
                                 <tr>
                                     <th width="140">Subtotal</th>
-                                    <td class="text-end">${sale.subtotal}</td>
+                                    <td class="text-end">${Utils.formatCurrency(sale.subtotal)}</td>
                                 </tr>
 
                                 <tr>
                                     <th>Discount</th>
-                                    <td class="text-end">${sale.discount_amount}</td>
+                                    <td class="text-end">${Utils.formatCurrency(sale.discount_amount)}</td>
                                 </tr>
 
                                 <tr class="fw-bold">
@@ -168,7 +168,7 @@ $(document).ready(function () {
                                     <th>Total</th>
 
                                     <td class="text-end text-success">
-                                        ${sale.total_amount}
+                                        ${Utils.formatCurrency(sale.total_amount)}
                                     </td>
 
                                 </tr>

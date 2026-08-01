@@ -16,12 +16,80 @@ class CustomerCreditController extends Controller
 
     public function index()
     {
-        return view('pages.tenants.customers.credit.index');
+        return view('pages.tenants.customers.credits.index');
     }
 
     public function create()
     {
-        return view('pages.tenants.customers.credit.create');
+        return view('pages.tenants.customers.credits.create');
+    }
+
+    public function ajaxData(Request $request)
+    {
+        $customers = POSCustomers::with(['credit', 'createdBy'])
+            ->where('tenant_id', auth()->user()->tenant_id)
+            ->whereHas('credit', function ($query) {
+                $query->where('running_balance', '>', 0);
+            })
+            ->latest();
+
+        return DataTables::eloquent($customers)
+            ->addColumn('actions', function ($customer) {
+                $btn = '';
+
+                            $btn .= '
+                                <a
+                                    href="' . route('customers.credit.show', encryptId($customer->id)) . '"
+                                    class="btn btn-light text-start"
+                                >
+                                    <i class="bi bi-credit-card me-2 text-danger"></i>
+                                    Credit History
+                                </a>
+                            ';
+
+                            return '
+                    <button
+                        type="button"
+                        class="btn btn-soft-primary btn-sm btn-actions"
+                        data-bs-toggle="modal"
+                        data-bs-target="#actionModal"
+                        data-title="Customer Actions"
+                        data-template="actions-' . $customer->id . '"
+                    >
+                        <i class="bi bi-gear"></i>
+                        Actions
+                    </button>
+
+                    <template id="actions-' . $customer->id . '">
+                        <div class="d-grid gap-2">
+                            ' . $btn . '
+                        </div>
+                    </template>
+                ';
+            })
+            ->addColumn('CustomerCode', function ($customer) {
+                return getCustomerCode($customer->id);
+            })
+            ->addColumn('createdAt', function ($customer) {
+                return $customer->created_at ? format_date($customer->created_at) : 'N/A';
+            })
+            ->addColumn('credit', function ($customer) {
+                $balance = optional($customer->credit)->running_balance ?? 0;
+                return '₱' . number_format($balance, 2);
+            })
+            ->addColumn('createdBy', function ($customer) {
+                return $customer->createdBy ? $customer->createdBy->name : 'System';
+            })
+            ->editColumn('status', function ($customer) {
+                return StatusHelper::badge($customer->status);
+            })
+            ->rawColumns([
+                'actions',
+                'createdBy',
+                'status',
+                'credit'
+            ])
+            ->make(true);
     }
 
     public function show(Request $request)
@@ -37,7 +105,7 @@ class CustomerCreditController extends Controller
         $ledger = POSCustomerLedger::query()
             ->with(['customer', 'sale'])
             ->where('customer_id', $customerId)
-            ->orderBy('id');
+            ->orderByDesc('id');
 
         return DataTables::eloquent($ledger)
             ->addColumn('date', function ($row) {

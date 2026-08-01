@@ -5,89 +5,28 @@
 @section('content')
 
     <div class="container-fluid">
-
-        <x-page-header
-            title="Add Customer"
-            subtitle="Create customer profile"
-        />
-
         <div class="card border-0 shadow-sm">
-
             <div class="card-body">
-
-                <form
-                    method="POST"
-                    action="{{ route('customers.store') }}"
-                >
+                <form method="POST" action="{{ route('customers.store') }}">
                     @csrf
-
                     <div class="row">
-
-                        <div class="col-md-4 mb-3">
-
-                            <label class="form-label">
-                                First Name
-                            </label>
-
+                        <div class="co-md-4 mb-3">
+                            <label class="form-label">Full Name</label>
                             <input
                                 type="text"
-                                name="first_name"
-                                class="form-control @error('first_name') is-invalid @enderror"
-                                value="{{ old('first_name') }}"
+                                name="CustomerName"
+                                class="form-control @error('CustomerName') is-invalid @enderror"
+                                value="{{ old('CustomerName') }}"
                                 required
                             >
 
-                            @error('first_name')
+                            @error('CustomerName')
                             <div class="invalid-feedback">
                                 {{ $message }}
                             </div>
                             @enderror
 
                         </div>
-
-                        <div class="col-md-4 mb-3">
-
-                            <label class="form-label">
-                                Middle Name
-                            </label>
-
-                            <input
-                                type="text"
-                                name="middle_name"
-                                class="form-control @error('middle_name') is-invalid @enderror"
-                                value="{{ old('middle_name') }}"
-                            >
-
-                            @error('middle_name')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                            @enderror
-
-                        </div>
-
-                        <div class="col-md-4 mb-3">
-
-                            <label class="form-label">
-                                Last Name
-                            </label>
-
-                            <input
-                                type="text"
-                                name="last_name"
-                                class="form-control @error('last_name') is-invalid @enderror"
-                                value="{{ old('last_name') }}"
-                                required
-                            >
-
-                            @error('last_name')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                            @enderror
-
-                        </div>
-
                     </div>
 
                     <div class="row">
@@ -185,10 +124,10 @@
                         </label>
 
                         <textarea
-                            name="address"
+                            name="CustomerAddress"
                             rows="3"
                             class="form-control"
-                        >{{ old('address') }}</textarea>
+                        >{{ old('CustomerAddress') }}</textarea>
 
                     </div>
 

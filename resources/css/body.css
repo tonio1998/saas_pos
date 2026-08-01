@@ -25,6 +25,50 @@
     box-shadow:
         0 6px 20px rgba(15,23,42,.05);
 }
+.action-modal {
+    border: 0;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow:
+        0 12px 32px rgba(15, 23, 42, .12),
+        0 2px 8px rgba(15, 23, 42, .08);
+}
+
+.action-modal .modal-header {
+    padding: 1.1rem 1.25rem .75rem;
+}
+
+.action-modal .modal-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.action-modal .modal-body {
+    padding: .75rem 1rem 1rem;
+}
+.action-link {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    width: 100%;
+    padding: .9rem 1rem;
+    border-radius: 14px;
+    background: #f8fafc;
+    color: #1e293b;
+    text-decoration: none;
+    transition: .15s;
+}
+
+.action-link:hover {
+    background: #eef4ff;
+    color: #2563eb;
+}
+
+.action-link i:first-child {
+    width: 22px;
+    text-align: center;
+    font-size: 1rem;
+}
 .status-badge{
     display:inline-flex;
     align-items:center;

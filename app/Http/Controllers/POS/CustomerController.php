@@ -83,17 +83,7 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'first_name' => [
-                'required',
-                'string',
-                'max:100'
-            ],
-            'middle_name' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-            'last_name' => [
+            'CustomerName' => [
                 'required',
                 'string',
                 'max:100'
@@ -113,7 +103,7 @@ class CustomerController extends Controller
                 'string',
                 'max:30'
             ],
-            'address' => [
+            'CustomerAddress' => [
                 'nullable',
                 'string'
             ],
@@ -138,32 +128,39 @@ class CustomerController extends Controller
         ]);
 
         $customer = new POSCustomers();
-
         $customer->tenant_id = auth()->user()->tenant_id;
-        $customer->customer_code = 'CUS-' . time();
-        $customer->first_name = $data['first_name'];
-        $customer->middle_name = $data['middle_name'] ?? null;
-        $customer->last_name = $data['last_name'];
+        $customer->CustomerName = $data['CustomerName'];
         $customer->company_name = $data['company_name'] ?? null;
         $customer->email = $data['email'] ?? null;
         $customer->mobile_number = $data['mobile_number'] ?? null;
-        $customer->address = $data['address'] ?? null;
+        $customer->CustomerAddress = $data['CustomerAddress'] ?? null;
         $customer->customer_type = $data['customer_type'];
         $customer->discount_percent = $data['discount_percent'] ?? 0;
         $customer->credit_limit = $data['credit_limit'] ?? 0;
-        $customer->current_balance = 0;
         $customer->remarks = $data['remarks'] ?? null;
-
-        $this->setCommonFields(
-            $customer
-        );
-
+        $this->setCommonFields($customer);
         $customer->save();
 
-        return redirect()
-            ->route(
-                'customers.index'
-            )
+        $customer->customer_code = getCustomerCode($customer->id);
+        $customer->save();
+
+        $customer->ledger()->create([
+            'tenant_id' => auth()->user()->tenant_id,
+            'customer_id' => $customer->id,
+            'transaction_type' => 'CUSTOMER_REGISTRATION',
+            'debit' => 0,
+            'credit' => 0,
+            'running_balance' => 0,
+            'remarks' => 'Customer registration',
+            'created_by' => auth()->id(),
+            'updated_by' => auth()->id(),
+            'created_at' => now(),
+            'updated_at' => now(),
+            'status' => 'active',
+            'archived' => 0
+        ]);
+
+        return redirect()->route('customers.index')
             ->with(
                 'success',
                 'Customer created successfully.'
@@ -172,106 +169,40 @@ class CustomerController extends Controller
 
     public function edit(string $id)
     {
-        $customer = POSCustomers::findOrFail(
-            decrypt($id)
-        );
-
-        return view(
-            'pages.tenants.customers.edit',
-            compact('customer')
-        );
+        $customer = POSCustomers::findOrFail(decryptId($id));
+        return view('pages.tenants.customers.edit', compact('customer'));
     }
 
-    public function update(
-        Request $request,
-        string $id
-    ) {
-
+    public function update(Request $request, string $id)
+    {
         $data = $request->validate([
-            'first_name' => [
-                'required',
-                'string',
-                'max:100'
-            ],
-            'middle_name' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-            'last_name' => [
-                'required',
-                'string',
-                'max:100'
-            ],
-            'company_name' => [
-                'nullable',
-                'string',
-                'max:255'
-            ],
-            'email' => [
-                'nullable',
-                'email',
-                'max:255'
-            ],
-            'mobile_number' => [
-                'nullable',
-                'string',
-                'max:30'
-            ],
-            'address' => [
-                'nullable',
-                'string'
-            ],
-            'customer_type' => [
-                'required',
-                'in:walkin,regular,business,senior,pwd,credit'
-            ],
-            'discount_percent' => [
-                'nullable',
-                'numeric',
-                'min:0'
-            ],
-            'credit_limit' => [
-                'nullable',
-                'numeric',
-                'min:0'
-            ],
-            'remarks' => [
-                'nullable',
-                'string'
-            ]
+            'CustomerName' => ['required', 'string', 'max:100'],
+            'company_name' => ['nullable', 'string', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'mobile_number' => ['nullable', 'string', 'max:30'],
+            'CustomerAddress' => ['nullable', 'string'],
+            'customer_type' => ['required', 'in:walkin,regular,business,senior,pwd,credit'],
+            'discount_percent' => ['nullable', 'numeric', 'min:0'],
+            'credit_limit' => ['nullable', 'numeric', 'min:0'],
+            'remarks' => ['nullable', 'string']
         ]);
 
-        $customer = POSCustomers::findOrFail(
-            decrypt($id)
-        );
+        $customer = POSCustomers::findOrFail(decrypt($id));
 
-        $customer->first_name = $data['first_name'];
-        $customer->middle_name = $data['middle_name'] ?? null;
-        $customer->last_name = $data['last_name'];
+        $customer->CustomerName = $data['CustomerName'];
         $customer->company_name = $data['company_name'] ?? null;
         $customer->email = $data['email'] ?? null;
         $customer->mobile_number = $data['mobile_number'] ?? null;
-        $customer->address = $data['address'] ?? null;
+        $customer->CustomerAddress = $data['CustomerAddress'] ?? null;
         $customer->customer_type = $data['customer_type'];
         $customer->discount_percent = $data['discount_percent'] ?? 0;
         $customer->credit_limit = $data['credit_limit'] ?? 0;
         $customer->remarks = $data['remarks'] ?? null;
-
-        $this->setCommonFields(
-            $customer
-        );
-
+        $this->setCommonFields($customer);
         $customer->save();
 
-        return redirect()
-            ->route(
-                'customers.index'
-            )
-            ->with(
-                'success',
-                'Customer updated successfully.'
-            );
+        return redirect()->route('customers.index')
+            ->with('success', 'Customer updated successfully.');
     }
 
     public function ajaxData(Request $request)
@@ -284,34 +215,49 @@ class CustomerController extends Controller
         return datatables()
             ->eloquent($query)
             ->addColumn('actions', function ($customer) {
-                $btn = '
+
+                $btn = '';
+
+                $btn .= '
                     <a
-                        href="' . route(
-                        'customers.edit',
-                        encrypt($customer->id)
-                    ) . '"
-                        class="btn btn-soft-primary btn-sm"
+                        href="' . route('customers.edit', encryptId($customer->id)) . '"
+                        class="btn btn-light text-start"
                     >
-                        <i class="bi bi-pencil"></i>
+                        <i class="bi bi-pencil me-2 text-primary"></i>
+                        Edit Customer
                     </a>
                 ';
 
-                $btn .= '
-                        <a
-                            href="' . route(
-                        'customers.credit.show',
-                        encryptId($customer->id)
-                    ) . '"
-                            class="btn btn-soft-danger btn-sm"
-                        >
-                            <i class="bi bi-credit-card"></i>
-                        </a>
-                    ';
+                            $btn .= '
+                    <a
+                        href="' . route('customers.credit.show', encryptId($customer->id)) . '"
+                        class="btn btn-light text-start"
+                    >
+                        <i class="bi bi-credit-card me-2 text-danger"></i>
+                        Credit History
+                    </a>
+                ';
 
-                return $btn;
+                            return '
+                    <button
+                        type="button"
+                        class="btn btn-soft-primary btn-sm btn-actions"
+                        data-title="Customer Actions"
+                        data-template="customer-actions-' . $customer->id . '"
+                    >
+                        <i class="bi bi-gear"></i>
+                        Actions
+                    </button>
+
+                    <template id="customer-actions-' . $customer->id . '">
+                        <div class="d-grid gap-2">
+                            ' . $btn . '
+                        </div>
+                    </template>
+                ';
             })
             ->addColumn('CustomerCode', function ($customer) {
-                return getCustomerCode($customer->id);
+                return $customer->customer_code != '0' ? $customer->customer_code : getCustomerCode($customer->id);
             })
             ->addColumn('createdAt', function ($customer) {
                 return $customer->created_at ? format_date($customer->created_at) : 'N/A';
@@ -329,11 +275,15 @@ class CustomerController extends Controller
             ->editColumn('status', function ($customer) {
                 return StatusHelper::badge($customer->status);
             })
+            ->editColumn('customer_type', function ($customer) {
+                return StatusHelper::badge($customer->customer_type);
+            })
             ->rawColumns([
                 'actions',
                 'createdBy',
                 'status',
-                'credit'
+                'credit',
+                'customer_type'
             ])
             ->make(true);
     }

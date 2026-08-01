@@ -65,6 +65,12 @@
                 'pages.tenants.terminal.cart.checkout_button'
             )
 
+
+            <div class="checkout-section" style="margin-top:3rem;">
+
+            </div>
+
+
         </div>
 
     </div>
