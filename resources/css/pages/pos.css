@@ -1,29 +1,29 @@
 :root,
 [data-theme="light"] {
 
-    --primary: #2563eb;
-    --primary-hover: #1d4ed8;
-    --primary-light: #eff6ff;
+    --primary: #059669;
+    --primary-hover: #047857;
+    --primary-light: #ecfdf5;
 
-    --success: #16a34a;
-    --danger: #dc2626;
+    --success: #10b981;
+    --danger: #ef4444;
     --warning: #f59e0b;
-    --info: #0ea5e9;
+    --info: #6366f1;
 
-    --bg: #f4f6f9;
+    --bg: #f8fafc;
     --card: #ffffff;
-    --card-hover: #f8fafc;
+    --card-hover: #f1f5f9;
     --header: #ffffff;
     --sidebar: #ffffff;
 
-    --border: #e5e7eb;
+    --border: #e2e8f0;
 
-    --text: #111827;
-    --muted: #6b7280;
+    --text: #0f172a;
+    --muted: #64748b;
 
     --input-bg: #ffffff;
-    --input-text: #111827;
-    --input-border: #d1d5db;
+    --input-text: #0f172a;
+    --input-border: #cbd5e1;
 
     --radius-sm: 10px;
     --radius-md: 14px;
@@ -178,41 +178,30 @@ body {
 
 }
 .pos-shell {
-    height: 100vh;
+    flex: 1 1 0%;
+    height: calc(100vh - 56px);
     display: flex;
     background: var(--bg);
     overflow: hidden;
 }
 
 .pos-left {
-
-    flex: 1;
-
+    flex: 1 1 0%;
     display: flex;
-
     flex-direction: column;
-
     overflow: hidden;
-
-    /*padding: 18px;*/
-
+    height: 100%;
 }
+
 .pos-right {
-
-    width: 400px;
-
-    min-width: 400px;
-
-    /*background: #fff;*/
-
+    width: 420px;
+    min-width: 420px;
+    background: #ffffff;
     border-left: 1px solid var(--border);
-
     display: flex;
-
     flex-direction: column;
-
+    height: 100%;
     overflow: hidden;
-
 }
 .brand-area {
 
@@ -385,33 +374,124 @@ body {
     padding-right: 4px;
 
 }
-.product-card{
-    display:flex;
-    flex-direction:column;
-    /*background:#fff;*/
-    border:1px solid #e5e7eb;
-    border-radius:12px;
-    overflow:hidden;
-    cursor:pointer;
-    transition:.15s;
-    height:250px;
-}
-.pos-status-panel {
+.product-card {
     display: flex;
     flex-direction: column;
-    height: 180px;
-    /*background: #fff;*/
-    border-top: 1px solid #e5e7eb;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
-.pos-status-bar {
-    height: 42px;
+.product-card:hover {
+    transform: translateY(-3px);
+    border-color: #059669;
+    box-shadow: 0 10px 20px rgba(5, 150, 105, 0.12);
+}
+
+.product-card .product-image {
+    position: relative;
+    width: 100%;
+    height: 120px;
+    background: #f8fafc;
+    overflow: hidden;
+}
+
+.product-card .product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image img {
+    transform: scale(1.05);
+}
+
+.product-stock-tag {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    backdrop-filter: blur(6px);
+}
+
+.product-stock-tag.in {
+    background: rgba(16, 185, 129, 0.9);
+    color: #ffffff;
+}
+
+.product-stock-tag.low {
+    background: rgba(245, 158, 11, 0.9);
+    color: #ffffff;
+}
+
+.product-stock-tag.out {
+    background: rgba(239, 68, 68, 0.9);
+    color: #ffffff;
+}
+
+.product-info {
+    padding: 10px 12px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.product-name {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #0f172a;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.3;
+    min-height: 2.3em;
+}
+
+.product-bottom {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 0 14px;
-    border-bottom: 1px solid #e5e7eb;
-    flex-shrink: 0;
+    justify-content: space-between;
+    margin-top: auto;
+}
+
+.product-price {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #059669;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.product-add-badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: #ecfdf5;
+    color: #059669;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    transition: all 0.15s ease;
+}
+
+.product-card:hover .product-add-badge {
+    background: #059669;
+    color: #ffffff;
+}
+
+.pos-cart-items-wrapper {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
 }
 
 .status-indicator {
@@ -577,26 +657,18 @@ body {
 
 }
 .cart-items {
-
     flex: 1;
-
     overflow-y: auto;
-
-    padding: 12px;
-
+    padding: 0;
+    background: #ffffff;
 }
-.cart-item {
 
-    /*background: #fff;*/
+.receipt-item {
+    transition: background 0.15s ease;
+}
 
-    border: 1px solid var(--border);
-
-    border-radius: 14px;
-
-    padding: 12px;
-
-    margin-bottom: 10px;
-
+.receipt-item:hover {
+    background: #f8fafc !important;
 }
 .qty-controls {
 

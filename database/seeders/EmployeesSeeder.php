@@ -79,6 +79,7 @@ class EmployeesSeeder extends Seeder
                     'name'      => trim(
                         $employee->FirstName . ' ' . $employee->LastName
                     ),
+                    'username'  => $username,
                     'email'     => $email,
                     'password'  => Hash::make('Password123'),
                     'qr_code'   => strtoupper(Str::random(15)),

@@ -31,12 +31,17 @@ class SalesController extends Controller
             'id',
             'name',
             'barcode',
+            'cost_price',
             'selling_price',
+            'wholesale_price',
             'stock_on_hand',
             'category_id',
+            'unit_id',
+            'allow_decimal_qty',
             'image',
             'updated_at'
         )
+            ->with(['variants', 'unit'])
             ->where('tenant_id', auth()->user()->tenant_id)
             ->get();
     }
@@ -54,6 +59,14 @@ class SalesController extends Controller
             'success' => true,
             'sale' => $sale
         ]);
+    }
+
+    public function birReceipt(POSSale $sale)
+    {
+        $sale->load(['customer', 'cashier', 'payments', 'items.product']);
+        $tenant = POSTenant::find($sale->tenant_id);
+
+        return view('pages.pos.sales.bir_receipt', compact('sale', 'tenant'));
     }
 
     public function details(POSSale $sale)
@@ -410,7 +423,8 @@ class SalesController extends Controller
             'payments.*.reference_number' => ['nullable', 'string', 'max:255'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => ['required', 'integer'],
-            'items.*.qty' => ['required', 'numeric', 'min:0.01'],
+            'items.*.variant_id' => ['nullable'],
+            'items.*.qty' => ['required', 'numeric', 'min:0.0001'],
             'items.*.price' => ['required', 'numeric', 'min:0'],
         ]);
 
@@ -625,7 +639,8 @@ class SalesController extends Controller
             'payments.*.reference_number' => ['nullable', 'string', 'max:255'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => ['required', 'integer'],
-            'items.*.qty' => ['required', 'numeric', 'min:0.01'],
+            'items.*.variant_id' => ['nullable'],
+            'items.*.qty' => ['required', 'numeric', 'min:0.0001'],
             'items.*.price' => ['required', 'numeric', 'min:0'],
         ]);
 
@@ -647,11 +662,29 @@ class SalesController extends Controller
             $change,
             &$sale
         ) {
+            $discountType = $data['discount_type'] ?? null;
+            $isScPwd = in_array($discountType, ['sc_pwd', 'senior', 'pwd']) || !empty($data['discount_id_no']);
 
-            $taxRate = 12;
+            $subtotal = $data['subtotal'];
+            $discount = $data['discount'];
+            $total = $data['total'];
 
-            $vatableSales = $data['total'] / (1 + ($taxRate / 100));
-            $taxAmount = $data['total'] - $vatableSales;
+            if ($isScPwd) {
+                $vatExemptSales = round($subtotal / 1.12, 2);
+                $vatableSales = 0;
+                $taxAmount = 0;
+                $zeroRatedSales = 0;
+            } elseif ($discountType === 'zero_rated') {
+                $vatExemptSales = 0;
+                $vatableSales = 0;
+                $taxAmount = 0;
+                $zeroRatedSales = $total;
+            } else {
+                $vatableSales = round($total / 1.12, 2);
+                $taxAmount = round($total - $vatableSales, 2);
+                $vatExemptSales = 0;
+                $zeroRatedSales = 0;
+            }
 
             $sale = new POSSale();
             $sale->tenant_id = auth()->user()->tenant_id;
@@ -661,13 +694,18 @@ class SalesController extends Controller
             $sale->payment_method = count($data['payments']) === 1
                     ? $data['payments'][0]['method']
                     : 'split';
-            $sale->subtotal = $data['subtotal'];
-            $sale->discount_amount = $data['discount'];
-            $sale->discount_type = $data['discount_type'] ?? null;
+            $sale->subtotal = $subtotal;
+            $sale->discount_amount = $discount;
+            $sale->discount_type = $discountType;
             $sale->discount_holder = $data['discount_holder'] ?? null;
             $sale->discount_id_no = $data['discount_id_no'] ?? null;
-            $sale->tax_amount = round($taxAmount, 2);
-            $sale->total_amount = $data['total'];
+            $sale->vatable_sales = $vatableSales;
+            $sale->vat_exempt_sales = $vatExemptSales;
+            $sale->zero_rated_sales = $zeroRatedSales;
+            $sale->tax_amount = $taxAmount;
+            $sale->total_amount = $total;
+            $sale->tendered_amount = $totalPaid;
+            $sale->change_amount = $change;
             $sale->sale_status = 'completed';
             $sale->sale_date = now();
             $sale->reference_number =
@@ -841,13 +879,27 @@ class SalesController extends Controller
             ->orderBy('id')
             ->first();
 
+        $tenant = \App\Models\POS\POSTenant::with('subscription')->find(auth()->user()->tenant_id);
+        $subscription = $tenant?->subscription;
+        $planName = $subscription?->name ?? 'Tindahan Starter';
+        $planTier = strtolower($planName);
+        $isStarter = str_contains($planTier, 'starter') || str_contains($planTier, 'level i');
+        $isGrowth = str_contains($planTier, 'growth') || str_contains($planTier, 'level ii');
+        $isPro = str_contains($planTier, 'pro') || str_contains($planTier, 'level iii');
+
         return view(
             'pages.tenants.terminal.create',
             compact(
                 'sale',
                 'categories',
                 'previousSale',
-                'nextSale'
+                'nextSale',
+                'tenant',
+                'subscription',
+                'planName',
+                'isStarter',
+                'isGrowth',
+                'isPro'
             )
         );
     }

@@ -79,6 +79,7 @@ class ParentsSeeder extends Seeder
                     'name'      => trim(
                         $parent->FirstName . ' ' . $parent->LastName
                     ),
+                    'username'  => $username,
                     'email'     => $email,
                     'password'  => Hash::make('Password123'),
                     'qr_code'   => strtoupper(Str::random(15)),

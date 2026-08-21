@@ -6,52 +6,42 @@
     data-stock="{{ $product->stock_on_hand }}"
     data-barcode="{{ $product->barcode }}"
 >
+    @php
+        $stock = $product->stock_on_hand ?? 0;
+        $hasImage = !empty($product->image) && file_exists(public_path('storage/' . $product->image));
+    @endphp
+
     <div class="product-image">
-        <img
-            src="{{ $product->image ? Storage::url($product->image) : asset('images/no_image.jpg') }}"
-            alt="{{ $product->name }}"
-        >
+        @if($hasImage)
+            <img src="{{ Storage::url($product->image) }}" alt="" loading="lazy">
+        @else
+            <div class="product-no-image d-flex flex-column align-items-center justify-content-center h-100 text-muted">
+                <i class="bi bi-box-seam fs-2 text-secondary opacity-50"></i>
+                <span class="extra-small text-muted opacity-75 fw-semibold mt-1">Item</span>
+            </div>
+        @endif
+
+        @if($stock <= 0)
+            <div class="product-stock-tag out">Out of Stock</div>
+        @elseif($stock <= 10)
+            <div class="product-stock-tag low">Low: {{ $stock }}</div>
+        @else
+            <div class="product-stock-tag in">{{ $stock }} in stock</div>
+        @endif
     </div>
 
     <div class="product-info">
-
-        <div class="product-name">
+        <div class="product-name" title="{{ $product->name }}">
             {{ $product->name }}
         </div>
 
-        @php
-            $stock = $product->stock_on_hand ?? 0;
-        @endphp
-
         <div class="product-bottom">
-
             <span class="product-price">
-                ₱{{ number_format($product->selling_price, 2) }} / {{ $stock }}
+                ₱{{ number_format($product->selling_price, 2) }}
             </span>
-            <span class="stock-badge out">
-                    0
-                </span>
-            @if($stock <= 0)
-
-                <span class="stock-badge out">
-                    0
-                </span>
-
-            @elseif($stock <= 10)
-
-                <span class="stock-badge low">
-                    {{ $stock }}
-                </span>
-
-            @else
-
-                <span class="stock-badge in">
-                    {{ $stock }}
-                </span>
-
-            @endif
-
+            <span class="product-add-badge">
+                <i class="bi bi-plus-lg"></i>
+            </span>
         </div>
-
     </div>
 </div>

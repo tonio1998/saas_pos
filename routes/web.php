@@ -36,6 +36,8 @@ use App\Http\Controllers\POS\StockLowStockController;
 use App\Http\Controllers\POS\SupplierController;
 use App\Http\Controllers\POS\TenantsContextController;
 use App\Http\Controllers\POS\TenantsController;
+use App\Http\Controllers\POS\SubscriptionPaymentController;
+use App\Http\Controllers\POS\BIRReportController;
 use App\Http\Controllers\POS\UnitController;
 use App\Http\Controllers\SADashboardController;
 use App\Http\Controllers\TenantsDashboardController;
@@ -67,15 +69,21 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
 Route::get('/', function () {
-    return Auth::check()
-        ? redirect()->route('dashboard.index')
-        : view('auth.login');
-});
+    $reviews = \App\Models\POS\POSStoreReview::where('is_approved', 1)
+        ->orderBy('is_featured', 'desc')
+        ->latest()
+        ->get();
+
+    return view('welcome', compact('reviews'));
+})->name('home');
+
+Route::post('/submit-review', [AuthController::class, 'submitReview'])->name('reviews.store');
 
 Route::get('/login',[AuthController::class,'showLogin'])->name('login');
 Route::post('/login',[AuthController::class,'login']);
 Route::get('/register',[AuthController::class,'showRegister'])->name('register');
 Route::post('/register',[AuthController::class,'register']);
+Route::post('/store/complete-profile', [AuthController::class, 'completeStoreProfile'])->name('store.complete-profile');
 Route::post('/logout',[AuthController::class,'logout'])->name('logout');
 
 
@@ -194,7 +202,11 @@ Route::middleware('auth')->group(function(){
 
     Route::prefix('dashboard')->name('dashboard.')->group(function(){
         Route::get('/', [TenantsDashboardController::class, 'index'])->name('index');
-        Route::get('/data', [TenantsDashboardController::class, 'data'])->name('data');
+        Route::get('/kpis', [TenantsDashboardController::class, 'kpis'])->name('kpis');
+        Route::get('/analytics', [TenantsDashboardController::class, 'analyticsData'])->name('analytics');
+        Route::get('/recent-sales', [TenantsDashboardController::class, 'recentSales'])->name('recent-sales');
+        Route::get('/inventory-alerts', [TenantsDashboardController::class, 'inventoryAlerts'])->name('inventory-alerts');
+        Route::get('/top-suki', [TenantsDashboardController::class, 'topSuki'])->name('top-suki');
     });
 
     Route::prefix('permissions')->name('permissions.')->group(function(){
@@ -256,6 +268,7 @@ Route::middleware('auth')->group(function(){
         Route::get('/data', [SalesController::class, 'ajaxData'])->name('data');
         Route::get('/products',[SalesController::class, 'products']);
         Route::get('/{sale}/details', [SalesController::class, 'details'])->name('details');
+        Route::get('/{sale}/bir-receipt', [SalesController::class, 'birReceipt'])->name('bir-receipt');
         Route::post('/complete', [SalesController::class, 'complete'])->name('complete');
         Route::get('/{sale}/sales_details', [SalesController::class, 'sales_details']);
         Route::get('/terminal/{sale}/new-sale', [SalesController::class, 'create'])->name('new');
@@ -313,7 +326,12 @@ Route::middleware('auth')->group(function(){
         Route::put('/update/{id}', [ProductController::class, 'update'])->name('update');
         Route::delete('/delete/{id}', [ProductController::class, 'destroy'])->name('destroy');
         Route::get('/data', [ProductController::class, 'ajaxData'])->name('data');
+        Route::get('/kpi-stats', [ProductController::class, 'kpiStats'])->name('kpi-stats');
+        Route::get('/quick-view/{id}', [ProductController::class, 'quickView'])->name('quick-view');
+        Route::post('/bulk-action', [ProductController::class, 'bulkAction'])->name('bulk-action');
+        Route::get('/export-csv', [ProductController::class, 'exportCsv'])->name('export-csv');
         Route::get('suggestions', [ProductController::class, 'suggestions'])->name('suggestions');
+        Route::get('import-search', [ProductController::class, 'importSearch'])->name('import-search');
 
         Route::prefix('price-history')->name('price-history.')->group(function () {
             Route::get('/', [PriceHistoryController::class, 'index'])->name('index');
@@ -391,6 +409,7 @@ Route::middleware('auth')->group(function(){
 
     Route::prefix('customers')->name('customers.')->group(function () {
         Route::get('/', [CustomerController::class, 'index'])->name('index');
+        Route::get('/kpis', [CustomerController::class, 'kpis'])->name('kpis');
         Route::get('/create', [CustomerController::class, 'create'])->name('create');
         Route::post('/create', [CustomerController::class, 'store'])->name('store');
         Route::get('/edit/{id}', [CustomerController::class, 'edit'])->name('edit');
@@ -493,6 +512,14 @@ Route::middleware('auth')->group(function(){
         Route::get('/expenses', [ExpenseReportController::class, 'index'])->name('expenses');
         Route::get('/profit', [ProfitReportController::class, 'index'])->name('profit');
         Route::get('/purchases', [PurchaseReportController::class, 'index'])->name('purchases');
+        Route::get('/x-reading', [BIRReportController::class, 'xReading'])->name('x-reading');
+        Route::get('/z-reading', [BIRReportController::class, 'zReading'])->name('z-reading');
+    });
+
+    Route::prefix('subscription')->name('subscription.')->group(function () {
+        Route::get('/checkout', [SubscriptionPaymentController::class, 'checkout'])->name('checkout');
+        Route::post('/pay', [SubscriptionPaymentController::class, 'processPayment'])->name('pay');
+        Route::get('/status', [SubscriptionPaymentController::class, 'checkStatus'])->name('status');
     });
 
 });

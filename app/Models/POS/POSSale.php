@@ -21,12 +21,17 @@ class POSSale extends Model
         'invoice_no',
         'cash_shift_id',
         'subtotal',
+        'vatable_sales',
+        'vat_exempt_sales',
+        'zero_rated_sales',
         'discount_amount',
         'payment_method',
         'reference_number',
         'notes',
         'tax_amount',
         'total_amount',
+        'tendered_amount',
+        'change_amount',
         'sale_status',
         'sale_date',
         'created_by',
@@ -41,9 +46,14 @@ class POSSale extends Model
     protected $casts = [
         'sale_date' => 'datetime',
         'subtotal' => 'decimal:2',
+        'vatable_sales' => 'decimal:2',
+        'vat_exempt_sales' => 'decimal:2',
+        'zero_rated_sales' => 'decimal:2',
         'discount_amount' => 'decimal:2',
         'tax_amount' => 'decimal:2',
         'total_amount' => 'decimal:2',
+        'tendered_amount' => 'decimal:2',
+        'change_amount' => 'decimal:2',
     ];
 
     protected static function booted()

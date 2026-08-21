@@ -1,28 +1,39 @@
-<div class="cart-header">
-    <div class="cart-header-top">
-
+<div class="cart-header border-bottom px-3 py-2 bg-light" style="flex-shrink: 0;">
+    <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
         <div>
-
-            <h4 id="cartCustomerName">
-                {{ $sale->customer?->CustomerName ?? 'Current Order' }}
-            </h4>
-
-            <span id="cartCustomerAddress">
-                {{ $sale->customer?->CustomerAddress ?? 'Walk-in Customer' }}
-            </span>
-
+            <div class="d-flex align-items-center gap-1.5">
+                <i class="bi bi-receipt text-success"></i>
+                <span class="fw-extrabold text-dark text-uppercase small font-mono" style="letter-spacing: 0.5px;">Current Receipt</span>
+            </div>
+            <div class="text-muted extra-small" id="cartCustomerName">
+                <i class="bi bi-person me-1"></i>{{ $sale->customer?->CustomerName ?? 'Walk-in Customer' }}
+            </div>
         </div>
 
-        <button
-            type="button"
-            class="btn-customer"
-            data-bs-toggle="modal"
-            data-bs-target="#customerModal"
-        >
-            <i class="bi bi-person-plus"></i>
-            Customer
-        </button>
+        <div class="d-flex align-items-center gap-1.5">
+            <!-- Retail / Wholesale Pricing Switcher -->
+            <div class="btn-group btn-group-sm bg-white border rounded-pill p-0.5 shadow-xs" role="group" id="pricingModeGroup">
+                <input type="radio" class="btn-check" name="priceMode" id="priceModeRetail" value="retail" checked autocomplete="off">
+                <label class="btn btn-sm btn-outline-success border-0 rounded-pill px-2.5 py-0.5 extra-small fw-bold" for="priceModeRetail" title="Standard retail selling price">
+                    <i class="bi bi-tag-fill me-1"></i>Retail
+                </label>
 
+                <input type="radio" class="btn-check" name="priceMode" id="priceModeWholesale" value="wholesale" autocomplete="off">
+                <label class="btn btn-sm btn-outline-primary border-0 rounded-pill px-2.5 py-0.5 extra-small fw-bold" for="priceModeWholesale" title="Bulk wholesale price">
+                    <i class="bi bi-box-seam-fill me-1"></i>Wholesale
+                </label>
+            </div>
+
+            <button
+                type="button"
+                class="btn btn-sm btn-white border rounded-pill px-2.5 py-1 text-dark fw-semibold shadow-xs extra-small"
+                data-bs-toggle="modal"
+                data-bs-target="#customerModal"
+            >
+                <i class="bi bi-person-plus me-1 text-success"></i>
+                Customer
+            </button>
+        </div>
     </div>
 </div>
 

@@ -35,34 +35,48 @@ class CustomerCreditController extends Controller
 
         return DataTables::eloquent($customers)
             ->addColumn('actions', function ($customer) {
-                $btn = '';
+                $ledgerUrl = route('customers.credit.show', encryptId($customer->id));
+                $settleUrl = route('customers.collections.create', encryptId($customer->id));
+                $editUrl = route('customers.edit', encryptId($customer->id));
+                $balance = optional($customer->credit)->running_balance ?? 0;
 
-                            $btn .= '
-                                <a
-                                    href="' . route('customers.credit.show', encryptId($customer->id)) . '"
-                                    class="btn btn-light text-start"
-                                >
-                                    <i class="bi bi-credit-card me-2 text-danger"></i>
-                                    Credit History
-                                </a>
-                            ';
-
-                            return '
+                return '
                     <button
                         type="button"
-                        class="btn btn-soft-primary btn-sm btn-actions"
-                        data-bs-toggle="modal"
-                        data-bs-target="#actionModal"
-                        data-title="Customer Actions"
-                        data-template="actions-' . $customer->id . '"
+                        class="btn btn-soft-primary btn-sm btn-actions rounded-pill px-3 py-1 fw-bold shadow-xs hover-lift d-inline-flex align-items-center gap-1.5"
+                        data-title="Options: ' . e($customer->CustomerName) . '"
+                        data-template="credit-actions-' . $customer->id . '"
+                        style="font-size:0.75rem;background:#f0f7ff;color:#0284c7;border:1px solid #bae6fd;"
                     >
-                        <i class="bi bi-gear"></i>
-                        Actions
+                        <i class="bi bi-gear-fill text-primary"></i>
+                        <span>Actions</span>
                     </button>
 
-                    <template id="actions-' . $customer->id . '">
-                        <div class="d-grid gap-2">
-                            ' . $btn . '
+                    <template id="credit-actions-' . $customer->id . '">
+                        <div class="d-grid gap-2 p-1">
+                            <a href="' . $settleUrl . '" class="btn btn-success text-start d-flex align-items-center gap-2 py-2 px-3 rounded-3 fw-bold" style="background:#059669;border-color:#059669;color:#fff;">
+                                <i class="bi bi-wallet2 fs-5"></i>
+                                <div>
+                                    <div>Receive / Settle Payment</div>
+                                    <small class="opacity-75 font-mono" style="font-size:0.75rem;">Balance: ₱' . number_format($balance, 2) . '</small>
+                                </div>
+                            </a>
+
+                            <a href="' . $ledgerUrl . '" class="btn btn-outline-danger text-start d-flex align-items-center gap-2 py-2 px-3 rounded-3 fw-bold">
+                                <i class="bi bi-book-half fs-5 text-danger"></i>
+                                <div>
+                                    <div class="text-danger">Credit Ledger Statement</div>
+                                    <small class="text-muted" style="font-size:0.75rem;">View history of purchases on credit</small>
+                                </div>
+                            </a>
+
+                            <a href="' . $editUrl . '" class="btn btn-primary text-start d-flex align-items-center gap-2 py-2 px-3 rounded-3 fw-bold" style="background:#2563eb;border-color:#2563eb;color:#fff;">
+                                <i class="bi bi-pencil-square fs-5"></i>
+                                <div>
+                                    <div>Edit Customer Profile</div>
+                                    <small class="opacity-75" style="font-size:0.75rem;">Adjust credit limits & info</small>
+                                </div>
+                            </a>
                         </div>
                     </template>
                 ';
@@ -75,7 +89,7 @@ class CustomerCreditController extends Controller
             })
             ->addColumn('credit', function ($customer) {
                 $balance = optional($customer->credit)->running_balance ?? 0;
-                return '₱' . number_format($balance, 2);
+                return '<span class="fw-black text-danger font-mono" style="font-size:0.9rem;">₱' . number_format($balance, 2) . '</span>';
             })
             ->addColumn('createdBy', function ($customer) {
                 return $customer->createdBy ? $customer->createdBy->name : 'System';
@@ -109,7 +123,7 @@ class CustomerCreditController extends Controller
 
         return DataTables::eloquent($ledger)
             ->addColumn('date', function ($row) {
-                return $row->created_at->format('M d, Y h:i A');
+                return '<span class="font-mono">' . $row->created_at->format('M d, Y h:i A') . '</span>';
             })
             ->editColumn('reference', function ($row) {
                 return $row->reference ?? '-';
@@ -119,16 +133,16 @@ class CustomerCreditController extends Controller
             })
             ->editColumn('debit', function ($row) {
                 return $row->debit > 0
-                    ? '<span class="text-danger fw-semibold">₱'.number_format($row->debit, 2).'</span>'
-                    : '-';
+                    ? '<span class="text-danger fw-black font-mono">₱' . number_format($row->debit, 2) . '</span>'
+                    : '<span class="text-muted font-mono">-</span>';
             })
             ->editColumn('credit', function ($row) {
                 return $row->credit > 0
-                    ? '<span class="text-success fw-semibold">₱'.number_format($row->credit, 2).'</span>'
-                    : '-';
+                    ? '<span class="text-success fw-black font-mono">₱' . number_format($row->credit, 2) . '</span>'
+                    : '<span class="text-muted font-mono">-</span>';
             })
             ->editColumn('running_balance', function ($row) {
-                return '<span class="fw-bold">₱'.number_format($row->running_balance, 2).'</span>';
+                return '<span class="fw-black font-mono text-dark" style="font-size:0.9rem;">₱' . number_format($row->running_balance, 2) . '</span>';
             })
             ->addColumn('status', function ($row) {
                 return StatusHelper::badge($row->status);

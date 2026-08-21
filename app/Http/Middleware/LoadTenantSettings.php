@@ -31,7 +31,7 @@ class LoadTenantSettings
             );
         }
 
-        $bgColor = '#004D1A';
+        $bgColor = '#ffffff';
 
         $isLight = $this->isLightColor(
             $bgColor
@@ -45,25 +45,15 @@ class LoadTenantSettings
 
                 'bg' => $bgColor,
 
-                'text' => $isLight
-                    ? '#1f2937'
-                    : '#ffffff',
+                'text' => '#1f2937',
 
-                'hover' => $isLight
-                    ? 'rgba(0,0,0,0.06)'
-                    : 'rgba(255,255,255,0.10)',
+                'hover' => '#f1f5f9',
 
-                'active' => $isLight
-                    ? 'rgba(0,0,0,0.10)'
-                    : 'rgba(255,255,255,0.16)',
+                'active' => '#ecfdf5',
 
-                'subtext' => $isLight
-                    ? '#4b5563'
-                    : 'rgba(255,255,255,0.78)',
+                'subtext' => '#64748b',
 
-                'border' => $isLight
-                    ? 'rgba(0,0,0,0.06)'
-                    : 'rgba(255,255,255,0.08)',
+                'border' => '#e2e8f0',
 
             ]
 

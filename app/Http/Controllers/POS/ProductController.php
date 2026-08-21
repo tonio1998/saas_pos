@@ -5,6 +5,7 @@ namespace App\Http\Controllers\POS;
 use App\Actions\POS\Products\StoreProduct;
 use App\Http\Controllers\Controller;
 use App\Models\POS\POSCategories;
+use App\Models\POS\POSProductVariant;
 use App\Models\POS\POSProducts;
 use App\Models\POS\POSUnits;
 use App\Models\POS\ProductPriceHistory;
@@ -20,7 +21,51 @@ class ProductController extends Controller
 
     public function index()
     {
-        return view('pages.tenants.products.index');
+        $tenantId = auth()->user()->tenant_id;
+
+        $categories = POSCategories::query()
+            ->where(function ($q) use ($tenantId) {
+                $q->where('tenant_id', $tenantId)
+                  ->orWhere('tenant_id', 0)
+                  ->orWhereNull('tenant_id');
+            })
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return view('pages.tenants.products.index', compact('categories'));
+    }
+
+    public function kpiStats()
+    {
+        $tenantId = auth()->user()->tenant_id;
+
+        $totalProducts = POSProducts::where('tenant_id', $tenantId)->count();
+        $activeProducts = POSProducts::where('tenant_id', $tenantId)->where('status', 'active')->count();
+        $lowStockCount = POSProducts::where('tenant_id', $tenantId)
+            ->where('stock_on_hand', '>', 0)
+            ->whereColumn('stock_on_hand', '<=', 'reorder_level')
+            ->count();
+        $outOfStockCount = POSProducts::where('tenant_id', $tenantId)
+            ->where('stock_on_hand', '<=', 0)
+            ->count();
+        $totalInventoryValue = POSProducts::where('tenant_id', $tenantId)
+            ->selectRaw('SUM(COALESCE(stock_on_hand, 0) * COALESCE(cost_price, 0)) as total_val')
+            ->value('total_val') ?? 0;
+        $totalRetailValue = POSProducts::where('tenant_id', $tenantId)
+            ->selectRaw('SUM(COALESCE(stock_on_hand, 0) * COALESCE(selling_price, 0)) as total_val')
+            ->value('total_val') ?? 0;
+
+        return response()->json([
+            'total_products' => $totalProducts,
+            'active_products' => $activeProducts,
+            'low_stock_count' => $lowStockCount,
+            'out_of_stock_count' => $outOfStockCount,
+            'total_inventory_value' => (float)$totalInventoryValue,
+            'total_retail_value' => (float)$totalRetailValue,
+            'formatted_inventory_value' => '₱' . number_format($totalInventoryValue, 2),
+            'formatted_retail_value' => '₱' . number_format($totalRetailValue, 2),
+        ]);
     }
 
     public function create()
@@ -37,13 +82,15 @@ class ProductController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('pages.tenants.products.create', compact('units', 'categories'));
+        $variants = collect();
+
+        return view('pages.tenants.products.create', compact('units', 'categories', 'variants'));
     }
 
     public function edit(Request $request)
     {
         $id = decrypt($request->segment(3));
-        $product = POSProducts::find($id);
+        $product = POSProducts::with('variants')->find($id);
         $units = POSUnits::query()
             ->with('createdBy')
             ->orderBy('name')
@@ -54,34 +101,51 @@ class ProductController extends Controller
             ->orderBy('name')
             ->get();
 
+        $variants = $product->variants;
+
         return view('pages.tenants.products.create', [
-            'product' => $product,
-            'units' => $units,
+            'product'    => $product,
+            'units'      => $units,
             'categories' => $categories,
+            'variants'   => $variants,
         ]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'category_id' => ['nullable', 'integer'],
-            'unit_id' => ['nullable', 'integer'],
-            'barcode' => ['nullable', 'string', 'max:100'],
-            'sku' => ['nullable', 'string', 'max:100'],
-            'cost_price' => ['required', 'numeric', 'min:0'],
-            'selling_price' => ['required', 'numeric', 'min:0'],
-            'wholesale_price' => ['nullable', 'numeric', 'min:0'],
-            'reorder_level' => ['nullable', 'integer', 'min:0'],
-            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'name'                              => ['required', 'string', 'max:255'],
+            'description'                       => ['nullable', 'string'],
+            'category_id'                       => ['nullable', 'integer'],
+            'unit_id'                           => ['nullable', 'integer'],
+            'barcode'                           => ['nullable', 'string', 'max:100'],
+            'sku'                               => ['nullable', 'string', 'max:100'],
+            'cost_price'                        => ['required', 'numeric', 'min:0'],
+            'selling_price'                     => ['required', 'numeric', 'min:0'],
+            'wholesale_price'                   => ['nullable', 'numeric', 'min:0'],
+            'reorder_level'                     => ['nullable', 'integer', 'min:0'],
+            'image'                             => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'variants'                          => ['nullable', 'array'],
+            'variants.*.variant_name'           => ['required_with:variants', 'string', 'max:255'],
+            'variants.*.qty_per_pack'           => ['required_with:variants', 'numeric', 'min:0.0001'],
+            'variants.*.cost_price'             => ['required_with:variants', 'numeric', 'min:0'],
+            'variants.*.selling_price'          => ['required_with:variants', 'numeric', 'min:0'],
+            'variants.*.wholesale_price'        => ['nullable', 'numeric', 'min:0'],
+            'variants.*.barcode'                => ['nullable', 'string', 'max:100'],
+            'variants.*.sku'                    => ['nullable', 'string', 'max:100'],
+            'variants.*.unit_id'                => ['nullable', 'integer'],
         ]);
 
-        app(StoreProduct::class)->handle(
+        $product = app(StoreProduct::class)->handle(
             $validated,
             auth()->user(),
             $request->file('image')
         );
+
+        // Save variants
+        if (!empty($validated['variants'])) {
+            $this->syncVariants($product, $validated['variants'], auth()->user()->tenant_id);
+        }
 
         return redirect()
             ->route('products.index')
@@ -116,7 +180,8 @@ class ProductController extends Controller
 
         DB::transaction(function () use (
             $product,
-            $validated
+            $validated,
+            $request
         ) {
 
             $oldCostPrice =
@@ -184,7 +249,7 @@ class ProductController extends Controller
                 $priceHistory->save();
             }
 
-            $image = $validated['image'];
+            $image = $validated['image'] ?? false;
 
             if ($image) {
                 $product->image = $image->store(
@@ -204,8 +269,14 @@ class ProductController extends Controller
                 'selling_price' => $newSellingPrice,
                 'wholesale_price' => $newWholesalePrice,
                 'reorder_level' => $validated['reorder_level'] ?? 0,
+                'allow_decimal_qty' => !empty($request->input('allow_decimal_qty')),
             ]);
         });
+
+        // Sync variants
+        if ($request->has('variants')) {
+            $this->syncVariants($product, $request->input('variants', []), auth()->user()->tenant_id);
+        }
 
         return redirect()
             ->route('products.index')
@@ -213,6 +284,51 @@ class ProductController extends Controller
                 'success',
                 'Product updated successfully.'
             );
+    }
+
+    /**
+     * Sync product variants (delete removed, upsert existing/new).
+     */
+    private function syncVariants(POSProducts $product, array $variantsData, int $tenantId): void
+    {
+        $keptIds = [];
+
+        foreach ($variantsData as $vData) {
+            if (empty($vData['variant_name'])) {
+                continue;
+            }
+
+            $variant = isset($vData['id']) && $vData['id']
+                ? POSProductVariant::find($vData['id'])
+                : new POSProductVariant();
+
+            if (!$variant) {
+                $variant = new POSProductVariant();
+            }
+
+            $variant->tenant_id       = $tenantId;
+            $variant->product_id      = $product->id;
+            $variant->variant_name    = $vData['variant_name'];
+            $variant->qty_per_pack    = $vData['qty_per_pack'] ?? 1;
+            $variant->cost_price      = $vData['cost_price'] ?? 0;
+            $variant->selling_price   = $vData['selling_price'] ?? 0;
+            $variant->wholesale_price = $vData['wholesale_price'] ?? null;
+            $variant->barcode         = $vData['barcode'] ?? null;
+            $variant->sku             = $vData['sku'] ?? null;
+            $variant->unit_id         = $vData['unit_id'] ?? null;
+            $variant->reorder_level   = $vData['reorder_level'] ?? 0;
+            $variant->status          = 'active';
+            $variant->created_by      = auth()->id();
+            $variant->updated_by      = auth()->id();
+            $variant->save();
+
+            $keptIds[] = $variant->id;
+        }
+
+        // Remove variants no longer in the form
+        $product->variants()
+            ->whereNotIn('id', $keptIds)
+            ->delete();
     }
 
     public function suggestions(Request $request)
@@ -227,261 +343,565 @@ class ProductController extends Controller
 
         $products = POSProducts::query()
             ->select([
-                'barcode',
-                'name',
-                'description',
-                'category_id',
-                'unit_id',
-                'image',
-                'cost_price',
-                'selling_price',
-                'sku',
+                'barcode', 'name', 'description', 'category_id',
+                'unit_id', 'image', 'cost_price', 'selling_price', 'wholesale_price', 'sku',
                 DB::raw('COUNT(*) as usage_count')
             ])
             ->where('tenant_id', '!=', $tenantId)
             ->with([
-                'category' => function ($query) {
-                    $query->select('name', 'id');
-                    $query->distinct();
-                },
-                'unit' => function ($query) {
-                    $query->select('name', 'id');
-                    $query->distinct();
-                }
+                'category' => fn($q) => $q->select('name', 'id')->distinct(),
+                'unit'     => fn($q) => $q->select('name', 'id')->distinct(),
             ])
             ->where(function ($query) use ($keyword) {
                 foreach (preg_split('/\s+/', $keyword) as $word) {
-                    $query->where(function ($q) use ($word) {
-                        $q->where('name', 'like', "%{$word}%")
-                            ->orWhere('barcode', 'like', "%{$word}%");
-                    });
+                    $query->where(fn($q) => $q
+                        ->where('name', 'like', "%{$word}%")
+                        ->orWhere('barcode', 'like', "%{$word}%")
+                    );
                 }
             })
-            ->groupBy([
-                'barcode',
-                'name',
-                'description',
-                'category_id',
-                'unit_id',
-                'image',
-                'cost_price',
-                'selling_price',
-                'sku'
-            ])
+            ->groupBy(['barcode','name','description','category_id','unit_id','image','cost_price','selling_price','wholesale_price','sku'])
             ->orderByDesc('usage_count')
             ->orderBy('name')
             ->limit(8)
             ->get();
 
-        return response()->json(
-            $products->map(function ($product) {
-                return [
-                    'barcode'      => $product->barcode,
-                    'name'         => $product->name,
-                    'description'  => $product->description,
-                    'category_id'  => $product->category_id,
-                    'unit_id'      => $product->unit_id,
-                    'image'        => $product->image
-                        ? '/storage/'.$product->image
-                        : null,
-                    'usage_count'  => $product->usage_count,
-                    'cost_price'   => $product->cost_price,
-                    'selling_price'=> $product->selling_price,
-                    'sku'          => $product->sku,
-                    'category'     => $product->category?->name,
-                    'unit'         => $product->unit?->name,
-                ];
-
-            })
-        );
+        return response()->json($products->map(fn($p) => [
+            'barcode'         => $p->barcode,
+            'name'            => $p->name,
+            'description'     => $p->description,
+            'category_id'     => $p->category_id,
+            'unit_id'         => $p->unit_id,
+            'image'           => $p->image ? '/storage/'.$p->image : null,
+            'usage_count'     => $p->usage_count,
+            'cost_price'      => $p->cost_price,
+            'selling_price'   => $p->selling_price,
+            'wholesale_price' => $p->wholesale_price,
+            'sku'             => $p->sku,
+            'category'        => $p->category?->name,
+            'unit'            => $p->unit?->name,
+        ]));
     }
 
-    public function ajaxData(Request $request)
+    /**
+     * Cross-tenant import search — returns products from other stores.
+     */
+    public function importSearch(Request $request)
     {
-        $query = POSProducts::with(['category', 'unit', 'createdBy'])
-            ->where('tenant_id', auth()->user()->tenant_id)
-        ;
+        $keyword  = trim($request->input('q', ''));
+        $tenantId = auth()->user()->tenant_id;
+
+        if (strlen($keyword) < 2) {
+            return response()->json([]);
+        }
+
+        $products = POSProducts::query()
+            ->select([
+                'id', 'barcode', 'name', 'description', 'category_id',
+                'unit_id', 'image', 'cost_price', 'selling_price', 'sku',
+                DB::raw('COUNT(*) as store_count')
+            ])
+            ->where('tenant_id', '!=', $tenantId)
+            ->with([
+                'category' => fn($q) => $q->select('name', 'id'),
+                'unit'     => fn($q) => $q->select('name', 'id'),
+            ])
+            ->where(fn($query) => $query
+                ->where('name', 'like', "%{$keyword}%")
+                ->orWhere('barcode', 'like', "%{$keyword}%")
+            )
+            ->groupBy(['id','barcode','name','description','category_id','unit_id','image','cost_price','selling_price','sku'])
+            ->orderByDesc('store_count')
+            ->orderBy('name')
+            ->limit(12)
+            ->get();
+
+        return response()->json($products->map(fn($p) => [
+            'barcode'       => $p->barcode,
+            'name'          => $p->name,
+            'description'   => $p->description,
+            'category_id'   => $p->category_id,
+            'unit_id'       => $p->unit_id,
+            'image'         => $p->image ? '/storage/'.$p->image : null,
+            'store_count'   => $p->store_count,
+            'cost_price'    => $p->cost_price,
+            'selling_price' => $p->selling_price,
+            'wholesale_price'=> null,
+            'sku'           => $p->sku,
+            'category'      => $p->category?->name,
+            'unit'          => $p->unit?->name,
+        ]));
+    }    public function ajaxData(Request $request)
+    {
+        $tenantId = auth()->user()->tenant_id;
+
+        $query = POSProducts::with(['category', 'unit', 'createdBy', 'variants'])
+            ->where('tenant_id', $tenantId);
+
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        if ($request->filled('stock_status')) {
+            if ($request->stock_status === 'out_of_stock') {
+                $query->where('stock_on_hand', '<=', 0);
+            } elseif ($request->stock_status === 'low_stock') {
+                $query->where('stock_on_hand', '>', 0)
+                      ->whereColumn('stock_on_hand', '<=', 'reorder_level');
+            } elseif ($request->stock_status === 'in_stock') {
+                $query->where('stock_on_hand', '>', 0);
+            }
+        }
+
+        if ($request->filled('product_type')) {
+            if ($request->product_type === 'fractional') {
+                $query->where('allow_decimal_qty', true);
+            } elseif ($request->product_type === 'variants') {
+                $query->has('variants');
+            } elseif ($request->product_type === 'standard') {
+                $query->where('allow_decimal_qty', false)->doesntHave('variants');
+            }
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('price_min')) {
+            $query->where('selling_price', '>=', (float)$request->price_min);
+        }
+
+        if ($request->filled('price_max')) {
+            $query->where('selling_price', '<=', (float)$request->price_max);
+        }
+
+        if ($request->filled('margin_tier')) {
+            if ($request->margin_tier === 'high') {
+                $query->whereRaw('(COALESCE(selling_price, 0) - COALESCE(cost_price, 0)) / NULLIF(COALESCE(selling_price, 0), 0) >= 0.30');
+            } elseif ($request->margin_tier === 'medium') {
+                $query->whereRaw('(COALESCE(selling_price, 0) - COALESCE(cost_price, 0)) / NULLIF(COALESCE(selling_price, 0), 0) BETWEEN 0.15 AND 0.2999');
+            } elseif ($request->margin_tier === 'low') {
+                $query->whereRaw('(COALESCE(selling_price, 0) - COALESCE(cost_price, 0)) / NULLIF(COALESCE(selling_price, 0), 0) BETWEEN 0 AND 0.1499');
+            } elseif ($request->margin_tier === 'negative') {
+                $query->whereRaw('COALESCE(selling_price, 0) < COALESCE(cost_price, 0)');
+            }
+        }
+
         return datatables()
             ->eloquent($query)
-            ->addColumn('actions', function ($product) {
-
-                $id = encrypt($product->id);
-
-                $links = [
-                    ['products.show', $id, 'bi-eye text-info', 'View Product', 'btn-light'],
-                    ['products.edit', $id, 'bi-pencil text-primary', 'Edit Product', 'btn-light'],
-                    ['divider'],
-                    ['products.stock.receive', $id, 'bi-box-arrow-in-down', 'Receive Stock', 'btn-success'],
-                    ['products.stock.adjustment', $id, 'bi-sliders', 'Stock Adjustment', 'btn-warning'],
-                    ['products.stock.history', $id, 'bi-clock-history', 'Stock History', 'btn-secondary'],
-                ];
-
-                $btn = '';
-
-                foreach ($links as $link) {
-
-                    if ($link[0] === 'divider') {
-                        $btn .= '<hr class="my-2">';
-                        continue;
-                    }
-
-                    [$route, $param, $icon, $label, $class] = $link;
-
-                    $btn .= '
-                        <a href="' . route($route, $param) . '" class="btn ' . $class . ' text-start">
-                            <i class="bi ' . $icon . ' me-2"></i>
-                            ' . $label . '
-                        </a>
-                    ';
-                            }
-
+            ->addColumn('checkbox', function ($product) {
                 return '
-                    <button
-                        class="btn btn-soft-primary btn-sm btn-actions"
-                        data-title="Product Actions"
-                        data-template="product-actions-' . $product->id . '"
-                    >
-                        <i class="bi bi-gear"></i>
-                        Actions
-                    </button>
-
-                    <template id="product-actions-' . $product->id . '">
-                        <div class="d-grid gap-2">' . $btn . '</div>
-                    </template>
-                ';
-            })
-            ->addColumn('image', function ($product) {
-                $image = $product->image
-                    ? Storage::url($product->image)
-                    : asset('images/no_image.jpg');
-
-                return '
-                    <img
-                        src="' . $image . '"
-                        class="img-thumbnail"
-                        style="max-height:120px"
-                        alt="Product Image"
-                    />
-                ';
-            })
-            ->addColumn('barcode', function ($product) {
-
-                if (!$product->barcode) {
-                    return '<span class="badge bg-light text-muted">No Barcode</span>';
-                }
-
-                $barcode = new DNS1D();
-
-                return $barcode->getBarcodeSVG(
-                    $product->barcode,
-                    'C128',
-                    1.5,
-                    40
-                );
-            })
-            ->addColumn('sku', function ($product) {
-                return $product->sku
-                    ?: '<span class="badge bg-light text-muted">No SKU</span>';
-            })
-            ->addColumn('name', function ($product) {
-                $html = '
-                    <div class="fw-bold">
-                        ' . e($product->name ?: 'Unnamed Product') . '
+                    <div class="text-center">
+                        <input type="checkbox" class="form-check-input product-checkbox shadow-xs" value="' . $product->id . '" data-name="' . e($product->name) . '" data-price="' . ($product->selling_price ?? 0) . '">
                     </div>
                 ';
-
-                return $html;
             })
-            ->addColumn('category', function ($product) {
-                return $product->category?->name
-                    ?: '<span class="badge bg-light text-muted">Uncategorized</span>';
-            })
-            ->addColumn('unit', function ($product) {
-                return $product->unit?->name
-                    ?: '<span class="badge bg-light text-muted">No Unit</span>';
-            })
-            ->addColumn('estimated_profit', function ($product) {
-                if (
-                    $product->cost_price === null ||
-                    $product->selling_price === null
-                ) {
-                    return '<span class="badge bg-light text-muted">N/A</span>';
-                }
-
-                $profit = $product->selling_price - $product->cost_price;
-
+            ->addColumn('actions', function ($product) {
+                $id = encrypt($product->id);
                 return '
-                    <span class="fw-bold text-success">
-                        ₱' . number_format($profit, 2) . '
-                    </span>
+                    <div class="dropdown text-center">
+                        <button class="btn btn-sm btn-light border rounded-pill px-3 py-1 text-dark fw-bold extra-small shadow-xs dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-gear-fill text-primary me-1"></i> Actions
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border rounded-4 p-2 extra-small" style="min-width:200px;">
+                            <li>
+                                <button type="button" class="dropdown-item rounded-3 py-2 d-flex align-items-center gap-2 fw-semibold text-dark btn-quick-view" data-id="' . $product->id . '">
+                                    <div class="rounded-circle bg-info bg-opacity-10 text-info d-flex align-items-center justify-content-center" style="width:26px;height:26px;">
+                                        <i class="bi bi-eye-fill" style="font-size:0.75rem;"></i>
+                                    </div>
+                                    <span>360° Quick CRM View</span>
+                                </button>
+                            </li>
+                            <li>
+                                <a class="dropdown-item rounded-3 py-2 d-flex align-items-center gap-2 fw-semibold text-dark" href="' . route('products.edit', $id) . '">
+                                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center" style="width:26px;height:26px;">
+                                        <i class="bi bi-pencil-fill" style="font-size:0.75rem;"></i>
+                                    </div>
+                                    <span>Edit Product Details</span>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li>
+                                <a class="dropdown-item rounded-3 py-2 d-flex align-items-center gap-2 fw-semibold text-dark" href="' . route('products.stock.receive', $id) . '">
+                                    <div class="rounded-circle bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center" style="width:26px;height:26px;">
+                                        <i class="bi bi-box-arrow-in-down" style="font-size:0.75rem;"></i>
+                                    </div>
+                                    <span>Receive Stock In</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item rounded-3 py-2 d-flex align-items-center gap-2 fw-semibold text-dark" href="' . route('products.stock.adjustment', $id) . '">
+                                    <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center" style="width:26px;height:26px;">
+                                        <i class="bi bi-sliders" style="font-size:0.75rem;"></i>
+                                    </div>
+                                    <span>Stock Adjustment</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item rounded-3 py-2 d-flex align-items-center gap-2 fw-semibold text-dark" href="' . route('products.stock.history', $id) . '">
+                                    <div class="rounded-circle bg-secondary bg-opacity-10 text-secondary d-flex align-items-center justify-content-center" style="width:26px;height:26px;">
+                                        <i class="bi bi-clock-history" style="font-size:0.75rem;"></i>
+                                    </div>
+                                    <span>Stock Movement Log</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 ';
             })
-            ->addColumn('cost_price', function ($product) {
-                return $product->cost_price !== null
-                    ? '₱' . number_format($product->cost_price, 2)
-                    : '<span class="badge bg-light text-muted">N/A</span>';
+            ->addColumn('product_info', function ($product) {
+                $imageSrc = $product->image ? Storage::url($product->image) : null;
+                $firstChar = strtoupper(mb_substr($product->name ?: 'P', 0, 1));
+
+                $imgHtml = $imageSrc
+                    ? '<img src="'.$imageSrc.'" class="rounded-3 border object-fit-cover shadow-xs flex-shrink-0 me-3" style="width:44px;height:44px;min-width:44px;" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';"><div class="rounded-3 bg-primary bg-opacity-10 border border-primary-subtle align-items-center justify-content-center fw-black text-primary shadow-xs flex-shrink-0 me-3" style="display:none;width:44px;height:44px;min-width:44px;font-size:1.1rem;">'.$firstChar.'</div>'
+                    : '<div class="rounded-3 bg-primary bg-opacity-10 border border-primary-subtle d-flex align-items-center justify-content-center fw-black text-primary shadow-xs flex-shrink-0 me-3" style="width:44px;height:44px;min-width:44px;font-size:1.1rem;">'.$firstChar.'</div>';
+
+                $variantCount = $product->variants->count();
+                $variantBadge = $variantCount > 0
+                    ? '<span class="badge bg-primary-subtle text-primary border border-primary-subtle extra-small fw-bold"><i class="bi bi-boxes me-1"></i>'.$variantCount.' Variants</span>'
+                    : '';
+
+                $fractionalBadge = $product->allow_decimal_qty
+                    ? '<span class="badge bg-info-subtle text-info-emphasis border border-info-subtle extra-small fw-bold">⚖️ Tinitimbang</span>'
+                    : '';
+
+                $codePill = ($product->barcode || $product->sku)
+                    ? '<span class="font-mono text-muted extra-small"><i class="bi bi-upc me-1 text-secondary"></i>'.e($product->barcode ?: $product->sku).'</span>'
+                    : '<span class="text-muted extra-small fst-italic">No Code</span>';
+
+                return '
+                    <div class="d-flex align-items-center py-1" style="min-width:280px;">
+                        <div class="cursor-pointer btn-quick-view flex-shrink-0" data-id="'.$product->id.'" title="360° Quick View">
+                            '.$imgHtml.'
+                        </div>
+                        <div class="min-w-0 flex-grow-1">
+                            <a href="javascript:void(0)" class="fw-bold text-dark text-decoration-none d-block text-truncate hover-primary btn-quick-view fs-6 mb-1" data-id="'.$product->id.'" title="'.e($product->name).'">
+                                '.e($product->name ?: 'Unnamed Product').'
+                            </a>
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                '.$codePill.'
+                                '.$variantBadge.'
+                                '.$fractionalBadge.'
+                            </div>
+                        </div>
+                    </div>
+                ';
             })
+            ->addColumn('category_unit', function ($product) {
+                $cat = $product->category?->name
+                    ? '<span class="badge bg-light text-dark border extra-small fw-semibold text-truncate d-inline-block" style="max-width:150px;"><i class="bi bi-folder2 text-primary me-1"></i>'.e($product->category->name).'</span>'
+                    : '<span class="badge bg-light text-muted border extra-small">Uncategorized</span>';
 
-            ->addColumn('selling_price', function ($product) {
-                return $product->selling_price !== null
-                    ? '₱' . number_format($product->selling_price, 2)
-                    : '<span class="badge bg-light text-muted">N/A</span>';
+                $unit = '<div class="text-muted extra-small mt-1 font-mono"><i class="bi bi-box me-1"></i>Unit: <strong class="text-dark">'.e($product->unit?->name ?? 'pcs').'</strong></div>';
+
+                return '<div class="py-1" style="min-width:140px;">' . $cat . $unit . '</div>';
             })
+            ->addColumn('stock_status', function ($product) {
+                $stock = (float)($product->stock_on_hand ?? 0);
+                $formattedStock = $product->allow_decimal_qty ? rtrim(rtrim(number_format($stock, 3), '0'), '.') : number_format($stock);
+                $unitName = e($product->unit?->name ?? 'pcs');
 
-            ->addColumn('wholesale_price', function ($product) {
-                return $product->wholesale_price !== null
-                    ? '₱' . number_format($product->wholesale_price, 2)
-                    : '<span class="badge bg-light text-muted">N/A</span>';
+                if ($stock <= 0) {
+                    $badge = '<span class="badge bg-danger-subtle text-danger border border-danger-subtle fw-bold extra-small"><i class="bi bi-x-circle-fill me-1"></i>Out of Stock</span>';
+                } elseif ($stock <= ($product->reorder_level ?? 0)) {
+                    $badge = '<span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-bold extra-small"><i class="bi bi-exclamation-triangle-fill me-1"></i>Low Stock</span>';
+                } else {
+                    $badge = '<span class="badge bg-success-subtle text-success border border-success-subtle fw-bold extra-small"><i class="bi bi-check-circle-fill me-1"></i>In Stock</span>';
+                }
+
+                $reorderInfo = $product->reorder_level > 0
+                    ? '<div class="text-muted extra-small mt-1" style="font-size:0.75rem;">Reorder: '.$product->reorder_level.' '.$unitName.'</div>'
+                    : '';
+
+                return '
+                    <div class="py-1" style="min-width:130px;">
+                        <div class="d-flex align-items-baseline gap-1.5">
+                            <span class="font-mono fw-black text-dark fs-6">'.$formattedStock.'</span>
+                            <span class="text-muted extra-small">'.$unitName.'</span>
+                        </div>
+                        <div class="mt-1">
+                            '.$badge.'
+                            '.$reorderInfo.'
+                        </div>
+                    </div>
+                ';
             })
+            ->addColumn('pricing_matrix', function ($product) {
+                $cost = (float)($product->cost_price ?? 0);
+                $retail = (float)($product->selling_price ?? 0);
+                $wholesale = $product->wholesale_price !== null ? (float)$product->wholesale_price : null;
 
-            ->addColumn('status', function ($product) {
+                $profit = $retail - $cost;
+                $marginPercent = $retail > 0 ? round(($profit / $retail) * 100, 1) : 0;
 
+                $wholesaleHtml = $wholesale !== null
+                    ? '<div class="extra-small text-muted font-mono d-flex justify-content-between gap-2 mt-0.5"><span class="text-secondary">Wholesale:</span> <strong class="text-primary">₱'.number_format($wholesale, 2).'</strong></div>'
+                    : '';
+
+                $marginBadge = $retail > 0
+                    ? '<span class="badge bg-success-subtle text-success border border-success-subtle extra-small fw-bold font-mono">+₱'.number_format($profit, 2).' ('.$marginPercent.'%)</span>'
+                    : '';
+
+                return '
+                    <div class="py-1" style="min-width:160px;">
+                        <div class="d-flex align-items-center justify-content-between gap-3">
+                            <span class="extra-small text-muted">Retail:</span>
+                            <strong class="font-mono text-dark fs-6 fw-black">₱'.number_format($retail, 2).'</strong>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between gap-3 extra-small text-muted font-mono">
+                            <span>Cost:</span>
+                            <span>₱'.number_format($cost, 2).'</span>
+                        </div>
+                        '.$wholesaleHtml.'
+                        <div class="mt-1">
+                            '.$marginBadge.'
+                        </div>
+                    </div>
+                ';
+            })
+            ->addColumn('status_badge', function ($product) {
                 return match ($product->status) {
-                    'active' => '<span class="badge bg-success">Active</span>',
-                    'inactive' => '<span class="badge bg-secondary">Inactive</span>',
-                    default => '<span class="badge bg-warning">Unknown</span>',
+                    'active' => '<div class="text-center py-1"><span class="badge bg-success-subtle text-success border border-success-subtle fw-bold extra-small text-nowrap"><i class="bi bi-circle-fill me-1" style="font-size:0.45rem;"></i>Active</span></div>',
+                    'inactive' => '<div class="text-center py-1"><span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle fw-bold extra-small text-nowrap"><i class="bi bi-circle-fill me-1" style="font-size:0.45rem;"></i>Inactive</span></div>',
+                    default => '<div class="text-center py-1"><span class="badge bg-warning-subtle text-warning border border-warning-subtle fw-bold extra-small text-nowrap">Unknown</span></div>',
                 };
             })
-
-            ->editColumn('created_at', function ($product) {
-                return $product->created_at
-                    ? $product->created_at->format('M d, Y h:i A')
-                    : '<span class="badge bg-light text-muted">No Date</span>';
+            ->filterColumn('product_info', function ($query, $keyword) {
+                $query->where(function ($q) use ($keyword) {
+                    $q->where('name', 'like', "%{$keyword}%")
+                      ->orWhere('barcode', 'like', "%{$keyword}%")
+                      ->orWhere('sku', 'like', "%{$keyword}%");
+                });
             })
-
-            ->addColumn('createdBy', function ($product) {
-                return $product->createdBy?->name
-                    ?: '<span class="badge bg-light text-muted">System</span>';
-            })
-
-            ->filterColumn('name', function ($query, $keyword) {
-
-                $query->where(
-                    'name',
-                    'like',
-                    "%{$keyword}%"
-                );
-            })
-
             ->rawColumns([
+                'checkbox',
                 'actions',
-                'image',
-                'barcode',
-                'sku',
-                'name',
-                'category',
-                'unit',
-                'cost_price',
-                'selling_price',
-                'wholesale_price',
-                'status',
-                'created_at',
-                'createdBy',
-                'estimated_profit'
+                'product_info',
+                'category_unit',
+                'stock_status',
+                'pricing_matrix',
+                'status_badge'
             ])
             ->make(true);
     }
 
+    /**
+     * Enterprise CRM 360° Quick View Payload
+     */
+    public function quickView($id)
+    {
+        $tenantId = auth()->user()->tenant_id;
+        $realId = is_numeric($id) ? (int)$id : decrypt($id);
+
+        $product = POSProducts::with([
+            'category',
+            'unit',
+            'variants',
+            'createdBy',
+            'updatedBy',
+            'stocks' => fn($q) => $q->latest()->limit(6)
+        ])
+        ->where('tenant_id', $tenantId)
+        ->findOrFail($realId);
+
+        // Sales Performance
+        $totalUnitsSold = DB::table('pos_sale_items')
+            ->where('product_id', $product->id)
+            ->sum('qty') ?? 0;
+
+        $totalRevenue = DB::table('pos_sale_items')
+            ->where('product_id', $product->id)
+            ->sum('line_total') ?? 0;
+
+        $barcodeSvg = null;
+        if ($product->barcode) {
+            try {
+                $dns = new DNS1D();
+                $barcodeSvg = $dns->getBarcodeSVG($product->barcode, 'C128', 1.5, 45);
+            } catch (\Throwable $e) {
+                $barcodeSvg = null;
+            }
+        }
+
+        $cost = (float)($product->cost_price ?? 0);
+        $retail = (float)($product->selling_price ?? 0);
+        $profit = $retail - $cost;
+        $margin = $retail > 0 ? round(($profit / $retail) * 100, 1) : 0;
+
+        return response()->json([
+            'id' => $product->id,
+            'encrypted_id' => encrypt($product->id),
+            'name' => $product->name,
+            'description' => $product->description,
+            'barcode' => $product->barcode,
+            'sku' => $product->sku,
+            'image_url' => $product->image ? Storage::url($product->image) : asset('images/no_image.jpg'),
+            'category_name' => $product->category?->name ?? 'Uncategorized',
+            'unit_name' => $product->unit?->name ?? 'pcs',
+            'cost_price' => $cost,
+            'selling_price' => $retail,
+            'wholesale_price' => $product->wholesale_price ? (float)$product->wholesale_price : null,
+            'profit' => $profit,
+            'margin' => $margin,
+            'stock_on_hand' => (float)$product->stock_on_hand,
+            'reorder_level' => $product->reorder_level,
+            'allow_decimal_qty' => (bool)$product->allow_decimal_qty,
+            'status' => $product->status,
+            'created_at' => $product->created_at?->format('M d, Y h:i A'),
+            'updated_at' => $product->updated_at?->format('M d, Y h:i A'),
+            'created_by' => $product->createdBy?->name ?? 'System',
+            'barcode_svg' => $barcodeSvg,
+            'total_units_sold' => (float)$totalUnitsSold,
+            'total_revenue' => (float)$totalRevenue,
+            'variants' => $product->variants->map(fn($v) => [
+                'id' => $v->id,
+                'name' => $v->variant_name,
+                'qty_per_pack' => (float)$v->qty_per_pack,
+                'selling_price' => (float)$v->selling_price,
+                'wholesale_price' => $v->wholesale_price ? (float)$v->wholesale_price : null,
+                'cost_price' => (float)$v->cost_price,
+                'barcode' => $v->barcode,
+            ]),
+            'recent_stocks' => $product->stocks->map(fn($s) => [
+                'type' => $s->type ?? 'movement',
+                'qty' => (float)($s->qty ?? $s->quantity ?? 0),
+                'note' => $s->notes ?? $s->reason ?? 'Stock adjustment',
+                'date' => $s->created_at?->format('M d, Y h:i A'),
+            ]),
+        ]);
+    }
+
+    /**
+     * Enterprise Bulk Batch Actions
+     */
+    public function bulkAction(Request $request)
+    {
+        $request->validate([
+            'action' => 'required|string|in:activate,deactivate,update_category,price_markup,delete',
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'integer',
+        ]);
+
+        $tenantId = auth()->user()->tenant_id;
+        $ids = $request->input('ids', []);
+        $action = $request->input('action');
+
+        $query = POSProducts::where('tenant_id', $tenantId)->whereIn('id', $ids);
+        $count = $query->count();
+
+        if ($count === 0) {
+            return response()->json(['success' => false, 'message' => 'No matching products found.'], 404);
+        }
+
+        if ($action === 'activate') {
+            $query->update(['status' => 'active', 'updated_by' => auth()->id()]);
+            return response()->json(['success' => true, 'message' => "Successfully activated {$count} products."]);
+        }
+
+        if ($action === 'deactivate') {
+            $query->update(['status' => 'inactive', 'updated_by' => auth()->id()]);
+            return response()->json(['success' => true, 'message' => "Successfully deactivated {$count} products."]);
+        }
+
+        if ($action === 'update_category') {
+            $catId = $request->input('category_id');
+            $query->update(['category_id' => $catId ?: null, 'updated_by' => auth()->id()]);
+            return response()->json(['success' => true, 'message' => "Category updated for {$count} products."]);
+        }
+
+        if ($action === 'price_markup') {
+            $percent = (float)$request->input('markup_percent', 0);
+            $fixed = (float)$request->input('markup_fixed', 0);
+
+            $products = $query->get();
+            foreach ($products as $p) {
+                if ($percent != 0) {
+                    $p->selling_price = round($p->selling_price * (1 + ($percent / 100)), 2);
+                }
+                if ($fixed != 0) {
+                    $p->selling_price = max(0, round($p->selling_price + $fixed, 2));
+                }
+                $p->updated_by = auth()->id();
+                $p->save();
+            }
+
+            return response()->json(['success' => true, 'message' => "Price adjustment applied to {$count} products."]);
+        }
+
+        if ($action === 'delete') {
+            $query->delete();
+            return response()->json(['success' => true, 'message' => "Deleted {$count} products from catalogue."]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Unknown bulk action.'], 400);
+    }
+
+    /**
+     * Export Products to CSV/Excel
+     */
+    public function exportCsv(Request $request)
+    {
+        $tenantId = auth()->user()->tenant_id;
+        $query = POSProducts::with(['category', 'unit'])->where('tenant_id', $tenantId);
+
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+        if ($request->filled('stock_status')) {
+            if ($request->stock_status === 'out_of_stock') {
+                $query->where('stock_on_hand', '<=', 0);
+            } elseif ($request->stock_status === 'low_stock') {
+                $query->where('stock_on_hand', '>', 0)->whereColumn('stock_on_hand', '<=', 'reorder_level');
+            } elseif ($request->stock_status === 'in_stock') {
+                $query->where('stock_on_hand', '>', 0);
+            }
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $products = $query->orderBy('name')->get();
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="Product_Masterlist_' . date('Y-m-d_His') . '.csv"',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        $callback = function () use ($products) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, [
+                'ID', 'Barcode', 'SKU', 'Product Name', 'Category', 'Unit',
+                'Cost Price', 'Selling Price (Retail)', 'Wholesale Price', 'Stock On Hand',
+                'Reorder Level', 'Is Weighed/Fractional', 'Status', 'Date Created'
+            ]);
+
+            foreach ($products as $p) {
+                fputcsv($file, [
+                    $p->id,
+                    $p->barcode ?? '',
+                    $p->sku ?? '',
+                    $p->name,
+                    $p->category?->name ?? 'Uncategorized',
+                    $p->unit?->name ?? 'pcs',
+                    number_format((float)$p->cost_price, 2, '.', ''),
+                    number_format((float)$p->selling_price, 2, '.', ''),
+                    $p->wholesale_price !== null ? number_format((float)$p->wholesale_price, 2, '.', '') : 'N/A',
+                    (float)$p->stock_on_hand,
+                    $p->reorder_level ?? 0,
+                    $p->allow_decimal_qty ? 'Yes' : 'No',
+                    $p->status,
+                    $p->created_at ? $p->created_at->format('Y-m-d H:i') : ''
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 
     public function show(POSProducts $product)
     {

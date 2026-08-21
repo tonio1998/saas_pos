@@ -35,21 +35,34 @@ $(function () {
             }
 
             if(result.success){
-                document.getElementById('cartCustomerName').textContent =
-                    result.customer?.name || 'Current Order';
+                const customerName = result.customer?.name || 'Walk-in Customer';
+                const cartCustomerNameEl = document.getElementById('cartCustomerName');
+                if (cartCustomerNameEl) {
+                    cartCustomerNameEl.innerHTML = `<i class="bi bi-person me-1"></i>${customerName}`;
+                }
 
-                document.getElementById('cartCustomerAddress').textContent =
-                    result.customer?.address || 'Walk-in Customer';
+                const cartCustomerAddressEl = document.getElementById('cartCustomerAddress');
+                if (cartCustomerAddressEl) {
+                    cartCustomerAddressEl.textContent = result.customer?.address || 'Walk-in Customer';
+                }
+
+                // Sync into POS state so payment modal inline display updates
+                POS.state.customer_id = result.customer?.id || null;
+                POS.state.customer_name = customerName;
+                POS.syncCustomerDisplay();
+
+                const fromCheckout = POS._customerModalFromCheckout;
+                POS._customerModalFromCheckout = false;
 
                 const modalEl = document.getElementById('customerModal');
                 const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
                 modal.hide();
-                modalEl.addEventListener('hidden.bs.modal', () => {
-                    document.querySelectorAll('.modal-backdrop').forEach(e => e.remove());
-                    document.body.classList.remove('modal-open');
-                    document.body.style.removeProperty('padding-right');
-                    document.body.style.removeProperty('overflow');
-                }, { once: true });
+
+                if (fromCheckout) {
+                    setTimeout(() => {
+                        POS.openCheckout();
+                    }, 300);
+                }
             }else{
                 renderSaleStatus(result.type, result.success, result.sale_status, result.message);
             }
@@ -112,15 +125,22 @@ $(function () {
                 $('#newCustomerForm')[0]
                     .reset();
 
+                POS.state.customer_id = response.customer?.id || null;
+                POS.state.customer_name = response.customer?.text || 'Walk-in Customer';
+                POS.syncCustomerDisplay();
+
+                const fromCheckout = POS._customerModalFromCheckout;
+                POS._customerModalFromCheckout = false;
+
                 const modalEl = document.getElementById('customerModal');
                 const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
                 modal.hide();
-                modalEl.addEventListener('hidden.bs.modal', () => {
-                    document.querySelectorAll('.modal-backdrop').forEach(e => e.remove());
-                    document.body.classList.remove('modal-open');
-                    document.body.style.removeProperty('padding-right');
-                    document.body.style.removeProperty('overflow');
-                }, { once: true });
+
+                if (fromCheckout) {
+                    setTimeout(() => {
+                        POS.openCheckout();
+                    }, 300);
+                }
 
             },
 
@@ -170,7 +190,9 @@ const POS = {
     state: {
         cart: [],
         customer_id: null,
+        customer_name: null,
         saleId: document.getElementById('saleId')?.value || 0,
+        priceMode: 'retail',
         subtotal: 0,
         discount: 0,
         total: 0,
@@ -188,6 +210,9 @@ const POS = {
         change: 0,
 
     },
+
+    _customerModalFromCheckout: false,
+    _freshCheckout: true,
 
     async init() {
 
@@ -285,15 +310,52 @@ const POS = {
                 }
 
 
+                const isWholesale = this.state.priceMode === 'wholesale';
+                const retailPrice = Number(product.selling_price || 0);
+                const wholesalePrice = Number(product.wholesale_price || 0);
+                const activePrice = (isWholesale && wholesalePrice > 0) ? wholesalePrice : retailPrice;
+                const hasVariants = product.variants && Array.isArray(product.variants) && product.variants.length > 0;
+
+                let priceDisplay = '';
+                if (isWholesale && wholesalePrice > 0) {
+                    priceDisplay = `
+                        <div class="d-flex align-items-baseline gap-1">
+                            <span class="product-price text-primary fw-bold">${this.formatCurrency(wholesalePrice)}</span>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle extra-small" style="font-size:0.65rem;">Wholesale</span>
+                        </div>
+                    `;
+                } else if (wholesalePrice > 0) {
+                    priceDisplay = `
+                        <div>
+                            <div class="product-price">${this.formatCurrency(retailPrice)}</div>
+                            <small class="text-muted extra-small" style="font-size:0.7rem;">WS: ${this.formatCurrency(wholesalePrice)}</small>
+                        </div>
+                    `;
+                } else {
+                    priceDisplay = `<div class="product-price">${this.formatCurrency(retailPrice)}</div>`;
+                }
+
+                let variantBadge = '';
+                if (hasVariants) {
+                    variantBadge = `
+                        <span class="badge bg-purple-subtle text-purple border border-purple-subtle extra-small mt-1" style="background:#f3e8ff;color:#7e22ce;border-color:#e9d5ff;font-size:0.68rem;">
+                            <i class="bi bi-layers-fill me-1"></i>${product.variants.length} Options
+                        </span>
+                    `;
+                }
+
                 return `
                     <div
-                        class="product-card"
+                        class="product-card ${hasVariants ? 'has-variants' : ''}"
                         data-id="${product.id}"
                         data-name="${product.name}"
-                        data-price="${product.selling_price}"
+                        data-price="${activePrice}"
+                        data-retail-price="${retailPrice}"
+                        data-wholesale-price="${wholesalePrice}"
                         data-stock="${stock}"
                         data-barcode="${product.barcode ?? ''}"
                         data-category="${product.category_id ?? ''}"
+                        data-has-variants="${hasVariants ? '1' : '0'}"
                     >
                         <div class="product-image">
                             <img src="${product.image
@@ -309,10 +371,9 @@ const POS = {
                                 <span class="stock-label"> Stock:</span>
                                 ${stockBadge}
                             </div>
-                            <div class="product-bottom">
-                                <div class="product-price">
-                                    ${this.formatCurrency(product.selling_price)}
-                                </div>
+                            <div class="product-bottom d-flex align-items-center justify-content-between">
+                                ${priceDisplay}
+                                ${variantBadge}
                             </div>
                         </div>
                     </div>
@@ -338,29 +399,29 @@ const POS = {
                 'click',
                 () => {
 
+                    const productId = Number(card.dataset.id);
+                    const product = this.products?.find(p => p.id === productId);
+
+                    if (product && product.variants && Array.isArray(product.variants) && product.variants.length > 0) {
+                        this.showVariantModal(product);
+                        return;
+                    }
+
+                    const retail = Number(card.dataset.retailPrice || card.dataset.price);
+                    const wholesale = Number(card.dataset.wholesalePrice || 0);
+                    const activePrice = (this.state.priceMode === 'wholesale' && wholesale > 0) ? wholesale : retail;
+
                     this.addToCart({
-
-                        id:
-                            Number(
-                                card.dataset.id
-                            ),
-
-                        barcode:
-                        card.dataset.barcode,
-
-                        name:
-                        card.dataset.name,
-
-                        price:
-                            Number(
-                                card.dataset.price
-                            ),
-
-                        stock:
-                            Number(
-                                card.dataset.stock || 0
-                            ),
-
+                        id: productId,
+                        variant_id: null,
+                        barcode: card.dataset.barcode,
+                        name: card.dataset.name,
+                        unit: product?.unit?.name || '',
+                        allow_decimal_qty: product?.allow_decimal_qty ?? false,
+                        retail_price: retail,
+                        wholesale_price: wholesale,
+                        price: activePrice,
+                        stock: Number(card.dataset.stock || 0),
                     });
 
                 }
@@ -368,6 +429,139 @@ const POS = {
 
         });
 
+    },
+
+    showVariantModal(product) {
+        const modalEl = document.getElementById('variantModal');
+        if (!modalEl) return;
+
+        const modalTitle = document.getElementById('variantModalTitle');
+        const modalSubtitle = document.getElementById('variantModalSubtitle');
+        const pricingBadge = document.getElementById('variantPricingModeBadge');
+        const container = document.getElementById('variantListContainer');
+
+        const isWholesale = this.state.priceMode === 'wholesale';
+
+        if (modalTitle) modalTitle.textContent = product.name;
+        if (modalSubtitle) modalSubtitle.textContent = `Select size/pack option (${product.variants.length} available)`;
+        if (pricingBadge) {
+            pricingBadge.className = isWholesale
+                ? 'badge bg-primary-subtle text-primary border border-primary-subtle extra-small font-mono fw-bold px-2.5 py-1 rounded-pill'
+                : 'badge bg-success-subtle text-success border border-success-subtle extra-small font-mono fw-bold px-2.5 py-1 rounded-pill';
+            pricingBadge.innerHTML = isWholesale
+                ? '<i class="bi bi-box-seam-fill me-1"></i>Wholesale Pricing'
+                : '<i class="bi bi-tag-fill me-1"></i>Retail Pricing';
+        }
+
+        let variantsList = [];
+
+        // Base unit option
+        const baseRetail = Number(product.selling_price || 0);
+        const baseWholesale = Number(product.wholesale_price || 0);
+        const baseActive = (isWholesale && baseWholesale > 0) ? baseWholesale : baseRetail;
+        const baseUnitName = product.unit?.name || 'unit';
+
+        variantsList.push(`
+            <div class="variant-select-item p-3 border rounded-3 bg-white d-flex align-items-center justify-content-between gap-3 shadow-xs cursor-pointer"
+                 data-product-id="${product.id}"
+                 data-variant-id=""
+                 data-name="${product.name} (Base)"
+                 data-unit="${baseUnitName}"
+                 data-retail-price="${baseRetail}"
+                 data-wholesale-price="${baseWholesale}"
+                 data-price="${baseActive}"
+                 data-barcode="${product.barcode || ''}"
+                 data-stock="${product.stock_on_hand || 0}"
+                 style="cursor: pointer; transition: all 0.15s ease;">
+                <div class="d-flex align-items-center gap-2.5">
+                    <div class="rounded-circle bg-light border p-2 d-flex align-items-center justify-content-center" style="width:38px;height:38px;">
+                        <i class="bi bi-box text-muted fs-6"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-dark" style="font-size:0.92rem;">Base Unit (1 ${baseUnitName})</div>
+                        <div class="text-muted extra-small">Stock: ${product.stock_on_hand || 0} ${baseUnitName}</div>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <div class="fw-bold font-mono ${isWholesale ? 'text-primary' : 'text-success'}" style="font-size:1.05rem;">
+                        ${this.formatCurrency(baseActive)}
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 py-0.5 extra-small fw-bold mt-1">
+                        Select
+                    </button>
+                </div>
+            </div>
+        `);
+
+        // Variants
+        product.variants.forEach(v => {
+            const vRetail = Number(v.selling_price || 0);
+            const vWholesale = Number(v.wholesale_price || 0);
+            const vActive = (isWholesale && vWholesale > 0) ? vWholesale : vRetail;
+            const vStock = Number(v.stock_on_hand || product.stock_on_hand || 0);
+            const vUnit = v.unit?.name || product.unit?.name || '';
+
+            variantsList.push(`
+                <div class="variant-select-item p-3 border rounded-3 bg-white d-flex align-items-center justify-content-between gap-3 shadow-xs cursor-pointer"
+                     data-product-id="${product.id}"
+                     data-variant-id="${v.id}"
+                     data-name="${product.name} (${v.variant_name})"
+                     data-unit="${vUnit}"
+                     data-retail-price="${vRetail}"
+                     data-wholesale-price="${vWholesale}"
+                     data-price="${vActive}"
+                     data-barcode="${v.barcode || ''}"
+                     data-stock="${vStock}"
+                     style="cursor: pointer; transition: all 0.15s ease;">
+                    <div class="d-flex align-items-center gap-2.5">
+                        <div class="rounded-circle bg-primary-subtle border border-primary-subtle p-2 d-flex align-items-center justify-content-center text-primary" style="width:38px;height:38px;">
+                            <i class="bi bi-layers-fill fs-6"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold text-dark" style="font-size:0.92rem;">${v.variant_name}</div>
+                            <div class="text-muted extra-small">
+                                ${v.qty_per_pack ? `Multiplier: <strong>${v.qty_per_pack}x</strong> • ` : ''}
+                                Stock: ${vStock}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-bold font-mono ${isWholesale ? 'text-primary' : 'text-success'}" style="font-size:1.05rem;">
+                            ${this.formatCurrency(vActive)}
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-0.5 extra-small fw-bold mt-1">
+                            Select
+                        </button>
+                    </div>
+                </div>
+            `);
+        });
+
+        if (container) {
+            container.innerHTML = variantsList.join('');
+        }
+
+        const modal = Modal.getOrCreateInstance(modalEl);
+        modal.show();
+
+        // Bind clicks on variant items
+        container.querySelectorAll('.variant-select-item').forEach(itemEl => {
+            itemEl.addEventListener('click', () => {
+                modal.hide();
+                this.addToCart({
+                    id: Number(itemEl.dataset.productId),
+                    variant_id: itemEl.dataset.variantId ? Number(itemEl.dataset.variantId) : null,
+                    name: itemEl.dataset.name,
+                    unit: itemEl.dataset.unit || '',
+                    barcode: itemEl.dataset.barcode,
+                    allow_decimal_qty: product?.allow_decimal_qty ?? false,
+                    retail_price: Number(itemEl.dataset.retailPrice),
+                    wholesale_price: Number(itemEl.dataset.wholesalePrice),
+                    price: Number(itemEl.dataset.price),
+                    stock: Number(itemEl.dataset.stock || 0),
+                });
+            });
+        });
     },
     async loadProducts() {
 
@@ -527,6 +721,11 @@ const POS = {
                 'discountInfoSection'
             );
 
+        this.discountIdNoSection =
+            document.getElementById(
+                'discountIdNoSection'
+            );
+
         this.discountHolder =
             document.getElementById(
                 'discountHolder'
@@ -567,28 +766,52 @@ const POS = {
                 'paymentBalance'
             );
 
+        this.paymentBalanceSummary =
+            document.getElementById(
+                'paymentBalanceSummary'
+            );
+
         this.btnAddPayment =
             document.getElementById(
                 'btnAddPayment'
             );
     },
     buildProductCache() {
+        this.state.productMap = {};
 
-        this.productCards.forEach(card => {
+        if (this.products && Array.isArray(this.products)) {
+            this.products.forEach(product => {
+                if (product.barcode) {
+                    this.state.productMap[product.barcode.toLowerCase()] = {
+                        type: 'product',
+                        product: product
+                    };
+                }
 
-            const barcode =
-                card.dataset.barcode;
+                if (product.variants && Array.isArray(product.variants)) {
+                    product.variants.forEach(variant => {
+                        if (variant.barcode) {
+                            this.state.productMap[variant.barcode.toLowerCase()] = {
+                                type: 'variant',
+                                product: product,
+                                variant: variant
+                            };
+                        }
+                    });
+                }
+            });
+        }
 
-            if (!barcode) {
-                return;
+        // Also index DOM cards for search filtering
+        this.productCards?.forEach(card => {
+            const barcode = card.dataset.barcode;
+            if (barcode) {
+                this.state.productMap[barcode.toLowerCase()] = this.state.productMap[barcode.toLowerCase()] || {
+                    type: 'card',
+                    card: card
+                };
             }
-
-            this.state.productMap[
-                barcode
-                ] = card;
-
         });
-
     },
     setStatus(
         message,
@@ -650,12 +873,66 @@ const POS = {
 
         this.bindBarcodeScanner();
 
+        this.bindPricingMode();
         this.bindKeyboardShortcuts();
         this.bindCheckout();
         this.bindDiscount();
         this.bindCashButtons();
         this.bindSplitPayments();
         this.bindForceRefresh();
+        this.bindCustomerModalTransitions();
+    },
+    bindCustomerModalTransitions() {
+        document.getElementById('btnModalSelectCustomer')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            this._customerModalFromCheckout = true;
+
+            const payModal = Modal.getInstance(this.paymentModal);
+            if (payModal) payModal.hide();
+
+            const custModalEl = document.getElementById('customerModal');
+            if (custModalEl) {
+                const custModal = Modal.getOrCreateInstance(custModalEl);
+                custModal.show();
+            }
+        });
+
+        document.getElementById('customerModal')?.addEventListener('hidden.bs.modal', () => {
+            if (this._customerModalFromCheckout) {
+                this._customerModalFromCheckout = false;
+                setTimeout(() => {
+                    this.openCheckout();
+                }, 250);
+            }
+        });
+    },
+    bindPricingMode() {
+        const retailRadio = document.getElementById('priceModeRetail');
+        const wholesaleRadio = document.getElementById('priceModeWholesale');
+
+        const handleModeChange = (mode) => {
+            this.state.priceMode = mode;
+
+            // Recalculate cart items with the active mode price
+            this.state.cart.forEach(item => {
+                const retail = Number(item.retail_price ?? item.price);
+                const wholesale = Number(item.wholesale_price ?? 0);
+                item.price = (mode === 'wholesale' && wholesale > 0) ? wholesale : retail;
+                item.subtotal = item.qty * item.price;
+            });
+
+            // Re-render products to update prices on grid
+            if (this.products) {
+                this.renderProducts(this.products);
+            }
+
+            this.calculateTotals();
+            this.renderCart();
+            this.setStatus(`Pricing Mode: ${mode.toUpperCase()}`, 'ready');
+        };
+
+        retailRadio?.addEventListener('change', () => handleModeChange('retail'));
+        wholesaleRadio?.addEventListener('change', () => handleModeChange('wholesale'));
     },
     bindForceRefresh() {
 
@@ -722,97 +999,60 @@ const POS = {
             return;
         }
 
+        const isMulti = this.state.payments.length > 1;
+
         this.paymentLines.innerHTML =
             this.state.payments
                 .map((payment, index) => `
-
-<div
-    class="payment-row card shadow-sm mb-2"
->
-
-    <div class="card-body">
-
-        <div class="row g-2">
-
-            <div class="col-md-4">
-
-                <select
-                    class="form-select payment-method"
-                    data-index="${index}"
-                >
-
-                    <option
-                        value="cash"
-                        ${payment.method === 'cash' ? 'selected' : ''}
-                    >
-                        Cash
-                    </option>
-
-                    <option
-                        value="gcash"
-                        ${payment.method === 'gcash' ? 'selected' : ''}
-                    >
-                        GCash
-                    </option>
-
-                    <option
-                        value="bank_transfer"
-                        ${payment.method === 'bank_transfer' ? 'selected' : ''}
-                    >
-                        Bank Transfer
-                    </option>
-                    <option
-                        value="utang"
-                        ${payment.method === 'utang' ? 'selected' : ''}
-                    >
-                        Utang
-                    </option>
-
-                </select>
-
-            </div>
-
-            <div class="col-md-4">
-
-                <input
-                    type="number"
-                    class="form-control payment-amount"
-                    data-index="${index}"
-                    value="${payment.amount || ''}"
-                    placeholder="Amount"
-                >
-
-            </div>
-
-            <div class="col-md-3">
-
-                <input
-                    type="text"
-                    class="form-control payment-reference"
-                    data-index="${index}"
-                    value="${payment.reference_number || ''}"
-                    placeholder="Reference"
-                >
-
-            </div>
-
-            <div class="col-md-1">
-
-                <button
-                    class="btn btn-danger remove-payment"
-                    data-index="${index}"
-                >
-                    ×
-                </button>
-
-            </div>
-
+<div class="payment-row p-3 rounded-4 border bg-light bg-opacity-75 shadow-xs mb-2" data-index="${index}">
+    <div class="row g-2.5 align-items-center">
+        <div class="${isMulti ? 'col-4' : 'col-4'}">
+            <label class="form-label extra-small fw-extrabold text-muted text-uppercase mb-1" style="font-size:0.7rem;letter-spacing:0.5px;">Payment Method</label>
+            <select class="form-select payment-method fw-bold shadow-xs py-2 px-2.5" data-index="${index}" style="font-size:0.92rem;border-radius:10px;">
+                <option value="cash" ${payment.method === 'cash' ? 'selected' : ''}>💵 Cash</option>
+                <option value="gcash" ${payment.method === 'gcash' ? 'selected' : ''}>📱 GCash</option>
+                <option value="bank_transfer" ${payment.method === 'bank_transfer' ? 'selected' : ''}>🏦 Bank Transfer</option>
+                <option value="utang" ${payment.method === 'utang' ? 'selected' : ''}>📋 Utang (Credit)</option>
+            </select>
         </div>
 
+        <div class="${isMulti ? 'col-4' : 'col-4'}">
+            <label class="form-label extra-small fw-extrabold text-muted text-uppercase mb-1" style="font-size:0.7rem;letter-spacing:0.5px;">Amount Tendered</label>
+            <div class="input-group shadow-xs" style="border-radius:10px;overflow:hidden;">
+                <span class="input-group-text font-mono fw-black bg-white text-muted px-2.5 fs-5">₱</span>
+                <input
+                    type="number"
+                    step="0.01"
+                    class="form-control font-mono fw-black payment-amount text-dark fs-4 py-2 px-2.5"
+                    data-index="${index}"
+                    value="${payment.amount || ''}"
+                    placeholder="0.00"
+                    style="letter-spacing:-0.5px;"
+                >
+            </div>
+        </div>
+
+        <div class="${isMulti ? 'col-3' : 'col-4'}">
+            <label class="form-label extra-small fw-extrabold text-muted text-uppercase mb-1" style="font-size:0.7rem;letter-spacing:0.5px;">Reference / Note</label>
+            <input
+                type="text"
+                class="form-control font-mono payment-reference shadow-xs py-2 px-2.5"
+                data-index="${index}"
+                value="${payment.reference_number || ''}"
+                placeholder="Ref / Trace #"
+                style="font-size:0.88rem;border-radius:10px;"
+            >
+        </div>
+
+        ${isMulti ? `
+        <div class="col-1 text-end pt-3">
+            <button type="button" class="btn btn-sm text-danger remove-payment p-1.5 border-0 rounded-circle" data-index="${index}" title="Remove payment line">
+                <i class="bi bi-trash3-fill fs-5"></i>
+            </button>
+        </div>
+        ` : ''}
     </div>
-
 </div>
-
 `)
                 .join('');
 
@@ -838,6 +1078,9 @@ const POS = {
 
                         this.state.payments[index].method =
                             e.target.value;
+
+                        // Refresh utang warning banner
+                        this.syncCustomerDisplay();
 
                     }
                 );
@@ -961,6 +1204,13 @@ const POS = {
                 this.state.balance
             );
 
+        if (this.paymentBalanceSummary) {
+            this.paymentBalanceSummary.textContent =
+                this.formatCurrency(
+                    this.state.balance
+                );
+        }
+
         this.paymentChange.textContent =
             this.formatCurrency(
                 this.state.change
@@ -987,6 +1237,11 @@ const POS = {
                 );
 
                 this.discountInfoSection
+                    ?.classList.add(
+                    'd-none'
+                );
+
+                this.discountIdNoSection
                     ?.classList.add(
                     'd-none'
                 );
@@ -1018,6 +1273,15 @@ const POS = {
                         'd-none'
                     );
 
+                    this.discountIdNoSection
+                        ?.classList.remove(
+                        'd-none'
+                    );
+
+                    if (this.discountHolder && !this.discountHolder.value.trim() && this.state.customer_name && this.state.customer_name !== 'Walk-in Customer') {
+                        this.discountHolder.value = this.state.customer_name;
+                    }
+
                 }
 
                 this.calculateTotals();
@@ -1046,6 +1310,39 @@ const POS = {
     },
     bindCashButtons() {
 
+        document.querySelectorAll('.quick-tender-exact').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (!this.state.payments.length) {
+                    this.state.payments.push({
+                        id: Date.now(),
+                        method: 'cash',
+                        amount: 0,
+                        reference_number: ''
+                    });
+                }
+                this.state.payments[0].amount = this.state.total;
+                this.renderPaymentLines();
+                this.calculatePayments();
+            });
+        });
+
+        document.querySelectorAll('.quick-tender-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const val = parseFloat(btn.dataset.val) || 0;
+                if (!this.state.payments.length) {
+                    this.state.payments.push({
+                        id: Date.now(),
+                        method: 'cash',
+                        amount: 0,
+                        reference_number: ''
+                    });
+                }
+                this.state.payments[0].amount = val;
+                this.renderPaymentLines();
+                this.calculatePayments();
+            });
+        });
+
         document
             .querySelectorAll(
                 '.cash-btn'
@@ -1062,10 +1359,12 @@ const POS = {
                                     button.dataset.value
                                 );
 
-                            this.amountTendered.value =
-                                amount;
+                            if (this.amountTendered) {
+                                this.amountTendered.value =
+                                    amount;
 
-                            this.calculateChange();
+                                this.calculateChange();
+                            }
 
                         }
                     );
@@ -1256,6 +1555,13 @@ const POS = {
 
         this.state.payments = [];
 
+        this.state.customer_id = null;
+
+        this.state.customer_name = null;
+
+        // Allow fresh payment init on next checkout
+        this._freshCheckout = true;
+
         this.renderCart();
 
         this.renderSummary();
@@ -1284,6 +1590,17 @@ const POS = {
             this.paymentLines.innerHTML = '';
 
         }
+
+        // Reset cart customer display
+        const cartCustomerName = document.getElementById('cartCustomerName');
+        if (cartCustomerName) {
+            cartCustomerName.innerHTML = '<i class="bi bi-person me-1"></i>Walk-in Customer';
+        }
+
+        // Reset pricing mode to Retail
+        this.state.priceMode = 'retail';
+        const retailRadio = document.getElementById('priceModeRetail');
+        if (retailRadio) retailRadio.checked = true;
 
     },
     printReceipt(sale) {
@@ -1834,8 +2151,20 @@ window.onload = () => {
 
             }
 
+            // Utang requires a customer, not a reference number
+            if (payment.method === 'utang' && !this.state.customer_id) {
+
+                alert(
+                    'A customer must be selected for Utang (credit) payments. Please use the "Change" button to assign a customer.'
+                );
+
+                return false;
+
+            }
+
             if (
                 payment.method !== 'cash' &&
+                payment.method !== 'utang' &&
                 !String(
                     payment.reference_number || ''
                 ).trim()
@@ -1892,6 +2221,7 @@ window.onload = () => {
     openCheckout() {
 
         if (
+            !this.state.cart ||
             this.state.cart.length === 0
         ) {
 
@@ -1903,59 +2233,55 @@ window.onload = () => {
 
         }
 
-        this.discountType.value = '';
+        // Only reset discount and payment lines if this is a genuinely fresh checkout!
+        if (this._freshCheckout) {
 
-        this.discountMode.value =
-            'percentage';
+            if (this.discountType) this.discountType.value = '';
+            if (this.discountMode) this.discountMode.value = 'percentage';
+            if (this.discountValue) this.discountValue.value = '';
+            if (this.discountHolder) this.discountHolder.value = '';
+            if (this.discountIdNo) this.discountIdNo.value = '';
+            if (this.paymentNotes) this.paymentNotes.value = '';
 
-        this.discountValue.value = '';
+            this.manualDiscountSection?.classList.add('d-none');
+            this.discountInfoSection?.classList.add('d-none');
+            this.discountIdNoSection?.classList.add('d-none');
 
-        this.discountHolder.value = '';
+            this.state.payments = [
+                {
+                    id: Date.now(),
+                    method: 'cash',
+                    amount: 0,
+                    reference_number: ''
+                }
+            ];
 
-        this.discountIdNo.value = '';
+            this.state.paid = 0;
+            this.state.balance = this.state.total;
+            this.state.change = 0;
 
-        this.paymentNotes.value = '';
+        } else {
+            // Restore visibility of discount sections if a discount was already selected!
+            const type = this.discountType?.value;
+            if (type === 'manual') {
+                this.manualDiscountSection?.classList.remove('d-none');
+            } else if (['senior', 'pwd', 'student', 'employee'].includes(type)) {
+                this.discountInfoSection?.classList.remove('d-none');
+                this.discountIdNoSection?.classList.remove('d-none');
+            }
+        }
 
-        this.manualDiscountSection
-            ?.classList.add(
-            'd-none'
-        );
-
-        this.discountInfoSection
-            ?.classList.add(
-            'd-none'
-        );
+        this._freshCheckout = false;
 
         this.calculateTotals();
-
-        this.state.payments = [
-
-            {
-                id: Date.now(),
-                method: 'cash',
-                amount: 0,
-                reference_number: ''
-            }
-
-        ];
-
-        this.state.paid = 0;
-
-        this.state.balance =
-            this.state.total;
-
-        this.state.change = 0;
-
         this.renderPaymentLines();
-
         this.calculatePayments();
-
+        this.syncCustomerDisplay();
         this.renderSummary();
 
-        this.paymentTotal.textContent =
-            this.formatCurrency(
-                this.state.total
-            );
+        if (this.paymentTotal) {
+            this.paymentTotal.textContent = this.formatCurrency(this.state.total);
+        }
 
         const modal = Modal.getOrCreateInstance(
             this.paymentModal
@@ -1973,6 +2299,27 @@ window.onload = () => {
 
         }, 200);
 
+    },
+
+    syncCustomerDisplay() {
+
+        const nameEl = document.getElementById('modalCustomerName');
+        const badgeEl = document.getElementById('modalCustomerBadge');
+        const noCustomerEl = document.getElementById('modalNoCustomer');
+        const utangWarningEl = document.getElementById('utangNoCustomerWarning');
+
+        const hasCustomer = !!this.state.customer_id;
+        const name = this.state.customer_name || 'Walk-in Customer';
+
+        if (nameEl) nameEl.textContent = name;
+        if (badgeEl) badgeEl.classList.toggle('d-none', !hasCustomer);
+        if (noCustomerEl) noCustomerEl.classList.toggle('d-none', hasCustomer);
+        if (utangWarningEl) utangWarningEl.classList.toggle('d-none', hasCustomer || !this.hasUtangPayment());
+
+    },
+
+    hasUtangPayment() {
+        return this.state.payments.some(p => p.method === 'utang');
     },
     bindSearch() {
 
@@ -2092,25 +2439,92 @@ window.onload = () => {
                 }
 
                 const barcode =
-                    e.target.value.trim();
+                    e.target.value.trim().toLowerCase();
 
                 if (!barcode) {
                     return;
                 }
 
-                const card =
+                const match =
                     this.state.productMap[
                         barcode
-                        ];
+                    ];
 
-                if (!card) {
+                if (!match) {
+                    // Try case-insensitive scan in products
+                    const matchedProduct = this.products?.find(p => (p.barcode || '').toLowerCase() === barcode);
+                    if (matchedProduct) {
+                        if (matchedProduct.variants && matchedProduct.variants.length > 0) {
+                            this.showVariantModal(matchedProduct);
+                        } else {
+                            const isWholesale = this.state.priceMode === 'wholesale';
+                            const retail = Number(matchedProduct.selling_price || 0);
+                            const wholesale = Number(matchedProduct.wholesale_price || 0);
+                            const activePrice = (isWholesale && wholesale > 0) ? wholesale : retail;
+                            this.addToCart({
+                                id: matchedProduct.id,
+                                variant_id: null,
+                                barcode: matchedProduct.barcode,
+                                name: matchedProduct.name,
+                                unit: matchedProduct.unit?.name || '',
+                                retail_price: retail,
+                                wholesale_price: wholesale,
+                                price: activePrice,
+                                stock: Number(matchedProduct.stock_on_hand || 0),
+                            });
+                        }
+                        e.target.value = '';
+                        return;
+                    }
 
                     e.target.select();
-
+                    this.setStatus(`Barcode ${barcode} not found`, 'warning');
                     return;
                 }
 
-                card.click();
+                if (match.type === 'variant') {
+                    const { product, variant } = match;
+                    const isWholesale = this.state.priceMode === 'wholesale';
+                    const vRetail = Number(variant.selling_price || 0);
+                    const vWholesale = Number(variant.wholesale_price || 0);
+                    const activePrice = (isWholesale && vWholesale > 0) ? vWholesale : vRetail;
+                    const vStock = Number(variant.stock_on_hand || product.stock_on_hand || 0);
+
+                    this.addToCart({
+                        id: product.id,
+                        variant_id: variant.id,
+                        name: `${product.name} (${variant.variant_name})`,
+                        unit: variant.unit?.name || product.unit?.name || '',
+                        barcode: variant.barcode,
+                        retail_price: vRetail,
+                        wholesale_price: vWholesale,
+                        price: activePrice,
+                        stock: vStock,
+                    });
+                } else if (match.type === 'product') {
+                    const product = match.product;
+                    if (product.variants && product.variants.length > 0) {
+                        this.showVariantModal(product);
+                    } else {
+                        const isWholesale = this.state.priceMode === 'wholesale';
+                        const retail = Number(product.selling_price || 0);
+                        const wholesale = Number(product.wholesale_price || 0);
+                        const activePrice = (isWholesale && wholesale > 0) ? wholesale : retail;
+                        this.addToCart({
+                            id: product.id,
+                            variant_id: null,
+                            barcode: product.barcode,
+                            name: product.name,
+                            unit: product.unit?.name || '',
+                            retail_price: retail,
+                            wholesale_price: wholesale,
+                            price: activePrice,
+                            stock: Number(product.stock_on_hand || 0),
+                        });
+                    }
+                } else if (match.card) {
+                    match.card.click();
+                }
 
                 e.target.value = '';
 
@@ -2167,6 +2581,43 @@ window.onload = () => {
         );
 
     },
+    parseFractionOrDecimal(input) {
+        if (typeof input === 'number') return Math.max(0.0001, input);
+        const str = String(input || '').trim();
+        if (!str) return 0;
+
+        // Mixed fraction like "1 1/2" or "2 1/4"
+        if (str.includes(' ') && str.includes('/')) {
+            const spaceParts = str.split(' ');
+            if (spaceParts.length === 2) {
+                const whole = parseFloat(spaceParts[0]);
+                const frac = spaceParts[1].split('/');
+                if (!isNaN(whole) && frac.length === 2) {
+                    const n = parseFloat(frac[0]);
+                    const d = parseFloat(frac[1]);
+                    if (!isNaN(n) && !isNaN(d) && d !== 0) {
+                        return whole + (n / d);
+                    }
+                }
+            }
+        }
+
+        // Simple fraction like "1/4", "1/2", "3/4"
+        if (str.includes('/')) {
+            const parts = str.split('/');
+            if (parts.length === 2) {
+                const n = parseFloat(parts[0]);
+                const d = parseFloat(parts[1]);
+                if (!isNaN(n) && !isNaN(d) && d !== 0) {
+                    return n / d;
+                }
+            }
+        }
+
+        const val = parseFloat(str);
+        return isNaN(val) ? 0 : Math.max(0.0001, val);
+    },
+
     addToCart(product) {
 
         if (
@@ -2186,10 +2637,15 @@ window.onload = () => {
 
         }
 
+        const cartKey = product.id + '_' + (product.variant_id || 0);
         const existing =
             this.state.cart.find(
-                item => item.id === product.id
+                item => (item.cartKey || (item.id + '_' + (item.variant_id || 0))) === cartKey
             );
+
+        const retailPrice = Number(product.retail_price ?? product.price);
+        const wholesalePrice = Number(product.wholesale_price ?? 0);
+        const activePrice = (this.state.priceMode === 'wholesale' && wholesalePrice > 0) ? wholesalePrice : retailPrice;
 
         if (existing) {
 
@@ -2207,7 +2663,9 @@ window.onload = () => {
 
             }
 
-            existing.qty++;
+            existing.qty = Math.round((existing.qty + 1) * 1000) / 1000;
+
+            existing.price = activePrice;
 
             existing.subtotal =
                 existing.qty *
@@ -2217,19 +2675,31 @@ window.onload = () => {
 
             this.state.cart.push({
 
+                cartKey: cartKey,
+
                 id: product.id,
+
+                variant_id: product.variant_id || null,
 
                 barcode: product.barcode,
 
                 name: product.name,
 
-                price: product.price,
+                unit: product.unit || '',
+
+                allow_decimal_qty: product.allow_decimal_qty ?? false,
+
+                retail_price: retailPrice,
+
+                wholesale_price: wholesalePrice,
+
+                price: activePrice,
 
                 stock: product.stock,
 
                 qty: 1,
 
-                subtotal: product.price,
+                subtotal: activePrice,
 
             });
 
@@ -2294,40 +2764,42 @@ window.onload = () => {
 
     },
     updateQuantity(
-        productId,
+        cartKey,
         quantity
     ) {
 
         const item =
             this.state.cart.find(
-                row => row.id === productId
+                row => (row.cartKey || (row.id + '_' + (row.variant_id || 0))) === String(cartKey) || row.id === Number(cartKey)
             );
 
         if (!item) {
             return;
         }
 
-        quantity =
-            Number(quantity);
+        const parsedQty = this.parseFractionOrDecimal(quantity);
 
-        if (quantity <= 0) {
+        if (parsedQty <= 0) {
 
             this.removeItem(
-                productId
+                cartKey
             );
 
             return;
         }
 
         if (
-            quantity > item.stock
+            parsedQty > item.stock
         ) {
-            quantity =
-                item.stock;
+            item.qty = item.stock;
+            Swal.fire({
+                icon: 'warning',
+                title: 'Stock Limit Reached',
+                text: `Only ${item.stock} available in stock.`
+            });
+        } else {
+            item.qty = Math.round(parsedQty * 10000) / 10000;
         }
-
-        item.qty =
-            quantity;
 
         item.subtotal =
             item.qty *
@@ -2340,13 +2812,12 @@ window.onload = () => {
     },
 
     removeItem(
-        productId
+        cartKey
     ) {
 
         this.state.cart =
             this.state.cart.filter(
-                item =>
-                    item.id !== productId
+                item => (item.cartKey || (item.id + '_' + (item.variant_id || 0))) !== String(cartKey) && item.id !== Number(cartKey)
             );
 
         this.calculateTotals();
@@ -2481,9 +2952,10 @@ window.onload = () => {
         ) {
 
             this.cartItemsList.innerHTML = `
-                <div class="empty-cart">
-                    <i class="bi bi-cart"></i>
-                    <span>No Items</span>
+                <div class="empty-cart d-flex flex-column align-items-center justify-content-center py-5 text-muted">
+                    <i class="bi bi-receipt fs-1 opacity-25 mb-2"></i>
+                    <span class="fw-semibold small">Receipt is empty</span>
+                    <small class="extra-small opacity-75">Click products to add to receipt</small>
                 </div>
             `;
 
@@ -2497,63 +2969,43 @@ window.onload = () => {
             this.state.cart
                 .map(item => {
 
+                    const isWholesaleItem = this.state.priceMode === 'wholesale' && item.wholesale_price > 0 && item.price === item.wholesale_price;
+                    const badgeHtml = isWholesaleItem ? '<span class="badge bg-primary-subtle text-primary border border-primary-subtle extra-small ms-1.5" style="font-size:0.65rem;">Wholesale</span>' : '';
+                    const itemKey = item.cartKey || (item.id + '_' + (item.variant_id || 0));
+
                     return `
-<div
-    class="cart-item"
-    data-id="${item.id}"
->
+<div class="receipt-item py-2.5 px-3 border-bottom bg-white" style="border-bottom: 1px dashed #cbd5e1 !important;" data-key="${itemKey}" data-id="${item.id}">
+    <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+        <div class="receipt-item-title fw-bold text-dark lh-sm flex-grow-1" style="font-size: 0.92rem; color: #0f172a;">
+            ${item.name} ${badgeHtml}
+        </div>
+        <div class="receipt-item-total fw-extrabold text-dark font-mono text-end" style="font-size: 1.05rem; font-weight: 900; color: #0f172a; white-space: nowrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+            ₱${item.subtotal.toFixed(2)}
+        </div>
+    </div>
 
-    <div class="cart-item-header">
-
-        <div class="cart-item-name">
-            ${item.name}
+    <div class="d-flex justify-content-between align-items-center mt-1">
+        <div class="receipt-item-calc text-muted font-mono" style="font-size: 0.82rem; font-weight: 600; color: #64748b;">
+            ₱${item.price.toFixed(2)} / ${item.unit || 'unit'}
         </div>
 
-        <button
-            class="remove-item"
-            data-id="${item.id}"
-        >
-            <i class="bi bi-trash"></i>
-        </button>
+        <div class="d-flex align-items-center gap-1.5">
+            <!-- Stepper / Clickable Quantity Pill -->
+            <div class="receipt-stepper d-flex align-items-center bg-light rounded-3 border p-0.5 shadow-xs">
+                <button type="button" class="btn btn-sm btn-white qty-minus border-0 px-2 py-0 fw-bold text-dark lh-1 shadow-xs" style="width:26px;height:26px;font-size:0.9rem;" data-key="${itemKey}">−</button>
+                
+                <button type="button" class="btn btn-sm btn-light border-0 px-2 py-0 font-mono fw-extrabold text-dark open-qty-modal-btn" style="min-width: 46px; height: 26px; font-size: 0.88rem;" data-key="${itemKey}" title="Click to adjust quantity or weight">
+                    ${item.qty} <small class="text-muted" style="font-size:0.75rem;">${item.unit || ''}</small>
+                </button>
+                
+                <button type="button" class="btn btn-sm btn-white qty-plus border-0 px-2 py-0 fw-bold text-dark lh-1 shadow-xs" style="width:26px;height:26px;font-size:0.9rem;" data-key="${itemKey}">+</button>
+            </div>
 
+            <button type="button" class="btn btn-sm text-danger remove-item p-1 border-0 lh-1" data-key="${itemKey}" title="Remove item" style="width:26px;height:26px;display:flex;align-items:center;justify-content:center;">
+                <i class="bi bi-trash3-fill fs-6"></i>
+            </button>
+        </div>
     </div>
-
-    <div class="cart-item-summary">
-
-        ₱${item.price.toFixed(2)}
-        ×
-        ${item.qty}
-        =
-        ₱${item.subtotal.toFixed(2)}
-
-    </div>
-
-    <div class="cart-item-actions">
-
-        <button
-            class="qty-minus"
-            data-id="${item.id}"
-        >
-            -
-        </button>
-
-        <input
-            type="number"
-            class="qty-input"
-            data-id="${item.id}"
-            value="${item.qty}"
-            min="1"
-        >
-
-        <button
-            class="qty-plus"
-            data-id="${item.id}"
-        >
-            +
-        </button>
-
-    </div>
-
 </div>
 `;
 
@@ -2566,8 +3018,92 @@ window.onload = () => {
 
     },
 
+    showQuantityModal(cartKey) {
+        const item = this.state.cart.find(row => (row.cartKey || (row.id + '_' + (row.variant_id || 0))) === String(cartKey));
+        if (!item) return;
+
+        const modalEl = document.getElementById('quantityModal');
+        if (!modalEl) return;
+
+        const modalName = document.getElementById('qtyModalProductName');
+        const modalMeta = document.getElementById('qtyModalProductMeta');
+        const modalKey = document.getElementById('qtyModalCartKey');
+        const modalInput = document.getElementById('qtyModalInput');
+        const modalUnit = document.getElementById('qtyModalUnitLabel');
+        const modalSubtotal = document.getElementById('qtyModalSubtotal');
+        const fractionSection = document.getElementById('qtyModalFractionSection');
+        const wholeSection = document.getElementById('qtyModalWholeSection');
+        const helpText = document.getElementById('qtyModalHelpText');
+
+        if (modalName) modalName.textContent = item.name;
+        if (modalMeta) modalMeta.textContent = `₱${item.price.toFixed(2)} per ${item.unit || 'unit'}`;
+        if (modalKey) modalKey.value = cartKey;
+        if (modalInput) modalInput.value = item.qty;
+        if (modalUnit) modalUnit.textContent = item.unit || 'units';
+
+        const allowsDecimal = item.allow_decimal_qty ?? false;
+
+        if (fractionSection) fractionSection.classList.toggle('d-none', !allowsDecimal);
+        if (wholeSection) wholeSection.classList.toggle('d-none', allowsDecimal);
+        if (helpText) {
+            helpText.innerHTML = allowsDecimal
+                ? 'You can type fractions like <code>1/4</code>, <code>1/2</code>, <code>3/4</code> or decimals like <code>0.25</code>, <code>1.5</code>.'
+                : 'Enter standard quantity for this item.';
+        }
+
+        const updatePreview = () => {
+            const qty = this.parseFractionOrDecimal(modalInput.value);
+            const sub = qty * item.price;
+            if (modalSubtotal) modalSubtotal.textContent = this.formatCurrency(sub);
+        };
+
+        updatePreview();
+
+        modalInput.oninput = updatePreview;
+
+        modalEl.querySelectorAll('.qty-preset-btn').forEach(btn => {
+            btn.onclick = () => {
+                modalInput.value = btn.dataset.val;
+                updatePreview();
+            };
+        });
+
+        const modal = Modal.getOrCreateInstance(modalEl);
+        modal.show();
+
+        setTimeout(() => {
+            modalInput.focus();
+            modalInput.select();
+        }, 200);
+
+        const confirmBtn = document.getElementById('btnConfirmQtyModal');
+        if (confirmBtn) {
+            confirmBtn.onclick = () => {
+                const finalQty = this.parseFractionOrDecimal(modalInput.value);
+                this.updateQuantity(cartKey, finalQty);
+                modal.hide();
+            };
+        }
+
+        modalInput.onkeydown = (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                confirmBtn?.click();
+            }
+        };
+    },
+
     attachCartEvents() {
 
+        // Open Quantity Modal when clicking quantity pill
+        document.querySelectorAll('.open-qty-modal-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const key = btn.dataset.key;
+                this.showQuantityModal(key);
+            });
+        });
+
+        // Quantity Minus
         document
             .querySelectorAll('.qty-minus')
             .forEach(button => {
@@ -2576,24 +3112,21 @@ window.onload = () => {
                     'click',
                     () => {
 
-                        const id =
-                            Number(
-                                button.dataset.id
-                            );
+                        const key = button.dataset.key;
 
                         const item =
                             this.state.cart.find(
-                                row =>
-                                    row.id === id
+                                row => (row.cartKey || (row.id + '_' + (row.variant_id || 0))) === key
                             );
 
                         if (!item) {
                             return;
                         }
 
+                        const step = (item.allow_decimal_qty && item.qty <= 1 && item.qty > 0.25) ? 0.25 : 1;
                         this.updateQuantity(
-                            id,
-                            item.qty - 1
+                            key,
+                            Math.max(0.0001, Math.round((item.qty - step) * 1000) / 1000)
                         );
 
                     }
@@ -2601,6 +3134,7 @@ window.onload = () => {
 
             });
 
+        // Quantity Plus
         document
             .querySelectorAll('.qty-plus')
             .forEach(button => {
@@ -2609,24 +3143,21 @@ window.onload = () => {
                     'click',
                     () => {
 
-                        const id =
-                            Number(
-                                button.dataset.id
-                            );
+                        const key = button.dataset.key;
 
                         const item =
                             this.state.cart.find(
-                                row =>
-                                    row.id === id
+                                row => (row.cartKey || (row.id + '_' + (row.variant_id || 0))) === key
                             );
 
                         if (!item) {
                             return;
                         }
 
+                        const step = (item.allow_decimal_qty && item.qty < 1) ? 0.25 : 1;
                         this.updateQuantity(
-                            id,
-                            item.qty + 1
+                            key,
+                            Math.round((item.qty + step) * 1000) / 1000
                         );
 
                     }
@@ -2634,44 +3165,13 @@ window.onload = () => {
 
             });
 
-        document
-            .querySelectorAll('.qty-input')
-            .forEach(input => {
-
-                input.addEventListener(
-                    'change',
-                    () => {
-
-                        this.updateQuantity(
-                            Number(
-                                input.dataset.id
-                            ),
-                            input.value
-                        );
-
-                    }
-                );
-
+        // Remove item
+        document.querySelectorAll('.remove-item').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const key = btn.dataset.key;
+                this.removeItem(key);
             });
-
-        document
-            .querySelectorAll('.remove-item')
-            .forEach(button => {
-
-                button.addEventListener(
-                    'click',
-                    () => {
-
-                        this.removeItem(
-                            Number(
-                                button.dataset.id
-                            )
-                        );
-
-                    }
-                );
-
-            });
+        });
 
     },
 
@@ -2720,6 +3220,11 @@ window.onload = () => {
                     this.state.discount
                 );
 
+        }
+
+        const modalTotalEl = document.getElementById('summaryTotalModal');
+        if (modalTotalEl) {
+            modalTotalEl.textContent = this.formatCurrency(this.state.total);
         }
 
         if (

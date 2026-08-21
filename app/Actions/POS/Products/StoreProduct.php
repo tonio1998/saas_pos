@@ -33,6 +33,7 @@ class StoreProduct
             $newProduct->selling_price = $data['selling_price'];
             $newProduct->wholesale_price = $data['wholesale_price'] ?? 0;
             $newProduct->reorder_level = $data['reorder_level'] ?? 0;
+            $newProduct->allow_decimal_qty = !empty($data['allow_decimal_qty']);
 
             if ($image) {
                 $newProduct->image = $image->store(

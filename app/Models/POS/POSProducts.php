@@ -24,10 +24,15 @@ class POSProducts extends Model
         'selling_price',
         'wholesale_price',
         'reorder_level',
+        'allow_decimal_qty',
         'status',
         'archived',
         'created_by',
         'updated_by',
+    ];
+
+    protected $casts = [
+        'allow_decimal_qty' => 'boolean',
     ];
 
     public function category()
@@ -68,5 +73,13 @@ class POSProducts extends Model
             Stocks::class,
             'product_id'
         );
+    }
+
+    public function variants()
+    {
+        return $this->hasMany(
+            POSProductVariant::class,
+            'product_id'
+        )->orderBy('qty_per_pack');
     }
 }
