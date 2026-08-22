@@ -242,7 +242,7 @@
                 <i class="bi bi-lightning-charge-fill"></i> Fast 1-Minute Store Registration
             </span>
             <h1 class="reg-title">Register <span>Your Store Now</span></h1>
-            <p class="reg-subtitle">Enter basic info to open your BaryaPOS store account instantly</p>
+            <p class="reg-subtitle">Enter basic info to open your LikhaPOS store account instantly</p>
         </div>
 
         @if(isset($errors) && $errors->any())

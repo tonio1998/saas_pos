@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'BaryaPOS') }} - Cloud Minimart POS & CRM System</title>
+    <title>{{ config('app.name', 'LikhaPOS') }} - Cloud Minimart POS & CRM System</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -560,17 +560,17 @@
     <section id="comparison" class="py-5 bg-white">
         <div class="container py-4">
             <div class="text-center max-w-700 mx-auto mb-5">
-                <span class="badge bg-gold-subtle text-warning-emphasis fw-bold px-3 py-2 rounded-pill mb-2">Bakit BaryaPOS ang Pinakamagandang Desisyon?</span>
-                <h2 class="fw-extrabold text-dark display-6">Sulat sa Cuaderno vs BaryaPOS Cloud</h2>
+                <span class="badge bg-gold-subtle text-warning-emphasis fw-bold px-3 py-2 rounded-pill mb-2">Bakit LikhaPOS ang Pinakamagandang Desisyon?</span>
+                <h2 class="fw-extrabold text-dark display-6">Sulat sa Cuaderno vs LikhaPOS Cloud</h2>
             </div>
 
-            <div class="table-responsive">
-                <table class="table table-bordered comparison-table bg-white text-center align-middle shadow-sm rounded-4 overflow-hidden">
-                    <thead class="table-dark">
+            <div class="table-responsive shadow-sm rounded-4 border bg-white">
+                <table class="table table-hover align-middle mb-0 text-center vs-table">
+                    <thead>
                         <tr>
-                            <th class="text-start ps-4" style="width: 35%;">Mga Katangian & Features</th>
-                            <th style="width: 30%; font-size: 0.95rem;">❌ Manual / Cuaderno</th>
-                            <th class="bg-emerald-primary text-white" style="width: 35%; font-size: 1.1rem;">✅ BaryaPOS Cloud</th>
+                            <th class="text-start bg-light text-muted ps-4" style="width: 30%;">Mga Tampok at Kakayahan</th>
+                            <th class="bg-light text-muted" style="width: 35%;">Cuaderno / Mano-mano</th>
+                            <th class="bg-emerald-primary text-white" style="width: 35%; font-size: 1.1rem;">✅ LikhaPOS Cloud</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -772,7 +772,7 @@
                             </h2>
                             <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                                 <div class="accordion-body text-muted">
-                                    May built-in offline caching protection ang BaryaPOS Terminal. Makakapag-scan pa rin ang cashier at kapag nag-online ang koneksyon, kusa nitong i-sync ang benta sa cloud.
+                                    May built-in offline caching protection ang LikhaPOS Terminal. Makakapag-scan pa rin ang cashier at kapag nag-online ang koneksyon, kusa nitong i-sync ang benta sa cloud.
                                 </div>
                             </div>
                         </div>
@@ -832,8 +832,8 @@
         <div class="container text-center text-md-start">
             <div class="row g-4 align-items-center">
                 <div class="col-md-6">
-                    <div class="fw-bold text-dark fs-5">Barya<span class="text-emerald-highlight">POS</span> Minimart & CRM</div>
-                    <div class="small mt-1">© {{ date('Y') }} BaryaPOS SaaS Platform. All rights reserved.</div>
+                    <div class="fw-bold text-dark fs-5">Likha<span class="text-emerald-highlight">POS</span> Minimart & CRM</div>
+                    <div class="small mt-1">© {{ date('Y') }} LikhaPOS SaaS Platform. All rights reserved.</div>
                 </div>
                 <div class="col-md-6 text-md-end">
                     <a href="{{ route('login') }}" class="btn btn-emerald btn-sm px-3">
@@ -849,7 +849,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content rounded-4 border-0 shadow-lg">
                 <div class="modal-header border-bottom-0 pb-0">
-                    <h5 class="modal-title fw-bold text-dark">Submit Your BaryaPOS Store Review</h5>
+                    <h5 class="modal-title fw-bold text-dark">Submit Your LikhaPOS Store Review</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form method="POST" action="{{ route('reviews.store') }}">
@@ -873,7 +873,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold small text-dark">Your Honest Feedback *</label>
-                            <textarea name="review_text" class="form-control rounded-3" rows="4" placeholder="Ibahagi ang inyong karanasan sa paggamit ng BaryaPOS sa inyong store..." required></textarea>
+                            <textarea name="review_text" class="form-control rounded-3" rows="4" placeholder="Ibahagi ang inyong karanasan sa paggamit ng LikhaPOS sa inyong store..." required></textarea>
                         </div>
                     </div>
                     <div class="modal-footer border-top-0 pt-0">
