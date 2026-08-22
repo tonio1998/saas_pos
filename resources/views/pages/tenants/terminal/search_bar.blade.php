@@ -11,7 +11,7 @@
                 <i class="bi bi-calculator-fill fs-6"></i>
             </div>
             <div>
-                <span class="fw-extrabold text-dark d-block lh-1 font-mono" style="font-size: 0.92rem;">BaryaPOS</span>
+                <span class="fw-extrabold text-dark d-block lh-1 font-mono" style="font-size: 0.92rem;">LikhaPOS</span>
                 <small class="text-muted extra-small d-none d-xl-inline">{{ session('tenant_name', 'Store') }}</small>
             </div>
         </div>

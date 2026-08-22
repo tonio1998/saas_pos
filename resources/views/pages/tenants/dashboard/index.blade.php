@@ -32,7 +32,7 @@
                 Welcome back, <span class="text-success">{{ optional(auth()->user())->name ?? 'Store Owner' }}</span>! 👋
             </h4>
             <p class="text-muted extra-small mb-0">
-                Real-time executive POS analytics and customer CRM summary for <strong>{{ session('tenant_name', 'BaryaPOS Minimart') }}</strong>.
+                Real-time executive POS analytics and customer CRM summary for <strong>{{ session('tenant_name', 'LikhaPOS Minimart') }}</strong>.
             </p>
         </div>
 

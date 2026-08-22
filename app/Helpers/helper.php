@@ -56,9 +56,11 @@ function getCustomerCode(int $id): string
 
 
 
-function generateSalesCode(int $tenantId): string
+function generateSalesCode(?int $tenantId = 1): string
 {
+    $tenantId = $tenantId ?: 1;
     $datePrefix = Carbon::now()->format('ymd');
+
 
     $lastCode = POSSale::where('tenant_id', $tenantId)
         ->where('sale_code', 'like', $datePrefix . '-%')
