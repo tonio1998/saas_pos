@@ -1,18 +1,21 @@
+@php
+    $tenantLogo = auth()->check() && auth()->user()->tenant_id
+        ? \App\Models\POS\POSTenant::where('id', auth()->user()->tenant_id)->value('logo')
+        : null;
+    $sidebarLogo = $tenantLogo ? asset('storage/' . $tenantLogo) : asset('images/logo.png');
+@endphp
+
 <div class="sidebar-inner d-flex flex-column h-100 p-2.5">
     
     <!-- Sidebar Header Logo & Mobile Close Button -->
-    <div class="d-flex align-items-center justify-content-between pb-2 mb-2 border-bottom">
-        <a href="{{ route('dashboard.index') }}" class="d-flex align-items-center gap-2 text-decoration-none">
-            <div class="rounded-3 d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" style="width:32px; height:32px; background: linear-gradient(135deg, #059669, #047857); font-size: 1rem;">
-                <i class="bi bi-shop"></i>
-            </div>
-            <div>
-                <h6 class="fw-extrabold text-dark mb-0 lh-1" style="font-size: 0.95rem;">Barya<span style="color:#059669;">POS</span></h6>
-                <small class="text-muted" style="font-size: 0.65rem; letter-spacing: 0.5px;">MINIMART & CRM</small>
+    <div class="d-flex align-items-center justify-content-center pb-2 mb-2 border-bottom position-relative" style="border-color: #1e293b !important;">
+        <a href="{{ route('dashboard.index') }}" class="d-flex align-items-center justify-content-center w-100 text-decoration-none">
+            <div class="px-3 py-1.5 rounded-3 bg-white d-inline-flex align-items-center justify-content-center shadow-xs">
+                <img src="{{ $sidebarLogo }}" alt="LikhaPOS Logo" style="max-height: 34px; width: auto; object-fit: contain;">
             </div>
         </a>
 
-        <button type="button" id="sidebarCloseBtn" class="btn-close d-lg-none shadow-none" aria-label="Close Sidebar" style="font-size: 0.75rem;"></button>
+        <button type="button" id="sidebarCloseBtn" class="btn-close btn-close-white d-lg-none shadow-none position-absolute end-0 top-50 translate-middle-y me-1" aria-label="Close Sidebar" style="font-size: 0.75rem;"></button>
     </div>
 
     <!-- Navigation Menu Items -->

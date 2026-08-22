@@ -780,7 +780,7 @@ table.dataTable{
     width:100% !important;
 }
 
-/* BARYAPOS MOBILE & DRAWER RESPONSIVE STYLES */
+/* LIKHAPOS MOBILE & DRAWER RESPONSIVE STYLES */
 @media (max-width: 991.98px) {
     .lms-sidebar {
         position: fixed !important;
@@ -817,7 +817,7 @@ table.dataTable{
 }
 
 /* Mobile Quick Action Bottom Navigation Bar */
-.barya-mobile-nav {
+.likha-mobile-nav {
     position: fixed;
     bottom: 0;
     left: 0;
@@ -855,8 +855,8 @@ table.dataTable{
     background: #ecfdf5;
 }
 
-/* BARYAPOS APP LAYOUT SHELL */
-.barya-app-container {
+/* LIKHAPOS APP LAYOUT SHELL */
+.likha-app-container {
     display: block;
     min-height: 100vh;
     width: 100%;
@@ -864,12 +864,12 @@ table.dataTable{
 }
 
 @media (min-width: 992px) {
-    .barya-sidebar {
+    .likha-sidebar {
         width: 235px !important;
         min-width: 235px !important;
         max-width: 235px !important;
-        background: #ffffff !important;
-        border-right: 1px solid #e2e8f0 !important;
+        background: #0f172a !important;
+        border-right: 1px solid #1e293b !important;
         height: 100vh !important;
         position: fixed !important;
         top: 0 !important;
@@ -881,7 +881,7 @@ table.dataTable{
         overflow-y: auto;
     }
 
-    .barya-main-content {
+    .likha-main-content {
         margin-left: 235px !important;
         width: calc(100% - 235px) !important;
         min-height: 100vh;
@@ -891,13 +891,13 @@ table.dataTable{
     }
 }
 
-.barya-page-body {
+.likha-page-body {
     flex: 1;
     padding: 1.5rem;
 }
 
 @media (max-width: 991.98px) {
-    .barya-sidebar {
+    .likha-sidebar {
         position: fixed !important;
         top: 0 !important;
         left: -280px !important;
@@ -909,11 +909,11 @@ table.dataTable{
         box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);
     }
 
-    .barya-sidebar.show {
+    .likha-sidebar.show {
         left: 0 !important;
     }
 
-    .barya-main-content {
+    .likha-main-content {
         margin-left: 0 !important;
         width: 100% !important;
     }

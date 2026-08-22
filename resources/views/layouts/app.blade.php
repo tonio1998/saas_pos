@@ -25,24 +25,24 @@
 <!-- Mobile Sidebar Backdrop Overlay -->
 <div id="sidebarBackdrop" class="sidebar-overlay"></div>
 
-<div class="barya-app-container">
+<div class="likha-app-container">
     <!-- Responsive Light Sidebar Drawer -->
-    <aside id="mainSidebar" class="barya-sidebar">
+    <aside id="mainSidebar" class="likha-sidebar">
         <x-pos.sidebar />
     </aside>
 
     <!-- Main Content Area (Topbar + Page Body) -->
-    <div class="barya-main-content">
+    <div class="likha-main-content">
         <x-pos.topbar />
 
-        <main class="barya-page-body">
+        <main class="likha-page-body">
             @yield('content')
         </main>
     </div>
 </div>
 
 <!-- Mobile Quick Action Bottom Navigation Bar (Visible < 768px) -->
-<nav class="barya-mobile-nav d-md-none">
+<nav class="likha-mobile-nav d-md-none">
     <div class="d-flex align-items-center justify-content-around h-100">
         <a href="{{ route('dashboard.index') }}" class="mobile-nav-item {{ request()->routeIs('dashboard.*') ? 'active' : '' }}">
             <i class="bi bi-house-door-fill"></i>

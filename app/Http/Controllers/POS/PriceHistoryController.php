@@ -18,6 +18,7 @@ class PriceHistoryController extends Controller
     {
         $query = ProductPriceHistory::with([
             'product',
+            'variant',
             'createdBy',
         ])
             ->latest('created_at');
@@ -53,15 +54,20 @@ class PriceHistoryController extends Controller
                 ';
                 }
 
+                $variantBadge = '';
+                if ($priceHistory->variant) {
+                    $variantBadge = '<span class="badge bg-purple-subtle text-purple border extra-small mt-0.5" style="background:#f3e8ff;color:#7e22ce;border-color:#e9d5ff;font-size:0.7rem;"><i class="bi bi-tag-fill me-1"></i>' . e($priceHistory->variant->variant_name) . '</span>';
+                }
+
                 return '
                 <div>
                     <div class="fw-bold">
                         ' . e($priceHistory->product->name) . '
                     </div>
-
+                    ' . $variantBadge . '
                     <small class="text-muted d-block">
                         SKU: ' . e(
-                        $priceHistory->product->sku ?? 'N/A'
+                        $priceHistory->variant?->sku ?: ($priceHistory->product->sku ?? 'N/A')
                     ) . '
                     </small>
                 </div>

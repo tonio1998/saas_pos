@@ -14,6 +14,7 @@ use Illuminate\Validation\Rule;
 class POSTerminalController extends Controller
 {
     use TCommonFunctions;
+
     public function index(Request $request)
     {
         $terminals = POSTerminal::query()
@@ -31,6 +32,17 @@ class POSTerminalController extends Controller
             'pages.pos.terminal.select-terminal',
             compact('terminals')
         );
+    }
+
+    public function create(Request $request)
+    {
+        if ($request->has('sale')) {
+            return redirect()->route('sales.create', [
+                'sale' => $request->query('sale')
+            ]);
+        }
+
+        return redirect()->route('terminal.index');
     }
 
     public function store(Request $request)
@@ -101,71 +113,59 @@ class POSTerminalController extends Controller
             $terminal = new POSTerminal();
             $terminal->tenant_id = auth()->user()->tenant_id;
             $terminal->terminal_name = $data['terminal_name'];
-            $terminal->terminal_code = 'DEV-' . strtoupper(\Illuminate\Support\Str::random(6));
+            $terminal->terminal_code = 'TERM-' . strtoupper(\Illuminate\Support\Str::random(6));
             $terminal->drawer_id = $drawerId;
-            $terminal->status = $data['status'];
+            $terminal->status = strtolower($data['status']);
             $terminal->remarks = $data['remarks'] ?? null;
             $this->setCommonFields($terminal);
             $terminal->save();
         });
 
-        return redirect()
-            ->route('terminal.index')
-            ->with('success', 'POS Device has been registered successfully.');
-    }
-
-    public function create()
-    {
-        $deviceCheck = (new \App\Services\Tenant\TenantSubscriptionService())->canCreateDevice(auth()->user()->tenant_id);
-        $drawers = POSCashDrawer::query()
-            ->where('tenant_id', auth()->user()->tenant_id)
-            ->orderBy('drawer_name')
-            ->get();
-
-        return view('pages.pos.terminal.create', compact('drawers', 'deviceCheck'));
-    }
-
-    public function select(Request $request)
-    {
-        $request->validate([
-            'terminal_id' => ['required']
-        ]);
-
-        $terminal = POSTerminal::with('drawer')
-            ->findOrFail(decryptId($request->terminal_id));
-
-        return $this->processTerminalSelection($terminal);
+        return redirect()->route('terminals.index')->with('success', 'POS Terminal registered successfully.');
     }
 
     protected function processTerminalSelection(POSTerminal $terminal)
     {
+        $drawerId = $terminal->drawer_id;
+        if (!$drawerId) {
+            $drawer = POSCashDrawer::where('tenant_id', auth()->user()->tenant_id)->first();
+            if (!$drawer) {
+                $drawer = new POSCashDrawer();
+                $drawer->tenant_id = auth()->user()->tenant_id;
+                $drawer->drawer_name = ($terminal->terminal_name ?: 'Main Terminal') . ' Drawer';
+                $drawer->drawer_code = 'DRW-' . strtoupper(\Illuminate\Support\Str::random(6));
+                $drawer->status = 'active';
+                $this->setCommonFields($drawer);
+                $drawer->save();
+            }
+            $drawerId = $drawer->id;
+            $terminal->drawer_id = $drawerId;
+            $terminal->save();
+        }
+
         $shifts = POSCashShift::query()
             ->with('cashier')
             ->where('tenant_id', auth()->user()->tenant_id)
-            ->where('drawer_id', $terminal->drawer_id)
+            ->where('drawer_id', $drawerId)
             ->whereNull('closed_at')
             ->orderByDesc('opened_at')
             ->get();
 
         if ($shifts->isEmpty()) {
-
             return redirect()->route(
                 'cashiering.cash-shifts.create',
                 [
+                    'drawer'   => encryptId($drawerId),
                     'terminal' => encryptId($terminal->id),
-                    'drawer'   => encryptId($terminal->drawer_id)
                 ]
             );
-
         }
 
         if ($shifts->count() == 1) {
-
             return $this->createSale(
                 $terminal,
                 $shifts->first()
             );
-
         }
 
         return view(
@@ -193,11 +193,8 @@ class POSTerminalController extends Controller
             'sale_id'       => $sale->id,
         ]);
 
-        return redirect()->route(
-            'sales.new',
-            [
-                encryptId($sale->id)
-            ]
-        );
+        return redirect()->route('sales.create', [
+            'sale' => encryptId($sale->id),
+        ]);
     }
 }

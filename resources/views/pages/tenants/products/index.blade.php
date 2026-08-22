@@ -67,7 +67,7 @@
         </div>
 
         {{-- Low Stock Alerts --}}
-        <div class="col-xl-3 col-sm-6">
+        <div class="col-xl-2 col-sm-6">
             <div class="card border-0 shadow-sm rounded-4 p-3.5 h-100 bg-white hover-lift cursor-pointer kpi-card" onclick="setQuickTab('low_stock')">
                 <div class="d-flex align-items-center justify-content-between mb-2">
                     <span class="text-warning-emphasis extra-small fw-bold text-uppercase" style="letter-spacing:0.5px;">Reorder Alert</span>
@@ -83,13 +83,35 @@
                 </div>
                 <div class="mt-2 text-muted extra-small d-flex align-items-center gap-1">
                     <i class="bi bi-arrow-down-circle text-warning"></i>
-                    <span>At or below reorder threshold</span>
+                    <span>Below reorder level</span>
+                </div>
+            </div>
+        </div>
+
+        {{-- Fast-Moving (Top Movers) --}}
+        <div class="col-xl-3 col-sm-6">
+            <div class="card border-0 shadow-sm rounded-4 p-3.5 h-100 bg-white hover-lift cursor-pointer kpi-card" onclick="setQuickTab('fast_moving')">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-purple extra-small fw-bold text-uppercase" style="letter-spacing:0.5px;">Fast-Moving (Top Movers)</span>
+                    <div class="rounded-3 bg-purple bg-opacity-10 text-purple d-flex align-items-center justify-content-center" style="width:36px;height:36px;">
+                        <i class="bi bi-rocket-takeoff-fill fs-5 text-purple"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h3 class="fw-black text-purple font-mono mb-0" id="kpiFastMoving">
+                        <span class="spinner-border spinner-border-sm text-muted"></span>
+                    </h3>
+                    <span class="text-muted extra-small">Fast SKUs</span>
+                </div>
+                <div class="mt-2 text-muted extra-small d-flex align-items-center gap-1 text-truncate">
+                    <i class="bi bi-award-fill text-warning"></i>
+                    <span>Top: <strong class="text-dark font-mono" id="kpiTopMover">...</strong></span>
                 </div>
             </div>
         </div>
 
         {{-- Out of Stock --}}
-        <div class="col-xl-3 col-sm-6">
+        <div class="col-xl-2 col-sm-6">
             <div class="card border-0 shadow-sm rounded-4 p-3.5 h-100 bg-white hover-lift cursor-pointer kpi-card" onclick="setQuickTab('out_of_stock')">
                 <div class="d-flex align-items-center justify-content-between mb-2">
                     <span class="text-danger extra-small fw-bold text-uppercase" style="letter-spacing:0.5px;">Out of Stock</span>
@@ -105,16 +127,16 @@
                 </div>
                 <div class="mt-2 text-muted extra-small d-flex align-items-center gap-1">
                     <i class="bi bi-ban text-danger"></i>
-                    <span>Depleted items (0 balance)</span>
+                    <span>0 balance</span>
                 </div>
             </div>
         </div>
 
         {{-- Total Asset Valuation --}}
-        <div class="col-xl-3 col-sm-6">
+        <div class="col-xl-2 col-sm-6">
             <div class="card border-0 shadow-sm rounded-4 p-3.5 h-100 bg-white">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted extra-small fw-bold text-uppercase" style="letter-spacing:0.5px;">Inventory Asset Value</span>
+                    <span class="text-muted extra-small fw-bold text-uppercase" style="letter-spacing:0.5px;">Asset Value</span>
                     <div class="rounded-3 bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center" style="width:36px;height:36px;">
                         <i class="bi bi-cash-coin fs-5"></i>
                     </div>
@@ -125,7 +147,7 @@
                     </h3>
                 </div>
                 <div class="mt-2 text-muted extra-small d-flex align-items-center justify-content-between">
-                    <span>Retail Potential:</span>
+                    <span>Retail:</span>
                     <strong class="text-dark font-mono fw-bold" id="kpiRetailValue">...</strong>
                 </div>
             </div>
@@ -136,6 +158,9 @@
     <div class="d-flex align-items-center gap-2 overflow-x-auto pb-2 mb-3">
         <button type="button" class="btn btn-sm btn-white border rounded-pill px-3 py-1.5 fw-bold extra-small shadow-xs quick-tab active" data-tab="">
             <i class="bi bi-grid-fill text-primary me-1"></i> All Products
+        </button>
+        <button type="button" class="btn btn-sm btn-white border rounded-pill px-3 py-1.5 fw-bold extra-small shadow-xs quick-tab" data-tab="fast_moving">
+            <i class="bi bi-rocket-takeoff-fill text-purple me-1"></i> 🚀 Fast-Moving (Top Movers)
         </button>
         <button type="button" class="btn btn-sm btn-white border rounded-pill px-3 py-1.5 fw-bold extra-small shadow-xs quick-tab" data-tab="in_stock">
             <i class="bi bi-check-circle-fill text-success me-1"></i> In Stock
@@ -177,6 +202,7 @@
                     <label class="form-label extra-small fw-bold text-muted text-uppercase mb-1">Stock Level</label>
                     <select name="stock_status" id="filterStockStatusSelect" class="form-select form-select-sm datatable-external-filter rounded-3 shadow-xs">
                         <option value="">All Stock Levels</option>
+                        <option value="fast_moving">🚀 Fast-Moving (Top Movers)</option>
                         <option value="in_stock">✅ In Stock (> 0)</option>
                         <option value="low_stock">⚠️ Low Stock (≤ Reorder)</option>
                         <option value="out_of_stock">❌ Out of Stock (0 qty)</option>
@@ -268,22 +294,22 @@
             @php
                 $dtColumns = [
                     '<div class="text-center"><input type="checkbox" class="form-check-input shadow-xs" id="selectAllProducts" style="cursor:pointer;"></div>',
+                    'Actions',
                     'Product & Code',
                     'Category & Unit',
                     'Stock Balance',
                     'Pricing Matrix & Margin',
                     'Status',
-                    'Actions',
                 ];
 
                 $dtDefs = [
                     ['data' => 'checkbox', 'orderable' => false, 'searchable' => false, 'width' => '40px', 'className' => 'align-middle text-center'],
+                    ['data' => 'actions', 'orderable' => false, 'searchable' => false, 'width' => '110px', 'className' => 'align-middle text-center'],
                     ['data' => 'product_info', 'name' => 'product_info', 'orderable' => true, 'className' => 'align-middle'],
                     ['data' => 'category_unit', 'orderable' => false, 'className' => 'align-middle'],
                     ['data' => 'stock_status', 'orderable' => false, 'className' => 'align-middle'],
                     ['data' => 'pricing_matrix', 'orderable' => false, 'className' => 'align-middle'],
                     ['data' => 'status_badge', 'orderable' => false, 'className' => 'align-middle text-center'],
-                    ['data' => 'actions', 'orderable' => false, 'searchable' => false, 'width' => '100px', 'className' => 'align-middle text-center'],
                 ];
             @endphp
 
@@ -398,6 +424,8 @@
             $('#kpiActiveBadge').text(`${data.active_products.toLocaleString()} Active`);
             $('#kpiLowStock').text(data.low_stock_count.toLocaleString());
             $('#kpiOutOfStock').text(data.out_of_stock_count.toLocaleString());
+            $('#kpiFastMoving').text(data.fast_moving_count ? data.fast_moving_count.toLocaleString() : '0');
+            $('#kpiTopMover').text(data.top_mover_name || 'None');
             $('#kpiInventoryValue').text(data.formatted_inventory_value);
             $('#kpiRetailValue').text(data.formatted_retail_value);
         });

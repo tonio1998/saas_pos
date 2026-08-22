@@ -1,38 +1,38 @@
 /* ==========================================================================
-   BARYA POS ENTERPRISE CRM & BUSINESS DASHBOARD (SEMI-COMPACT DESIGN)
+   LIKHA POS ENTERPRISE CRM & BUSINESS DASHBOARD (SEMI-COMPACT DESIGN)
    ========================================================================== */
 
 :root {
-    --barya-bg: #f8fafc;
-    --barya-card-bg: #ffffff;
-    --barya-border: #e2e8f0;
-    --barya-border-hover: #cbd5e1;
-    --barya-text-dark: #0f172a;
-    --barya-text-muted: #64748b;
-    --barya-emerald: #059669;
-    --barya-emerald-dark: #047857;
-    --barya-emerald-light: #ecfdf5;
-    --barya-amber: #d97706;
-    --barya-amber-light: #fef3c7;
-    --barya-blue: #2563eb;
-    --barya-blue-light: #eff6ff;
-    --barya-rose: #e11d48;
-    --barya-rose-light: #fff1f2;
-    --barya-purple: #7c3aed;
-    --barya-purple-light: #f5f3ff;
+    --likha-bg: #f8fafc;
+    --likha-card-bg: #ffffff;
+    --likha-border: #e2e8f0;
+    --likha-border-hover: #cbd5e1;
+    --likha-text-dark: #0f172a;
+    --likha-text-muted: #64748b;
+    --likha-emerald: #059669;
+    --likha-emerald-dark: #047857;
+    --likha-emerald-light: #ecfdf5;
+    --likha-amber: #d97706;
+    --likha-amber-light: #fef3c7;
+    --likha-blue: #2563eb;
+    --likha-blue-light: #eff6ff;
+    --likha-rose: #e11d48;
+    --likha-rose-light: #fff1f2;
+    --likha-purple: #7c3aed;
+    --likha-purple-light: #f5f3ff;
 }
 
 body {
-    background-color: var(--barya-bg) !important;
+    background-color: var(--likha-bg) !important;
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-    color: var(--barya-text-dark);
+    color: var(--likha-text-dark);
 }
 
 /* ==========================================================================
    SEMI-COMPACT EXECUTIVE WELCOME BANNER
    ========================================================================== */
 
-.barya-welcome-banner {
+.likha-welcome-banner {
     background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 60%, #ecfdf5 100%);
     border: 1px solid rgba(5, 150, 105, 0.2);
     border-radius: 14px;
@@ -63,7 +63,7 @@ body {
    SEMI-COMPACT METRIC KPI CARDS (6 GRID)
    ========================================================================== */
 
-.barya-kpi-card {
+.likha-kpi-card {
     background: #ffffff;
     border: 1px solid #e2e8f0;
     border-radius: 12px;
@@ -78,13 +78,13 @@ body {
     min-height: 104px;
 }
 
-.barya-kpi-card:hover {
+.likha-kpi-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 14px -2px rgba(15, 23, 42, 0.07);
     border-color: rgba(5, 150, 105, 0.35);
 }
 
-.barya-kpi-card::before {
+.likha-kpi-card::before {
     content: '';
     position: absolute;
     top: 0;
@@ -93,11 +93,11 @@ body {
     height: 3px;
 }
 
-.barya-kpi-card.emerald::before { background: linear-gradient(90deg, #059669 0%, #34d399 100%); }
-.barya-kpi-card.amber::before { background: linear-gradient(90deg, #d97706 0%, #fbbf24 100%); }
-.barya-kpi-card.blue::before { background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%); }
-.barya-kpi-card.rose::before { background: linear-gradient(90deg, #e11d48 0%, #f43f5e 100%); }
-.barya-kpi-card.purple::before { background: linear-gradient(90deg, #7c3aed 0%, #a78bfa 100%); }
+.likha-kpi-card.emerald::before { background: linear-gradient(90deg, #059669 0%, #34d399 100%); }
+.likha-kpi-card.amber::before { background: linear-gradient(90deg, #d97706 0%, #fbbf24 100%); }
+.likha-kpi-card.blue::before { background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%); }
+.likha-kpi-card.rose::before { background: linear-gradient(90deg, #e11d48 0%, #f43f5e 100%); }
+.likha-kpi-card.purple::before { background: linear-gradient(90deg, #7c3aed 0%, #a78bfa 100%); }
 
 .kpi-icon-box {
     width: 32px;
@@ -110,24 +110,24 @@ body {
     flex-shrink: 0;
 }
 
-.kpi-icon-box.emerald { background: var(--barya-emerald-light); color: var(--barya-emerald); }
-.kpi-icon-box.amber { background: var(--barya-amber-light); color: var(--barya-amber); }
-.kpi-icon-box.blue { background: var(--barya-blue-light); color: var(--barya-blue); }
-.kpi-icon-box.rose { background: var(--barya-rose-light); color: var(--barya-rose); }
-.kpi-icon-box.purple { background: var(--barya-purple-light); color: var(--barya-purple); }
+.kpi-icon-box.emerald { background: var(--likha-emerald-light); color: var(--likha-emerald); }
+.kpi-icon-box.amber { background: var(--likha-amber-light); color: var(--likha-amber); }
+.kpi-icon-box.blue { background: var(--likha-blue-light); color: var(--likha-blue); }
+.kpi-icon-box.rose { background: var(--likha-rose-light); color: var(--likha-rose); }
+.kpi-icon-box.purple { background: var(--likha-purple-light); color: var(--likha-purple); }
 
 .kpi-label {
     font-size: 0.65rem;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: var(--barya-text-muted);
+    color: var(--likha-text-muted);
 }
 
 .kpi-value {
     font-size: 1.25rem;
     font-weight: 800;
-    color: var(--barya-text-dark);
+    color: var(--likha-text-dark);
     line-height: 1.15;
     margin: 3px 0 2px 0;
     letter-spacing: -0.3px;
@@ -150,7 +150,7 @@ body {
 
 .modern-card {
     background: #ffffff;
-    border: 1px solid var(--barya-border);
+    border: 1px solid var(--likha-border);
     border-radius: 14px;
     padding: 1.1rem 1.25rem;
     box-shadow: 0 2px 10px -2px rgba(15, 23, 42, 0.03);
@@ -161,14 +161,14 @@ body {
 .section-title {
     font-size: 0.92rem;
     font-weight: 800;
-    color: var(--barya-text-dark);
+    color: var(--likha-text-dark);
     margin-bottom: 1px;
     letter-spacing: -0.2px;
 }
 
 .section-subtitle {
     font-size: 0.72rem;
-    color: var(--barya-text-muted);
+    color: var(--likha-text-muted);
     font-weight: 500;
 }
 
@@ -203,7 +203,7 @@ body {
     border: 1px solid #e2e8f0;
     border-radius: 12px;
     text-decoration: none;
-    color: var(--barya-text-dark);
+    color: var(--likha-text-dark);
     position: relative;
     overflow: hidden;
     transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
@@ -251,14 +251,14 @@ body {
    PREMIUM DATA TABLES & ACTIVITY FEEDS
    ========================================================================== */
 
-.barya-data-table {
+.likha-data-table {
     width: 100%;
     margin-bottom: 0;
     border-collapse: separate;
     border-spacing: 0;
 }
 
-.barya-data-table thead th {
+.likha-data-table thead th {
     font-size: 0.68rem;
     font-weight: 800;
     text-transform: uppercase;
@@ -269,7 +269,7 @@ body {
     padding: 0.65rem 0.85rem;
 }
 
-.barya-data-table tbody td {
+.likha-data-table tbody td {
     padding: 0.75rem 0.85rem;
     vertical-align: middle;
     border-bottom: 1px solid #f1f5f9;
@@ -277,11 +277,11 @@ body {
     transition: background 0.15s ease;
 }
 
-.barya-data-table tbody tr:hover td {
+.likha-data-table tbody tr:hover td {
     background: #f8fafc;
 }
 
-.barya-data-table tbody tr:last-child td {
+.likha-data-table tbody tr:last-child td {
     border-bottom: none;
 }
 
@@ -364,7 +364,7 @@ body {
 }
 
 .channel-stat-chip .chip-val {
-    font-family: var(--barya-font-mono);
+    font-family: var(--likha-font-mono);
     font-weight: 800;
     font-size: 0.76rem;
 }
@@ -422,7 +422,7 @@ body {
 }
 
 .suki-meta-value {
-    font-family: var(--barya-font-mono);
+    font-family: var(--likha-font-mono);
     font-weight: 800;
     font-size: 0.82rem;
     line-height: 1.2;

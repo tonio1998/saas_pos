@@ -3,6 +3,9 @@
 namespace App\Models\POS;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\POS\POSProducts;
+use App\Models\POS\POSSale;
+use App\Models\POS\POSProductVariant;
 
 class POSSaleItem extends Model
 {
@@ -11,6 +14,7 @@ class POSSaleItem extends Model
     protected $fillable = [
         'sale_id',
         'product_id',
+        'variant_id',
         'barcode',
         'sku',
         'product_name',
@@ -22,11 +26,11 @@ class POSSaleItem extends Model
     ];
 
     protected $casts = [
-        'qty' => 'decimal:2',
-        'unit_price' => 'decimal:2',
+        'qty'             => 'decimal:2',
+        'unit_price'      => 'decimal:2',
         'discount_amount' => 'decimal:2',
-        'tax_amount' => 'decimal:2',
-        'line_total' => 'decimal:2',
+        'tax_amount'      => 'decimal:2',
+        'line_total'      => 'decimal:2',
     ];
 
     public function sale()
@@ -42,6 +46,14 @@ class POSSaleItem extends Model
         return $this->belongsTo(
             POSProducts::class,
             'product_id'
+        );
+    }
+
+    public function variant()
+    {
+        return $this->belongsTo(
+            POSProductVariant::class,
+            'variant_id'
         );
     }
 }
