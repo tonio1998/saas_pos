@@ -110,6 +110,7 @@ class StudentsSeeder extends Seeder
                     'name'      => trim(
                         $student->FirstName . ' ' . $student->LastName
                     ),
+                    'username'  => $username,
                     'email'     => $email,
                     'password'  => Hash::make('Password123'),
                     'qr_code'   => strtoupper(Str::random(15)),

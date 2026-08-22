@@ -349,6 +349,15 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        $tenantId = session('tenant_id') ?? auth()->user()->tenant_id;
+        $role = $request->input('role', 'cashier');
+
+        if ($tenantId) {
+            $check = app(\App\Services\Tenant\TenantSubscriptionService::class)->canCreateUser($tenantId, $role);
+            if (!$check['allowed']) {
+                return back()->withErrors(['role' => $check['message']])->withInput();
+            }
+        }
 
         $data = $request->validate([
             'name' => ['required','string','max:255'],
@@ -357,8 +366,16 @@ class UserController extends Controller
         ]);
 
         $data['password'] = Hash::make($data['password']);
+        $data['username'] = strtolower(trim($data['email']));
+        if ($tenantId) {
+            $data['tenant_id'] = $tenantId;
+        }
 
-        User::create($data);
+        $user = User::create($data);
+
+        if ($role && \Spatie\Permission\Models\Role::where('name', $role)->exists()) {
+            $user->assignRole($role);
+        }
 
         return redirect()
             ->route('users.index')

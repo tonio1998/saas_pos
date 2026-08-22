@@ -58,18 +58,20 @@ function getCustomerCode(int $id): string
 
 function generateSalesCode(int $tenantId): string
 {
-    $today = Carbon::today();
+    $datePrefix = Carbon::now()->format('ymd');
 
     $lastCode = POSSale::where('tenant_id', $tenantId)
-        ->whereDate('created_at', $today)
+        ->where('sale_code', 'like', $datePrefix . '-%')
         ->orderByRaw('CAST(SUBSTRING_INDEX(sale_code, "-", -1) AS UNSIGNED) DESC')
         ->value('sale_code');
 
-    $next = $lastCode
-        ? ((int) substr($lastCode, strrpos($lastCode, '-') + 1)) + 1
-        : 1;
+    $nextNumber = 1;
+    if ($lastCode && str_contains($lastCode, '-')) {
+        $parts = explode('-', $lastCode);
+        $nextNumber = ((int) end($parts)) + 1;
+    }
 
-    return $today->format('ymd') . '-' . str_pad($next, 4, '0', STR_PAD_LEFT);
+    return $datePrefix . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 }
 
 function generateSerialNumber(int $length = 6): string

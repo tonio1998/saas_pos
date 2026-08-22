@@ -20,11 +20,22 @@ class POSTenant extends Model
         'email',
         'phone',
         'address',
+        'tin',
+        'branch_code',
+        'bir_acc_no',
+        'bir_acc_date',
+        'bir_min',
+        'bir_sn',
+        'header_text',
+        'footer_text',
         'logo',
         'subscription_start',
         'subscription_end',
         'trial_ends_at',
         'status',
+        'payment_status',
+        'payment_reference',
+        'paid_at',
         'archived',
         'created_by',
         'updated_by',
@@ -34,6 +45,8 @@ class POSTenant extends Model
         'subscription_start' => 'date',
         'subscription_end' => 'date',
         'trial_ends_at' => 'datetime',
+        'paid_at' => 'datetime',
+        'bir_acc_date' => 'date',
         'archived' => 'boolean',
     ];
 
@@ -64,6 +77,16 @@ class POSTenant extends Model
     public function isActive(): bool
     {
         return $this->status === 'active';
+    }
+
+    public function isPaid(): bool
+    {
+        return $this->payment_status === 'paid' || $this->status === 'active';
+    }
+
+    public function isPendingPayment(): bool
+    {
+        return $this->payment_status === 'pending' && $this->status !== 'active';
     }
 
     public function isLocked(): bool

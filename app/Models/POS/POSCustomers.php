@@ -66,4 +66,9 @@ class POSCustomers extends Model
     {
         return $this->hasMany(POSCustomerLedger::class, 'customer_id');
     }
+
+    public function sales()
+    {
+        return $this->hasMany(POSSale::class, 'customer_id');
+    }
 }

@@ -14,14 +14,18 @@ use Illuminate\Validation\Rule;
 class POSTerminalController extends Controller
 {
     use TCommonFunctions;
-    public function index()
+    public function index(Request $request)
     {
         $terminals = POSTerminal::query()
             ->with('drawer')
             ->where('tenant_id', auth()->user()->tenant_id)
-            ->where('status', 'ACTIVE')
+            ->whereIn('status', ['active', 'ACTIVE'])
             ->orderBy('terminal_name')
             ->get();
+
+        if ($terminals->count() === 1 && !$request->boolean('change')) {
+            return $this->processTerminalSelection($terminals->first());
+        }
 
         return view(
             'pages.pos.terminal.select-terminal',
@@ -31,6 +35,15 @@ class POSTerminalController extends Controller
 
     public function store(Request $request)
     {
+        $deviceCheck = (new \App\Services\Tenant\TenantSubscriptionService())->canCreateDevice(auth()->user()->tenant_id);
+        if (!$deviceCheck['allowed']) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'terminal_name' => $deviceCheck['message']
+                ]);
+        }
+
         $data = $request->validate([
             'terminal_name' => [
                 'required',
@@ -38,7 +51,7 @@ class POSTerminalController extends Controller
                 'max:100'
             ],
             'drawer_id' => [
-                'required',
+                'nullable',
                 Rule::exists('pos_cash_drawers', 'id')
                     ->where('tenant_id', auth()->user()->tenant_id)
             ],
@@ -56,47 +69,60 @@ class POSTerminalController extends Controller
             ]
         ]);
 
-        $drawerAssigned = POSTerminal::query()
-            ->where('tenant_id', auth()->user()->tenant_id)
-            ->where('drawer_id', $data['drawer_id'])
-            ->exists();
+        if (!empty($data['drawer_id'])) {
+            $drawerAssigned = POSTerminal::query()
+                ->where('tenant_id', auth()->user()->tenant_id)
+                ->where('drawer_id', $data['drawer_id'])
+                ->exists();
 
-        if ($drawerAssigned) {
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'drawer_id' => 'The selected cash drawer is already assigned to another terminal.'
-                ]);
+            if ($drawerAssigned) {
+                return back()
+                    ->withInput()
+                    ->withErrors([
+                        'drawer_id' => 'The selected cash drawer is already assigned to another POS device.'
+                    ]);
+            }
         }
 
         DB::transaction(function () use ($data) {
+            $drawerId = $data['drawer_id'] ?? null;
+
+            if (!$drawerId) {
+                $drawer = new POSCashDrawer();
+                $drawer->tenant_id = auth()->user()->tenant_id;
+                $drawer->drawer_name = $data['terminal_name'] . ' Drawer';
+                $drawer->drawer_code = 'DRW-' . strtoupper(\Illuminate\Support\Str::random(6));
+                $drawer->status = 'active';
+                $this->setCommonFields($drawer);
+                $drawer->save();
+                $drawerId = $drawer->id;
+            }
+
             $terminal = new POSTerminal();
             $terminal->tenant_id = auth()->user()->tenant_id;
             $terminal->terminal_name = $data['terminal_name'];
-            $terminal->drawer_id = $data['drawer_id'];
+            $terminal->terminal_code = 'DEV-' . strtoupper(\Illuminate\Support\Str::random(6));
+            $terminal->drawer_id = $drawerId;
             $terminal->status = $data['status'];
             $terminal->remarks = $data['remarks'] ?? null;
-            $terminal->created_by = auth()->id();
-            $terminal->updated_by = auth()->id();
-            $terminal->created_at = now();
-            $terminal->updated_at = now();
-            $terminal->archived = 0;
+            $this->setCommonFields($terminal);
             $terminal->save();
-
         });
 
         return redirect()
             ->route('terminal.index')
-            ->with('success', 'POS terminal has been created successfully.');
+            ->with('success', 'POS Device has been registered successfully.');
     }
 
     public function create()
     {
+        $deviceCheck = (new \App\Services\Tenant\TenantSubscriptionService())->canCreateDevice(auth()->user()->tenant_id);
         $drawers = POSCashDrawer::query()
             ->where('tenant_id', auth()->user()->tenant_id)
             ->orderBy('drawer_name')
             ->get();
-        return view('pages.pos.terminal.create', compact('drawers'));
+
+        return view('pages.pos.terminal.create', compact('drawers', 'deviceCheck'));
     }
 
     public function select(Request $request)
@@ -108,6 +134,11 @@ class POSTerminalController extends Controller
         $terminal = POSTerminal::with('drawer')
             ->findOrFail(decryptId($request->terminal_id));
 
+        return $this->processTerminalSelection($terminal);
+    }
+
+    protected function processTerminalSelection(POSTerminal $terminal)
+    {
         $shifts = POSCashShift::query()
             ->with('cashier')
             ->where('tenant_id', auth()->user()->tenant_id)

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="theme-color" content="#2563eb">
+    <meta name="theme-color" content="#059669">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="{{ asset('images/ic_launcher.png') }}">
@@ -12,7 +12,7 @@
     <title>@yield('title')</title>
     <script>
         (() => {
-            const theme = localStorage.getItem('theme') || 'dark';
+            const theme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', theme);
         })();
     </script>
@@ -24,16 +24,14 @@
     @include('theme')
     @stack('styles')
 </head>
-<body>
+<body class="pos-app-body" style="margin:0;padding:0;height:100vh;overflow:hidden;background:#f8fafc;">
 
-<main class="pag">
+<main class="pos-main-wrapper" style="height:100vh;display:flex;flex-direction:column;overflow:hidden;">
     @yield('content')
 </main>
-@include('pages.pos.terminal.footer')
 
 <x-alerts />
 <x-ios-confirm />
-@include('components.footer')
 @stack('scripts')
 </body>
 </html>

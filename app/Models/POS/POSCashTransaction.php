@@ -13,18 +13,19 @@ class POSCashTransaction extends Model
     protected $table = 'pos_cash_transactions';
     protected $fillable = [
         'tenant_id',
+        'transaction_code',
         'shift_id',
         'drawer_id',
         'cashier_id',
         'transaction_type',
-        'transaction_date',
+        'category',
         'amount',
-        'reference_number',
-        'notes',
+        'reference_no',
+        'approved_by',
+        'remarks',
+        'status',
         'created_by',
         'updated_by',
-        'created_at',
-        'updated_at',
         'archived',
     ];
     public $timestamps = false;
@@ -52,6 +53,22 @@ class POSCashTransaction extends Model
         return $this->belongsTo(
             User::class,
             'cashier_id'
+        );
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(
+            User::class,
+            'created_by'
+        );
+    }
+
+    public function updater()
+    {
+        return $this->belongsTo(
+            User::class,
+            'updated_by'
         );
     }
 }

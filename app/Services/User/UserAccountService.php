@@ -58,6 +58,7 @@ class UserAccountService
             'conn_id' => $data['conn_id'],
             'school_id' => $data['school_id'],
             'name' => $data['name'],
+            'username' => $data['username'] ?? $data['email'],
             'email' => $data['email'],
             'password' => Hash::make($plainPassword),
             'qr_code' => $data['qr_code'],

@@ -10,6 +10,23 @@ class POSSubscription extends Model
     protected $table = 'pos_subscriptions';
 
     protected $fillable = [
+        'name',
+        'description',
+        'price',
+        'billing_cycle',
+        'duration_days',
+        'max_users',
+        'max_admin_accounts',
+        'max_cashier_accounts',
+        'max_products',
+        'max_branches',
+        'max_storage_mb',
+        'allow_inventory',
+        'allow_reports',
+        'allow_multi_branch',
+        'allow_api_access',
+        'trial_days',
+        'sort_order',
         'tenant_id',
         'business_name',
         'business_code',

@@ -6,6 +6,7 @@ const unitSelect = document.getElementById('unit_id');
 const descriptionInput = document.getElementById('description');
 const costPriceInput = document.getElementById('cost_price');
 const sellingPriceInput = document.getElementById('selling_price');
+const wholesalePriceInput = document.querySelector('input[name="wholesale_price"]');
 const skuInput = document.getElementById('sku');
 
 
@@ -35,6 +36,10 @@ function fillProduct(product) {
 
     if (sellingPriceInput) {
         sellingPriceInput.value = product.selling_price ?? '';
+    }
+
+    if (wholesalePriceInput && product.wholesale_price) {
+        wholesalePriceInput.value = product.wholesale_price ?? '';
     }
 
     skuInput.value = product.sku ?? '';
@@ -68,6 +73,11 @@ function fillProduct(product) {
             `Unit ID ${product.unit_id} does not exist in the dropdown.`
         );
     }
+
+    // Trigger profit calculations if present
+    if (costPriceInput) costPriceInput.dispatchEvent(new Event('input'));
+    if (sellingPriceInput) sellingPriceInput.dispatchEvent(new Event('input'));
+    if (wholesalePriceInput) wholesalePriceInput.dispatchEvent(new Event('input'));
 
     suggestionBox.classList.add('d-none');
 
@@ -322,7 +332,12 @@ function renderSuggestions(items) {
                     </div>
 
                     <div>
-                        Used by <strong>${product.usage_count ?? 0}</strong> stores
+                        Retail: <strong class="text-success">₱${Number(product.selling_price || 0).toFixed(2)}</strong>
+                        ${product.wholesale_price ? ` • Wholesale: <strong class="text-primary">₱${Number(product.wholesale_price).toFixed(2)}</strong>` : ''}
+                    </div>
+
+                    <div class="text-muted extra-small">
+                        Used by <strong>${product.usage_count ?? 0}</strong> other store(s)
                     </div>
 
                 </div>
@@ -330,7 +345,7 @@ function renderSuggestions(items) {
             </div>
 
             <span class="product-badge">
-                Copy
+                Auto-Fill
             </span>
 
         </div>

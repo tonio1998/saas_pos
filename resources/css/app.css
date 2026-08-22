@@ -29,62 +29,61 @@
 
 :root{
     --font-sans:Inter,system-ui,-apple-system,sans-serif;
-    --theme-bg:#008000;
+    --theme-bg:#059669;
     --theme-text:#ffffff;
-    --theme-hover:rgba(255,255,255,0.10);
-    --theme-active:rgba(255,255,255,0.16);
-    --theme-subtext:rgba(255,255,255,0.78);
-    --theme-border:rgba(255,255,255,0.08);
+    --theme-hover:rgba(5,150,105,0.08);
+    --theme-active:rgba(5,150,105,0.15);
+    --theme-subtext:#64748B;
+    --theme-border:#E2E8F0;
 
-    /* BRAND */
+    /* BRAND ACCENTS (Design Highlights Only) */
+    --color-primary:#059669;
+    --color-primary-600:#047857;
+    --color-primary-700:#065f46;
+    --color-primary-soft:rgba(5,150,105,.08);
+    --color-brand:#059669;
+    --color-accent:#F59E0B;
+    --color-accent-600:#D97706;
+    --color-accent-soft:rgba(245,158,11,.12);
+    --color-gold:#F59E0B;
+    --color-gold-hover:#D97706;
+    --color-gold-soft:#FEF3C7;
 
-    --color-primary:var(--theme-bg);
-    --color-primary-600:var(--theme-bg);
-    --color-primary-700:var(--theme-bg);
-    --color-primary-soft:rgba(0,0,0,.04);
-    --color-brand:var(--theme-bg);
-    --color-accent:var(--theme-bg);
-    --color-accent-600:var(--theme-bg);
-    --color-accent-soft:rgba(0,0,0,.05);
-
-    /* BACKGROUNDS */
-
+    /* LIGHT THEME BACKGROUNDS (Majority) */
     --color-bg:#F8FAF9;
     --color-surface:#FFFFFF;
-    --color-surface-muted:#F3F4F6;
-    --color-sidebar:var(--theme-bg);
-    --color-sidebar-active:var(--theme-active);
+    --color-surface-muted:#F1F5F9;
+    --color-sidebar:#FFFFFF;
+    --color-sidebar-text:#1E293B;
+    --color-sidebar-active:#ECFDF5;
+    --color-sidebar-active-text:#047857;
 
     /* BORDERS */
-
     --color-border:#E5E7EB;
     --color-divider:#F1F5F9;
 
     /* TEXT */
-
-    --color-text:#111827;
-    --color-text-soft:#6B7280;
-    --color-text-muted:#9CA3AF;
+    --color-text:#0F172A;
+    --color-text-soft:#475569;
+    --color-text-muted:#94A3B8;
     --color-text-inverse:#FFFFFF;
 
     /* STATUS */
-
-    --color-success:#16A34A;
+    --color-success:#10B981;
     --color-warning:#F59E0B;
-    --color-danger:#DC2626;
-    --color-info:#2563EB;
+    --color-danger:#EF4444;
+    --color-info:#3B82F6;
 
     /* TABLE */
-
-    --table-header:#F9FAFB;
-    --table-hover:#F3F4F6;
+    --table-header:#F8FAFC;
+    --table-hover:#F1F5F9;
 
     /* BUTTONS */
-    --btn-primary-bg:var(--theme-bg);
-    --btn-primary-text:var(--theme-text);
-    --btn-accent-bg:var(--theme-bg);
-    --btn-accent-text:var(--theme-text);
-    --btn-danger-bg:#DC2626;
+    --btn-primary-bg:#059669;
+    --btn-primary-text:#FFFFFF;
+    --btn-accent-bg:#F59E0B;
+    --btn-accent-text:#FFFFFF;
+    --btn-danger-bg:#EF4444;
     --btn-danger-text:#fff;
 
     /* SIDEBAR */
@@ -564,7 +563,8 @@ a{
 .sidebar-link{
     display:flex;
     align-items:center;
-    justify-content:space-between;
+    justify-content:flex-start;
+    gap:8px;
     width:100%;
     padding:.85rem 1rem;
     border-radius:12px;

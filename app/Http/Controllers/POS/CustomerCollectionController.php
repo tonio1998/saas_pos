@@ -60,22 +60,52 @@ class CustomerCollectionController extends Controller
                 return StatusHelper::formatDateTime($row->last_transaction);
             })
             ->editColumn('total_debit', function ($row) {
-                return '<span class="fw-semibold text-primary">₱ ' . number_format($row->total_debit, 2) . '</span>';
+                return '<span class="fw-bold font-mono text-primary">₱' . number_format($row->total_debit, 2) . '</span>';
             })
             ->editColumn('total_credit', function ($row) {
-                return '<span class="fw-semibold text-success">₱ ' . number_format($row->total_credit, 2) . '</span>';
+                return '<span class="fw-bold font-mono text-success">₱' . number_format($row->total_credit, 2) . '</span>';
             })
             ->editColumn('balance', function ($row) {
-                $class = $row->balance > 0
-                    ? 'text-danger'
-                    : 'text-success';
-
-                return '<span class="fw-bold ' . $class . '">₱ ' . number_format($row->balance, 2) . '</span>';
+                $class = $row->balance > 0 ? 'text-danger' : 'text-success';
+                return '<span class="fw-black font-mono ' . $class . '" style="font-size:0.9rem;">₱' . number_format($row->balance, 2) . '</span>';
             })
             ->addColumn('actions', function ($row) {
-                $encryptedId = encrypt($row->customer_id);
+                $payUrl = route('customers.collections.create', encryptId($row->customer_id));
+                $ledgerUrl = route('customers.credit.show', encryptId($row->customer_id));
+                $customerName = e($row->customer?->CustomerName ?? 'Customer');
 
-                return 1;
+                return '
+                    <button
+                        type="button"
+                        class="btn btn-soft-primary btn-sm btn-actions rounded-pill px-3 py-1 fw-bold shadow-xs hover-lift d-inline-flex align-items-center gap-1.5"
+                        data-title="Options: ' . $customerName . '"
+                        data-template="col-actions-' . $row->customer_id . '"
+                        style="font-size:0.75rem;background:#f0f7ff;color:#0284c7;border:1px solid #bae6fd;"
+                    >
+                        <i class="bi bi-gear-fill text-primary"></i>
+                        <span>Actions</span>
+                    </button>
+
+                    <template id="col-actions-' . $row->customer_id . '">
+                        <div class="d-grid gap-2 p-1">
+                            <a href="' . $payUrl . '" class="btn btn-success text-start d-flex align-items-center gap-2 py-2 px-3 rounded-3 fw-bold" style="background:#059669;border-color:#059669;color:#fff;">
+                                <i class="bi bi-cash-coin fs-5"></i>
+                                <div>
+                                    <div>Receive Payment</div>
+                                    <small class="opacity-75 font-mono" style="font-size:0.75rem;">Settle uncollected balance</small>
+                                </div>
+                            </a>
+
+                            <a href="' . $ledgerUrl . '" class="btn btn-outline-danger text-start d-flex align-items-center gap-2 py-2 px-3 rounded-3 fw-bold">
+                                <i class="bi bi-book-half fs-5 text-danger"></i>
+                                <div>
+                                    <div class="text-danger">Account Ledger History</div>
+                                    <small class="text-muted" style="font-size:0.75rem;">View debit and credit entries</small>
+                                </div>
+                            </a>
+                        </div>
+                    </template>
+                ';
             })
             ->rawColumns([
                 'actions',
@@ -108,6 +138,12 @@ class CustomerCollectionController extends Controller
     public function store(Request $request)
     {
         try {
+            if ($request->has('amount')) {
+                $request->merge([
+                    'amount' => (float) str_replace(',', '', (string)$request->amount)
+                ]);
+            }
+
             $request->validate([
                 'payment_date'    => 'required|date',
                 'amount'          => 'required|numeric|min:0.01',
@@ -134,7 +170,6 @@ class CustomerCollectionController extends Controller
                 $payment = new POSPayment();
                 $payment->customer_id = $customerId;
                 $payment->tenant_id = auth()->user()->tenant_id;
-                $payment->customer_id = $customerId;
                 $payment->payment_date = $request->payment_date;
                 $payment->payment_method = $request->payment_method;
                 $payment->amount = $request->amount;
@@ -143,7 +178,7 @@ class CustomerCollectionController extends Controller
                 $this->setCommonFields($payment);
                 $payment->save();
 
-                $runningBalance = $lastBalance - $request->amount;
+                $runningBalance = max(0, $lastBalance - $request->amount);
 
                 $newPayment = new POSCustomerLedger();
                 $newPayment->tenant_id = auth()->user()->tenant_id;
@@ -159,10 +194,12 @@ class CustomerCollectionController extends Controller
                 $newPayment->save();
             });
 
-            return redirect()->route('customers.credit.show', encryptId($customerId));
+            return redirect()->route('customers.credit.show', encryptId($customerId))
+                ->with('success', 'Payment of ₱' . number_format($request->amount, 2) . ' collected and posted successfully.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            dd($e);
-            return redirect()->back()->withErrors($e->getMessage());
+            return redirect()->back()->withErrors(['amount' => $e->getMessage()])->withInput();
         }
     }
 }

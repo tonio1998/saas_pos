@@ -33,7 +33,8 @@ class User extends Authenticatable implements AuditableContract
         'google_id',
         'verified',
         'nfc_code',
-        'last_activity_at'
+        'last_activity_at',
+        'current_session_id'
     ];
 
     /**

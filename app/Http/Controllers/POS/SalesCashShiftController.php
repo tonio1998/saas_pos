@@ -237,7 +237,14 @@ class SalesCashShiftController extends Controller
                 ->with('error', 'This cash drawer already has an active shift.');
         }
 
-        return view('pages.pos.cash-shifts.create', compact('drawer'));
+        $terminal = null;
+        if ($request->filled('terminal')) {
+            try {
+                $terminal = \App\Models\POS\POSTerminal::find(decryptId($request->query('terminal')));
+            } catch (\Throwable $e) {}
+        }
+
+        return view('pages.pos.cash-shifts.create', compact('drawer', 'terminal'));
     }
 
     public function ajaxData(Request $request)
@@ -364,7 +371,8 @@ class SalesCashShiftController extends Controller
         $data = $request->validate([
             'drawer_id' => ['required', 'integer'],
             'opening_cash' => ['required', 'numeric', 'min:0'],
-            'remarks' => ['nullable', 'string']
+            'remarks' => ['nullable', 'string'],
+            'terminal_id' => ['nullable']
         ]);
 
         if (
@@ -385,17 +393,54 @@ class SalesCashShiftController extends Controller
         $shift->opening_cash = $data['opening_cash'];
         $shift->opened_at = now();
         $shift->remarks = $data['remarks'] ?? null;
+        $shift->shift_code = 'SFT-' . strtoupper(\Illuminate\Support\Str::random(6));
+        $this->setCommonFields($shift);
         $shift->status = 'open';
-        $shift->created_by = auth()->id();
-        $shift->updated_by = auth()->id();
-        $shift->created_at = now();
-        $shift->updated_at = now();
-        $shift->archived = 0;
         $shift->save();
 
+        // Resolve active POS device/terminal
+        $terminal = null;
+        if (!empty($data['terminal_id'])) {
+            try {
+                $terminal = \App\Models\POS\POSTerminal::where('tenant_id', auth()->user()->tenant_id)
+                    ->find(decryptId($data['terminal_id']));
+            } catch (\Throwable $e) {}
+        }
+
+        if (!$terminal) {
+            $terminal = \App\Models\POS\POSTerminal::where('tenant_id', auth()->user()->tenant_id)
+                ->where('drawer_id', $data['drawer_id'])
+                ->where('status', 'active')
+                ->first();
+        }
+
+        if ($terminal) {
+            $sale = new POSSale();
+            $sale->tenant_id = auth()->user()->tenant_id;
+            $sale->terminal_id = $terminal->id;
+            $sale->drawer_id = $terminal->drawer_id;
+            $sale->cash_shift_id = $shift->id;
+            $this->setCommonFields($sale);
+            $sale->save();
+
+            session()->put([
+                'terminal_id'   => $terminal->id,
+                'drawer_id'     => $terminal->drawer_id,
+                'cash_shift_id' => $shift->id,
+                'sale_id'       => $sale->id,
+            ]);
+
+            return redirect()->route(
+                'sales.new',
+                [
+                    encryptId($sale->id)
+                ]
+            )->with('success', 'Cash shift opened successfully! Ready for transactions.');
+        }
+
         return redirect()
-            ->route('cashiering.cash-shifts.index')
-            ->with('success', 'Cash shift opened successfully.');
+            ->route('terminal.index')
+            ->with('success', 'Cash shift opened successfully. Please select your device.');
     }
 
     public function show(string $id)
