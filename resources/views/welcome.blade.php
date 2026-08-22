@@ -354,7 +354,7 @@
     <nav class="navbar navbar-expand-lg navbar-landing">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center gap-2" href="#">
-                <div class="brand-title">Barya<span class="text-emerald-highlight">POS</span></div>
+                <div class="brand-title">Likha<span class="text-emerald-highlight">POS</span></div>
                 <span class="brand-badge">Minimart & CRM</span>
             </a>
             

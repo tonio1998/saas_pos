@@ -478,6 +478,10 @@ class SalesCashShiftController extends Controller
 
         $expectedCash = $shift->opening_cash + $cashSales + ($cashIn - $cashOut);
 
+        $cashCounts = POSCashCount::where('shift_id', $shift->id)
+            ->orderBy('denomination', 'desc')
+            ->get();
+
         return view(
             'pages.pos.cash-shifts.show',
             compact(
@@ -488,9 +492,67 @@ class SalesCashShiftController extends Controller
                 'totalSales',
                 'cashIn',
                 'cashOut',
-                'expectedCash'
+                'expectedCash',
+                'cashCounts'
             )
         );
+    }
+
+    public function shifts(string $id)
+    {
+        $decryptedId = decryptId($id);
+
+        $shift = POSCashShift::where('tenant_id', auth()->user()->tenant_id)->find($decryptedId);
+        if ($shift) {
+            return $this->show($id);
+        }
+
+        $drawer = POSCashDrawer::where('tenant_id', auth()->user()->tenant_id)->find($decryptedId);
+        if ($drawer) {
+            $latestShift = POSCashShift::where('tenant_id', auth()->user()->tenant_id)
+                ->where('drawer_id', $drawer->id)
+                ->latest('id')
+                ->first();
+
+            if ($latestShift) {
+                return $this->show(encryptId($latestShift->id));
+            }
+
+            return redirect()->route('cashiering.cash-shifts.create', encryptId($drawer->id))
+                ->with('info', 'No active cash shift found for this drawer. Please open a new shift.');
+        }
+
+        return redirect()->route('cashiering.cash-shifts.index')
+            ->with('error', 'Cash shift or drawer record not found.');
+    }
+
+    public function approve(Request $request, string $id)
+    {
+        $shift = POSCashShift::where('tenant_id', auth()->user()->tenant_id)->findOrFail(decryptId($id));
+
+        $note = $request->input('remarks') ?: 'Shift verified and approved without discrepancies.';
+        $supervisorTag = "\n[APPROVED BY SUPERVISOR (" . auth()->user()->name . ") ON " . now()->format('M d, Y h:i A') . "]: " . $note;
+
+        $shift->remarks = trim(($shift->remarks ?? '') . ' ' . $supervisorTag);
+        $shift->updated_by = auth()->id();
+        $shift->save();
+
+        return back()->with('success', 'Shift #' . $shift->shift_code . ' approved successfully by supervisor!');
+    }
+
+    public function verifyAction(Request $request, string $id)
+    {
+        $shift = POSCashShift::where('tenant_id', auth()->user()->tenant_id)->findOrFail(decryptId($id));
+
+        $action = strtoupper($request->input('action_type', 'REVIEW'));
+        $note = $request->input('remarks') ?: 'Supervisor review performed.';
+        $supervisorTag = "\n[" . $action . " BY SUPERVISOR (" . auth()->user()->name . ") ON " . now()->format('M d, Y h:i A') . "]: " . $note;
+
+        $shift->remarks = trim(($shift->remarks ?? '') . ' ' . $supervisorTag);
+        $shift->updated_by = auth()->id();
+        $shift->save();
+
+        return back()->with('success', 'Supervisor verification (' . $action . ') recorded for Shift #' . $shift->shift_code . '!');
     }
 
     public function edit(string $id)

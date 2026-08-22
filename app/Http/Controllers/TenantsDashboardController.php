@@ -43,12 +43,12 @@ class TenantsDashboardController extends Controller
         // 1. Sales KPI Metrics
         $todaySales = (float) POSSale::where('tenant_id', $tenantId)
             ->whereDate('sale_date', $today)
-            ->where('sale_status', 'completed')
+            ->whereIn('sale_status', ['completed', 'refund'])
             ->sum('total_amount');
 
         $yesterdaySales = (float) POSSale::where('tenant_id', $tenantId)
             ->whereDate('sale_date', $yesterday)
-            ->where('sale_status', 'completed')
+            ->whereIn('sale_status', ['completed', 'refund'])
             ->sum('total_amount');
 
         $salesGrowth = $yesterdaySales > 0 
@@ -57,17 +57,17 @@ class TenantsDashboardController extends Controller
 
         $todayOrdersCount = POSSale::where('tenant_id', $tenantId)
             ->whereDate('sale_date', $today)
-            ->where('sale_status', 'completed')
+            ->where('sale_status', 'completed')  // orders = only real sales, not refunds
             ->count();
 
         $monthSales = (float) POSSale::where('tenant_id', $tenantId)
             ->where('sale_date', '>=', $thisMonthStart)
-            ->where('sale_status', 'completed')
+            ->whereIn('sale_status', ['completed', 'refund'])
             ->sum('total_amount');
 
         $lastMonthSales = (float) POSSale::where('tenant_id', $tenantId)
             ->whereBetween('sale_date', [$lastMonthStart, $lastMonthEnd])
-            ->where('sale_status', 'completed')
+            ->whereIn('sale_status', ['completed', 'refund'])
             ->sum('total_amount');
 
         $monthGrowth = $lastMonthSales > 0
@@ -77,7 +77,7 @@ class TenantsDashboardController extends Controller
         // 2. Gross Profit Calculation (Today)
         $todaySaleIds = POSSale::where('tenant_id', $tenantId)
             ->whereDate('sale_date', $today)
-            ->where('sale_status', 'completed')
+            ->whereIn('sale_status', ['completed', 'refund'])
             ->pluck('id');
 
         $todayCostOfGoods = (float) POSSaleItem::whereIn('sale_id', $todaySaleIds)
@@ -191,9 +191,9 @@ class TenantsDashboardController extends Controller
         $endDate = Carbon::now()->endOfDay();
 
         $rawSales = POSSale::where('tenant_id', $tenantId)
-            ->where('sale_status', 'completed')
+            ->whereIn('sale_status', ['completed', 'refund'])
             ->whereBetween('sale_date', [$startDate, $endDate])
-            ->selectRaw('DATE(sale_date) as date, SUM(total_amount) as total_revenue, COUNT(*) as total_orders')
+            ->selectRaw('DATE(sale_date) as date, SUM(total_amount) as total_revenue, COUNT(CASE WHEN sale_status = \'completed\' THEN 1 END) as total_orders')
             ->groupBy(DB::raw('DATE(sale_date)'))
             ->orderBy('date')
             ->get()
@@ -351,6 +351,42 @@ class TenantsDashboardController extends Controller
             'total_customers' => $totalCustomers,
             'total_suki_points' => number_format($totalSukiPoints) . ' pts',
             'customers' => $topCustomers,
+        ]);
+    }
+
+    /**
+     * 6. Successive Endpoint: Fast-Moving Products (Top Velocity Sales)
+     */
+    public function fastMoving(): JsonResponse
+    {
+        $tenantId = auth()->user()->tenant_id;
+
+        $fastMovingItems = POSSaleItem::whereHas('sale', function ($q) use ($tenantId) {
+                $q->where('tenant_id', $tenantId)->where('sale_status', 'completed');
+            })
+            ->selectRaw('product_id, SUM(ABS(qty)) as total_sold_qty, SUM(ABS(line_total)) as total_revenue')
+            ->groupBy('product_id')
+            ->orderByDesc('total_sold_qty')
+            ->limit(6)
+            ->get()
+            ->map(function ($item) {
+                $product = POSProducts::with('category', 'unit')->find($item->product_id);
+                return [
+                    'id' => $item->product_id,
+                    'name' => $product ? ($product->name ?: 'Unnamed Product') : 'Deleted SKU',
+                    'barcode' => $product ? ($product->barcode ?: $product->sku ?: 'No Code') : 'N/A',
+                    'category' => $product && $product->category ? $product->category->name : 'General',
+                    'stock' => $product ? (float)$product->stock_on_hand : 0,
+                    'unit' => $product && $product->unit ? $product->unit->name : 'pcs',
+                    'total_sold_qty' => (float)$item->total_sold_qty,
+                    'total_sold_formatted' => number_format($item->total_sold_qty) . ' ' . ($product && $product->unit ? $product->unit->name : 'pcs'),
+                    'total_revenue' => (float)$item->total_revenue,
+                    'total_revenue_formatted' => '₱' . number_format($item->total_revenue, 2),
+                ];
+            });
+
+        return response()->json([
+            'fast_moving' => $fastMovingItems,
         ]);
     }
 }

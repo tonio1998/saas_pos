@@ -11,6 +11,7 @@ use App\Models\POS\POSCategories;
 use App\Models\POS\POSCustomers;
 use App\Models\POS\POSPayment;
 use App\Models\POS\POSProducts;
+use App\Models\POS\POSProductVariant;
 use App\Models\POS\POSSale;
 use App\Models\POS\POSSaleItem;
 use App\Models\POS\POSSales;
@@ -25,12 +26,13 @@ use Illuminate\Validation\ValidationException;
 class SalesController extends Controller
 {
     use TCommonFunctions;
-    public function products()
+    public function products(Request $request)
     {
-        return POSProducts::select(
+        $query = POSProducts::select(
             'id',
             'name',
             'barcode',
+            'sku',
             'cost_price',
             'selling_price',
             'wholesale_price',
@@ -42,8 +44,34 @@ class SalesController extends Controller
             'updated_at'
         )
             ->with(['variants', 'unit'])
-            ->where('tenant_id', auth()->user()->tenant_id)
-            ->get();
+            ->where('tenant_id', auth()->user()->tenant_id);
+
+        if ($request->has('q') && !empty($request->q)) {
+            $keyword = trim($request->q);
+            $query->where(function ($b) use ($keyword) {
+                $b->where('name', 'like', "%{$keyword}%")
+                  ->orWhere('barcode', 'like', "%{$keyword}%")
+                  ->orWhere('sku', 'like', "%{$keyword}%")
+                  ->orWhereHas('variants', function ($v) use ($keyword) {
+                      $v->where('variant_name', 'like', "%{$keyword}%")
+                        ->orWhere('barcode', 'like', "%{$keyword}%")
+                        ->orWhere('sku', 'like', "%{$keyword}%");
+                  });
+            });
+        }
+
+        $products = $query->get();
+        $products->transform(function ($product) {
+            if ($product->variants && $product->variants->count() > 0) {
+                $variantStockSum = (float) $product->variants->sum('stock_on_hand');
+                if ($variantStockSum > 0 || (float) $product->stock_on_hand <= 0) {
+                    $product->stock_on_hand = $variantStockSum;
+                }
+            }
+            return $product;
+        });
+
+        return response()->json($products);
     }
 
     public function sales_details(Request $request, $sale)
@@ -472,13 +500,15 @@ class SalesController extends Controller
 
         $change = max(0, $totalPaid - $data['total']);
         $sale = null;
+        $nextSale = null;
 
         DB::transaction(function () use (
             $saleID,
             $data,
             $totalPaid,
             $change,
-            &$sale
+            &$sale,
+            &$nextSale
         ) {
 
             $taxRate = 12;
@@ -515,20 +545,38 @@ class SalesController extends Controller
 
             foreach ($data['items'] as $item) {
                 $product = POSProducts::findOrFail($item['product_id']);
-                if ($product->stock_on_hand < $item['qty']) {
-                    throw ValidationException::withMessages([
-                        'stock' => [
-                            "{$product->name} has insufficient stock."
-                        ]
-                    ]);
+                $variant = !empty($item['variant_id']) ? POSProductVariant::find($item['variant_id']) : null;
+
+                if ($variant) {
+                    $variantStock = (float) ($variant->stock_on_hand ?? 0);
+                    $productStock = (float) ($product->stock_on_hand ?? 0);
+
+                    if ($variantStock > 0) {
+                        if ($variantStock < $item['qty']) {
+                            throw ValidationException::withMessages([
+                                'stock' => ["{$product->name} ({$variant->variant_name}) has insufficient stock."]
+                            ]);
+                        }
+                    } elseif ($productStock > 0 && $productStock < ($item['qty'] * ($variant->qty_per_pack ?? 1))) {
+                        throw ValidationException::withMessages([
+                            'stock' => ["{$product->name} has insufficient stock."]
+                        ]);
+                    }
+                } else {
+                    if ($product->stock_on_hand < $item['qty']) {
+                        throw ValidationException::withMessages([
+                            'stock' => ["{$product->name} has insufficient stock."]
+                        ]);
+                    }
                 }
 
                 $newSaleItem = new POSSaleItem();
                 $newSaleItem->sale_id = $saleID;
                 $newSaleItem->product_id = $product->id;
-                $newSaleItem->barcode = $product->barcode;
-                $newSaleItem->sku = $product->sku;
-                $newSaleItem->product_name = $product->name;
+                $newSaleItem->variant_id = $variant?->id;
+                $newSaleItem->barcode = $variant?->barcode ?: $product->barcode;
+                $newSaleItem->sku = $variant?->sku ?: $product->sku;
+                $newSaleItem->product_name = $variant ? "{$product->name} ({$variant->variant_name})" : $product->name;
                 $newSaleItem->qty = $item['qty'];
                 $newSaleItem->unit_price = $item['price'];
                 $newSaleItem->discount_amount = 0;
@@ -540,13 +588,24 @@ class SalesController extends Controller
                 $newInv = new InventoryMovement();
                 $newInv->tenant_id = auth()->user()->tenant_id;
                 $newInv->product_id = $product->id;
+                $newInv->variant_id = $variant?->id;
                 $newInv->movement_type = 'sale';
                 $newInv->reference_type = 'sale';
                 $newInv->reference_id = $sale->id;
                 $newInv->qty = -1 * $item['qty'];
                 $this->setCommonFields($newInv);
                 $newInv->save();
-                $product->decrement('stock_on_hand', $item['qty']);
+
+                if ($variant) {
+                    if ($variant->stock_on_hand > 0) {
+                        $variant->decrement('stock_on_hand', $item['qty']);
+                    }
+                    if ($product->stock_on_hand > 0) {
+                        $product->decrement('stock_on_hand', $item['qty'] * ($variant->qty_per_pack ?? 1));
+                    }
+                } else {
+                    $product->decrement('stock_on_hand', $item['qty']);
+                }
             }
 
             $paymentIndex = 0;
@@ -606,6 +665,15 @@ class SalesController extends Controller
                 $newLedger->save();
             }
 
+            // Auto-create next pending sale for seamless continuous cashiering
+            $nextSale = new POSSale();
+            $nextSale->tenant_id = auth()->user()->tenant_id;
+            $nextSale->terminal_id = $sale->terminal_id;
+            $nextSale->drawer_id = $sale->drawer_id;
+            $nextSale->cash_shift_id = $sale->cash_shift_id;
+            $nextSale->cashier_id = auth()->id();
+            $this->setCommonFields($nextSale);
+            $nextSale->save();
         });
 
         return response()->json([
@@ -616,6 +684,12 @@ class SalesController extends Controller
             'reference_number' => $sale->reference_number,
             'payments' => POSPayment::where('sale_id', $sale->id)->get(),
             'message' => 'Sale completed successfully.',
+            'next_sale_id' => encryptId($nextSale->id),
+            'next_sale_url' => route('sales.create', [
+                encryptId($nextSale->id),
+                encryptId($sale->terminal_id),
+                encryptId($sale->cash_shift_id)
+            ]),
         ]);
 
     }
@@ -726,20 +800,38 @@ class SalesController extends Controller
 
             foreach ($data['items'] as $item) {
                 $product = POSProducts::findOrFail($item['product_id']);
-                if ($product->stock_on_hand < $item['qty']) {
-                    throw ValidationException::withMessages([
-                        'stock' => [
-                            "{$product->name} has insufficient stock."
-                        ]
-                    ]);
+                $variant = !empty($item['variant_id']) ? POSProductVariant::find($item['variant_id']) : null;
+
+                if ($variant) {
+                    $variantStock = (float) ($variant->stock_on_hand ?? 0);
+                    $productStock = (float) ($product->stock_on_hand ?? 0);
+
+                    if ($variantStock > 0) {
+                        if ($variantStock < $item['qty']) {
+                            throw ValidationException::withMessages([
+                                'stock' => ["{$product->name} ({$variant->variant_name}) has insufficient stock."]
+                            ]);
+                        }
+                    } elseif ($productStock > 0 && $productStock < ($item['qty'] * ($variant->qty_per_pack ?? 1))) {
+                        throw ValidationException::withMessages([
+                            'stock' => ["{$product->name} has insufficient stock."]
+                        ]);
+                    }
+                } else {
+                    if ($product->stock_on_hand < $item['qty']) {
+                        throw ValidationException::withMessages([
+                            'stock' => ["{$product->name} has insufficient stock."]
+                        ]);
+                    }
                 }
 
                 $newSaleItem = new POSSaleItem();
                 $newSaleItem->sale_id = $sale->id;
                 $newSaleItem->product_id = $product->id;
-                $newSaleItem->barcode = $product->barcode;
-                $newSaleItem->sku = $product->sku;
-                $newSaleItem->product_name = $product->name;
+                $newSaleItem->variant_id = $variant?->id;
+                $newSaleItem->barcode = $variant?->barcode ?: $product->barcode;
+                $newSaleItem->sku = $variant?->sku ?: $product->sku;
+                $newSaleItem->product_name = $variant ? "{$product->name} ({$variant->variant_name})" : $product->name;
                 $newSaleItem->qty = $item['qty'];
                 $newSaleItem->unit_price = $item['price'];
                 $newSaleItem->discount_amount = 0;
@@ -749,16 +841,26 @@ class SalesController extends Controller
                 $newSaleItem->save();
 
                 $newInv = new InventoryMovement();
-
                 $newInv->tenant_id = auth()->user()->tenant_id;
                 $newInv->product_id = $product->id;
+                $newInv->variant_id = $variant?->id;
                 $newInv->movement_type = 'sale';
                 $newInv->reference_type = 'sale';
                 $newInv->reference_id = $sale->id;
                 $newInv->qty = -1 * $item['qty'];
                 $this->setCommonFields($newInv);
                 $newInv->save();
-                $product->decrement('stock_on_hand', $item['qty']);
+
+                if ($variant) {
+                    if ($variant->stock_on_hand > 0) {
+                        $variant->decrement('stock_on_hand', $item['qty']);
+                    }
+                    if ($product->stock_on_hand > 0) {
+                        $product->decrement('stock_on_hand', $item['qty'] * ($variant->qty_per_pack ?? 1));
+                    }
+                } else {
+                    $product->decrement('stock_on_hand', $item['qty']);
+                }
             }
 
             foreach ($data['payments'] as $index => $payment) {

@@ -920,12 +920,16 @@ class POSApiController extends Controller
 
                 foreach ($validated['items'] as $item) {
                     $product = POSProducts::findOrFail($item['product_id']);
+                    $variantId = !empty($item['variant_id']) ? $item['variant_id'] : null;
+                    $variant = $variantId ? \App\Models\POS\POSProductVariant::find($variantId) : null;
+
                     $newSaleItem = new POSSaleItem();
                     $newSaleItem->sale_id = $sale->id;
                     $newSaleItem->product_id = $product->id;
-                    $newSaleItem->barcode = $product->barcode;
-                    $newSaleItem->sku = $product->sku;
-                    $newSaleItem->product_name = $product->name;
+                    $newSaleItem->variant_id = $variant?->id;
+                    $newSaleItem->barcode = $variant?->barcode ?: $product->barcode;
+                    $newSaleItem->sku = $variant?->sku ?: $product->sku;
+                    $newSaleItem->product_name = $variant ? "{$product->name} ({$variant->variant_name})" : $product->name;
                     $newSaleItem->qty = $item['qty'];
                     $newSaleItem->unit_price = $item['price'];
                     $newSaleItem->discount_amount = 0;
@@ -940,6 +944,7 @@ class POSApiController extends Controller
                     $newInv = new InventoryMovement();
                     $newInv->tenant_id = $tenantId;
                     $newInv->product_id = $product->id;
+                    $newInv->variant_id = $variant?->id;
                     $newInv->movement_type = 'sale';
                     $newInv->reference_type = 'sale';
                     $newInv->reference_id = $sale->id;
@@ -955,13 +960,10 @@ class POSApiController extends Controller
                     $product->save();
 
                     // Variant stock update if applicable
-                    if (!empty($item['variant_id'])) {
-                        $variant = \App\Models\POS\POSProductVariant::find($item['variant_id']);
-                        if ($variant) {
-                            $vStock = (float)($variant->stock_on_hand ?? 0);
-                            $variant->stock_on_hand = max(0, $vStock - (float)$item['qty']);
-                            $variant->save();
-                        }
+                    if ($variant) {
+                        $vStock = (float)($variant->stock_on_hand ?? 0);
+                        $variant->stock_on_hand = max(0, $vStock - (float)$item['qty']);
+                        $variant->save();
                     }
                 }
 

@@ -1,18 +1,18 @@
-/* BaryaPOS Light Theme Semi-Compact Sidebar Styles */
+/* LikhaPOS Deep Navy Semi-Compact Sidebar Styles */
 .lms-sidebar,
-.barya-sidebar {
+.likha-sidebar {
     width: 235px !important;
     min-width: 235px !important;
     max-width: 235px !important;
-    background: #ffffff !important;
-    border-right: 1px solid #e2e8f0 !important;
+    background: #0f172a !important;
+    border-right: 1px solid #1e293b !important;
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
     bottom: 0 !important;
     height: 100vh !important;
     z-index: 1040 !important;
-    box-shadow: 2px 0 10px rgba(15, 23, 42, 0.02);
+    box-shadow: 4px 0 20px rgba(15, 23, 42, 0.15);
 }
 
 .sidebar-inner {
@@ -42,7 +42,7 @@
     font-size: 0.64rem !important;
     font-weight: 800 !important;
     letter-spacing: 0.8px !important;
-    color: #94a3b8 !important;
+    color: #64748b !important;
     margin-top: 10px !important;
     margin-bottom: 3px !important;
     padding-left: 6px !important;
@@ -60,7 +60,7 @@
     gap: 8px !important;
     padding: 7px 10px !important;
     border-radius: 10px !important;
-    color: #334155 !important;
+    color: #cbd5e1 !important;
     font-size: 0.83rem !important;
     font-weight: 600 !important;
     text-decoration: none;
@@ -75,38 +75,39 @@
 }
 
 .sidebar-link:hover {
-    background: #f1f5f9 !important;
-    color: #0f172a !important;
+    background: #1e293b !important;
+    color: #ffffff !important;
 }
 
 .sidebar-link.active {
-    background: #ecfdf5 !important;
-    color: #047857 !important;
+    background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+    color: #ffffff !important;
     font-weight: 800 !important;
-    border: 1px solid rgba(5, 150, 105, 0.2);
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
 }
 
 .sidebar-link.active .sidebar-icon {
-    color: #059669 !important;
+    color: #ffffff !important;
 }
 
 .sidebar-icon {
     font-size: 0.95rem !important;
     width: 18px !important;
     text-align: center;
-    color: #64748b;
+    color: #94a3b8 !important;
     flex-shrink: 0;
     transition: color 0.15s ease;
 }
 
 .sidebar-link:hover .sidebar-icon {
-    color: #059669;
+    color: #34d399 !important;
 }
 
 .dropdown-icon {
     margin-left: auto;
     font-size: 0.7rem !important;
-    color: #94a3b8;
+    color: #64748b;
     transition: transform 0.2s ease;
 }
 
@@ -117,7 +118,7 @@
 .sidebar-dropdown {
     padding-left: 8px !important;
     margin-left: 14px !important;
-    border-left: 2px solid #f1f5f9 !important;
+    border-left: 2px solid #1e293b !important;
 }
 
 .sidebar-sublink {
@@ -127,7 +128,7 @@
     padding: 4px 8px !important;
     margin-bottom: 1px;
     border-radius: 8px !important;
-    color: #64748b !important;
+    color: #94a3b8 !important;
     text-decoration: none;
     font-size: 0.78rem !important;
     font-weight: 600;
@@ -137,13 +138,13 @@
 }
 
 .sidebar-sublink:hover {
-    background: #f1f5f9 !important;
-    color: #0f172a !important;
+    background: #1e293b !important;
+    color: #ffffff !important;
 }
 
 .sidebar-sublink.active {
-    background: #ecfdf5 !important;
-    color: #047857 !important;
+    background: rgba(5, 150, 105, 0.2) !important;
+    color: #34d399 !important;
     font-weight: 700;
 }
 

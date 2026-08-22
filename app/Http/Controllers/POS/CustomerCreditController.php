@@ -8,6 +8,7 @@ use App\Models\POS\POSCustomerLedger;
 use App\Models\POS\POSCustomers;
 use App\Traits\TCommonFunctions;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
 class CustomerCreditController extends Controller
@@ -16,12 +17,93 @@ class CustomerCreditController extends Controller
 
     public function index()
     {
-        return view('pages.tenants.customers.credits.index');
+        $tenantId = auth()->user()->tenant_id;
+
+        $customerBalances = POSCustomerLedger::query()
+            ->select([
+                'customer_id',
+                DB::raw('SUM(debit - credit) as balance')
+            ])
+            ->where('tenant_id', $tenantId)
+            ->groupBy('customer_id')
+            ->havingRaw('SUM(debit - credit) > 0')
+            ->get();
+
+        $accountsWithUtang = $customerBalances->count();
+        $totalUtangBalance = (float)$customerBalances->sum('balance');
+        $maxSingleUtang = (float)($customerBalances->max('balance') ?? 0);
+        $avgUtangPerAccount = $accountsWithUtang > 0 ? ($totalUtangBalance / $accountsWithUtang) : 0;
+
+        return view('pages.tenants.customers.credits.index', compact(
+            'accountsWithUtang',
+            'totalUtangBalance',
+            'maxSingleUtang',
+            'avgUtangPerAccount'
+        ));
     }
 
     public function create()
     {
         return view('pages.tenants.customers.credits.create');
+    }
+
+    public function show(Request $request, $CustomerID)
+    {
+        $tenantId = auth()->user()->tenant_id;
+        $id = is_numeric($CustomerID) ? (int)$CustomerID : decryptId($CustomerID);
+
+        $customer = POSCustomers::where('tenant_id', $tenantId)->findOrFail($id);
+
+        // Calculate real current net balance
+        $realBalance = (float) POSCustomerLedger::where('customer_id', $id)
+            ->where('tenant_id', $tenantId)
+            ->sum(DB::raw('debit - credit'));
+
+        if ($customer->credit) {
+            $customer->credit->running_balance = $realBalance;
+        }
+
+        return view('pages.tenants.customers.credits.show', compact('customer'));
+    }
+
+    public function ledgerData(Request $request, $CustomerID)
+    {
+        $tenantId = auth()->user()->tenant_id;
+        $id = is_numeric($CustomerID) ? (int)$CustomerID : decryptId($CustomerID);
+
+        $ledger = POSCustomerLedger::where('tenant_id', $tenantId)
+            ->where('customer_id', $id)
+            ->orderBy('id', 'desc');
+
+        return DataTables::of($ledger)
+            ->addIndexColumn()
+            ->addColumn('date', function ($row) {
+                return '<span class="font-mono extra-small text-dark">' . ($row->created_at ? $row->created_at->format('M d, Y h:i A') : '-') . '</span>';
+            })
+            ->addColumn('reference_no', function ($row) {
+                return '<span class="font-mono fw-black text-primary">' . e($row->reference_no ?: ('REF-' . $row->id)) . '</span>';
+            })
+            ->addColumn('transaction_type', function ($row) {
+                $type = strtoupper($row->transaction_type);
+                $badge = in_array($type, ['PAYMENT', 'CREDIT', 'REFUND']) ? 'bg-success text-white' : 'bg-danger text-white';
+                return '<span class="badge ' . $badge . ' rounded-pill px-2.5 py-1 font-mono fw-bold text-uppercase shadow-xs">' . $type . '</span>';
+            })
+            ->editColumn('debit', function ($row) {
+                $val = (float)$row->debit;
+                return $val > 0 ? '<span class="font-mono fw-bold text-danger">₱' . number_format($val, 2) . '</span>' : '<span class="text-muted font-mono">-</span>';
+            })
+            ->editColumn('credit', function ($row) {
+                $val = (float)$row->credit;
+                return $val > 0 ? '<span class="font-mono fw-bold text-success">₱' . number_format($val, 2) . '</span>' : '<span class="text-muted font-mono">-</span>';
+            })
+            ->editColumn('running_balance', function ($row) {
+                return '<span class="font-mono fw-black text-dark fs-6">₱' . number_format($row->running_balance, 2) . '</span>';
+            })
+            ->editColumn('remarks', function ($row) {
+                return '<span class="extra-small text-muted">' . e($row->remarks ?: '-') . '</span>';
+            })
+            ->rawColumns(['date', 'reference_no', 'transaction_type', 'debit', 'credit', 'running_balance', 'remarks'])
+            ->make(true);
     }
 
     public function ajaxData(Request $request)
@@ -58,14 +140,12 @@ class CustomerCreditController extends Controller
                         class="btn btn-soft-primary btn-sm btn-actions rounded-pill px-3 py-1 fw-bold shadow-xs hover-lift d-inline-flex align-items-center gap-1.5"
                         data-title="Options: ' . e($customer->CustomerName) . '"
                         data-template="credit-actions-' . $customer->id . '"
-                        style="font-size:0.75rem;background:#f0f7ff;color:#0284c7;border:1px solid #bae6fd;"
                     >
-                        <i class="bi bi-gear-fill text-primary"></i>
-                        <span>Actions</span>
+                        <i class="bi bi-gear-fill"></i> Actions
                     </button>
 
                     <template id="credit-actions-' . $customer->id . '">
-                        <div class="d-grid gap-2.5">
+                        <div class="d-flex flex-column gap-2 p-1">
                             ' . $settleOption . '
 
                             <a href="' . $ledgerUrl . '" class="btn btn-white border border-danger-subtle text-start d-flex align-items-center gap-3 p-3 rounded-3 shadow-xs hover-lift">
@@ -94,97 +174,32 @@ class CustomerCreditController extends Controller
                 ';
             })
             ->addColumn('CustomerCode', function ($customer) {
-                return getCustomerCode($customer->id);
+                return '<span class="font-mono fw-black text-primary">' . e(getCustomerCode($customer->id)) . '</span>';
+            })
+            ->addColumn('CustomerName', function ($customer) {
+                return '<span class="fw-black text-dark fs-6">' . e($customer->CustomerName) . '</span>';
             })
             ->addColumn('createdAt', function ($customer) {
-                return $customer->created_at ? format_date($customer->created_at) : 'N/A';
+                return '<span class="font-mono extra-small text-dark">' . ($customer->created_at ? format_date($customer->created_at) : 'N/A') . '</span>';
             })
             ->addColumn('credit', function ($customer) {
                 $balance = optional($customer->credit)->running_balance ?? 0;
-                return '<span class="fw-black text-danger font-mono" style="font-size:0.9rem;">₱' . number_format($balance, 2) . '</span>';
+                return '<span class="fw-black text-danger font-mono fs-6">₱' . number_format($balance, 2) . '</span>';
             })
             ->addColumn('createdBy', function ($customer) {
-                return $customer->createdBy ? $customer->createdBy->name : 'System';
+                return '<span class="fw-bold text-dark">' . e($customer->createdBy ? $customer->createdBy->name : 'System') . '</span>';
             })
             ->editColumn('status', function ($customer) {
                 return StatusHelper::badge($customer->status);
             })
             ->rawColumns([
                 'actions',
+                'CustomerCode',
+                'CustomerName',
+                'createdAt',
                 'createdBy',
                 'status',
                 'credit'
-            ])
-            ->make(true);
-    }
-
-    public function show(Request $request)
-    {
-        $id = decryptId($request->segment(4));
-        $customer = POSCustomers::with('credit')->findOrFail($id);
-        return view('pages.tenants.customers.credits.show', compact('customer'));
-    }
-
-    public function ledgerData($CustomerID)
-    {
-        $customerId = decryptId($CustomerID);
-        $ledger = POSCustomerLedger::query()
-            ->with(['customer', 'sale'])
-            ->where('customer_id', $customerId)
-            ->orderByDesc('id');
-
-        return DataTables::eloquent($ledger)
-            ->addColumn('date', function ($row) {
-                return '<span class="font-mono">' . $row->created_at->format('M d, Y h:i A') . '</span>';
-            })
-            ->editColumn('reference', function ($row) {
-                return $row->reference ?? '-';
-            })
-            ->editColumn('CustomerName', function ($row) {
-                return $row->customer->CustomerName ?? '-';
-            })
-            ->editColumn('debit', function ($row) {
-                return $row->debit > 0
-                    ? '<span class="text-danger fw-black font-mono">₱' . number_format($row->debit, 2) . '</span>'
-                    : '<span class="text-muted font-mono">-</span>';
-            })
-            ->editColumn('credit', function ($row) {
-                return $row->credit > 0
-                    ? '<span class="text-success fw-black font-mono">₱' . number_format($row->credit, 2) . '</span>'
-                    : '<span class="text-muted font-mono">-</span>';
-            })
-            ->editColumn('running_balance', function ($row) {
-                return '<span class="fw-black font-mono text-dark" style="font-size:0.9rem;">₱' . number_format($row->running_balance, 2) . '</span>';
-            })
-            ->addColumn('status', function ($row) {
-                return StatusHelper::badge($row->status);
-            })
-            ->editColumn('transaction_type', function ($row) {
-                return StatusHelper::badge($row->transaction_type);
-            })
-            ->addColumn('reference_no', function ($row) {
-
-                if (!$row->sale) {
-                    return '---';
-                }
-
-                return '
-                    <a
-                        href="#"
-                        class="text-decoration-none fw-semibold view-sale"
-                        data-id="' . ($row->sale->id) . '"
-                    >
-                        ' . e($row->sale->sale_code) . '
-                    </a>
-                ';
-            })
-            ->rawColumns([
-                'debit',
-                'credit',
-                'running_balance',
-                'status',
-                'transaction_type',
-                'reference_no'
             ])
             ->make(true);
     }

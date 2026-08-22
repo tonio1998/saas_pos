@@ -14,7 +14,7 @@ class StockController extends Controller
     use TCommonFunctions;
     public function receive(string $id)
     {
-        $product = POSProducts::findOrFail(
+        $product = POSProducts::with('variants')->findOrFail(
             decrypt($id)
         );
 
@@ -29,6 +29,10 @@ class StockController extends Controller
         string $id
     ) {
         $request->validate([
+            'variant_id' => [
+                'nullable',
+                'exists:pos_product_variants,id'
+            ],
             'quantity' => [
                 'required',
                 'numeric',
@@ -53,16 +57,23 @@ class StockController extends Controller
         DB::beginTransaction();
 
         try {
-
             $product = POSProducts::lockForUpdate()
                 ->findOrFail(
                     decrypt($id)
                 );
 
-            $stockBefore = (float) $product->stock_on_hand;
+            $variant = null;
+            if ($request->filled('variant_id')) {
+                $variant = \App\Models\POS\POSProductVariant::lockForUpdate()
+                    ->findOrFail($request->variant_id);
+                $stockBefore = (float) $variant->stock_on_hand;
+                $currentCost = (float) ($variant->cost_price ?? $product->cost_price);
+            } else {
+                $stockBefore = (float) $product->stock_on_hand;
+                $currentCost = (float) $product->cost_price;
+            }
 
             $quantity = (float) $request->quantity;
-
             $stockAfter = $stockBefore + $quantity;
 
             $newStock = new Stocks();
@@ -75,7 +86,9 @@ class StockController extends Controller
             $newStock->unit_cost = $request->unit_cost;
             $newStock->reference_type = 'STOCK_RECEIVING';
             $newStock->reference_id = null;
-            $newStock->remarks = $request->remarks;
+            $newStock->remarks = $variant 
+                ? "[Variant: {$variant->variant_name}] " . ($request->remarks ?? '')
+                : $request->remarks;
             $newStock->created_by = auth()->id();
 
             $this->setCommonFields(
@@ -84,53 +97,41 @@ class StockController extends Controller
 
             $newStock->save();
 
-            $productData = [
-                'stock_on_hand' => $stockAfter
-            ];
-
+            $newCostPrice = null;
             if (
                 $request->boolean('update_cost_price') &&
                 $request->filled('unit_cost')
             ) {
-
-                $currentCost =
-                    (float) $product->cost_price;
-
-                $purchaseCost =
-                    (float) $request->unit_cost;
+                $purchaseCost = (float) $request->unit_cost;
 
                 if ($stockBefore > 0) {
-
-                    $totalExistingValue =
-                        $stockBefore * $currentCost;
-
-                    $totalNewValue =
-                        $quantity * $purchaseCost;
-
-                    $averageCost =
-                        (
-                            $totalExistingValue +
-                            $totalNewValue
-                        ) / $stockAfter;
-
-                    $productData['cost_price'] =
-                        round(
-                            $averageCost,
-                            2
-                        );
-
+                    $totalExistingValue = $stockBefore * $currentCost;
+                    $totalNewValue = $quantity * $purchaseCost;
+                    $newCostPrice = round(($totalExistingValue + $totalNewValue) / $stockAfter, 2);
                 } else {
-
-                    $productData['cost_price'] =
-                        $purchaseCost;
-
+                    $newCostPrice = $purchaseCost;
                 }
-
             }
 
-            $product->update(
-                $productData
-            );
+            if ($variant) {
+                $variantData = ['stock_on_hand' => $stockAfter];
+                if ($newCostPrice !== null) {
+                    $variantData['cost_price'] = $newCostPrice;
+                }
+                $variant->update($variantData);
+
+                // Increment main product total stock if main product tracks aggregate stock
+                if ((float)$product->stock_on_hand > 0 || $product->variants()->count() > 0) {
+                    $factor = (float) ($variant->qty_per_pack ?? 1);
+                    $product->increment('stock_on_hand', $quantity * $factor);
+                }
+            } else {
+                $productData = ['stock_on_hand' => $stockAfter];
+                if ($newCostPrice !== null) {
+                    $productData['cost_price'] = $newCostPrice;
+                }
+                $product->update($productData);
+            }
 
             DB::commit();
 
@@ -141,11 +142,10 @@ class StockController extends Controller
                 )
                 ->with(
                     'success',
-                    'Stock received successfully.'
+                    'Stock received successfully' . ($variant ? " for variant {$variant->variant_name}." : ".")
                 );
 
         } catch (\Throwable $e) {
-
             DB::rollBack();
 
             return back()
@@ -274,4 +274,47 @@ class StockController extends Controller
         }
     }
 
+    public function index()
+    {
+        $tenantId = auth()->user()->tenant_id;
+
+        $products = POSProducts::where('tenant_id', $tenantId)
+            ->where(function($q) {
+                $q->where('archived', 0)->orWhereNull('archived');
+            })
+            ->with(['category', 'unit', 'variants'])
+            ->orderBy('name')
+            ->get();
+
+        $totalValuation = 0;
+        $totalRetailValuation = 0;
+
+        foreach ($products as $p) {
+            if ($p->variants && $p->variants->count() > 0) {
+                $vValCost = $p->variants->sum(function($v) use ($p) {
+                    $c = (float)($v->cost_price ?? $p->cost_price);
+                    return (float)$v->stock_on_hand * $c;
+                });
+                $vValRetail = $p->variants->sum(function($v) use ($p) {
+                    $r = (float)($v->selling_price ?? $p->selling_price);
+                    return (float)$v->stock_on_hand * $r;
+                });
+
+                if ($vValCost == 0 && (float)$p->stock_on_hand > 0) {
+                    $vValCost = (float)$p->stock_on_hand * (float)$p->cost_price;
+                    $vValRetail = (float)$p->stock_on_hand * (float)$p->selling_price;
+                }
+
+                $totalValuation += $vValCost;
+                $totalRetailValuation += $vValRetail;
+            } else {
+                $totalValuation += (float)$p->stock_on_hand * (float)$p->cost_price;
+                $totalRetailValuation += (float)$p->stock_on_hand * (float)$p->selling_price;
+            }
+        }
+
+        return view('pages.tenants.inventory.stocks.index', compact('products', 'totalValuation', 'totalRetailValuation'));
+    }
+
 }
+

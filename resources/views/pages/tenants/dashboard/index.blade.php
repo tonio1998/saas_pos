@@ -17,7 +17,7 @@
 <div class="container-fluid px-0">
 
     {{-- Semi-Compact Executive Welcome Banner with Proper Gaps --}}
-    <div class="barya-welcome-banner d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-3 p-3.5">
+    <div class="likha-welcome-banner d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-3 p-3.5">
         <div>
             <div class="d-flex align-items-center gap-2 mb-1.5 flex-wrap" id="shiftBannerStatus">
                 <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-2.5 py-1 fw-bold" style="font-size:0.7rem;">
@@ -56,7 +56,7 @@
     <div class="row g-3 mb-3">
         {{-- 1. Today's Sales --}}
         <div class="col-6 col-md-4 col-xl-2">
-            <div class="barya-kpi-card emerald h-100 p-3">
+            <div class="likha-kpi-card emerald h-100 p-3">
                 <div class="d-flex align-items-center justify-content-between mb-1">
                     <span class="kpi-label">Today's Sales</span>
                     <div class="kpi-icon-box emerald"><i class="bi bi-graph-up-arrow"></i></div>
@@ -70,7 +70,7 @@
 
         {{-- 2. This Month's Sales --}}
         <div class="col-6 col-md-4 col-xl-2">
-            <div class="barya-kpi-card blue h-100 p-3">
+            <div class="likha-kpi-card blue h-100 p-3">
                 <div class="d-flex align-items-center justify-content-between mb-1">
                     <span class="kpi-label">Month's Revenue</span>
                     <div class="kpi-icon-box blue"><i class="bi bi-calendar-check-fill"></i></div>
@@ -84,7 +84,7 @@
 
         {{-- 3. Today's Gross Profit --}}
         <div class="col-6 col-md-4 col-xl-2">
-            <div class="barya-kpi-card emerald h-100 p-3">
+            <div class="likha-kpi-card emerald h-100 p-3">
                 <div class="d-flex align-items-center justify-content-between mb-1">
                     <span class="kpi-label">Today's Profit</span>
                     <div class="kpi-icon-box emerald"><i class="bi bi-wallet2"></i></div>
@@ -98,7 +98,7 @@
 
         {{-- 4. Cash in Drawer --}}
         <div class="col-6 col-md-4 col-xl-2">
-            <div class="barya-kpi-card amber h-100 p-3">
+            <div class="likha-kpi-card amber h-100 p-3">
                 <div class="d-flex align-items-center justify-content-between mb-1">
                     <span class="kpi-label">Drawer Balance</span>
                     <div class="kpi-icon-box amber"><i class="bi bi-cash-stack"></i></div>
@@ -112,7 +112,7 @@
 
         {{-- 5. Credit / Receivables --}}
         <div class="col-6 col-md-4 col-xl-2">
-            <div class="barya-kpi-card rose h-100 p-3">
+            <div class="likha-kpi-card rose h-100 p-3">
                 <div class="d-flex align-items-center justify-content-between mb-1">
                     <span class="kpi-label">Credit Receivables</span>
                     <div class="kpi-icon-box rose"><i class="bi bi-book-half"></i></div>
@@ -126,7 +126,7 @@
 
         {{-- 6. Total Inventory Valuation --}}
         <div class="col-6 col-md-4 col-xl-2">
-            <div class="barya-kpi-card purple h-100 p-3">
+            <div class="likha-kpi-card purple h-100 p-3">
                 <div class="d-flex align-items-center justify-content-between mb-1">
                     <span class="kpi-label">Stock Valuation</span>
                     <div class="kpi-icon-box purple"><i class="bi bi-box-seam"></i></div>
@@ -293,7 +293,7 @@
                 </div>
 
                 <div class="table-responsive rounded-3 border overflow-hidden">
-                    <table class="barya-data-table">
+                    <table class="likha-data-table">
                         <thead>
                             <tr>
                                 <th>Invoice</th>
@@ -316,19 +316,53 @@
             </div>
         </div>
 
+        {{-- Fast-Moving SKUs (Async Pulled via /dashboard/fast-moving) --}}
+        <div class="col-xl-6">
+            <div class="modern-card h-100 bg-white p-3.5">
+                <div class="d-flex align-items-center justify-content-between mb-2.5">
+                    <div>
+                        <h5 class="section-title font-mono mb-0"><i class="bi bi-rocket-takeoff-fill text-purple me-1.5"></i>Fast-Moving SKUs (Top Sales Velocity)</h5>
+                        <div class="section-subtitle">Highest turnover products rapidly selling in POS</div>
+                    </div>
+                    <a href="{{ route('products.index') }}?stock_status=fast_moving" class="btn btn-xs btn-light border fw-bold text-purple rounded-pill px-2.5 py-1" style="font-size:0.75rem;">Velocity &rarr;</a>
+                </div>
+
+                <div class="table-responsive rounded-3 border overflow-hidden">
+                    <table class="likha-data-table">
+                        <thead>
+                            <tr>
+                                <th>Fast-Moving Item</th>
+                                <th>Category</th>
+                                <th class="text-center">Sold (Qty)</th>
+                                <th class="text-end">Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fastMovingTbody">
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">
+                                    <div class="spinner-border spinner-border-sm text-purple me-1"></div>
+                                    Analyzing sales velocity...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         {{-- Low Stock Inventory Alert (Async Pulled via /dashboard/inventory-alerts) --}}
         <div class="col-xl-6">
             <div class="modern-card h-100 bg-white p-3.5">
                 <div class="d-flex align-items-center justify-content-between mb-2.5">
                     <div>
-                        <h5 class="section-title font-mono mb-0">Critical Low Stock Alerts</h5>
+                        <h5 class="section-title font-mono mb-0"><i class="bi bi-exclamation-triangle-fill text-warning me-1.5"></i>Critical Low Stock Alerts</h5>
                         <div class="section-subtitle">SKUs requiring immediate purchase order or replenishment</div>
                     </div>
                     <a href="{{ route('products.index') }}" class="btn btn-xs btn-light border fw-bold text-warning rounded-pill px-2.5 py-1" style="font-size:0.75rem;">Masterlist &rarr;</a>
                 </div>
 
                 <div class="table-responsive rounded-3 border overflow-hidden">
-                    <table class="barya-data-table">
+                    <table class="likha-data-table">
                         <thead>
                             <tr>
                                 <th>Product Item</th>
@@ -380,6 +414,7 @@
     pullAnalytics('7days');
     pullRecentSales();
     pullInventoryAlerts();
+    pullFastMoving();
     pullTopSuki();
 
     // Chart filter toggle
@@ -961,6 +996,64 @@
             }).join('');
         } catch (e) {
             console.error('Inventory alerts error:', e);
+        }
+    }
+
+    /**
+     * 4.5. Pull Fast-Moving Products (Top Velocity Sales)
+     */
+    async function pullFastMoving() {
+        try {
+            const res = await fetch('/dashboard/fast-moving');
+            if (!res.ok) return;
+            const d = await res.json();
+
+            const tbody = document.getElementById('fastMovingTbody');
+            if (!tbody) return;
+
+            if (!d.fast_moving || d.fast_moving.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted">No sales recorded yet. Completed sales will rank top movers here.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = d.fast_moving.map((p, idx) => {
+                const rankBadges = [
+                    '<span class="badge bg-warning text-dark font-mono fw-black" style="font-size:0.65rem;padding:3px 7px;">#1 Top</span>',
+                    '<span class="badge bg-secondary text-white font-mono fw-bold" style="font-size:0.65rem;padding:3px 7px;">#2 Top</span>',
+                    '<span class="badge text-white font-mono fw-bold" style="background:#d97706;font-size:0.65rem;padding:3px 7px;">#3 Top</span>'
+                ];
+                const badge = rankBadges[idx] || `<span class="badge bg-light text-dark border font-mono" style="font-size:0.65rem;padding:3px 7px;">#${idx+1}</span>`;
+                const categoryBadge = (p.category && p.category !== 'General') 
+                    ? `<span class="badge bg-primary-subtle text-primary border border-primary-subtle font-mono fw-semibold" style="font-size:0.68rem;">${p.category}</span>`
+                    : `<span class="badge bg-light text-muted border font-mono" style="font-size:0.68rem;">General</span>`;
+
+                return `
+                    <tr>
+                        <td class="py-2.5 px-3">
+                            <div class="d-flex align-items-center gap-2">
+                                ${badge}
+                                <div class="overflow-hidden">
+                                    <div class="fw-bold text-dark text-truncate mb-0.5" style="max-width:170px;" title="${p.name}">
+                                        ${p.name}
+                                    </div>
+                                    <span class="badge bg-light text-muted border font-mono" style="font-size:0.62rem;">${p.barcode}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-2.5 px-3">
+                            ${categoryBadge}
+                        </td>
+                        <td class="py-2.5 px-3 text-center font-mono fw-black text-purple" style="font-size:0.85rem;">
+                            🚀 ${p.total_sold_formatted}
+                        </td>
+                        <td class="py-2.5 px-3 text-end font-mono fw-black text-success" style="font-size:0.85rem;">
+                            ${p.total_revenue_formatted}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        } catch (e) {
+            console.error('Fast moving error:', e);
         }
     }
 

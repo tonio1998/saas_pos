@@ -15,6 +15,7 @@ class Stocks extends Model
     protected $fillable = [
         'tenant_id',
         'product_id',
+        'variant_id',
         'transaction_type',
         'quantity',
         'stock_before',
@@ -48,6 +49,14 @@ class Stocks extends Model
         return $this->belongsTo(
             POSProducts::class,
             'product_id'
+        );
+    }
+
+    public function variant()
+    {
+        return $this->belongsTo(
+            POSProductVariant::class,
+            'variant_id'
         );
     }
 

@@ -536,44 +536,27 @@
     </div>
 
     <script>
-
+        document.addEventListener('DOMContentLoaded', function () {
             const toggle = document.getElementById('themeToggle');
 
             if (!toggle) return;
 
             // Restore saved theme
-            const savedTheme =
-                localStorage.getItem('theme') || 'light';
+            const savedTheme = localStorage.getItem('theme') || 'light';
 
-            document.documentElement.setAttribute(
-                'data-theme',
-                savedTheme
-            );
+            document.documentElement.setAttribute('data-theme', savedTheme);
 
             toggle.checked = savedTheme === 'dark';
 
             // Switch theme
             toggle.addEventListener('change', function () {
+                const theme = this.checked ? 'dark' : 'light';
 
-                const theme =
-                    this.checked
-                        ? 'dark'
-                        : 'light';
+                document.documentElement.setAttribute('data-theme', theme);
 
-                document.documentElement.setAttribute(
-                    'data-theme',
-                    theme
-                );
-
-                localStorage.setItem(
-                    'theme',
-                    theme
-                );
-
+                localStorage.setItem('theme', theme);
             });
-
         });
-
     </script>
 
 @endsection

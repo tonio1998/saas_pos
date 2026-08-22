@@ -292,180 +292,258 @@ const POS = {
         }
 
         if (viewMode === 'table') {
-            const tableRows = products.map(product => {
-                const stock = Number(product.stock_on_hand ?? 0);
-                let stockBadge = '';
-                if (stock <= 0) {
-                    stockBadge = `<span class="badge bg-danger-subtle text-danger border border-danger-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-x-circle me-1"></i>Out of Stock</span>`;
-                } else if (stock <= 10) {
-                    stockBadge = `<span class="badge bg-warning-subtle text-warning border border-warning-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-exclamation-circle me-1"></i>${stock} Left</span>`;
-                } else {
-                    stockBadge = `<span class="badge bg-success-subtle text-success border border-success-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-check-circle me-1"></i>${stock} Available</span>`;
-                }
+            const isWholesale = this.state.priceMode === 'wholesale';
+            let tableRows = '';
 
-                const isWholesale = this.state.priceMode === 'wholesale';
-                const retailPrice = Number(product.selling_price || 0);
-                const wholesalePrice = Number(product.wholesale_price || 0);
-                const activePrice = (isWholesale && wholesalePrice > 0) ? wholesalePrice : retailPrice;
+            products.forEach(product => {
                 const hasVariants = product.variants && Array.isArray(product.variants) && product.variants.length > 0;
-
-                let priceDisplay = '';
-                if (isWholesale && wholesalePrice > 0) {
-                    priceDisplay = `
-                        <div class="d-flex align-items-baseline justify-content-end gap-1">
-                            <span class="font-mono fw-black text-primary" style="font-size:0.92rem;">${this.formatCurrency(wholesalePrice)}</span>
-                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle extra-small" style="font-size:0.6rem;">WS</span>
-                        </div>
-                    `;
-                } else if (wholesalePrice > 0) {
-                    priceDisplay = `
-                        <div class="text-end lh-sm">
-                            <div class="font-mono fw-black text-emerald" style="font-size:0.92rem;">${this.formatCurrency(retailPrice)}</div>
-                            <small class="text-muted extra-small font-mono" style="font-size:0.68rem;">WS: ${this.formatCurrency(wholesalePrice)}</small>
-                        </div>
-                    `;
-                } else {
-                    priceDisplay = `<div class="font-mono fw-black text-emerald" style="font-size:0.92rem;">${this.formatCurrency(retailPrice)}</div>`;
-                }
-
-                let variantBadge = '';
-                if (hasVariants) {
-                    variantBadge = `
-                        <span class="badge bg-purple-subtle text-purple border border-purple-subtle extra-small" style="background:#f3e8ff;color:#7e22ce;border-color:#e9d5ff;font-size:0.68rem;">
-                            <i class="bi bi-layers-fill me-1"></i>${product.variants.length} Options
-                        </span>
-                    `;
-                }
-
                 const imgUrl = product.image
                     ? `/storage/${product.image}?v=${new Date(product.updated_at).getTime()}`
                     : '/images/no_image.jpg';
 
-                return `
-                    <tr
-                        class="product-row ${hasVariants ? 'has-variants' : ''} cursor-pointer"
-                        data-id="${product.id}"
-                        data-name="${product.name}"
-                        data-price="${activePrice}"
-                        data-retail-price="${retailPrice}"
-                        data-wholesale-price="${wholesalePrice}"
-                        data-stock="${stock}"
-                        data-barcode="${product.barcode ?? ''}"
-                        data-category="${product.category_id ?? ''}"
-                        data-has-variants="${hasVariants ? '1' : '0'}"
-                    >
-                        <td class="align-middle py-1.5 px-2.5" style="width: 44px;">
-                            <img src="${imgUrl}" alt="" class="rounded-2 border shadow-xs" style="width:36px;height:36px;object-fit:cover;background:#f8fafc;flex-shrink:0;">
-                        </td>
-                        <td class="align-middle py-1.5 px-2.5">
-                            <div class="fw-bold text-dark text-truncate" style="max-width: 360px; font-size: 0.88rem;">${product.name}</div>
-                            <div class="d-flex align-items-center gap-1.5 mt-0.5">
-                                ${product.barcode ? `<span class="badge bg-light text-muted border font-mono extra-small" style="font-size:0.7rem;padding:2px 6px;">${product.barcode}</span>` : ''}
-                                ${variantBadge}
-                            </div>
-                        </td>
-                        <td class="align-middle py-1.5 px-2.5" style="width: 130px;">
-                            ${stockBadge}
-                        </td>
-                        <td class="align-middle py-1.5 px-2.5 text-end" style="width: 130px;">
-                            ${priceDisplay}
-                        </td>
-                        <td class="align-middle py-1.5 px-2.5 text-center" style="width: 80px;">
-                            <button type="button" class="btn btn-sm btn-success rounded-3 px-2.5 py-1 extra-small font-mono fw-extrabold shadow-xs" style="background:#059669;border:none;">
-                                <i class="bi bi-plus-lg me-1"></i>Add
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+                if (hasVariants) {
+                    // ─── PARENT HEADER ROW (non-clickable, just a label) ────
+                    const totalVariantStock = product.variants.reduce((s, v) => s + Number(v.stock_on_hand || 0), 0);
+                    tableRows += `
+                        <tr class="product-group-header" data-group-id="${product.id}" style="background:#f9f5ff;cursor:pointer;" title="Click to collapse/expand variants">
+                            <td class="align-middle py-1.5 px-2.5" style="width:44px;">
+                                <img src="${imgUrl}" onerror="this.onerror=null;this.src='/images/no_image.jpg';" alt="" class="rounded-2 border shadow-xs" style="width:36px;height:36px;object-fit:cover;">
+                            </td>
+                            <td class="align-middle py-1.5 px-2.5" colspan="3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fw-black text-dark" style="font-size:0.88rem;">${product.name}</span>
+                                    <span class="badge fw-bold" style="background:#f3e8ff;color:#7e22ce;border:1px solid #e9d5ff;font-size:0.68rem;">
+                                        <i class="bi bi-layers-fill me-1"></i>${product.variants.length} Variants
+                                    </span>
+                                    <span class="badge bg-light text-muted border font-mono" style="font-size:0.65rem;">${totalVariantStock} total stock</span>
+                                </div>
+                            </td>
+                            <td class="align-middle text-end pe-3" style="width:80px;">
+                                <i class="bi bi-chevron-up variant-chevron text-muted" style="font-size:0.75rem;" data-group="${product.id}"></i>
+                            </td>
+                        </tr>`;
+
+                    // ─── VARIANT CHILD ROWS ──────────────────────────────
+                    product.variants.forEach(v => {
+                        const vRetail    = Number(v.selling_price || 0);
+                        const vWholesale = Number(v.wholesale_price || 0);
+                        const vActive    = (isWholesale && vWholesale > 0) ? vWholesale : vRetail;
+                        const vStock     = Number(v.stock_on_hand || 0);
+                        const vUnit      = v.unit?.name || product.unit?.name || '';
+
+                        let vStockBadge = '';
+                        if (vStock <= 0)      vStockBadge = `<span class="badge bg-danger-subtle text-danger border border-danger-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-x-circle me-1"></i>Out</span>`;
+                        else if (vStock <= 10) vStockBadge = `<span class="badge bg-warning-subtle text-warning border border-warning-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-exclamation me-1"></i>${vStock} Left</span>`;
+                        else                  vStockBadge = `<span class="badge bg-success-subtle text-success border border-success-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-check-circle me-1"></i>${vStock}</span>`;
+
+                        let vPriceDisplay = '';
+                        if (isWholesale && vWholesale > 0) {
+                            vPriceDisplay = `<div class="d-flex align-items-baseline justify-content-end gap-1"><span class="font-mono fw-black text-primary" style="font-size:0.88rem;">${this.formatCurrency(vWholesale)}</span><span class="badge bg-primary-subtle text-primary border extra-small" style="font-size:0.6rem;">WS</span></div>`;
+                        } else if (vWholesale > 0) {
+                            vPriceDisplay = `<div class="text-end lh-sm"><div class="font-mono fw-black text-emerald" style="font-size:0.88rem;">${this.formatCurrency(vRetail)}</div><small class="text-muted extra-small font-mono" style="font-size:0.65rem;">WS: ${this.formatCurrency(vWholesale)}</small></div>`;
+                        } else {
+                            vPriceDisplay = `<div class="font-mono fw-black text-emerald" style="font-size:0.88rem;">${this.formatCurrency(vRetail)}</div>`;
+                        }
+
+                        tableRows += `
+                            <tr class="product-variant-row"
+                                data-group="${product.id}"
+                                data-id="${product.id}"
+                                data-variant-id="${v.id}"
+                                data-name="${product.name} (${v.variant_name})"
+                                data-price="${vActive}"
+                                data-retail-price="${vRetail}"
+                                data-wholesale-price="${vWholesale}"
+                                data-stock="${vStock}"
+                                data-barcode="${v.barcode || ''}"
+                                data-unit="${vUnit}"
+                                style="background:#fdf8ff;cursor:pointer;"
+                            >
+                                <td class="align-middle py-1 px-2.5" style="width:44px;">
+                                    <div style="width:4px;height:32px;background:#7c3aed;border-radius:2px;margin:auto;"></div>
+                                </td>
+                                <td class="align-middle py-1 px-2.5">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge fw-bold d-inline-flex align-items-center gap-1" style="background:#f3e8ff;color:#7e22ce;border:1px solid #e9d5ff;font-size:0.72rem;">
+                                            <i class="bi bi-tag-fill"></i>${v.variant_name}
+                                        </span>
+                                        ${v.barcode ? `<span class="badge bg-light text-muted border font-mono" style="font-size:0.65rem;">${v.barcode}</span>` : ''}
+                                        ${v.qty_per_pack ? `<span class="badge bg-light text-muted border extra-small" style="font-size:0.62rem;">×${v.qty_per_pack}</span>` : ''}
+                                    </div>
+                                </td>
+                                <td class="align-middle py-1 px-2.5" style="width:130px;">${vStockBadge}</td>
+                                <td class="align-middle py-1 px-2.5 text-end" style="width:130px;">${vPriceDisplay}</td>
+                                <td class="align-middle py-1 px-2.5 text-center" style="width:80px;">
+                                    <button type="button" class="btn-add-variant btn btn-sm btn-success rounded-3 px-2.5 py-1 extra-small font-mono fw-extrabold shadow-xs" style="background:#059669;border:none;" ${vStock <= 0 ? 'disabled' : ''}>
+                                        <i class="bi bi-plus-lg me-1"></i>Add
+                                    </button>
+                                </td>
+                            </tr>`;
+                    });
+
+                } else {
+                    // ─── REGULAR PRODUCT ROW (no variants) ───────────────
+                    const retailPrice   = Number(product.selling_price || 0);
+                    const wholesalePrice = Number(product.wholesale_price || 0);
+                    const activePrice   = (isWholesale && wholesalePrice > 0) ? wholesalePrice : retailPrice;
+                    const stock         = Number(product.stock_on_hand || 0);
+
+                    let stockBadge = '';
+                    if (stock <= 0)      stockBadge = `<span class="badge bg-danger-subtle text-danger border border-danger-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-x-circle me-1"></i>Out of Stock</span>`;
+                    else if (stock <= 10) stockBadge = `<span class="badge bg-warning-subtle text-warning border border-warning-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-exclamation-circle me-1"></i>${stock} Left</span>`;
+                    else                  stockBadge = `<span class="badge bg-success-subtle text-success border border-success-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-check-circle me-1"></i>${stock} Available</span>`;
+
+                    let priceDisplay = '';
+                    if (isWholesale && wholesalePrice > 0) {
+                        priceDisplay = `<div class="d-flex align-items-baseline justify-content-end gap-1"><span class="font-mono fw-black text-primary" style="font-size:0.92rem;">${this.formatCurrency(wholesalePrice)}</span><span class="badge bg-primary-subtle text-primary border border-primary-subtle extra-small" style="font-size:0.6rem;">WS</span></div>`;
+                    } else if (wholesalePrice > 0) {
+                        priceDisplay = `<div class="text-end lh-sm"><div class="font-mono fw-black text-emerald" style="font-size:0.92rem;">${this.formatCurrency(retailPrice)}</div><small class="text-muted extra-small font-mono" style="font-size:0.68rem;">WS: ${this.formatCurrency(wholesalePrice)}</small></div>`;
+                    } else {
+                        priceDisplay = `<div class="font-mono fw-black text-emerald" style="font-size:0.92rem;">${this.formatCurrency(retailPrice)}</div>`;
+                    }
+
+                    tableRows += `
+                        <tr class="product-row cursor-pointer"
+                            data-id="${product.id}"
+                            data-name="${product.name}"
+                            data-price="${activePrice}"
+                            data-retail-price="${retailPrice}"
+                            data-wholesale-price="${wholesalePrice}"
+                            data-stock="${stock}"
+                            data-barcode="${product.barcode ?? ''}"
+                            data-category="${product.category_id ?? ''}"
+                        >
+                            <td class="align-middle py-1.5 px-2.5" style="width:44px;">
+                                <img src="${imgUrl}" onerror="this.onerror=null;this.src='/images/no_image.jpg';" alt="" class="rounded-2 border shadow-xs" style="width:36px;height:36px;object-fit:cover;">
+                            </td>
+                            <td class="align-middle py-1.5 px-2.5">
+                                <div class="fw-bold text-dark text-truncate" style="max-width:360px;font-size:0.88rem;">${product.name}</div>
+                                <div class="d-flex align-items-center gap-1.5 mt-0.5">
+                                    ${product.barcode ? `<span class="badge bg-light text-muted border font-mono extra-small" style="font-size:0.7rem;padding:2px 6px;">${product.barcode}</span>` : ''}
+                                </div>
+                            </td>
+                            <td class="align-middle py-1.5 px-2.5" style="width:130px;">${stockBadge}</td>
+                            <td class="align-middle py-1.5 px-2.5 text-end" style="width:130px;">${priceDisplay}</td>
+                            <td class="align-middle py-1.5 px-2.5 text-center" style="width:80px;">
+                                <button type="button" class="btn btn-sm btn-success rounded-3 px-2.5 py-1 extra-small font-mono fw-extrabold shadow-xs" style="background:#059669;border:none;">
+                                    <i class="bi bi-plus-lg me-1"></i>Add
+                                </button>
+                            </td>
+                        </tr>`;
+                }
+            });
 
             container.innerHTML = `
                 <div class="table-responsive bg-white rounded-3 border shadow-xs overflow-hidden w-100">
                     <table class="table table-hover align-middle mb-0 pos-product-table">
-                        <tbody class="border-top-0">
-                            ${tableRows}
-                        </tbody>
+                        <tbody class="border-top-0">${tableRows}</tbody>
                     </table>
-                </div>
-            `;
+                </div>`;
             container.className = 'products-table-wrapper w-100 flex-grow-1 overflow-y-auto border-radius-0';
+
         } else {
-            // Card Grid View
-            const cardsHtml = products.map(product => {
-                const stock = Number(product.stock_on_hand ?? 0);
-                let stockBadge = '';
-                if (stock <= 0) {
-                    stockBadge = `<span class="stock-badge out">Out of Stock</span>`;
-                } else if (stock <= 10) {
-                    stockBadge = `<span class="stock-badge low">${stock} Left</span>`;
-                } else {
-                    stockBadge = `<span class="stock-badge in">${stock} Available</span>`;
-                }
+            // ─── GRID VIEW ────────────────────────────────────────────────
+            const isWholesale = this.state.priceMode === 'wholesale';
+            let cardsHtml = '';
 
-                const isWholesale = this.state.priceMode === 'wholesale';
-                const retailPrice = Number(product.selling_price || 0);
-                const wholesalePrice = Number(product.wholesale_price || 0);
-                const activePrice = (isWholesale && wholesalePrice > 0) ? wholesalePrice : retailPrice;
+            products.forEach(product => {
                 const hasVariants = product.variants && Array.isArray(product.variants) && product.variants.length > 0;
+                const imgUrl = product.image
+                    ? `/storage/${product.image}?v=${new Date(product.updated_at).getTime()}`
+                    : '/images/no_image.jpg';
 
-                let priceDisplay = '';
-                if (isWholesale && wholesalePrice > 0) {
-                    priceDisplay = `
-                        <div class="d-flex align-items-baseline gap-1">
-                            <span class="product-price text-primary fw-bold">${this.formatCurrency(wholesalePrice)}</span>
-                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle extra-small" style="font-size:0.65rem;">Wholesale</span>
-                        </div>
-                    `;
-                } else if (wholesalePrice > 0) {
-                    priceDisplay = `
-                        <div>
-                            <div class="product-price">${this.formatCurrency(retailPrice)}</div>
-                            <small class="text-muted extra-small" style="font-size:0.7rem;">WS: ${this.formatCurrency(wholesalePrice)}</small>
-                        </div>
-                    `;
-                } else {
-                    priceDisplay = `<div class="product-price">${this.formatCurrency(retailPrice)}</div>`;
-                }
-
-                let variantBadge = '';
                 if (hasVariants) {
-                    variantBadge = `
-                        <span class="badge bg-purple-subtle text-purple border border-purple-subtle extra-small mt-1" style="background:#f3e8ff;color:#7e22ce;border-color:#e9d5ff;font-size:0.68rem;">
-                            <i class="bi bi-layers-fill me-1"></i>${product.variants.length} Options
-                        </span>
-                    `;
-                }
+                    // ─── VARIANT GROUP CARD ──────────────────────────────
+                    let variantChips = product.variants.map(v => {
+                        const vRetail    = Number(v.selling_price || 0);
+                        const vWholesale = Number(v.wholesale_price || 0);
+                        const vActive    = (isWholesale && vWholesale > 0) ? vWholesale : vRetail;
+                        const vStock     = Number(v.stock_on_hand || 0);
+                        const vUnit      = v.unit?.name || product.unit?.name || '';
+                        const disabled   = vStock <= 0;
 
-                return `
-                    <div
-                        class="product-card ${hasVariants ? 'has-variants' : ''}"
-                        data-id="${product.id}"
-                        data-name="${product.name}"
-                        data-price="${activePrice}"
-                        data-retail-price="${retailPrice}"
-                        data-wholesale-price="${wholesalePrice}"
-                        data-stock="${stock}"
-                        data-barcode="${product.barcode ?? ''}"
-                        data-category="${product.category_id ?? ''}"
-                        data-has-variants="${hasVariants ? '1' : '0'}"
-                    >
-                        <div class="product-image">
-                            <img src="${product.image ? `/storage/${product.image}?v=${new Date(product.updated_at).getTime()}` : '/images/no_image.jpg'}" alt="${product.name}">
-                        </div>
-                        <div class="product-info">
-                            <div class="product-name text-truncate">${product.name}</div>
-                            <div class="product-stock">
-                                <span class="stock-label"> Stock:</span>
-                                ${stockBadge}
+                        return `
+                            <div class="variant-chip d-flex align-items-center justify-content-between p-2 rounded-3 border mb-1 ${disabled ? 'opacity-50' : 'cursor-pointer'}"
+                                 data-id="${product.id}"
+                                 data-variant-id="${v.id}"
+                                 data-name="${product.name} (${v.variant_name})"
+                                 data-price="${vActive}"
+                                 data-retail-price="${vRetail}"
+                                 data-wholesale-price="${vWholesale}"
+                                 data-stock="${vStock}"
+                                 data-barcode="${v.barcode || ''}"
+                                 data-unit="${vUnit}"
+                                 style="background:${disabled ? '#f8f9fa' : '#fdf8ff'};border-color:${disabled ? '#dee2e6' : '#e9d5ff'}!important;">
+                                <div>
+                                    <span class="badge fw-bold d-inline-flex align-items-center gap-1" style="background:#f3e8ff;color:#7e22ce;border:1px solid #e9d5ff;font-size:0.68rem;">
+                                        <i class="bi bi-tag-fill"></i>${v.variant_name}
+                                    </span>
+                                    <div class="extra-small text-muted font-mono mt-0.5" style="font-size:0.65rem;">${disabled ? 'Out of stock' : vStock + ' avail'}</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="font-mono fw-black ${isWholesale ? 'text-primary' : 'text-success'}" style="font-size:0.82rem;">${this.formatCurrency(vActive)}</div>
+                                    ${!disabled ? `<i class="bi bi-plus-circle-fill text-success" style="font-size:0.95rem;"></i>` : ''}
+                                </div>
+                            </div>`;
+                    }).join('');
+
+                    cardsHtml += `
+                        <div class="product-group-card" style="border:2px solid #e9d5ff;border-radius:12px;background:#fff;padding:10px;">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <img src="${imgUrl}" onerror="this.onerror=null;this.src='/images/no_image.jpg';" alt="" class="rounded-2 border" style="width:32px;height:32px;object-fit:cover;">
+                                <div>
+                                    <div class="fw-black text-dark text-truncate" style="font-size:0.82rem;max-width:140px;">${product.name}</div>
+                                    <span class="badge fw-bold" style="background:#f3e8ff;color:#7e22ce;border:1px solid #e9d5ff;font-size:0.62rem;">
+                                        <i class="bi bi-layers-fill me-1"></i>${product.variants.length} Variants
+                                    </span>
+                                </div>
                             </div>
-                            <div class="product-bottom d-flex align-items-center justify-content-between">
-                                ${priceDisplay}
-                                ${variantBadge}
+                            ${variantChips}
+                        </div>`;
+
+                } else {
+                    // ─── REGULAR PRODUCT CARD ────────────────────────────
+                    const retailPrice    = Number(product.selling_price || 0);
+                    const wholesalePrice = Number(product.wholesale_price || 0);
+                    const activePrice    = (isWholesale && wholesalePrice > 0) ? wholesalePrice : retailPrice;
+                    const stock          = Number(product.stock_on_hand || 0);
+
+                    let stockBadge = '';
+                    if (stock <= 0)      stockBadge = `<span class="stock-badge out">Out of Stock</span>`;
+                    else if (stock <= 10) stockBadge = `<span class="stock-badge low">${stock} Left</span>`;
+                    else                  stockBadge = `<span class="stock-badge in">${stock} Available</span>`;
+
+                    let priceDisplay = '';
+                    if (isWholesale && wholesalePrice > 0) {
+                        priceDisplay = `<div class="d-flex align-items-baseline gap-1"><span class="product-price text-primary fw-bold">${this.formatCurrency(wholesalePrice)}</span><span class="badge bg-primary-subtle text-primary border border-primary-subtle extra-small" style="font-size:0.65rem;">WS</span></div>`;
+                    } else if (wholesalePrice > 0) {
+                        priceDisplay = `<div><div class="product-price">${this.formatCurrency(retailPrice)}</div><small class="text-muted extra-small" style="font-size:0.7rem;">WS: ${this.formatCurrency(wholesalePrice)}</small></div>`;
+                    } else {
+                        priceDisplay = `<div class="product-price">${this.formatCurrency(retailPrice)}</div>`;
+                    }
+
+                    cardsHtml += `
+                        <div class="product-card cursor-pointer"
+                            data-id="${product.id}"
+                            data-name="${product.name}"
+                            data-price="${activePrice}"
+                            data-retail-price="${retailPrice}"
+                            data-wholesale-price="${wholesalePrice}"
+                            data-stock="${stock}"
+                            data-barcode="${product.barcode ?? ''}"
+                            data-category="${product.category_id ?? ''}"
+                        >
+                            <div class="product-image">
+                                <img src="${imgUrl}" onerror="this.onerror=null;this.src='/images/no_image.jpg';" alt="${product.name}">
                             </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+                            <div class="product-info">
+                                <div class="product-name text-truncate">${product.name}</div>
+                                <div class="product-stock"><span class="stock-label"> Stock:</span>${stockBadge}</div>
+                                <div class="product-bottom d-flex align-items-center justify-content-between">${priceDisplay}</div>
+                            </div>
+                        </div>`;
+                }
+            });
 
             container.innerHTML = cardsHtml;
             container.className = 'products-grid flex-grow-1 overflow-y-auto p-3';
@@ -476,43 +554,99 @@ const POS = {
         this.bindProductEvents();
     },
     bindProductEvents() {
+        const container = document.getElementById('productContainer');
+        if (!container) return;
 
-        this.productCards.forEach(card => {
-
-            card.addEventListener(
-                'click',
-                () => {
-
-                    const productId = Number(card.dataset.id);
-                    const product = this.products?.find(p => p.id === productId);
-
-                    if (product && product.variants && Array.isArray(product.variants) && product.variants.length > 0) {
-                        this.showVariantModal(product);
-                        return;
-                    }
-
-                    const retail = Number(card.dataset.retailPrice || card.dataset.price);
-                    const wholesale = Number(card.dataset.wholesalePrice || 0);
-                    const activePrice = (this.state.priceMode === 'wholesale' && wholesale > 0) ? wholesale : retail;
-
-                    this.addToCart({
-                        id: productId,
-                        variant_id: null,
-                        barcode: card.dataset.barcode,
-                        name: card.dataset.name,
-                        unit: product?.unit?.name || '',
-                        allow_decimal_qty: product?.allow_decimal_qty ?? false,
-                        retail_price: retail,
-                        wholesale_price: wholesale,
-                        price: activePrice,
-                        stock: Number(card.dataset.stock || 0),
-                    });
-
-                }
-            );
-
+        // ── Regular product rows (no variants) — click anywhere to add ──
+        container.querySelectorAll('.product-row:not(.product-group-header)').forEach(row => {
+            row.addEventListener('click', () => {
+                const productId = Number(row.dataset.id);
+                const product   = this.products?.find(p => p.id === productId);
+                const retail    = Number(row.dataset.retailPrice || row.dataset.price);
+                const wholesale = Number(row.dataset.wholesalePrice || 0);
+                const active    = (this.state.priceMode === 'wholesale' && wholesale > 0) ? wholesale : retail;
+                this.addToCart({
+                    id: productId, variant_id: null,
+                    barcode: row.dataset.barcode, name: row.dataset.name,
+                    unit: product?.unit?.name || '',
+                    allow_decimal_qty: product?.allow_decimal_qty ?? false,
+                    retail_price: retail, wholesale_price: wholesale, price: active,
+                    stock: Number(row.dataset.stock || 0),
+                });
+            });
         });
 
+        // ── Variant child rows — click anywhere to add that variant ─────
+        container.querySelectorAll('.product-variant-row').forEach(row => {
+            row.addEventListener('click', (e) => {
+                if (e.target.closest('.btn-add-variant')?.disabled) return;
+                const productId = Number(row.dataset.id);
+                const variantId = Number(row.dataset.variantId);
+                const product   = this.products?.find(p => p.id === productId);
+                const retail    = Number(row.dataset.retailPrice || row.dataset.price);
+                const wholesale = Number(row.dataset.wholesalePrice || 0);
+                const active    = (this.state.priceMode === 'wholesale' && wholesale > 0) ? wholesale : retail;
+                this.addToCart({
+                    id: productId, variant_id: variantId,
+                    barcode: row.dataset.barcode, name: row.dataset.name,
+                    unit: row.dataset.unit || product?.unit?.name || '',
+                    allow_decimal_qty: product?.allow_decimal_qty ?? false,
+                    retail_price: retail, wholesale_price: wholesale, price: active,
+                    stock: Number(row.dataset.stock || 0),
+                });
+            });
+        });
+
+        // ── Group header rows — toggle collapse/expand variant rows ─────
+        container.querySelectorAll('.product-group-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const groupId  = header.dataset.groupId;
+                const rows     = container.querySelectorAll(`.product-variant-row[data-group="${groupId}"]`);
+                const chevron  = header.querySelector('.variant-chevron');
+                const isHidden = rows.length && rows[0].style.display === 'none';
+                rows.forEach(r => r.style.display = isHidden ? '' : 'none');
+                if (chevron) chevron.className = `bi ${isHidden ? 'bi-chevron-up' : 'bi-chevron-down'} variant-chevron text-muted`;
+            });
+        });
+
+        // ── Variant chips in GRID view ───────────────────────────────────
+        container.querySelectorAll('.variant-chip:not([style*="opacity"])').forEach(chip => {
+            chip.addEventListener('click', () => {
+                const productId = Number(chip.dataset.id);
+                const variantId = Number(chip.dataset.variantId);
+                const product   = this.products?.find(p => p.id === productId);
+                const retail    = Number(chip.dataset.retailPrice || chip.dataset.price);
+                const wholesale = Number(chip.dataset.wholesalePrice || 0);
+                const active    = (this.state.priceMode === 'wholesale' && wholesale > 0) ? wholesale : retail;
+                this.addToCart({
+                    id: productId, variant_id: variantId,
+                    barcode: chip.dataset.barcode, name: chip.dataset.name,
+                    unit: chip.dataset.unit || '',
+                    allow_decimal_qty: product?.allow_decimal_qty ?? false,
+                    retail_price: retail, wholesale_price: wholesale, price: active,
+                    stock: Number(chip.dataset.stock || 0),
+                });
+            });
+        });
+
+        // ── Regular product cards (grid, no variants) ────────────────────
+        container.querySelectorAll('.product-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const productId = Number(card.dataset.id);
+                const product   = this.products?.find(p => p.id === productId);
+                const retail    = Number(card.dataset.retailPrice || card.dataset.price);
+                const wholesale = Number(card.dataset.wholesalePrice || 0);
+                const active    = (this.state.priceMode === 'wholesale' && wholesale > 0) ? wholesale : retail;
+                this.addToCart({
+                    id: productId, variant_id: null,
+                    barcode: card.dataset.barcode, name: card.dataset.name,
+                    unit: product?.unit?.name || '',
+                    allow_decimal_qty: product?.allow_decimal_qty ?? false,
+                    retail_price: retail, wholesale_price: wholesale, price: active,
+                    stock: Number(card.dataset.stock || 0),
+                });
+            });
+        });
     },
 
     showVariantModal(product) {
@@ -648,27 +782,10 @@ const POS = {
         });
     },
     async loadProducts() {
+        let products = await ProductService.sync().catch(() => ProductService.getCached());
 
-        let products =
-            await ProductService.getCached();
-
-        if (
-            !products ||
-            products.length === 0
-        ) {
-
-            products =
-                await ProductService.sync();
-
-        }
-
-        this.products =
-            products;
-
-        this.renderProducts(
-            products
-        );
-
+        this.products = products;
+        this.renderProducts(products);
     },
     async refreshProducts() {
 
@@ -974,13 +1091,13 @@ const POS = {
             btnViewTable.addEventListener('click', () => {
                 this.state.viewMode = 'table';
                 localStorage.setItem('pos_view_mode', 'table');
-                this.renderProducts(this.products);
+                this.renderProducts(this.getFilteredProducts());
             });
 
             btnViewGrid.addEventListener('click', () => {
                 this.state.viewMode = 'grid';
                 localStorage.setItem('pos_view_mode', 'grid');
-                this.renderProducts(this.products);
+                this.renderProducts(this.getFilteredProducts());
             });
         }
     },
@@ -1025,7 +1142,7 @@ const POS = {
 
             // Re-render products to update prices on grid
             if (this.products) {
-                this.renderProducts(this.products);
+                this.renderProducts(this.getFilteredProducts());
             }
 
             this.calculateTotals();
@@ -1639,6 +1756,18 @@ const POS = {
                 await this.updateCachedStocks();
                 this.printReceipt(result);
                 this.reset();
+
+                // Automatically switch terminal state to the new transaction!
+                if (result.next_sale_id) {
+                    this.state.saleId = result.next_sale_id;
+                    const saleIdInput = document.getElementById('saleId');
+                    if (saleIdInput) {
+                        saleIdInput.value = result.next_sale_id;
+                    }
+                    if (result.next_sale_url && window.history.replaceState) {
+                        window.history.replaceState(null, '', result.next_sale_url);
+                    }
+                }
             } else {
                 renderSaleStatus(result.type, result.success, result.sale_status, result.message);
             }
@@ -1653,45 +1782,42 @@ const POS = {
 
     },
     async updateCachedStocks() {
+        const products = await ProductDB.getProducts();
 
-        const products =
-            await ProductDB.getProducts();
+        const updatedProducts = products.map(product => {
+            const soldItems = this.state.cart.filter(item => item.id === product.id);
+            if (!soldItems || soldItems.length === 0) {
+                return product;
+            }
 
-        const updatedProducts =
-            products.map(product => {
+            let mainStock = Number(product.stock_on_hand || 0);
 
-                const soldItem =
-                    this.state.cart.find(
-                        item =>
-                            item.id === product.id
-                    );
-
-                if (!soldItem) {
-                    return product;
+            const updatedVariants = product.variants ? product.variants.map(v => {
+                const soldVar = soldItems.find(item => Number(item.variant_id) === Number(v.id));
+                if (soldVar) {
+                    const vStock = Number(v.stock_on_hand || 0);
+                    return { ...v, stock_on_hand: Math.max(0, vStock - Number(soldVar.qty || 0)) };
                 }
+                return v;
+            }) : product.variants;
 
-                return {
-                    ...product,
-                    stock_on_hand: Math.max(
-                        0,
-                        Number(product.stock_on_hand || 0) -
-                        Number(soldItem.qty || 0)
-                    )
-                };
-
+            soldItems.forEach(item => {
+                const factor = item.variant_id ? (product.variants?.find(v => Number(v.id) === Number(item.variant_id))?.qty_per_pack || 1) : 1;
+                if (mainStock > 0) {
+                    mainStock = Math.max(0, mainStock - (Number(item.qty || 0) * factor));
+                }
             });
 
-        await ProductDB.saveProducts(
-            updatedProducts
-        );
+            return {
+                ...product,
+                stock_on_hand: mainStock,
+                variants: updatedVariants
+            };
+        });
 
-        this.products =
-            updatedProducts;
-
-        this.renderProducts(
-            updatedProducts
-        );
-
+        await ProductDB.saveProducts(updatedProducts);
+        this.products = updatedProducts;
+        this.renderProducts(this.getFilteredProducts());
     },
     reset() {
 
@@ -1887,7 +2013,7 @@ body {
 
 <div class="center">
     <div style="font-size:16px;font-weight:bold;">
-        BaryaPOS
+        LikhaPOS
     </div>
 
     <div>
@@ -2349,24 +2475,13 @@ window.onload = () => {
             payments: this.state.payments,
             paid: this.state.paid,
             change: this.state.change,
-            items:
-                this.state.cart.map(
-                    item => ({
-
-                        product_id:
-                            item.id,
-
-                        qty:
-                            item.qty,
-
-                        price:
-                            item.price,
-
-                    })
-                ),
-
+            items: this.state.cart.map(item => ({
+                product_id: item.id,
+                variant_id: item.variant_id || null,
+                qty: item.qty,
+                price: item.price,
+            })),
         };
-
     },
     openCheckout() {
 
@@ -2471,106 +2586,92 @@ window.onload = () => {
     hasUtangPayment() {
         return this.state.payments.some(p => p.method === 'utang');
     },
-    bindSearch() {
+    getFilteredProducts() {
+        const keyword = (this.searchInput?.value || '').trim().toLowerCase();
+        const activeCategory = document.querySelector('.category-chip.active')?.dataset.category;
 
+        let filtered = this.products || [];
+
+        if (activeCategory) {
+            filtered = filtered.filter(p => String(p.category_id) === String(activeCategory));
+        }
+
+        if (keyword) {
+            filtered = filtered.filter(p => {
+                const name = (p.name || '').toLowerCase();
+                const barcode = (p.barcode || '').toLowerCase();
+                const sku = (p.sku || '').toLowerCase();
+                const variantMatch = p.variants && Array.isArray(p.variants) && p.variants.some(v => 
+                    (v.variant_name || '').toLowerCase().includes(keyword) || 
+                    (v.barcode || '').toLowerCase().includes(keyword) ||
+                    (v.sku || '').toLowerCase().includes(keyword)
+                );
+                return name.includes(keyword) || barcode.includes(keyword) || sku.includes(keyword) || variantMatch;
+            });
+        }
+
+        return filtered;
+    },
+    bindSearch() {
         if (!this.searchInput) {
             return;
         }
 
-        this.searchInput.addEventListener(
-            'input',
-            e => {
+        let searchTimeout = null;
 
-                const keyword =
-                    e.target.value
-                        .trim()
-                        .toLowerCase();
+        this.searchInput.addEventListener('input', e => {
+            const keyword = e.target.value.trim().toLowerCase();
 
-                this.productCards.forEach(card => {
+            // 1. Instant local search from memory cache (0ms delay)
+            this.renderProducts(this.getFilteredProducts());
 
-                    const name =
-                        (
-                            card.dataset.name || ''
-                        ).toLowerCase();
+            // 2. Debounced Online Server-Side Search (300ms delay)
+            clearTimeout(searchTimeout);
+            if (keyword.length >= 2) {
+                searchTimeout = setTimeout(async () => {
+                    try {
+                        const response = await fetch(`/sales/products?q=${encodeURIComponent(keyword)}`, {
+                            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                        });
+                        if (response.ok) {
+                            const onlineProducts = await response.json();
+                            if (onlineProducts && Array.isArray(onlineProducts) && onlineProducts.length > 0) {
+                                const existingMap = new Map((this.products || []).map(p => [p.id, p]));
+                                onlineProducts.forEach(op => existingMap.set(op.id, op));
+                                this.products = Array.from(existingMap.values());
 
-                    const barcode =
-                        (
-                            card.dataset.barcode || ''
-                        ).toLowerCase();
+                                onlineProducts.forEach(p => {
+                                    if (p.barcode) this.state.productMap[p.barcode.toLowerCase()] = p;
+                                    if (p.variants && Array.isArray(p.variants)) {
+                                        p.variants.forEach(v => {
+                                            if (v.barcode) this.state.productMap[v.barcode.toLowerCase()] = { product: p, variant: v };
+                                        });
+                                    }
+                                });
 
-                    const visible =
-                        name.includes(keyword) ||
-                        barcode.includes(keyword);
-
-                    card.style.display =
-                        visible
-                            ? ''
-                            : 'none';
-
-                });
-
+                                this.renderProducts(this.getFilteredProducts());
+                            }
+                        }
+                    } catch (err) {
+                        console.warn('Online product search failed:', err);
+                    }
+                }, 300);
             }
-        );
-
+        });
     },
     bindCategories() {
-
+        this.categoryChips = document.querySelectorAll('.category-chip');
         this.categoryChips.forEach(chip => {
-
-            chip.addEventListener(
-                'click',
-                () => {
-
-                    this.categoryChips.forEach(
-                        button =>
-                            button.classList.remove(
-                                'active'
-                            )
-                    );
-
-                    chip.classList.add(
-                        'active'
-                    );
-
-                    const category =
-                        chip.dataset.category;
-
-                    this.filterCategory(
-                        category
-                    );
-
-                }
-            );
-
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('.category-chip').forEach(button => button.classList.remove('active'));
+                chip.classList.add('active');
+                const category = chip.dataset.category;
+                this.filterCategory(category);
+            });
         });
-
     },
-    filterCategory(
-        categoryId
-    ) {
-
-        this.productCards.forEach(card => {
-
-            if (
-                !categoryId
-            ) {
-
-                card.style.display = '';
-
-                return;
-
-            }
-
-            const cardCategory =
-                card.dataset.category;
-
-            card.style.display =
-                cardCategory === categoryId
-                    ? ''
-                    : 'none';
-
-        });
-
+    filterCategory(categoryId) {
+        this.renderProducts(this.getFilteredProducts());
     },
     bindBarcodeScanner() {
 

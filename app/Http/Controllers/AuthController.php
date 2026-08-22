@@ -139,7 +139,7 @@ class AuthController extends Controller
             'is_featured'     => 0,
         ]);
 
-        return redirect()->back()->with('success', 'Salamat sa inyong feedback! Na-ipost na ang inyong review sa BaryaPOS.');
+        return redirect()->back()->with('success', 'Salamat sa inyong feedback! Na-ipost na ang inyong review sa LikhaPOS.');
     }
 
     public function showRegister(Request $request)

@@ -5,18 +5,19 @@
     --primary-hover: #047857;
     --primary-light: #ecfdf5;
 
-    --success: #10b981;
+    --success: #059669;
     --danger: #ef4444;
     --warning: #f59e0b;
+    --discount: #f97316;
     --info: #6366f1;
 
     --bg: #f8fafc;
     --card: #ffffff;
-    --card-hover: #f1f5f9;
+    --card-hover: #f8fafc;
     --header: #ffffff;
-    --sidebar: #ffffff;
+    --sidebar: #0f172a;
 
-    --border: #e2e8f0;
+    --border: #f1f5f9;
 
     --text: #0f172a;
     --muted: #64748b;
@@ -424,17 +425,17 @@ body {
 }
 
 .product-stock-tag.in {
-    background: rgba(16, 185, 129, 0.9);
+    background: #059669;
     color: #ffffff;
 }
 
 .product-stock-tag.low {
-    background: rgba(245, 158, 11, 0.9);
+    background: #d97706;
     color: #ffffff;
 }
 
 .product-stock-tag.out {
-    background: rgba(239, 68, 68, 0.9);
+    background: #ef4444;
     color: #ffffff;
 }
 
@@ -467,7 +468,7 @@ body {
 .product-price {
     font-size: 1.05rem;
     font-weight: 800;
-    color: #059669;
+    color: #0f172a;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
@@ -475,8 +476,8 @@ body {
     width: 28px;
     height: 28px;
     border-radius: 8px;
-    background: #ecfdf5;
-    color: #059669;
+    background: #059669;
+    color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;

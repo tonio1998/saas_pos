@@ -206,6 +206,7 @@ Route::middleware('auth')->group(function(){
         Route::get('/analytics', [TenantsDashboardController::class, 'analyticsData'])->name('analytics');
         Route::get('/recent-sales', [TenantsDashboardController::class, 'recentSales'])->name('recent-sales');
         Route::get('/inventory-alerts', [TenantsDashboardController::class, 'inventoryAlerts'])->name('inventory-alerts');
+        Route::get('/fast-moving', [TenantsDashboardController::class, 'fastMoving'])->name('fast-moving');
         Route::get('/top-suki', [TenantsDashboardController::class, 'topSuki'])->name('top-suki');
     });
 
@@ -238,6 +239,7 @@ Route::middleware('auth')->group(function(){
         Route::get('users/search',[UserController::class,'users_search'])->name('users');
         Route::get('customers/search',[CustomerController::class,'customers_search'])->name('customers');
         Route::get('cash-drawers/search',[SalesCashDrawerController::class,'cashDrawers_search'])->name('cash-drawers');
+        Route::get('products/search',[ProductController::class,'products_search'])->name('products');
     });
 
 
@@ -313,6 +315,9 @@ Route::middleware('auth')->group(function(){
             Route::get('/data', [SalesCashShiftController::class, 'ajaxData'])->name('data');
             Route::get('/close/{id}', [SalesCashShiftController::class, 'close'])->name('close');
             Route::post('/close/store', [SalesCashShiftController::class, 'closeStore'])->name('close.store');
+            Route::get('/cash-count', [SalesCashShiftController::class, 'cashCount'])->name('cash-count');
+            Route::post('/approve/{id}', [SalesCashShiftController::class, 'approve'])->name('approve');
+            Route::post('/verify-action/{id}', [SalesCashShiftController::class, 'verifyAction'])->name('verify-action');
         });
 
     });
@@ -482,6 +487,8 @@ Route::middleware('auth')->group(function(){
         Route::put('/update/{id}', [ReturnController::class, 'update'])->name('update');
         Route::delete('/delete/{id}', [ReturnController::class, 'destroy'])->name('destroy');
         Route::get('/data', [ReturnController::class, 'ajaxData'])->name('data');
+        Route::get('/search-invoice', [ReturnController::class, 'searchInvoice'])->name('search-invoice');
+        Route::post('/store-batch', [ReturnController::class, 'storeBatch'])->name('store-batch');
     });
 
     Route::prefix('payments')->name('payments.')->group(function () {

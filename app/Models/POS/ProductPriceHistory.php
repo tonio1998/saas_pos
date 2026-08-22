@@ -15,6 +15,7 @@ class ProductPriceHistory extends Model
     protected $fillable = [
         'tenant_id',
         'product_id',
+        'variant_id',
 
         'cost_price',
         'new_cost_price',
@@ -54,6 +55,11 @@ class ProductPriceHistory extends Model
     public function product()
     {
         return $this->belongsTo(POSProducts::class, 'product_id');
+    }
+
+    public function variant()
+    {
+        return $this->belongsTo(POSProductVariant::class, 'variant_id');
     }
 
     public function createdBy()

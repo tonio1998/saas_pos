@@ -49,6 +49,32 @@ class ProductController extends Controller
         $outOfStockCount = POSProducts::where('tenant_id', $tenantId)
             ->where('stock_on_hand', '<=', 0)
             ->count();
+
+        // Fast-Moving Top Mover calculation
+        $topMoverItem = \DB::table('pos_sale_items')
+            ->join('pos_sales', 'pos_sales.id', '=', 'pos_sale_items.sale_id')
+            ->where('pos_sales.tenant_id', $tenantId)
+            ->selectRaw('pos_sale_items.product_id, SUM(pos_sale_items.qty) as total_qty')
+            ->groupBy('pos_sale_items.product_id')
+            ->orderByDesc('total_qty')
+            ->first();
+
+        $topMoverName = 'None';
+        $topMoverQty = 0;
+        if ($topMoverItem) {
+            $p = POSProducts::find($topMoverItem->product_id);
+            if ($p) {
+                $topMoverName = $p->name;
+                $topMoverQty = (float)$topMoverItem->total_qty;
+            }
+        }
+
+        $fastMovingCount = \DB::table('pos_sale_items')
+            ->join('pos_sales', 'pos_sales.id', '=', 'pos_sale_items.sale_id')
+            ->where('pos_sales.tenant_id', $tenantId)
+            ->distinct('pos_sale_items.product_id')
+            ->count('pos_sale_items.product_id');
+
         $totalInventoryValue = POSProducts::where('tenant_id', $tenantId)
             ->selectRaw('SUM(COALESCE(stock_on_hand, 0) * COALESCE(cost_price, 0)) as total_val')
             ->value('total_val') ?? 0;
@@ -61,6 +87,9 @@ class ProductController extends Controller
             'active_products' => $activeProducts,
             'low_stock_count' => $lowStockCount,
             'out_of_stock_count' => $outOfStockCount,
+            'fast_moving_count' => $fastMovingCount,
+            'top_mover_name' => $topMoverName,
+            'top_mover_qty' => $topMoverQty,
             'total_inventory_value' => (float)$totalInventoryValue,
             'total_retail_value' => (float)$totalRetailValue,
             'formatted_inventory_value' => '₱' . number_format($totalInventoryValue, 2),
@@ -89,25 +118,35 @@ class ProductController extends Controller
 
     public function edit(Request $request)
     {
-        $id = decrypt($request->segment(3));
+        $id      = decrypt($request->segment(3));
         $product = POSProducts::with('variants')->find($id);
-        $units = POSUnits::query()
-            ->with('createdBy')
-            ->orderBy('name')
-            ->get();
-
-        $categories = POSCategories::query()
-            ->with('createdBy')
-            ->orderBy('name')
-            ->get();
-
+        $units   = POSUnits::query()->with('createdBy')->orderBy('name')->get();
+        $categories = POSCategories::query()->with('createdBy')->orderBy('name')->get();
         $variants = $product->variants;
 
+        // Determine which variants have POS transaction records (sale items or inventory movements)
+        // These must NOT be deletable — only status toggle allowed
+        $variantsWithRecords = collect();
+        if ($variants->isNotEmpty()) {
+            $variantIds = $variants->pluck('id');
+
+            $saleItemVariantIds = \App\Models\POS\POSSaleItem::whereIn('variant_id', $variantIds)
+                ->pluck('variant_id')
+                ->unique();
+
+            $movementVariantIds = \App\Models\POS\InventoryMovement::whereIn('variant_id', $variantIds)
+                ->pluck('variant_id')
+                ->unique();
+
+            $variantsWithRecords = $saleItemVariantIds->merge($movementVariantIds)->unique();
+        }
+
         return view('pages.tenants.products.create', [
-            'product'    => $product,
-            'units'      => $units,
-            'categories' => $categories,
-            'variants'   => $variants,
+            'product'              => $product,
+            'units'                => $units,
+            'categories'           => $categories,
+            'variants'             => $variants,
+            'variantsWithRecords'  => $variantsWithRecords,  // Collection of variant IDs that have POS records
         ]);
     }
 
@@ -127,6 +166,7 @@ class ProductController extends Controller
             'image'                             => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'variants'                          => ['nullable', 'array'],
             'variants.*.variant_name'           => ['required_with:variants', 'string', 'max:255'],
+            'variants.*.stock_on_hand'          => ['nullable', 'numeric', 'min:0'],
             'variants.*.qty_per_pack'           => ['required_with:variants', 'numeric', 'min:0.0001'],
             'variants.*.cost_price'             => ['required_with:variants', 'numeric', 'min:0'],
             'variants.*.selling_price'          => ['required_with:variants', 'numeric', 'min:0'],
@@ -147,6 +187,15 @@ class ProductController extends Controller
             $this->syncVariants($product, $validated['variants'], auth()->user()->tenant_id);
         }
 
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'status'       => 'success',
+                'message'      => 'Product SKU created successfully.',
+                'redirect_url' => route('products.index'),
+                'product_id'   => $product->id,
+            ]);
+        }
+
         return redirect()
             ->route('products.index')
             ->with('success', 'Product created successfully.');
@@ -157,21 +206,29 @@ class ProductController extends Controller
     ) {
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-
-            'category_id' => ['nullable'],
-            'unit_id' => ['nullable'],
-
-            'barcode' => ['nullable', 'string'],
-            'sku' => ['nullable', 'string'],
-
-            'cost_price' => ['required', 'numeric', 'min:0'],
-            'selling_price' => ['required', 'numeric', 'min:0'],
-            'wholesale_price' => ['nullable', 'numeric', 'min:0'],
-
-            'reorder_level' => ['nullable', 'integer', 'min:0'],
-            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'name'                              => ['required', 'string', 'max:255'],
+            'description'                       => ['nullable', 'string'],
+            'category_id'                       => ['nullable'],
+            'unit_id'                           => ['nullable'],
+            'barcode'                           => ['nullable', 'string'],
+            'sku'                               => ['nullable', 'string'],
+            'cost_price'                        => ['required', 'numeric', 'min:0'],
+            'selling_price'                     => ['required', 'numeric', 'min:0'],
+            'wholesale_price'                   => ['nullable', 'numeric', 'min:0'],
+            'reorder_level'                     => ['nullable', 'integer', 'min:0'],
+            'image'                             => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'variants'                          => ['nullable', 'array'],
+            'variants.*.id'                     => ['nullable'],
+            'variants.*.variant_name'           => ['required_with:variants', 'string', 'max:255'],
+            'variants.*.stock_on_hand'          => ['nullable', 'numeric', 'min:0'],
+            'variants.*.qty_per_pack'           => ['required_with:variants', 'numeric', 'min:0.0001'],
+            'variants.*.cost_price'             => ['required_with:variants', 'numeric', 'min:0'],
+            'variants.*.selling_price'          => ['required_with:variants', 'numeric', 'min:0'],
+            'variants.*.wholesale_price'        => ['nullable', 'numeric', 'min:0'],
+            'variants.*.barcode'                => ['nullable', 'string', 'max:100'],
+            'variants.*.sku'                    => ['nullable', 'string', 'max:100'],
+            'variants.*.unit_id'                => ['nullable'],
+            'variants.*.status'                 => ['nullable', 'string'],
         ]);
 
         $product = POSProducts::findOrFail(
@@ -217,6 +274,9 @@ class ProductController extends Controller
                 $priceHistory->product_id =
                     $product->id;
 
+                $priceHistory->variant_id =
+                    null;
+
                 $priceHistory->cost_price =
                     $oldCostPrice;
 
@@ -236,7 +296,7 @@ class ProductController extends Controller
                     $newWholesalePrice;
 
                 $priceHistory->remarks =
-                    'Product price updated';
+                    'Product base price updated';
 
                 $priceHistory->effective_date =
                     now();
@@ -271,11 +331,20 @@ class ProductController extends Controller
                 'reorder_level' => $validated['reorder_level'] ?? 0,
                 'allow_decimal_qty' => !empty($request->input('allow_decimal_qty')),
             ]);
+
+            // Sync variants and record price histories
+            if ($request->has('variants')) {
+                $this->syncVariants($product, $request->input('variants', []), auth()->user()->tenant_id);
+            }
         });
 
-        // Sync variants
-        if ($request->has('variants')) {
-            $this->syncVariants($product, $request->input('variants', []), auth()->user()->tenant_id);
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'status'       => 'success',
+                'message'      => 'Product SKU updated successfully.',
+                'redirect_url' => route('products.index'),
+                'product_id'   => $product->id,
+            ]);
         }
 
         return redirect()
@@ -287,7 +356,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Sync product variants (delete removed, upsert existing/new).
+     * Sync product variants (preserve records, upsert existing/new).
      */
     private function syncVariants(POSProducts $product, array $variantsData, int $tenantId): void
     {
@@ -306,29 +375,70 @@ class ProductController extends Controller
                 $variant = new POSProductVariant();
             }
 
+            $oldCostPrice      = $variant->exists ? (float)$variant->cost_price : null;
+            $oldSellingPrice   = $variant->exists ? (float)$variant->selling_price : null;
+            $oldWholesalePrice = $variant->exists ? (float)$variant->wholesale_price : null;
+
+            $newCostPrice      = (float)($vData['cost_price'] ?? 0);
+            $newSellingPrice   = (float)($vData['selling_price'] ?? 0);
+            $newWholesalePrice = isset($vData['wholesale_price']) && $vData['wholesale_price'] !== '' ? (float)$vData['wholesale_price'] : null;
+
             $variant->tenant_id       = $tenantId;
             $variant->product_id      = $product->id;
             $variant->variant_name    = $vData['variant_name'];
+            $variant->stock_on_hand   = isset($vData['stock_on_hand']) ? (float) $vData['stock_on_hand'] : 0;
             $variant->qty_per_pack    = $vData['qty_per_pack'] ?? 1;
-            $variant->cost_price      = $vData['cost_price'] ?? 0;
-            $variant->selling_price   = $vData['selling_price'] ?? 0;
-            $variant->wholesale_price = $vData['wholesale_price'] ?? null;
+            $variant->cost_price      = $newCostPrice;
+            $variant->selling_price   = $newSellingPrice;
+            $variant->wholesale_price = $newWholesalePrice;
             $variant->barcode         = $vData['barcode'] ?? null;
             $variant->sku             = $vData['sku'] ?? null;
             $variant->unit_id         = $vData['unit_id'] ?? null;
             $variant->reorder_level   = $vData['reorder_level'] ?? 0;
-            $variant->status          = 'active';
+            $variant->status          = $vData['status'] ?? 'active';  // respect form value
             $variant->created_by      = auth()->id();
             $variant->updated_by      = auth()->id();
             $variant->save();
 
+            // Track variant price history if prices changed or if newly created
+            if ($oldSellingPrice === null || $oldCostPrice != $newCostPrice || $oldSellingPrice != $newSellingPrice || $oldWholesalePrice != $newWholesalePrice) {
+                ProductPriceHistory::create([
+                    'tenant_id'           => $tenantId,
+                    'product_id'          => $product->id,
+                    'variant_id'          => $variant->id,
+                    'cost_price'          => $oldCostPrice ?? $newCostPrice,
+                    'new_cost_price'      => $newCostPrice,
+                    'selling_price'       => $oldSellingPrice ?? $newSellingPrice,
+                    'new_selling_price'   => $newSellingPrice,
+                    'wholesale_price'     => $oldWholesalePrice ?? $newWholesalePrice,
+                    'new_wholesale_price' => $newWholesalePrice,
+                    'reason'              => $oldSellingPrice === null ? 'Initial Variant Price Setup' : 'Variant Price Update',
+                    'remarks'             => "Variant: {$variant->variant_name}",
+                    'effective_date'      => now(),
+                    'status'              => 'active',
+                    'created_by'          => auth()->id(),
+                    'updated_by'          => auth()->id(),
+                ]);
+            }
+
             $keptIds[] = $variant->id;
         }
 
-        // Remove variants no longer in the form
-        $product->variants()
-            ->whereNotIn('id', $keptIds)
-            ->delete();
+        // Only delete variants that were removed from the form AND have NO POS records
+        // (variants with records are preserved to maintain data integrity)
+        $removedIds = $product->variants()->whereNotIn('id', $keptIds)->pluck('id');
+
+        if ($removedIds->isNotEmpty()) {
+            $safeToDelete = $removedIds->filter(function ($variantId) {
+                $hasSaleItems  = \App\Models\POS\POSSaleItem::where('variant_id', $variantId)->exists();
+                $hasMovements  = \App\Models\POS\InventoryMovement::where('variant_id', $variantId)->exists();
+                return !$hasSaleItems && !$hasMovements;
+            });
+
+            if ($safeToDelete->isNotEmpty()) {
+                $product->variants()->whereIn('id', $safeToDelete)->delete();
+            }
+        }
     }
 
     public function suggestions(Request $request)
@@ -450,6 +560,14 @@ class ProductController extends Controller
                       ->whereColumn('stock_on_hand', '<=', 'reorder_level');
             } elseif ($request->stock_status === 'in_stock') {
                 $query->where('stock_on_hand', '>', 0);
+            } elseif ($request->stock_status === 'fast_moving') {
+                $query->whereIn('id', function($sub) use ($tenantId) {
+                    $sub->select('product_id')
+                        ->from('pos_sale_items')
+                        ->join('pos_sales', 'pos_sales.id', '=', 'pos_sale_items.sale_id')
+                        ->where('pos_sales.tenant_id', $tenantId)
+                        ->groupBy('product_id');
+                });
             }
         }
 
@@ -812,21 +930,85 @@ class ProductController extends Controller
 
         if ($action === 'price_markup') {
             $percent = (float)$request->input('markup_percent', 0);
-            $fixed = (float)$request->input('markup_fixed', 0);
+            $fixed   = (float)$request->input('markup_fixed', 0);
 
-            $products = $query->get();
+            $products = $query->with('variants')->get();
             foreach ($products as $p) {
+                $oldSelling = (float)$p->selling_price;
+                $newSelling = $oldSelling;
+
                 if ($percent != 0) {
-                    $p->selling_price = round($p->selling_price * (1 + ($percent / 100)), 2);
+                    $newSelling = round($newSelling * (1 + ($percent / 100)), 2);
                 }
                 if ($fixed != 0) {
-                    $p->selling_price = max(0, round($p->selling_price + $fixed, 2));
+                    $newSelling = max(0, round($newSelling + $fixed, 2));
                 }
-                $p->updated_by = auth()->id();
-                $p->save();
+
+                if ($oldSelling != $newSelling) {
+                    $p->selling_price = $newSelling;
+                    $p->updated_by = auth()->id();
+                    $p->save();
+
+                    ProductPriceHistory::create([
+                        'tenant_id'           => $tenantId,
+                        'product_id'          => $p->id,
+                        'variant_id'          => null,
+                        'cost_price'          => $p->cost_price,
+                        'new_cost_price'      => $p->cost_price,
+                        'selling_price'       => $oldSelling,
+                        'new_selling_price'   => $newSelling,
+                        'wholesale_price'     => $p->wholesale_price,
+                        'new_wholesale_price' => $p->wholesale_price,
+                        'reason'              => 'Bulk Price Markup Adjustment',
+                        'remarks'             => 'Applied via Catalogue Bulk Actions',
+                        'effective_date'      => now(),
+                        'status'              => 'active',
+                        'created_by'          => auth()->id(),
+                        'updated_by'          => auth()->id(),
+                    ]);
+                }
+
+                // Also markup variants
+                if ($p->variants && $p->variants->isNotEmpty()) {
+                    foreach ($p->variants as $v) {
+                        $oldVSelling = (float)$v->selling_price;
+                        $newVSelling = $oldVSelling;
+
+                        if ($percent != 0) {
+                            $newVSelling = round($newVSelling * (1 + ($percent / 100)), 2);
+                        }
+                        if ($fixed != 0) {
+                            $newVSelling = max(0, round($newVSelling + $fixed, 2));
+                        }
+
+                        if ($oldVSelling != $newVSelling) {
+                            $v->selling_price = $newVSelling;
+                            $v->updated_by = auth()->id();
+                            $v->save();
+
+                            ProductPriceHistory::create([
+                                'tenant_id'           => $tenantId,
+                                'product_id'          => $p->id,
+                                'variant_id'          => $v->id,
+                                'cost_price'          => $v->cost_price,
+                                'new_cost_price'      => $v->cost_price,
+                                'selling_price'       => $oldVSelling,
+                                'new_selling_price'   => $newVSelling,
+                                'wholesale_price'     => $v->wholesale_price,
+                                'new_wholesale_price' => $v->wholesale_price,
+                                'reason'              => 'Bulk Price Markup Adjustment',
+                                'remarks'             => "Variant: {$v->variant_name}",
+                                'effective_date'      => now(),
+                                'status'              => 'active',
+                                'created_by'          => auth()->id(),
+                                'updated_by'          => auth()->id(),
+                            ]);
+                        }
+                    }
+                }
             }
 
-            return response()->json(['success' => true, 'message' => "Price adjustment applied to {$count} products."]);
+            return response()->json(['success' => true, 'message' => "Price adjustment applied to {$count} products and their variants."]);
         }
 
         if ($action === 'delete') {
@@ -915,5 +1097,94 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()->route('products.index');
+    }
+
+    public function products_search(Request $request)
+    {
+        $tenantId = auth()->user()->tenant_id;
+        $search = $request->get('q');
+
+        $products = POSProducts::query()
+            ->where('tenant_id', $tenantId)
+            ->where(function($q) {
+                $q->where('archived', 0)->orWhereNull('archived');
+            })
+            ->when($search, function ($query) use ($search) {
+                $query->where(function($q2) use ($search) {
+                    $q2->where('name', 'LIKE', "%{$search}%")
+                       ->orWhere('barcode', 'LIKE', "%{$search}%")
+                       ->orWhere('sku', 'LIKE', "%{$search}%")
+                       // also match variant names/barcodes/skus
+                       ->orWhereHas('variants', function($qv) use ($search) {
+                           $qv->where('variant_name', 'LIKE', "%{$search}%")
+                              ->orWhere('barcode', 'LIKE', "%{$search}%")
+                              ->orWhere('sku', 'LIKE', "%{$search}%");
+                       });
+                });
+            })
+            ->with(['variants' => function($q) {
+                $q->select('id', 'product_id', 'variant_name', 'barcode', 'sku', 'stock_on_hand', 'cost_price', 'selling_price');
+            }])
+            ->select('id', 'name', 'barcode', 'sku', 'stock_on_hand', 'cost_price', 'selling_price')
+            ->orderBy('name')
+            ->limit(30)
+            ->get();
+
+        $results = [];
+
+        foreach ($products as $item) {
+            $hasVariants = $item->variants && $item->variants->count() > 0;
+
+            if ($hasVariants) {
+                // Return as Select2 optgroup — each variant is a child option
+                $children = $item->variants->map(function ($v) use ($item) {
+                    $vStock = (float) $v->stock_on_hand;
+                    $vCost  = (float) ($v->cost_price ?? $item->cost_price);
+                    $vPrice = (float) ($v->selling_price ?? $item->selling_price);
+                    $subText = 'Stock: ' . number_format($vStock)
+                        . ($v->barcode ? ' | Bar: ' . $v->barcode : '')
+                        . ($v->sku     ? ' | SKU: ' . $v->sku     : '');
+
+                    return [
+                        'id'          => encryptId($item->id) . ':variant:' . $v->id,
+                        'text'        => $v->variant_name . ' (' . $subText . ')',
+                        'name'        => $item->name . ' — ' . $v->variant_name,
+                        'product_id'  => encryptId($item->id),
+                        'variant_id'  => $v->id,
+                        'variant_name'=> $v->variant_name,
+                        'stock'       => $vStock,
+                        'cost_price'  => $vCost,
+                        'selling_price'=> $vPrice,
+                        'has_variant' => true,
+                    ];
+                })->values()->toArray();
+
+                $results[] = [
+                    'text'     => $item->name,     // This becomes the optgroup label
+                    'children' => $children,
+                ];
+            } else {
+                // Simple flat product
+                $stock = (float) $item->stock_on_hand;
+                $subText = 'Stock: ' . number_format($stock)
+                    . ($item->barcode ? ' | Barcode: ' . $item->barcode : '')
+                    . ($item->sku     ? ' | SKU: ' . $item->sku          : '');
+
+                $results[] = [
+                    'id'          => encryptId($item->id),
+                    'text'        => $item->name . ' (' . $subText . ')',
+                    'name'        => $item->name,
+                    'product_id'  => encryptId($item->id),
+                    'variant_id'  => null,
+                    'variant_name'=> null,
+                    'stock'       => $stock,
+                    'cost_price'  => (float) $item->cost_price,
+                    'selling_price'=> (float) $item->selling_price,
+                    'has_variant' => false,
+                ];
+            }
+        }
+
+        return response()->json(['results' => $results]);
     }
 }
