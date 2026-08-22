@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Customer Credit Ledger - ' . $customer->CustomerName)
+@section('title', 'Customer Credit Statement - ' . $customer->CustomerName)
 
 @section('content')
 <div class="container-fluid px-3 px-md-4 py-3">
@@ -23,7 +23,7 @@
 
         <div class="d-flex align-items-center gap-2 flex-wrap">
             <a href="{{ route('customers.collections.create', [encryptId($customer->id)]) }}" class="btn btn-success rounded-3 px-3.5 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm hover-lift" style="background:linear-gradient(135deg, #059669 0%, #047857 100%);border:none;">
-                <i class="bi bi-cash-coin fs-6"></i>
+                <i class="bi bi-wallet2 fs-6"></i>
                 <span>Receive / Settle Payment</span>
             </a>
 
@@ -39,16 +39,18 @@
             <div class="row g-3 align-items-center">
                 {{-- Customer Profile --}}
                 <div class="col-xl-4 col-md-6">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="rounded-4 bg-danger bg-opacity-10 text-danger d-flex align-items-center justify-content-center fw-black fs-4" style="width:52px;height:52px;flex-shrink:0;">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-initials me-3" style="background:#dc2626;width:52px;height:52px;min-width:52px;flex-shrink:0;font-size:1.15rem;border-radius:14px;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:900;">
                             {{ strtoupper(substr($customer->CustomerName, 0, 2)) }}
                         </div>
                         <div class="overflow-hidden">
-                            <h5 class="fw-black text-dark mb-0 text-truncate font-mono">{{ $customer->CustomerName }}</h5>
-                            <div class="d-flex align-items-center gap-2 extra-small text-muted font-mono mt-0.5">
-                                <span><i class="bi bi-tag me-0.5"></i>{{ $customer->customer_code != '0' ? $customer->customer_code : getCustomerCode($customer->id) }}</span>
-                                <span>&bull;</span>
-                                <span><i class="bi bi-telephone me-0.5"></i>{{ $customer->mobile_number ?? 'No phone' }}</span>
+                            <h5 class="fw-black text-dark mb-1 text-truncate font-mono" style="font-size:1.1rem;">{{ $customer->CustomerName }}</h5>
+                            <div class="d-flex align-items-center gap-2 extra-small text-muted font-mono">
+                                <span class="badge bg-light text-dark border font-mono fw-bold">{{ $customer->customer_code != '0' ? $customer->customer_code : getCustomerCode($customer->id) }}</span>
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-mono fw-bold">{{ ucfirst($customer->customer_type ?? 'regular') }}</span>
+                                @if($customer->mobile_number)
+                                    <span><i class="bi bi-telephone text-primary me-0.5"></i>{{ $customer->mobile_number }}</span>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -56,9 +58,9 @@
 
                 {{-- Outstanding Balance --}}
                 <div class="col-xl-3 col-md-3 col-6">
-                    <div class="p-2.5 rounded-3 bg-danger-subtle border border-danger-subtle text-danger">
-                        <div class="extra-small text-uppercase fw-bold" style="font-size:0.65rem;">Outstanding Utang Balance</div>
-                        <div class="font-mono fw-black fs-4 mt-0.5">
+                    <div class="p-3 rounded-4 bg-danger-subtle border border-danger-subtle text-danger">
+                        <div class="extra-small text-uppercase fw-bold font-mono" style="font-size:0.65rem;letter-spacing:0.5px;">Outstanding Utang Balance</div>
+                        <div class="font-mono fw-black fs-3 mt-0.5" style="font-weight:900 !important;">
                             ₱{{ number_format(optional($customer->credit)->running_balance ?? 0, 2) }}
                         </div>
                     </div>
@@ -66,9 +68,9 @@
 
                 {{-- Credit Limit --}}
                 <div class="col-xl-3 col-md-3 col-6">
-                    <div class="p-2.5 rounded-3 bg-light border">
-                        <div class="extra-small text-muted text-uppercase fw-bold" style="font-size:0.65rem;">Approved Credit Limit</div>
-                        <div class="font-mono fw-black text-dark fs-5 mt-0.5">
+                    <div class="p-3 rounded-4 bg-light border">
+                        <div class="extra-small text-muted text-uppercase fw-bold font-mono" style="font-size:0.65rem;letter-spacing:0.5px;">Approved Credit Limit</div>
+                        <div class="font-mono fw-black text-dark fs-4 mt-0.5" style="font-weight:800 !important;">
                             ₱{{ number_format($customer->credit_limit ?? 0, 2) }}
                         </div>
                     </div>
@@ -76,8 +78,8 @@
 
                 {{-- Quick Settle Action --}}
                 <div class="col-xl-2 col-md-12 text-xl-end">
-                    <a href="{{ route('customers.collections.create', [encryptId($customer->id)]) }}" class="btn btn-outline-success w-100 rounded-3 py-2 fw-bold extra-small hover-lift d-flex align-items-center justify-content-center gap-1.5">
-                        <i class="bi bi-wallet2"></i>
+                    <a href="{{ route('customers.collections.create', [encryptId($customer->id)]) }}" class="btn btn-success w-100 rounded-3 py-2.5 fw-bold shadow-sm hover-lift d-flex align-items-center justify-content-center gap-1.5" style="background:linear-gradient(135deg, #059669 0%, #047857 100%);border:none;">
+                        <i class="bi bi-wallet2 fs-6"></i>
                         <span>Pay Utang</span>
                     </a>
                 </div>
@@ -92,8 +94,8 @@
             :columns="[
                 '#',
                 'Date',
-                'Reference No.',
-                'Transaction',
+                'Reference / Sale Code',
+                'Transaction Type',
                 'Debit (Charges)',
                 'Credit (Payments)',
                 'Running Balance',
@@ -108,9 +110,9 @@
                 ['data' => 'date'],
                 ['data' => 'reference_no'],
                 ['data' => 'transaction_type'],
-                ['data' => 'debit'],
-                ['data' => 'credit'],
-                ['data' => 'running_balance'],
+                ['data' => 'debit', 'className' => 'text-end'],
+                ['data' => 'credit', 'className' => 'text-end'],
+                ['data' => 'running_balance', 'className' => 'text-end fw-black font-mono'],
                 ['data' => 'remarks']
             ]"
         />
@@ -134,4 +136,25 @@
     </div>
 
 </div>
+
+@push('styles')
+<style>
+.hover-lift {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.06) !important;
+}
+.avatar-initials {
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: #ffffff;
+    flex-shrink: 0;
+}
+</style>
+@endpush
 @endsection

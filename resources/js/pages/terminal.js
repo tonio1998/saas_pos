@@ -34,7 +34,7 @@ $(function () {
                 throw new Error(result.message || 'Unable to update customer.');
             }
 
-            if(result.success){
+            if (result.success) {
                 const customerName = result.customer?.name || 'Walk-in Customer';
                 const cartCustomerNameEl = document.getElementById('cartCustomerName');
                 if (cartCustomerNameEl) {
@@ -63,7 +63,7 @@ $(function () {
                         POS.openCheckout();
                     }, 300);
                 }
-            }else{
+            } else {
                 renderSaleStatus(result.type, result.success, result.sale_status, result.message);
             }
 
@@ -88,99 +88,107 @@ $(function () {
             type: 'POST',
             data: $('#newCustomerForm').serialize(),
             headers: {
-                'X-CSRF-TOKEN':
-                    $('meta[name="csrf-token"]').attr('content')
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
 
             success(response) {
-
                 if (!response.status) {
-
-                    toastr.error(
-                        response.message ??
-                        'Unable to create customer.'
-                    );
-
+                    if (typeof toastr !== 'undefined') {
+                        toastr.error(response.message || 'Unable to create customer.');
+                    } else {
+                        alert(response.message || 'Unable to create customer.');
+                    }
                     return;
                 }
 
-                const option = new Option(
-                    response.customer.text,
+                // 1. Append option to customer_id select2 element
+                const $customerSelect = $('#customer_id');
+                if ($customerSelect.length && response.customer) {
+                    const option = new Option(response.customer.text, response.customer.id, true, true);
+                    $customerSelect.append(option).trigger('change');
+                }
 
-                    response.customer.id,
+                // 2. Hide collapse & reset form safely
+                const collapseEl = document.getElementById('newCustomerCollapse');
+                if (collapseEl) {
+                    try {
+                        const bsCollapse = bootstrap.Collapse.getInstance(collapseEl) || new bootstrap.Collapse(collapseEl, { toggle: false });
+                        bsCollapse.hide();
+                    } catch (e) {
+                        $(collapseEl).removeClass('show');
+                    }
+                }
 
-                    true,
+                const formEl = document.getElementById('newCustomerForm');
+                if (formEl) {
+                    formEl.reset();
+                }
 
-                    true
+                // 3. Update cart display & POS state
+                const customerName = response.customer?.text || 'Walk-in Customer';
+                const cartCustomerNameEl = document.getElementById('cartCustomerName');
+                if (cartCustomerNameEl) {
+                    cartCustomerNameEl.innerHTML = `<i class="bi bi-person me-1"></i>${customerName}`;
+                }
 
-                );
+                const cartCustomerAddressEl = document.getElementById('cartCustomerAddress');
+                if (cartCustomerAddressEl) {
+                    cartCustomerAddressEl.textContent = response.customer?.text || 'Walk-in Customer';
+                }
 
-                $('#Customer')
-                    .append(option)
-                    .trigger('change');
+                if (typeof POS !== 'undefined') {
+                    POS.state.customer_id = response.customer?.id || null;
+                    POS.state.customer_name = customerName;
+                    POS.syncCustomerDisplay();
+                }
 
-                $('#newCustomerCollapse')
-                    .collapse('hide');
+                if (typeof toastr !== 'undefined') {
+                    toastr.success(response.message || 'Customer created successfully.');
+                }
 
-                $('#newCustomerForm')[0]
-                    .reset();
-
-                POS.state.customer_id = response.customer?.id || null;
-                POS.state.customer_name = response.customer?.text || 'Walk-in Customer';
-                POS.syncCustomerDisplay();
-
-                const fromCheckout = POS._customerModalFromCheckout;
-                POS._customerModalFromCheckout = false;
+                // 4. Hide modal
+                const fromCheckout = typeof POS !== 'undefined' ? POS._customerModalFromCheckout : false;
+                if (typeof POS !== 'undefined') {
+                    POS._customerModalFromCheckout = false;
+                }
 
                 const modalEl = document.getElementById('customerModal');
-                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-                modal.hide();
+                if (modalEl) {
+                    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                    modal.hide();
+                }
 
-                if (fromCheckout) {
+                if (fromCheckout && typeof POS !== 'undefined' && typeof POS.openCheckout === 'function') {
                     setTimeout(() => {
                         POS.openCheckout();
                     }, 300);
                 }
-
             },
 
             error(xhr) {
-
-                if (xhr.status === 422) {
-
-                    const errors =
-                        xhr.responseJSON.errors;
-
+                if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                    const errors = xhr.responseJSON.errors;
                     Object.values(errors).forEach(function (messages) {
-
-                        toastr.error(
-                            messages[0]
-                        );
-
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error(messages[0]);
+                        } else {
+                            alert(messages[0]);
+                        }
                     });
-
                 } else {
-
-                    toastr.error(
-                        'An unexpected error occurred.'
-                    );
-
+                    const msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'An unexpected error occurred.';
+                    if (typeof toastr !== 'undefined') {
+                        toastr.error(msg);
+                    } else {
+                        alert(msg);
+                    }
                 }
-
             },
 
             complete() {
-
-                $btn
-                    .prop('disabled', false)
-                    .html(
-                        '<i class="bi bi-person-plus-fill me-1"></i>Create & Select Customer'
-                    );
-
+                $btn.prop('disabled', false).html('<i class="bi bi-person-plus me-1"></i>Create & Select Customer');
             }
-
         });
-
     });
 
 });
@@ -193,6 +201,7 @@ const POS = {
         customer_name: null,
         saleId: document.getElementById('saleId')?.value || 0,
         priceMode: 'retail',
+        viewMode: localStorage.getItem('pos_view_mode') || 'table',
         subtotal: 0,
         discount: 0,
         total: 0,
@@ -249,66 +258,149 @@ const POS = {
 
     },
     renderProducts(products) {
+        const container = document.getElementById('productContainer');
+        if (!container) return;
 
-        const container =
-            document.getElementById(
-                'productContainer'
-            );
-
-        if (!container) {
-            return;
-        }
-
-        if (
-            !products ||
-            products.length === 0
-        ) {
-
+        if (!products || products.length === 0) {
             container.innerHTML = `
-            <div class="empty-products">
-                No products found
-            </div>
-        `;
-
+                <div class="empty-products text-center p-5 text-muted">
+                    <i class="bi bi-box-seam fs-1 d-block mb-2 text-secondary"></i>
+                    <h6 class="fw-bold">No products found</h6>
+                    <small>Try searching with another keyword or barcode.</small>
+                </div>
+            `;
             return;
         }
 
-        container.innerHTML =
-            products.map(product => {
+        const viewMode = this.state.viewMode || 'table';
 
-                const stock =
-                    Number(
-                        product.stock_on_hand ?? 0
-                    );
+        // Update view mode toggle button UI states
+        const btnViewTable = document.getElementById('btnViewTable');
+        const btnViewGrid = document.getElementById('btnViewGrid');
+        if (btnViewTable && btnViewGrid) {
+            if (viewMode === 'table') {
+                btnViewTable.classList.add('active', 'bg-white', 'text-dark');
+                btnViewTable.classList.remove('text-muted');
+                btnViewGrid.classList.remove('active', 'bg-white', 'text-dark');
+                btnViewGrid.classList.add('text-muted');
+            } else {
+                btnViewGrid.classList.add('active', 'bg-white', 'text-dark');
+                btnViewGrid.classList.remove('text-muted');
+                btnViewTable.classList.remove('active', 'bg-white', 'text-dark');
+                btnViewTable.classList.add('text-muted');
+            }
+        }
 
+        if (viewMode === 'table') {
+            const tableRows = products.map(product => {
+                const stock = Number(product.stock_on_hand ?? 0);
                 let stockBadge = '';
-
                 if (stock <= 0) {
-
-                    stockBadge = `
-                <span class="stock-badge out">
-                    Out of Stock
-                </span>
-            `;
-
+                    stockBadge = `<span class="badge bg-danger-subtle text-danger border border-danger-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-x-circle me-1"></i>Out of Stock</span>`;
                 } else if (stock <= 10) {
-
-                    stockBadge = `
-                <span class="stock-badge low">
-                    ${stock} Left
-                </span>
-            `;
-
+                    stockBadge = `<span class="badge bg-warning-subtle text-warning border border-warning-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-exclamation-circle me-1"></i>${stock} Left</span>`;
                 } else {
-
-                    stockBadge = `
-                <span class="stock-badge in">
-                    ${stock} Available
-                </span>
-            `;
-
+                    stockBadge = `<span class="badge bg-success-subtle text-success border border-success-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-check-circle me-1"></i>${stock} Available</span>`;
                 }
 
+                const isWholesale = this.state.priceMode === 'wholesale';
+                const retailPrice = Number(product.selling_price || 0);
+                const wholesalePrice = Number(product.wholesale_price || 0);
+                const activePrice = (isWholesale && wholesalePrice > 0) ? wholesalePrice : retailPrice;
+                const hasVariants = product.variants && Array.isArray(product.variants) && product.variants.length > 0;
+
+                let priceDisplay = '';
+                if (isWholesale && wholesalePrice > 0) {
+                    priceDisplay = `
+                        <div class="d-flex align-items-baseline justify-content-end gap-1">
+                            <span class="font-mono fw-black text-primary" style="font-size:0.92rem;">${this.formatCurrency(wholesalePrice)}</span>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle extra-small" style="font-size:0.6rem;">WS</span>
+                        </div>
+                    `;
+                } else if (wholesalePrice > 0) {
+                    priceDisplay = `
+                        <div class="text-end lh-sm">
+                            <div class="font-mono fw-black text-emerald" style="font-size:0.92rem;">${this.formatCurrency(retailPrice)}</div>
+                            <small class="text-muted extra-small font-mono" style="font-size:0.68rem;">WS: ${this.formatCurrency(wholesalePrice)}</small>
+                        </div>
+                    `;
+                } else {
+                    priceDisplay = `<div class="font-mono fw-black text-emerald" style="font-size:0.92rem;">${this.formatCurrency(retailPrice)}</div>`;
+                }
+
+                let variantBadge = '';
+                if (hasVariants) {
+                    variantBadge = `
+                        <span class="badge bg-purple-subtle text-purple border border-purple-subtle extra-small" style="background:#f3e8ff;color:#7e22ce;border-color:#e9d5ff;font-size:0.68rem;">
+                            <i class="bi bi-layers-fill me-1"></i>${product.variants.length} Options
+                        </span>
+                    `;
+                }
+
+                const imgUrl = product.image
+                    ? `/storage/${product.image}?v=${new Date(product.updated_at).getTime()}`
+                    : '/images/no_image.jpg';
+
+                return `
+                    <tr
+                        class="product-row ${hasVariants ? 'has-variants' : ''} cursor-pointer"
+                        data-id="${product.id}"
+                        data-name="${product.name}"
+                        data-price="${activePrice}"
+                        data-retail-price="${retailPrice}"
+                        data-wholesale-price="${wholesalePrice}"
+                        data-stock="${stock}"
+                        data-barcode="${product.barcode ?? ''}"
+                        data-category="${product.category_id ?? ''}"
+                        data-has-variants="${hasVariants ? '1' : '0'}"
+                    >
+                        <td class="align-middle py-1.5 px-2.5" style="width: 44px;">
+                            <img src="${imgUrl}" alt="" class="rounded-2 border shadow-xs" style="width:36px;height:36px;object-fit:cover;background:#f8fafc;flex-shrink:0;">
+                        </td>
+                        <td class="align-middle py-1.5 px-2.5">
+                            <div class="fw-bold text-dark text-truncate" style="max-width: 360px; font-size: 0.88rem;">${product.name}</div>
+                            <div class="d-flex align-items-center gap-1.5 mt-0.5">
+                                ${product.barcode ? `<span class="badge bg-light text-muted border font-mono extra-small" style="font-size:0.7rem;padding:2px 6px;">${product.barcode}</span>` : ''}
+                                ${variantBadge}
+                            </div>
+                        </td>
+                        <td class="align-middle py-1.5 px-2.5" style="width: 130px;">
+                            ${stockBadge}
+                        </td>
+                        <td class="align-middle py-1.5 px-2.5 text-end" style="width: 130px;">
+                            ${priceDisplay}
+                        </td>
+                        <td class="align-middle py-1.5 px-2.5 text-center" style="width: 80px;">
+                            <button type="button" class="btn btn-sm btn-success rounded-3 px-2.5 py-1 extra-small font-mono fw-extrabold shadow-xs" style="background:#059669;border:none;">
+                                <i class="bi bi-plus-lg me-1"></i>Add
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="table-responsive bg-white rounded-3 border shadow-xs overflow-hidden w-100">
+                    <table class="table table-hover align-middle mb-0 pos-product-table">
+                        <tbody class="border-top-0">
+                            ${tableRows}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            container.className = 'products-table-wrapper w-100 flex-grow-1 overflow-y-auto border-radius-0';
+        } else {
+            // Card Grid View
+            const cardsHtml = products.map(product => {
+                const stock = Number(product.stock_on_hand ?? 0);
+                let stockBadge = '';
+                if (stock <= 0) {
+                    stockBadge = `<span class="stock-badge out">Out of Stock</span>`;
+                } else if (stock <= 10) {
+                    stockBadge = `<span class="stock-badge low">${stock} Left</span>`;
+                } else {
+                    stockBadge = `<span class="stock-badge in">${stock} Available</span>`;
+                }
 
                 const isWholesale = this.state.priceMode === 'wholesale';
                 const retailPrice = Number(product.selling_price || 0);
@@ -358,12 +450,7 @@ const POS = {
                         data-has-variants="${hasVariants ? '1' : '0'}"
                     >
                         <div class="product-image">
-                            <img src="${product.image
-                                                    ? `/storage/${product.image}?v=${new Date(product.updated_at).getTime()}`
-                                                    : '/images/no_image.jpg'
-                                            }"
-                                alt="${product.name}"
-                            >
+                            <img src="${product.image ? `/storage/${product.image}?v=${new Date(product.updated_at).getTime()}` : '/images/no_image.jpg'}" alt="${product.name}">
                         </div>
                         <div class="product-info">
                             <div class="product-name text-truncate">${product.name}</div>
@@ -378,18 +465,15 @@ const POS = {
                         </div>
                     </div>
                 `;
-
             }).join('');
 
-        this.productCards =
-            container.querySelectorAll(
-                '.product-card'
-            );
+            container.innerHTML = cardsHtml;
+            container.className = 'products-grid flex-grow-1 overflow-y-auto p-3';
+        }
 
+        this.productCards = container.querySelectorAll('.product-card, .product-row');
         this.buildProductCache();
-
         this.bindProductEvents();
-
     },
     bindProductEvents() {
 
@@ -881,6 +965,24 @@ const POS = {
         this.bindSplitPayments();
         this.bindForceRefresh();
         this.bindCustomerModalTransitions();
+        this.bindViewMode();
+    },
+    bindViewMode() {
+        const btnViewTable = document.getElementById('btnViewTable');
+        const btnViewGrid = document.getElementById('btnViewGrid');
+        if (btnViewTable && btnViewGrid) {
+            btnViewTable.addEventListener('click', () => {
+                this.state.viewMode = 'table';
+                localStorage.setItem('pos_view_mode', 'table');
+                this.renderProducts(this.products);
+            });
+
+            btnViewGrid.addEventListener('click', () => {
+                this.state.viewMode = 'grid';
+                localStorage.setItem('pos_view_mode', 'grid');
+                this.renderProducts(this.products);
+            });
+        }
     },
     bindCustomerModalTransitions() {
         document.getElementById('btnModalSelectCustomer')?.addEventListener('click', (e) => {
@@ -1004,8 +1106,8 @@ const POS = {
         this.paymentLines.innerHTML =
             this.state.payments
                 .map((payment, index) => `
-<div class="payment-row p-3 rounded-4 border bg-light bg-opacity-75 shadow-xs mb-2" data-index="${index}">
-    <div class="row g-2.5 align-items-center">
+<div class="payment-row p-3.5 rounded-4 border bg-light bg-opacity-75 shadow-xs mb-3" data-index="${index}">
+    <div class="row g-3 align-items-center">
         <div class="${isMulti ? 'col-4' : 'col-4'}">
             <label class="form-label extra-small fw-extrabold text-muted text-uppercase mb-1" style="font-size:0.7rem;letter-spacing:0.5px;">Payment Method</label>
             <select class="form-select payment-method fw-bold shadow-xs py-2 px-2.5" data-index="${index}" style="font-size:0.92rem;border-radius:10px;">
@@ -1233,18 +1335,18 @@ const POS = {
 
                 this.manualDiscountSection
                     ?.classList.add(
-                    'd-none'
-                );
+                        'd-none'
+                    );
 
                 this.discountInfoSection
                     ?.classList.add(
-                    'd-none'
-                );
+                        'd-none'
+                    );
 
                 this.discountIdNoSection
                     ?.classList.add(
-                    'd-none'
-                );
+                        'd-none'
+                    );
 
                 if (
                     type === 'manual'
@@ -1252,8 +1354,8 @@ const POS = {
 
                     this.manualDiscountSection
                         ?.classList.remove(
-                        'd-none'
-                    );
+                            'd-none'
+                        );
 
                 }
 
@@ -1270,13 +1372,13 @@ const POS = {
 
                     this.discountInfoSection
                         ?.classList.remove(
-                        'd-none'
-                    );
+                            'd-none'
+                        );
 
                     this.discountIdNoSection
                         ?.classList.remove(
-                        'd-none'
-                    );
+                            'd-none'
+                        );
 
                     if (this.discountHolder && !this.discountHolder.value.trim() && this.state.customer_name && this.state.customer_name !== 'Walk-in Customer') {
                         this.discountHolder.value = this.state.customer_name;
@@ -1451,6 +1553,60 @@ const POS = {
 
         }
 
+        // Global POS Keyboard Shortcuts (F4: Complete Sale / Checkout, F2: Barcode Search, Enter: Submit Payment)
+        document.addEventListener('keydown', (e) => {
+            // F4 Key: Open Payment Modal or Complete Sale
+            if (e.key === 'F4') {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const paymentModalEl = document.getElementById('paymentModal');
+                const isPaymentModalOpen = paymentModalEl && paymentModalEl.classList.contains('show');
+
+                if (isPaymentModalOpen) {
+                    if (this.btnConfirmPayment && !this.btnConfirmPayment.disabled) {
+                        this.btnConfirmPayment.click();
+                    }
+                } else {
+                    if (this.btnCheckout && !this.btnCheckout.disabled) {
+                        this.btnCheckout.click();
+                    }
+                }
+                return;
+            }
+
+            // Enter Key: Submit payment when payment modal is active
+            if (e.key === 'Enter') {
+                const paymentModalEl = document.getElementById('paymentModal');
+                const isPaymentModalOpen = paymentModalEl && paymentModalEl.classList.contains('show');
+
+                if (isPaymentModalOpen) {
+                    const tag = e.target ? e.target.tagName.toLowerCase() : '';
+                    if (tag === 'textarea') {
+                        return;
+                    }
+                    e.preventDefault();
+                    if (this.btnConfirmPayment && !this.btnConfirmPayment.disabled) {
+                        this.btnConfirmPayment.click();
+                    }
+                    return;
+                }
+            }
+
+            // F2 Key: Focus Barcode / Product Search input
+            if (e.key === 'F2') {
+                e.preventDefault();
+                const barcodeInput = document.getElementById('barcodeSearch');
+                if (barcodeInput) {
+                    barcodeInput.focus();
+                    if (typeof barcodeInput.select === 'function') {
+                        barcodeInput.select();
+                    }
+                }
+                return;
+            }
+        });
+
     },
     async completeSale() {
         if (!this.validateCheckout()) {
@@ -1477,13 +1633,13 @@ const POS = {
                 throw new Error(result.message || `Request failed (${response.status}).`);
             }
 
-            if(result.success){
+            if (result.success) {
                 const modal = bootstrap.Modal.getOrCreateInstance(this.paymentModal);
                 modal.hide();
                 await this.updateCachedStocks();
                 this.printReceipt(result);
                 this.reset();
-            }else{
+            } else {
                 renderSaleStatus(result.type, result.success, result.sale_status, result.message);
             }
 
@@ -1759,8 +1915,7 @@ body {
 
 </div>
 
-${
-            this.discountHolder?.value
+${this.discountHolder?.value
                 ? `
 <div>
     Customer:
@@ -1768,7 +1923,7 @@ ${
 </div>
 `
                 : ''
-        }
+            }
 
 <div class="line"></div>
 
@@ -1787,16 +1942,16 @@ ${this.state.cart.map(item => `
             ${item.qty}
             ×
             ${this.formatCurrency(
-            item.price
-        )}
+                item.price
+            )}
 
         </span>
 
         <span>
 
             ${this.formatCurrency(
-            item.subtotal
-        )}
+                item.subtotal
+            )}
 
         </span>
 
@@ -1816,8 +1971,8 @@ ${this.state.cart.map(item => `
 
     <span>
         ${this.formatCurrency(
-            this.state.subtotal
-        )}
+                this.state.subtotal
+            )}
     </span>
 
 </div>
@@ -1830,14 +1985,13 @@ ${this.state.cart.map(item => `
 
     <span>
         ${this.formatCurrency(
-            this.state.discount
-        )}
+                this.state.discount
+            )}
     </span>
 
 </div>
 
-${
-            this.discountType?.value
+${this.discountType?.value
                 ? `
 <div>
     Discount Type:
@@ -1845,10 +1999,9 @@ ${
 </div>
 `
                 : ''
-        }
+            }
 
-${
-            this.discountIdNo?.value
+${this.discountIdNo?.value
                 ? `
 <div>
     ID No:
@@ -1856,7 +2009,7 @@ ${
 </div>
 `
                 : ''
-        }
+            }
 
 <div class="row total">
 
@@ -1866,8 +2019,8 @@ ${
 
     <span>
         ${this.formatCurrency(
-            this.state.total
-        )}
+                this.state.total
+            )}
     </span>
 
 </div>
@@ -1888,37 +2041,35 @@ ${payments.map(payment => `
 
     <span>
 
-        ${
-            payment.payment_method
-                ?.replace(
-                    '_',
-                    ' '
-                )
-                .toUpperCase()
-        }
+        ${payment.payment_method
+                    ?.replace(
+                        '_',
+                        ' '
+                    )
+                    .toUpperCase()
+                }
 
     </span>
 
     <span>
 
         ${this.formatCurrency(
-            payment.amount
-        )}
+                    payment.amount
+                )}
 
     </span>
 
 </div>
 
-${
-            payment.reference_number
-                ? `
+${payment.reference_number
+                    ? `
 <div>
     Ref:
     ${payment.reference_number}
 </div>
 `
-                : ''
-        }
+                    : ''
+                }
 
 `).join('')}
 
@@ -1932,8 +2083,8 @@ ${
 
     <strong>
         ${this.formatCurrency(
-            totalPaid
-        )}
+                    totalPaid
+                )}
     </strong>
 
 </div>
@@ -1946,16 +2097,15 @@ ${
 
     <strong>
         ${this.formatCurrency(
-            this.state.change
-        )}
+                    this.state.change
+                )}
     </strong>
 
 </div>
 
 <div class="line"></div>
 
-${
-            this.paymentNotes?.value?.trim()
+${this.paymentNotes?.value?.trim()
                 ? `
 <div>
     Notes:
@@ -1968,7 +2118,7 @@ ${
 <div class="line"></div>
 `
                 : ''
-        }
+            }
 
 <div class="footer">
 
@@ -2128,14 +2278,14 @@ window.onload = () => {
         ) {
 
 
-            renderSaleStatus('error','WATCH OUT!', 'Insufficient payment.', 'The total amount paid is less than the total amount due.');
+            renderSaleStatus('error', 'WATCH OUT!', 'Insufficient payment.', 'The total amount paid is less than the total amount due.');
             return false;
 
         }
 
         for (
             const payment of this.state.payments
-            ) {
+        ) {
 
             if (
                 Number(
@@ -2204,13 +2354,13 @@ window.onload = () => {
                     item => ({
 
                         product_id:
-                        item.id,
+                            item.id,
 
                         qty:
-                        item.qty,
+                            item.qty,
 
                         price:
-                        item.price,
+                            item.price,
 
                     })
                 ),
@@ -2447,7 +2597,7 @@ window.onload = () => {
 
                 const match =
                     this.state.productMap[
-                        barcode
+                    barcode
                     ];
 
                 if (!match) {
@@ -2733,10 +2883,9 @@ window.onload = () => {
         <div
             class="activity-time"
         >
-            ${
-            new Date()
+            ${new Date()
                 .toLocaleTimeString()
-        }
+            }
         </div>
 
         <div
@@ -2754,7 +2903,7 @@ window.onload = () => {
         while (
             this.activityList
                 .children.length > 30
-            ) {
+        ) {
 
             this.activityList
                 .lastElementChild

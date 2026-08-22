@@ -7,7 +7,7 @@
     <!-- Full-Width Top Bar -->
     @include('pages.tenants.terminal.search_bar')
 
-    <div class="pos-shell flex-grow-1 d-flex overflow-hidden">
+    <div class="pos-shell flex-grow-1 d-flex overflow-hidden mt-2">
 
         <div class="pos-left flex-grow-1 h-100 overflow-hidden d-flex flex-column">
 
@@ -70,16 +70,16 @@
                 </div>
 
                 {{-- Modal Body --}}
-                <div class="modal-body p-4 bg-light bg-opacity-75">
+                <div class="modal-body p-4 p-md-4.5 bg-light bg-opacity-75">
                     <div class="saleStatusContainer"></div>
 
                     <div class="row g-4">
 
                         {{-- LEFT COLUMN: Payment Inputs & CRM Controls --}}
-                        <div class="col-lg-7 d-flex flex-column gap-3.5">
+                        <div class="col-lg-7 d-flex flex-column gap-4">
 
                             {{-- Top KPI Header: Total Due & Balance Due --}}
-                            <div class="row g-3">
+                            <div class="row g-3 g-md-4">
                                 <div class="col-md-6">
                                     <div class="p-4 rounded-4 border-0 shadow-sm h-100 d-flex flex-column justify-content-between" style="background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%);color:#fff;">
                                         <div class="d-flex align-items-center justify-content-between mb-2">
@@ -110,14 +110,14 @@
                             </div>
 
                             {{-- Quick Cash Tender Presets --}}
-                            <div class="bg-white p-3.5 rounded-4 border shadow-xs">
-                                <div class="d-flex align-items-center justify-content-between mb-2.5">
+                            <div class="bg-white p-4 rounded-4 border shadow-sm">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
                                     <span class="extra-small fw-extrabold text-uppercase text-muted" style="letter-spacing:0.6px;">
                                         <i class="bi bi-lightning-charge-fill text-warning me-1"></i>Quick Cash Tender (Fast Pay)
                                     </span>
                                     <span class="badge bg-light text-muted border extra-small">Auto-fills amount</span>
                                 </div>
-                                <div class="d-flex flex-wrap gap-2" id="quickTenderContainer">
+                                <div class="d-flex flex-wrap gap-2.5" id="quickTenderContainer">
                                     <button type="button" class="btn btn-outline-success fw-extrabold font-mono rounded-3 px-3 py-1.5 extra-small quick-tender-exact shadow-xs">
                                         <i class="bi bi-check2-all me-1"></i>Exact Amount
                                     </button>
@@ -131,7 +131,7 @@
                             </div>
 
                             {{-- Complete CRM Customer Profile Card --}}
-                            <div class="bg-white p-3.5 rounded-4 border shadow-xs" id="modalCustomerCard">
+                            <div class="bg-white p-4 rounded-4 border shadow-sm" id="modalCustomerCard">
                                 <div class="d-flex align-items-center justify-content-between gap-3">
                                     <div class="d-flex align-items-center gap-3 flex-grow-1 min-w-0">
                                         <div class="rounded-4 bg-success bg-opacity-10 d-flex align-items-center justify-content-center flex-shrink-0 text-success shadow-xs" style="width:44px;height:44px;">
@@ -171,8 +171,8 @@
                             </div>
 
                             {{-- Payment Lines Breakdown Container --}}
-                            <div class="bg-white p-4 rounded-4 border shadow-xs">
-                                <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
+                            <div class="bg-white p-4 rounded-4 border shadow-sm">
+                                <div class="d-flex align-items-center justify-content-between mb-3.5 pb-3 border-bottom">
                                     <div class="d-flex align-items-center gap-2">
                                         <span class="extra-small fw-extrabold text-uppercase text-muted" style="letter-spacing:0.6px;">
                                             <i class="bi bi-credit-card-2-front-fill text-primary me-1"></i>Tender & Payment Breakdown
@@ -181,13 +181,13 @@
                                     <small class="text-muted extra-small font-mono">Supports Split / Multi-Payments</small>
                                 </div>
 
-                                <div id="paymentLines" class="d-flex flex-column gap-2.5 mb-3">
+                                <div id="paymentLines" class="d-flex flex-column gap-3 mb-3.5">
                                     {{-- Rendered dynamically with comfortable padding by terminal.js --}}
                                 </div>
 
                                 <button
                                     type="button"
-                                    class="btn btn-light border border-dashed w-100 py-2.5 text-muted fw-bold rounded-3 shadow-xs hover-lift"
+                                    class="btn btn-light border border-dashed w-100 py-3 text-muted fw-bold rounded-3 shadow-xs hover-lift"
                                     id="btnAddPayment"
                                     style="border-style:dashed !important;"
                                 >
@@ -196,9 +196,9 @@
                             </div>
 
                             {{-- Discounts & Notes Accordion --}}
-                            <div class="bg-white rounded-4 border shadow-xs overflow-hidden">
+                            <div class="bg-white rounded-4 border shadow-sm overflow-hidden">
                                 <button
-                                    class="btn btn-white w-100 py-3 px-3.5 text-start d-flex align-items-center justify-content-between text-dark fw-bold small border-0"
+                                    class="btn btn-white w-100 py-3.5 px-4 text-start d-flex align-items-center justify-content-between text-dark fw-bold small border-0"
                                     type="button"
                                     data-bs-toggle="collapse"
                                     data-bs-target="#discountPanel"
@@ -211,8 +211,8 @@
                                     <i class="bi bi-chevron-down extra-small text-muted"></i>
                                 </button>
 
-                                <div id="discountPanel" class="collapse border-top p-3.5 bg-light bg-opacity-50">
-                                    <div class="row g-3">
+                                <div id="discountPanel" class="collapse border-top p-4 bg-light bg-opacity-50">
+                                    <div class="row g-3.5">
                                         <div class="col-md-6">
                                             <label class="form-label extra-small fw-bold text-muted text-uppercase mb-1">Discount Program</label>
                                             <select id="discountType" class="form-select">
@@ -258,10 +258,10 @@
 
                         {{-- RIGHT COLUMN: Receipt Summary & Change Banner --}}
                         <div class="col-lg-5">
-                            <div class="bg-white rounded-4 border shadow-sm p-4 h-100 d-flex flex-column justify-content-between gap-3">
+                            <div class="bg-white rounded-4 border shadow-sm p-4 p-md-4.5 h-100 d-flex flex-column justify-content-between gap-4">
 
                                 <div>
-                                    <div class="d-flex align-items-center justify-content-between pb-3 mb-3 border-bottom">
+                                    <div class="d-flex align-items-center justify-content-between pb-3 mb-3.5 border-bottom">
                                         <div>
                                             <span class="fw-black text-dark font-mono text-uppercase fs-6">Order Summary</span>
                                             <div class="text-muted extra-small">Live calculated receipt totals</div>
@@ -270,28 +270,28 @@
                                     </div>
 
                                     {{-- Line items breakdown with BOLD values --}}
-                                    <div class="d-flex flex-column gap-2.5 mb-2">
-                                        <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex flex-column gap-3 mb-3">
+                                        <div class="d-flex justify-content-between align-items-center py-0.5">
                                             <span class="text-muted small">Cart Subtotal:</span>
                                             <strong id="summarySubtotalModal" class="font-mono text-dark fw-black fs-5">₱0.00</strong>
                                         </div>
 
-                                        <div class="d-flex justify-content-between align-items-center">
+                                        <div class="d-flex justify-content-between align-items-center py-0.5">
                                             <span class="text-muted small">Discount Applied:</span>
                                             <strong id="summaryDiscountModal" class="font-mono text-warning fw-black fs-5">₱0.00</strong>
                                         </div>
 
-                                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
                                             <span class="text-dark fw-extrabold small">Total Payable:</span>
                                             <strong class="font-mono text-success fw-black fs-4" id="summaryTotalModal">₱0.00</strong>
                                         </div>
 
-                                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
                                             <span class="text-muted small fw-bold">Total Tendered / Paid:</span>
                                             <strong id="paymentPaid" class="font-mono text-primary fw-black fs-4">₱0.00</strong>
                                         </div>
 
-                                        <div class="d-flex justify-content-between align-items-center">
+                                        <div class="d-flex justify-content-between align-items-center py-0.5">
                                             <span class="text-muted small fw-bold">Remaining Balance:</span>
                                             <strong id="paymentBalanceSummary" class="font-mono text-danger fw-black fs-4">₱0.00</strong>
                                         </div>
@@ -299,7 +299,7 @@
                                 </div>
 
                                 {{-- Hero Change Card with Generous Padding & Ultra-Bold Change --}}
-                                <div class="my-auto py-2">
+                                <div class="my-auto py-3">
                                     <div class="p-4 rounded-4 text-center border shadow-xs" style="background:linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);border-color:#a7f3d0 !important;">
                                         <div class="extra-small text-uppercase fw-extrabold mb-1" style="letter-spacing:1px;color:#047857;">
                                             <i class="bi bi-cash-coin me-1 fs-6"></i>Sukli / Change Due
@@ -314,7 +314,7 @@
                                 </div>
 
                                 {{-- Action Button --}}
-                                <div class="pt-2">
+                                <div class="pt-3">
                                     <button
                                         type="button"
                                         class="btn btn-success w-100 py-3.5 rounded-3 fw-black font-mono shadow-sm d-flex align-items-center justify-content-center gap-2"

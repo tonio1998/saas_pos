@@ -39,6 +39,18 @@ class CustomerCreditController extends Controller
                 $settleUrl = route('customers.collections.create', encryptId($customer->id));
                 $editUrl = route('customers.edit', encryptId($customer->id));
                 $balance = optional($customer->credit)->running_balance ?? 0;
+                $settleOption = $balance > 0 ? '
+                    <a href="' . $settleUrl . '" class="btn btn-success text-start d-flex align-items-center gap-3 p-3 rounded-3 shadow-xs hover-lift" style="background:#059669;border-color:#059669;color:#fff;">
+                        <div class="rounded-3 bg-white bg-opacity-20 text-white d-flex align-items-center justify-content-center p-2" style="width:38px;height:38px;flex-shrink:0;">
+                            <i class="bi bi-wallet2 fs-5"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold">Receive / Settle Payment</div>
+                            <small class="opacity-90 font-mono" style="font-size:0.75rem;">Balance: ₱' . number_format($balance, 2) . '</small>
+                        </div>
+                        <i class="bi bi-chevron-right opacity-75 extra-small"></i>
+                    </a>
+                ' : '';
 
                 return '
                     <button
@@ -53,29 +65,29 @@ class CustomerCreditController extends Controller
                     </button>
 
                     <template id="credit-actions-' . $customer->id . '">
-                        <div class="d-grid gap-2 p-1">
-                            <a href="' . $settleUrl . '" class="btn btn-success text-start d-flex align-items-center gap-2 py-2 px-3 rounded-3 fw-bold" style="background:#059669;border-color:#059669;color:#fff;">
-                                <i class="bi bi-wallet2 fs-5"></i>
-                                <div>
-                                    <div>Receive / Settle Payment</div>
-                                    <small class="opacity-75 font-mono" style="font-size:0.75rem;">Balance: ₱' . number_format($balance, 2) . '</small>
+                        <div class="d-grid gap-2.5">
+                            ' . $settleOption . '
+
+                            <a href="' . $ledgerUrl . '" class="btn btn-white border border-danger-subtle text-start d-flex align-items-center gap-3 p-3 rounded-3 shadow-xs hover-lift">
+                                <div class="rounded-3 bg-danger bg-opacity-10 text-danger d-flex align-items-center justify-content-center p-2" style="width:38px;height:38px;flex-shrink:0;">
+                                    <i class="bi bi-book-half fs-5"></i>
                                 </div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold text-danger" style="font-size:0.9rem;">Credit Ledger Statement</div>
+                                    <small class="text-muted extra-small d-block">View history of purchases on credit</small>
+                                </div>
+                                <i class="bi bi-chevron-right text-muted extra-small"></i>
                             </a>
 
-                            <a href="' . $ledgerUrl . '" class="btn btn-outline-danger text-start d-flex align-items-center gap-2 py-2 px-3 rounded-3 fw-bold">
-                                <i class="bi bi-book-half fs-5 text-danger"></i>
-                                <div>
-                                    <div class="text-danger">Credit Ledger Statement</div>
-                                    <small class="text-muted" style="font-size:0.75rem;">View history of purchases on credit</small>
+                            <a href="' . $editUrl . '" class="btn btn-white border border-primary-subtle text-start d-flex align-items-center gap-3 p-3 rounded-3 shadow-xs hover-lift">
+                                <div class="rounded-3 bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center p-2" style="width:38px;height:38px;flex-shrink:0;">
+                                    <i class="bi bi-pencil-square fs-5"></i>
                                 </div>
-                            </a>
-
-                            <a href="' . $editUrl . '" class="btn btn-primary text-start d-flex align-items-center gap-2 py-2 px-3 rounded-3 fw-bold" style="background:#2563eb;border-color:#2563eb;color:#fff;">
-                                <i class="bi bi-pencil-square fs-5"></i>
-                                <div>
-                                    <div>Edit Customer Profile</div>
-                                    <small class="opacity-75" style="font-size:0.75rem;">Adjust credit limits & info</small>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold text-dark" style="font-size:0.9rem;">Edit Customer Profile</div>
+                                    <small class="text-muted extra-small d-block">Adjust credit limits & info</small>
                                 </div>
+                                <i class="bi bi-chevron-right text-muted extra-small"></i>
                             </a>
                         </div>
                     </template>

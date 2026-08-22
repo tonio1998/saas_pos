@@ -98,14 +98,14 @@
 </script>
 
 <div class="modal fade" id="actionModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content action-modal">
-            <div class="modal-header border-0 pb-2">
-                <h5 class="modal-title fw-bold" id="actionModalTitle"></h5>
-                <button class="btn-close shadow-none" data-bs-dismiss="modal"></button>
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+        <div class="modal-content action-modal border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header border-bottom py-3 px-4 bg-white d-flex align-items-center justify-content-between">
+                <h5 class="modal-title fw-bold text-dark font-mono fs-6 mb-0" id="actionModalTitle"></h5>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body pt-0">
-                <div class="d-grid gap-2" id="actionModalBody"></div>
+            <div class="modal-body p-3.5 bg-light">
+                <div class="d-grid gap-2.5" id="actionModalBody"></div>
             </div>
         </div>
     </div>

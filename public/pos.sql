@@ -20,6 +20,7 @@ CREATE DATABASE IF NOT EXISTS `snsu_pos` /*!40100 DEFAULT CHARACTER SET utf8mb3 
 USE `snsu_pos`;
 
 -- Dumping structure for table snsu_pos.audits
+DROP TABLE IF EXISTS `audits`;
 CREATE TABLE IF NOT EXISTS `audits` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `user_type` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -38,9 +39,9 @@ CREATE TABLE IF NOT EXISTS `audits` (
   PRIMARY KEY (`id`),
   KEY `audits_auditable_type_auditable_id_index` (`auditable_type`,`auditable_id`),
   KEY `audits_user_id_user_type_index` (`user_id`,`user_type`)
-) ENGINE=InnoDB AUTO_INCREMENT=23035 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=23054 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table snsu_pos.audits: ~23,026 rows (approximately)
+-- Dumping data for table snsu_pos.audits: ~22,316 rows (approximately)
 DELETE FROM `audits`;
 INSERT INTO `audits` (`id`, `user_type`, `user_id`, `event`, `auditable_type`, `auditable_id`, `old_values`, `new_values`, `url`, `ip_address`, `user_agent`, `tags`, `created_at`, `updated_at`) VALUES
 	(1, 'App\\Models\\User', 1, 'created', 'App\\Models\\User', 1, '[]', '{"name":"Antonio Jr Piloton","email":"apiloton1@snsu.edu.ph","google_id":"117952079880321133596","avatar":"https:\\/\\/lh3.googleusercontent.com\\/a\\/ACg8ocICxZuvbmnED8B5vH9nAzZ75oj4EyyJOq04YOMO7jxaSaNGZqsv=s96-c","verified":1,"password":"$2y$12$qZhIITel9ecUQS9\\/Suba9egAzi2wvXi99FlS6RVbZHc1X0ErHdTxW","id":1}', 'https://safetrack.snsu.edu.ph/auth/google/callback?authuser=0&code=4%2F0AeoWuM-m7Ey_seDbPZFKr3ndcEAzcr-YtEKUp8ZtGRs_6SY-XfTmsECu1ESILZkfy-TRuw&hd=snsu.edu.ph&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20openid&state=U46wbTUHsg9sakSCEzUsCcg3WtMdZkG7drkqcrP1', '27.110.161.98', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0', NULL, '2026-05-28 05:06:13', '2026-05-28 05:06:13'),
@@ -23079,9 +23080,29 @@ INSERT INTO `audits` (`id`, `user_type`, `user_id`, `event`, `auditable_type`, `
 	(23031, 'App\\Models\\User', 1, 'updated', 'App\\Models\\User', 1, '{"remember_token":"5xFFOZnrUWpGTDHBibH0N7Uhc7ZDqJdsqGoQEp9NYxtPSn4c0jgJ5TQIxyII"}', '{"remember_token":"s1ITVYJFeWWeaoiPRm19lI0FvoSxhO4sPmpZIJYNVYuHnSRukAd6edR5UkEQ"}', 'http://pos.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', NULL, '2026-08-21 18:09:27', '2026-08-21 18:09:27'),
 	(23032, NULL, NULL, 'updated', 'App\\Models\\User', 2, '{"current_session_id":null}', '{"current_session_id":"owY6cQknpSJmcmyyySCweK2RjxvVujwJdpg58Abf"}', 'http://pos.dev.com/auth/google/callback?authuser=0&code=4%2F0ATsMZqA9HHm1gjWA9vXLRymrqXsbHx7QD70P8st4cyOYvBgzTbE8qkkVRtU-0i2oseOFgw&hd=snsu.edu.ph&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20openid%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&state=H7qcwwiIfOvqZjpf26BpbbpRZgdMuF43lllMXt4E', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', NULL, '2026-08-21 18:09:33', '2026-08-21 18:09:33'),
 	(23033, 'App\\Models\\User', 2, 'created', 'App\\Models\\LoginActivity', 1969, '[]', '{"user_id":2,"email":"apiloton1@snsu.edu.ph","ip_address":"::1","user_agent":"Mozilla\\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\\/537.36 (KHTML, like Gecko) Chrome\\/151.0.0.0 Safari\\/537.36 Edg\\/151.0.0.0","device":"WebKit","platform":"Windows","browser":"Edge","status":"success","logged_in_at":"2026-08-22 02:09:33","id":1969}', 'http://pos.dev.com/auth/google/callback?authuser=0&code=4%2F0ATsMZqA9HHm1gjWA9vXLRymrqXsbHx7QD70P8st4cyOYvBgzTbE8qkkVRtU-0i2oseOFgw&hd=snsu.edu.ph&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20openid%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&state=H7qcwwiIfOvqZjpf26BpbbpRZgdMuF43lllMXt4E', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', NULL, '2026-08-21 18:09:33', '2026-08-21 18:09:33'),
-	(23034, 'App\\Models\\User', 2, 'updated', 'App\\Models\\User', 2, '{"current_session_id":"owY6cQknpSJmcmyyySCweK2RjxvVujwJdpg58Abf"}', '{"current_session_id":"6zeqDvL3oPJ67hMxFZjr12hNX056p032XVOWa9Kr"}', 'http://pos.dev.com/dashboard', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', NULL, '2026-08-21 18:09:34', '2026-08-21 18:09:34');
+	(23034, 'App\\Models\\User', 2, 'updated', 'App\\Models\\User', 2, '{"current_session_id":"owY6cQknpSJmcmyyySCweK2RjxvVujwJdpg58Abf"}', '{"current_session_id":"6zeqDvL3oPJ67hMxFZjr12hNX056p032XVOWa9Kr"}', 'http://pos.dev.com/dashboard', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', NULL, '2026-08-21 18:09:34', '2026-08-21 18:09:34'),
+	(23035, 'App\\Models\\User', 2, 'updated', 'App\\Models\\User', 2, '{"remember_token":"rA4umqTpWpLtrdvPQPejIpWvI9NQBUU0TR5Qvtvc0uEtHp2KUdTAUjRJpXFr"}', '{"remember_token":"DZ1YSzEYtwSEwv2tdXku1yUjyo9jm1RGPLscXv4LV1l7ExzIZ0yoTMkQx45a"}', 'http://pos.dev.com/dashboard', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', NULL, '2026-08-22 01:00:57', '2026-08-22 01:00:57'),
+	(23036, NULL, NULL, 'updated', 'App\\Models\\User', 2, '{"current_session_id":"6zeqDvL3oPJ67hMxFZjr12hNX056p032XVOWa9Kr"}', '{"current_session_id":"7WAqu9FGc8UmBa0r0j5ZxExd7OqsJGLN1rX09Pj4"}', 'http://pos.dev.com/auth/google/callback?authuser=0&code=4%2F0ATsMZqAmWPw0UNVGa-11JwbfgSCX0zEvvLr27EvOtBHX0l7hlOfq01zq1ZxY8EgGO_WfUQ&hd=snsu.edu.ph&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20openid&state=hd1YhYUnsloopJpM34GazEeuzHQApgNllg0kPkZu', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', NULL, '2026-08-22 01:01:14', '2026-08-22 01:01:14'),
+	(23037, 'App\\Models\\User', 2, 'created', 'App\\Models\\LoginActivity', 1970, '[]', '{"user_id":2,"email":"apiloton1@snsu.edu.ph","ip_address":"::1","user_agent":"Mozilla\\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\\/537.36 (KHTML, like Gecko) Chrome\\/151.0.0.0 Safari\\/537.36 Edg\\/151.0.0.0","device":"WebKit","platform":"Windows","browser":"Edge","status":"success","logged_in_at":"2026-08-22 09:01:14","id":1970}', 'http://pos.dev.com/auth/google/callback?authuser=0&code=4%2F0ATsMZqAmWPw0UNVGa-11JwbfgSCX0zEvvLr27EvOtBHX0l7hlOfq01zq1ZxY8EgGO_WfUQ&hd=snsu.edu.ph&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20openid&state=hd1YhYUnsloopJpM34GazEeuzHQApgNllg0kPkZu', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', NULL, '2026-08-22 01:01:14', '2026-08-22 01:01:14'),
+	(23038, 'App\\Models\\User', 2, 'updated', 'App\\Models\\User', 2, '{"current_session_id":"7WAqu9FGc8UmBa0r0j5ZxExd7OqsJGLN1rX09Pj4"}', '{"current_session_id":"deIqS2XI1xvQA85o1gto2zudVswnWWZzqPkz16hn"}', 'http://pos.dev.com/dashboard', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', NULL, '2026-08-22 01:01:15', '2026-08-22 01:01:15'),
+	(23039, 'App\\Models\\User', 2, 'updated', 'App\\Models\\User', 2, '{"remember_token":"DZ1YSzEYtwSEwv2tdXku1yUjyo9jm1RGPLscXv4LV1l7ExzIZ0yoTMkQx45a"}', '{"remember_token":"IbTqHZlzkoxECvkny8MFv9W4nksVa21M2QGGGKdlPwW2q6H4UBOcJg5UTb8C"}', 'http://pos.dev.com/products', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', NULL, '2026-08-22 06:00:41', '2026-08-22 06:00:41'),
+	(23040, NULL, NULL, 'created', 'App\\Models\\User', 6, '[]', '{"tenant_id":3,"name":"Antonio Jr. Piloton","username":"antoniollealdeluibpiloton@gmail.com","email":"antoniollealdeluibpiloton@gmail.com","password":"$2y$12$BJtQ7\\/G4JxfbVnGvdTG.fOEM12vcXSDMa9Vdi33mVH8rg1OXtkfqC","verified":1,"id":6}', 'http://pos.dev.com/auth/google/callback?authuser=3&code=4%2F0ATsMZqA-XqdxpZ5wldIaacMOsWkyVhzSWy2Weyw52qGIViUikOgN0CbwKQE09jmGlPNAAA&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20openid&state=9R5iuVD5APJ8ZMisAk4LQjq2NEjpraZYmPylYjc4', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', NULL, '2026-08-22 06:01:50', '2026-08-22 06:01:50'),
+	(23041, NULL, NULL, 'updated', 'App\\Models\\User', 6, '{"current_session_id":null}', '{"current_session_id":"vN0y6xLXnDOjtDUAcFlms7Bi7cbIxrDWqC7XOmk1"}', 'http://pos.dev.com/auth/google/callback?authuser=3&code=4%2F0ATsMZqA-XqdxpZ5wldIaacMOsWkyVhzSWy2Weyw52qGIViUikOgN0CbwKQE09jmGlPNAAA&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20openid&state=9R5iuVD5APJ8ZMisAk4LQjq2NEjpraZYmPylYjc4', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', NULL, '2026-08-22 06:01:50', '2026-08-22 06:01:50'),
+	(23042, 'App\\Models\\User', 6, 'updated', 'App\\Models\\User', 6, '{"remember_token":null}', '{"remember_token":"BoEC1u4ztM09LWhSgJPjldOQYFCz7UTvsU3AML9NLFLUWyBfj9uyZY5eHWLl"}', 'http://pos.dev.com/auth/google/callback?authuser=3&code=4%2F0ATsMZqA-XqdxpZ5wldIaacMOsWkyVhzSWy2Weyw52qGIViUikOgN0CbwKQE09jmGlPNAAA&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20openid&state=9R5iuVD5APJ8ZMisAk4LQjq2NEjpraZYmPylYjc4', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', NULL, '2026-08-22 06:01:50', '2026-08-22 06:01:50'),
+	(23043, 'App\\Models\\User', 6, 'created', 'App\\Models\\LoginActivity', 1971, '[]', '{"user_id":6,"email":"antoniollealdeluibpiloton@gmail.com","ip_address":"::1","user_agent":"Mozilla\\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\\/537.36 (KHTML, like Gecko) Chrome\\/151.0.0.0 Safari\\/537.36 Edg\\/151.0.0.0","device":"WebKit","platform":"Windows","browser":"Edge","status":"success","logged_in_at":"2026-08-22 14:01:50","id":1971}', 'http://pos.dev.com/auth/google/callback?authuser=3&code=4%2F0ATsMZqA-XqdxpZ5wldIaacMOsWkyVhzSWy2Weyw52qGIViUikOgN0CbwKQE09jmGlPNAAA&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20openid&state=9R5iuVD5APJ8ZMisAk4LQjq2NEjpraZYmPylYjc4', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', NULL, '2026-08-22 06:01:50', '2026-08-22 06:01:50'),
+	(23044, 'App\\Models\\User', 6, 'updated', 'App\\Models\\User', 6, '{"current_session_id":"vN0y6xLXnDOjtDUAcFlms7Bi7cbIxrDWqC7XOmk1"}', '{"current_session_id":"tNpjOyGSutKQKs81h9v3uJCEgAy430zg2fdvj89n"}', 'http://pos.dev.com/dashboard', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', NULL, '2026-08-22 06:01:50', '2026-08-22 06:01:50'),
+	(23045, 'App\\Models\\User', 6, 'updated', 'App\\Models\\User', 6, '{"current_session_id":"tNpjOyGSutKQKs81h9v3uJCEgAy430zg2fdvj89n"}', '{"current_session_id":null}', 'http://pos.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', NULL, '2026-08-22 06:08:00', '2026-08-22 06:08:00'),
+	(23046, 'App\\Models\\User', 6, 'updated', 'App\\Models\\LoginActivity', 1971, '{"status":"success","logged_out_at":null}', '{"status":"logout","logged_out_at":"2026-08-22 14:08:00"}', 'http://pos.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', NULL, '2026-08-22 06:08:00', '2026-08-22 06:08:00'),
+	(23047, 'App\\Models\\User', 6, 'updated', 'App\\Models\\User', 6, '{"remember_token":"BoEC1u4ztM09LWhSgJPjldOQYFCz7UTvsU3AML9NLFLUWyBfj9uyZY5eHWLl"}', '{"remember_token":"KPflSLwOWWkioZfJE2G7GGIHV79Wv9uB43cAp4orWp3bRezi6mWTNypIevSS"}', 'http://pos.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', NULL, '2026-08-22 06:08:00', '2026-08-22 06:08:00'),
+	(23048, NULL, NULL, 'updated', 'App\\Models\\User', 2, '{"current_session_id":"deIqS2XI1xvQA85o1gto2zudVswnWWZzqPkz16hn"}', '{"current_session_id":"FhsCqlVefgi1h84oycy5vHvGeIOoH0PAXl5hPgcC"}', 'http://pos.dev.com/auth/google/callback?authuser=0&code=4%2F0ATsMZqBBk3FxRkmw-UjXDFF7L6FN8lUx-I0ipux9NNLqpoD6A4_fO5ivkc9zjAWLTd-e5g&hd=snsu.edu.ph&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20openid&state=roZ0KfeqfDEU24kXYG8IlAhR5faWpQ6J9xbKIjav', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', NULL, '2026-08-22 06:08:08', '2026-08-22 06:08:08'),
+	(23049, 'App\\Models\\User', 2, 'created', 'App\\Models\\LoginActivity', 1972, '[]', '{"user_id":2,"email":"apiloton1@snsu.edu.ph","ip_address":"::1","user_agent":"Mozilla\\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\\/537.36 (KHTML, like Gecko) Chrome\\/151.0.0.0 Safari\\/537.36 Edg\\/151.0.0.0","device":"WebKit","platform":"Windows","browser":"Edge","status":"success","logged_in_at":"2026-08-22 14:08:08","id":1972}', 'http://pos.dev.com/auth/google/callback?authuser=0&code=4%2F0ATsMZqBBk3FxRkmw-UjXDFF7L6FN8lUx-I0ipux9NNLqpoD6A4_fO5ivkc9zjAWLTd-e5g&hd=snsu.edu.ph&iss=https%3A%2F%2Faccounts.google.com&prompt=none&scope=email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20openid&state=roZ0KfeqfDEU24kXYG8IlAhR5faWpQ6J9xbKIjav', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', NULL, '2026-08-22 06:08:08', '2026-08-22 06:08:08'),
+	(23050, 'App\\Models\\User', 2, 'updated', 'App\\Models\\User', 2, '{"current_session_id":"FhsCqlVefgi1h84oycy5vHvGeIOoH0PAXl5hPgcC"}', '{"current_session_id":"XFAERGDNq6T9gKUu4hQK8K3eezGuUCMqzYZ5xMi8"}', 'http://pos.dev.com/dashboard', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', NULL, '2026-08-22 06:08:08', '2026-08-22 06:08:08'),
+	(23051, 'App\\Models\\User', 2, 'updated', 'App\\Models\\User', 2, '{"current_session_id":"XFAERGDNq6T9gKUu4hQK8K3eezGuUCMqzYZ5xMi8"}', '{"current_session_id":null}', 'http://pos.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', NULL, '2026-08-22 06:43:51', '2026-08-22 06:43:51'),
+	(23052, 'App\\Models\\User', 2, 'updated', 'App\\Models\\LoginActivity', 1972, '{"status":"success","logged_out_at":null}', '{"status":"logout","logged_out_at":"2026-08-22 14:43:51"}', 'http://pos.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', NULL, '2026-08-22 06:43:51', '2026-08-22 06:43:51'),
+	(23053, 'App\\Models\\User', 2, 'updated', 'App\\Models\\User', 2, '{"remember_token":"IbTqHZlzkoxECvkny8MFv9W4nksVa21M2QGGGKdlPwW2q6H4UBOcJg5UTb8C"}', '{"remember_token":"ZrRS1cGqUHI0v1kQ4BuiTqYd7qm6Q93TMwzYiZvKbY0W1GjYfwEXoPkdEl8c"}', 'http://pos.dev.com/logout', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', NULL, '2026-08-22 06:43:51', '2026-08-22 06:43:51');
 
 -- Dumping structure for table snsu_pos.backups
+DROP TABLE IF EXISTS `backups`;
 CREATE TABLE IF NOT EXISTS `backups` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `filename` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -23115,6 +23136,7 @@ INSERT INTO `backups` (`id`, `filename`, `filepath`, `backup_type`, `file_size`,
 	(11, '2026-07-30-08-17-27.zip', '/home/safetracksnsuedu/safetrack/storage/app/private/SafeTrack/2026-07-30-08-17-27.zip', 'db', 1734451, 'completed', 1, NULL, '2026-07-30 00:17:30', NULL, '2026-07-30 00:17:30');
 
 -- Dumping structure for table snsu_pos.cache
+DROP TABLE IF EXISTS `cache`;
 CREATE TABLE IF NOT EXISTS `cache` (
   `key` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `value` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -23125,10 +23147,15 @@ CREATE TABLE IF NOT EXISTS `cache` (
 -- Dumping data for table snsu_pos.cache: ~2 rows (approximately)
 DELETE FROM `cache`;
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-	('baryapos-cache-last_activity_2', 'b:1;', 1787339694),
-	('baryapos-cache-tenant_settings_2', 'O:24:"App\\Models\\POS\\POSTenant":34:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:11:"pos_tenants";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:30:{s:2:"id";i:2;s:15:"subscription_id";i:2;s:13:"business_name";s:26:"Antonio Jr Piloton\'s Store";s:13:"business_code";s:11:"MINI-PETNRT";s:10:"owner_name";s:18:"Antonio Jr Piloton";s:5:"email";s:21:"apiloton1@snsu.edu.ph";s:5:"phone";s:11:"09128941731";s:7:"address";s:80:"Purok Mabungahon, Brgy. Washington, Surigao City, Surigao del Norte, Philippines";s:3:"tin";N;s:11:"branch_code";N;s:10:"bir_acc_no";N;s:12:"bir_acc_date";N;s:7:"bir_min";N;s:6:"bir_sn";N;s:11:"header_text";N;s:11:"footer_text";N;s:4:"logo";N;s:18:"subscription_start";s:10:"2026-08-21";s:16:"subscription_end";s:10:"2026-09-20";s:13:"trial_ends_at";s:19:"2026-08-28 23:11:29";s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-08-21 23:11:29";s:10:"updated_at";s:19:"2026-08-21 23:12:51";s:6:"status";s:6:"active";s:14:"payment_status";s:7:"pending";s:17:"payment_reference";N;s:7:"paid_at";N;s:8:"archived";i:0;s:10:"deleted_at";N;}s:11:"\0*\0original";a:30:{s:2:"id";i:2;s:15:"subscription_id";i:2;s:13:"business_name";s:26:"Antonio Jr Piloton\'s Store";s:13:"business_code";s:11:"MINI-PETNRT";s:10:"owner_name";s:18:"Antonio Jr Piloton";s:5:"email";s:21:"apiloton1@snsu.edu.ph";s:5:"phone";s:11:"09128941731";s:7:"address";s:80:"Purok Mabungahon, Brgy. Washington, Surigao City, Surigao del Norte, Philippines";s:3:"tin";N;s:11:"branch_code";N;s:10:"bir_acc_no";N;s:12:"bir_acc_date";N;s:7:"bir_min";N;s:6:"bir_sn";N;s:11:"header_text";N;s:11:"footer_text";N;s:4:"logo";N;s:18:"subscription_start";s:10:"2026-08-21";s:16:"subscription_end";s:10:"2026-09-20";s:13:"trial_ends_at";s:19:"2026-08-28 23:11:29";s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-08-21 23:11:29";s:10:"updated_at";s:19:"2026-08-21 23:12:51";s:6:"status";s:6:"active";s:14:"payment_status";s:7:"pending";s:17:"payment_reference";N;s:7:"paid_at";N;s:8:"archived";i:0;s:10:"deleted_at";N;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:7:{s:18:"subscription_start";s:4:"date";s:16:"subscription_end";s:4:"date";s:13:"trial_ends_at";s:8:"datetime";s:7:"paid_at";s:8:"datetime";s:12:"bir_acc_date";s:4:"date";s:8:"archived";s:7:"boolean";s:10:"deleted_at";s:8:"datetime";}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:1:{s:12:"subscription";O:30:"App\\Models\\POS\\POSSubscription":33:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:17:"pos_subscriptions";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:25:{s:2:"id";i:2;s:4:"name";s:11:"Suki Growth";s:11:"description";s:87:"Most popular plan for multi-shift minimarts (₱20/day • 1 Admin, 3 Cashier accounts)";s:5:"price";s:6:"599.00";s:13:"billing_cycle";s:7:"monthly";s:13:"duration_days";i:30;s:9:"max_users";i:4;s:18:"max_admin_accounts";i:1;s:20:"max_cashier_accounts";i:3;s:12:"max_products";i:5000;s:12:"max_branches";i:1;s:14:"max_storage_mb";i:1024;s:15:"allow_inventory";i:1;s:13:"allow_reports";i:1;s:18:"allow_multi_branch";i:0;s:16:"allow_api_access";i:1;s:10:"trial_days";i:0;s:10:"sort_order";i:2;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-06-11 12:58:47";s:10:"updated_at";s:19:"2026-08-21 22:54:09";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:11:"\0*\0original";a:25:{s:2:"id";i:2;s:4:"name";s:11:"Suki Growth";s:11:"description";s:87:"Most popular plan for multi-shift minimarts (₱20/day • 1 Admin, 3 Cashier accounts)";s:5:"price";s:6:"599.00";s:13:"billing_cycle";s:7:"monthly";s:13:"duration_days";i:30;s:9:"max_users";i:4;s:18:"max_admin_accounts";i:1;s:20:"max_cashier_accounts";i:3;s:12:"max_products";i:5000;s:12:"max_branches";i:1;s:14:"max_storage_mb";i:1024;s:15:"allow_inventory";i:1;s:13:"allow_reports";i:1;s:18:"allow_multi_branch";i:0;s:16:"allow_api_access";i:1;s:10:"trial_days";i:0;s:10:"sort_order";i:2;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-06-11 12:58:47";s:10:"updated_at";s:19:"2026-08-21 22:54:09";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:0:{}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:0:{}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:32:{i:0;s:4:"name";i:1;s:11:"description";i:2;s:5:"price";i:3;s:13:"billing_cycle";i:4;s:13:"duration_days";i:5;s:9:"max_users";i:6;s:18:"max_admin_accounts";i:7;s:20:"max_cashier_accounts";i:8;s:12:"max_products";i:9;s:12:"max_branches";i:10;s:14:"max_storage_mb";i:11;s:15:"allow_inventory";i:12;s:13:"allow_reports";i:13;s:18:"allow_multi_branch";i:14;s:16:"allow_api_access";i:15;s:10:"trial_days";i:16;s:10:"sort_order";i:17;s:9:"tenant_id";i:18;s:13:"business_name";i:19;s:13:"business_code";i:20;s:10:"owner_name";i:21;s:5:"email";i:22;s:5:"phone";i:23;s:7:"address";i:24;s:4:"logo";i:25;s:18:"subscription_start";i:26;s:16:"subscription_end";i:27;s:13:"trial_ends_at";i:28;s:6:"status";i:29;s:8:"archived";i:30;s:10:"created_by";i:31;s:10:"updated_by";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}}}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:26:{i:0;s:15:"subscription_id";i:1;s:13:"business_name";i:2;s:13:"business_code";i:3;s:10:"owner_name";i:4;s:5:"email";i:5;s:5:"phone";i:6;s:7:"address";i:7;s:3:"tin";i:8;s:11:"branch_code";i:9;s:10:"bir_acc_no";i:10;s:12:"bir_acc_date";i:11;s:7:"bir_min";i:12;s:6:"bir_sn";i:13;s:11:"header_text";i:14;s:11:"footer_text";i:15;s:4:"logo";i:16;s:18:"subscription_start";i:17;s:16:"subscription_end";i:18;s:13:"trial_ends_at";i:19;s:6:"status";i:20;s:14:"payment_status";i:21;s:17:"payment_reference";i:22;s:7:"paid_at";i:23;s:8:"archived";i:24;s:10:"created_by";i:25;s:10:"updated_by";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}s:16:"\0*\0forceDeleting";b:0;}', 1787341149);
+	('baryapos-cache-last_activity_2', 'b:1;', 1787381257),
+	('baryapos-cache-last_activity_6', 'b:1;', 1787379162),
+	('baryapos-cache-tenant_2_sub_limits', 'O:30:"App\\Models\\POS\\POSSubscription":33:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:17:"pos_subscriptions";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:25:{s:2:"id";i:2;s:4:"name";s:11:"Suki Growth";s:11:"description";s:87:"Most popular plan for multi-shift minimarts (₱20/day • 1 Admin, 3 Cashier accounts)";s:5:"price";s:6:"599.00";s:13:"billing_cycle";s:7:"monthly";s:13:"duration_days";i:30;s:9:"max_users";i:4;s:18:"max_admin_accounts";i:1;s:20:"max_cashier_accounts";i:3;s:12:"max_products";i:5000;s:12:"max_branches";i:1;s:14:"max_storage_mb";i:1024;s:15:"allow_inventory";i:1;s:13:"allow_reports";i:1;s:18:"allow_multi_branch";i:0;s:16:"allow_api_access";i:1;s:10:"trial_days";i:0;s:10:"sort_order";i:2;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-06-11 12:58:47";s:10:"updated_at";s:19:"2026-08-21 22:54:09";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:11:"\0*\0original";a:25:{s:2:"id";i:2;s:4:"name";s:11:"Suki Growth";s:11:"description";s:87:"Most popular plan for multi-shift minimarts (₱20/day • 1 Admin, 3 Cashier accounts)";s:5:"price";s:6:"599.00";s:13:"billing_cycle";s:7:"monthly";s:13:"duration_days";i:30;s:9:"max_users";i:4;s:18:"max_admin_accounts";i:1;s:20:"max_cashier_accounts";i:3;s:12:"max_products";i:5000;s:12:"max_branches";i:1;s:14:"max_storage_mb";i:1024;s:15:"allow_inventory";i:1;s:13:"allow_reports";i:1;s:18:"allow_multi_branch";i:0;s:16:"allow_api_access";i:1;s:10:"trial_days";i:0;s:10:"sort_order";i:2;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-06-11 12:58:47";s:10:"updated_at";s:19:"2026-08-21 22:54:09";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:0:{}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:0:{}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:32:{i:0;s:4:"name";i:1;s:11:"description";i:2;s:5:"price";i:3;s:13:"billing_cycle";i:4;s:13:"duration_days";i:5;s:9:"max_users";i:6;s:18:"max_admin_accounts";i:7;s:20:"max_cashier_accounts";i:8;s:12:"max_products";i:9;s:12:"max_branches";i:10;s:14:"max_storage_mb";i:11;s:15:"allow_inventory";i:12;s:13:"allow_reports";i:13;s:18:"allow_multi_branch";i:14;s:16:"allow_api_access";i:15;s:10:"trial_days";i:16;s:10:"sort_order";i:17;s:9:"tenant_id";i:18;s:13:"business_name";i:19;s:13:"business_code";i:20;s:10:"owner_name";i:21;s:5:"email";i:22;s:5:"phone";i:23;s:7:"address";i:24;s:4:"logo";i:25;s:18:"subscription_start";i:26;s:16:"subscription_end";i:27;s:13:"trial_ends_at";i:28;s:6:"status";i:29;s:8:"archived";i:30;s:10:"created_by";i:31;s:10:"updated_by";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}}', 1787364219),
+	('baryapos-cache-tenant_3_sub_limits', 'O:30:"App\\Models\\POS\\POSSubscription":33:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:17:"pos_subscriptions";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:25:{s:2:"id";i:2;s:4:"name";s:11:"Suki Growth";s:11:"description";s:87:"Most popular plan for multi-shift minimarts (₱20/day • 1 Admin, 3 Cashier accounts)";s:5:"price";s:6:"599.00";s:13:"billing_cycle";s:7:"monthly";s:13:"duration_days";i:30;s:9:"max_users";i:4;s:18:"max_admin_accounts";i:1;s:20:"max_cashier_accounts";i:3;s:12:"max_products";i:5000;s:12:"max_branches";i:1;s:14:"max_storage_mb";i:1024;s:15:"allow_inventory";i:1;s:13:"allow_reports";i:1;s:18:"allow_multi_branch";i:0;s:16:"allow_api_access";i:1;s:10:"trial_days";i:0;s:10:"sort_order";i:2;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-06-11 12:58:47";s:10:"updated_at";s:19:"2026-08-21 22:54:09";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:11:"\0*\0original";a:25:{s:2:"id";i:2;s:4:"name";s:11:"Suki Growth";s:11:"description";s:87:"Most popular plan for multi-shift minimarts (₱20/day • 1 Admin, 3 Cashier accounts)";s:5:"price";s:6:"599.00";s:13:"billing_cycle";s:7:"monthly";s:13:"duration_days";i:30;s:9:"max_users";i:4;s:18:"max_admin_accounts";i:1;s:20:"max_cashier_accounts";i:3;s:12:"max_products";i:5000;s:12:"max_branches";i:1;s:14:"max_storage_mb";i:1024;s:15:"allow_inventory";i:1;s:13:"allow_reports";i:1;s:18:"allow_multi_branch";i:0;s:16:"allow_api_access";i:1;s:10:"trial_days";i:0;s:10:"sort_order";i:2;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-06-11 12:58:47";s:10:"updated_at";s:19:"2026-08-21 22:54:09";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:0:{}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:0:{}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:32:{i:0;s:4:"name";i:1;s:11:"description";i:2;s:5:"price";i:3;s:13:"billing_cycle";i:4;s:13:"duration_days";i:5;s:9:"max_users";i:6;s:18:"max_admin_accounts";i:7;s:20:"max_cashier_accounts";i:8;s:12:"max_products";i:9;s:12:"max_branches";i:10;s:14:"max_storage_mb";i:11;s:15:"allow_inventory";i:12;s:13:"allow_reports";i:13;s:18:"allow_multi_branch";i:14;s:16:"allow_api_access";i:15;s:10:"trial_days";i:16;s:10:"sort_order";i:17;s:9:"tenant_id";i:18;s:13:"business_name";i:19;s:13:"business_code";i:20;s:10:"owner_name";i:21;s:5:"email";i:22;s:5:"phone";i:23;s:7:"address";i:24;s:4:"logo";i:25;s:18:"subscription_start";i:26;s:16:"subscription_end";i:27;s:13:"trial_ends_at";i:28;s:6:"status";i:29;s:8:"archived";i:30;s:10:"created_by";i:31;s:10:"updated_by";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}}', 1787382317),
+	('baryapos-cache-tenant_settings_2', 'O:24:"App\\Models\\POS\\POSTenant":34:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:11:"pos_tenants";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:30:{s:2:"id";i:2;s:15:"subscription_id";i:2;s:13:"business_name";s:26:"Antonio Jr Piloton\'s Store";s:13:"business_code";s:11:"MINI-PETNRT";s:10:"owner_name";s:18:"Antonio Jr Piloton";s:5:"email";s:21:"apiloton1@snsu.edu.ph";s:5:"phone";s:11:"09128941731";s:7:"address";s:80:"Purok Mabungahon, Brgy. Washington, Surigao City, Surigao del Norte, Philippines";s:3:"tin";N;s:11:"branch_code";N;s:10:"bir_acc_no";N;s:12:"bir_acc_date";N;s:7:"bir_min";N;s:6:"bir_sn";N;s:11:"header_text";N;s:11:"footer_text";N;s:4:"logo";N;s:18:"subscription_start";s:10:"2026-08-21";s:16:"subscription_end";s:10:"2026-09-20";s:13:"trial_ends_at";s:19:"2026-08-28 23:11:29";s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-08-21 23:11:29";s:10:"updated_at";s:19:"2026-08-21 23:12:51";s:6:"status";s:6:"active";s:14:"payment_status";s:7:"pending";s:17:"payment_reference";N;s:7:"paid_at";N;s:8:"archived";i:0;s:10:"deleted_at";N;}s:11:"\0*\0original";a:30:{s:2:"id";i:2;s:15:"subscription_id";i:2;s:13:"business_name";s:26:"Antonio Jr Piloton\'s Store";s:13:"business_code";s:11:"MINI-PETNRT";s:10:"owner_name";s:18:"Antonio Jr Piloton";s:5:"email";s:21:"apiloton1@snsu.edu.ph";s:5:"phone";s:11:"09128941731";s:7:"address";s:80:"Purok Mabungahon, Brgy. Washington, Surigao City, Surigao del Norte, Philippines";s:3:"tin";N;s:11:"branch_code";N;s:10:"bir_acc_no";N;s:12:"bir_acc_date";N;s:7:"bir_min";N;s:6:"bir_sn";N;s:11:"header_text";N;s:11:"footer_text";N;s:4:"logo";N;s:18:"subscription_start";s:10:"2026-08-21";s:16:"subscription_end";s:10:"2026-09-20";s:13:"trial_ends_at";s:19:"2026-08-28 23:11:29";s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-08-21 23:11:29";s:10:"updated_at";s:19:"2026-08-21 23:12:51";s:6:"status";s:6:"active";s:14:"payment_status";s:7:"pending";s:17:"payment_reference";N;s:7:"paid_at";N;s:8:"archived";i:0;s:10:"deleted_at";N;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:7:{s:18:"subscription_start";s:4:"date";s:16:"subscription_end";s:4:"date";s:13:"trial_ends_at";s:8:"datetime";s:7:"paid_at";s:8:"datetime";s:12:"bir_acc_date";s:4:"date";s:8:"archived";s:7:"boolean";s:10:"deleted_at";s:8:"datetime";}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:1:{s:12:"subscription";O:30:"App\\Models\\POS\\POSSubscription":33:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:17:"pos_subscriptions";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:25:{s:2:"id";i:2;s:4:"name";s:11:"Suki Growth";s:11:"description";s:87:"Most popular plan for multi-shift minimarts (₱20/day • 1 Admin, 3 Cashier accounts)";s:5:"price";s:6:"599.00";s:13:"billing_cycle";s:7:"monthly";s:13:"duration_days";i:30;s:9:"max_users";i:4;s:18:"max_admin_accounts";i:1;s:20:"max_cashier_accounts";i:3;s:12:"max_products";i:5000;s:12:"max_branches";i:1;s:14:"max_storage_mb";i:1024;s:15:"allow_inventory";i:1;s:13:"allow_reports";i:1;s:18:"allow_multi_branch";i:0;s:16:"allow_api_access";i:1;s:10:"trial_days";i:0;s:10:"sort_order";i:2;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-06-11 12:58:47";s:10:"updated_at";s:19:"2026-08-21 22:54:09";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:11:"\0*\0original";a:25:{s:2:"id";i:2;s:4:"name";s:11:"Suki Growth";s:11:"description";s:87:"Most popular plan for multi-shift minimarts (₱20/day • 1 Admin, 3 Cashier accounts)";s:5:"price";s:6:"599.00";s:13:"billing_cycle";s:7:"monthly";s:13:"duration_days";i:30;s:9:"max_users";i:4;s:18:"max_admin_accounts";i:1;s:20:"max_cashier_accounts";i:3;s:12:"max_products";i:5000;s:12:"max_branches";i:1;s:14:"max_storage_mb";i:1024;s:15:"allow_inventory";i:1;s:13:"allow_reports";i:1;s:18:"allow_multi_branch";i:0;s:16:"allow_api_access";i:1;s:10:"trial_days";i:0;s:10:"sort_order";i:2;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-06-11 12:58:47";s:10:"updated_at";s:19:"2026-08-21 22:54:09";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:0:{}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:0:{}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:32:{i:0;s:4:"name";i:1;s:11:"description";i:2;s:5:"price";i:3;s:13:"billing_cycle";i:4;s:13:"duration_days";i:5;s:9:"max_users";i:6;s:18:"max_admin_accounts";i:7;s:20:"max_cashier_accounts";i:8;s:12:"max_products";i:9;s:12:"max_branches";i:10;s:14:"max_storage_mb";i:11;s:15:"allow_inventory";i:12;s:13:"allow_reports";i:13;s:18:"allow_multi_branch";i:14;s:16:"allow_api_access";i:15;s:10:"trial_days";i:16;s:10:"sort_order";i:17;s:9:"tenant_id";i:18;s:13:"business_name";i:19;s:13:"business_code";i:20;s:10:"owner_name";i:21;s:5:"email";i:22;s:5:"phone";i:23;s:7:"address";i:24;s:4:"logo";i:25;s:18:"subscription_start";i:26;s:16:"subscription_end";i:27;s:13:"trial_ends_at";i:28;s:6:"status";i:29;s:8:"archived";i:30;s:10:"created_by";i:31;s:10:"updated_by";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}}}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:26:{i:0;s:15:"subscription_id";i:1;s:13:"business_name";i:2;s:13:"business_code";i:3;s:10:"owner_name";i:4;s:5:"email";i:5;s:5:"phone";i:6;s:7:"address";i:7;s:3:"tin";i:8;s:11:"branch_code";i:9;s:10:"bir_acc_no";i:10;s:12:"bir_acc_date";i:11;s:7:"bir_min";i:12;s:6:"bir_sn";i:13;s:11:"header_text";i:14;s:11:"footer_text";i:15;s:4:"logo";i:16;s:18:"subscription_start";i:17;s:16:"subscription_end";i:18;s:13:"trial_ends_at";i:19;s:6:"status";i:20;s:14:"payment_status";i:21;s:17:"payment_reference";i:22;s:7:"paid_at";i:23;s:8:"archived";i:24;s:10:"created_by";i:25;s:10:"updated_by";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}s:16:"\0*\0forceDeleting";b:0;}', 1787382488),
+	('baryapos-cache-tenant_settings_3', 'O:24:"App\\Models\\POS\\POSTenant":34:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:11:"pos_tenants";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:30:{s:2:"id";i:3;s:15:"subscription_id";i:2;s:13:"business_name";s:27:"Antonio Jr. Piloton\'s Store";s:13:"business_code";s:11:"MINI-4ELRRO";s:10:"owner_name";s:19:"Antonio Jr. Piloton";s:5:"email";s:35:"antoniollealdeluibpiloton@gmail.com";s:5:"phone";N;s:7:"address";N;s:3:"tin";N;s:11:"branch_code";N;s:10:"bir_acc_no";N;s:12:"bir_acc_date";N;s:7:"bir_min";N;s:6:"bir_sn";N;s:11:"header_text";N;s:11:"footer_text";N;s:4:"logo";N;s:18:"subscription_start";s:10:"2026-08-22";s:16:"subscription_end";s:10:"2026-09-21";s:13:"trial_ends_at";s:19:"2026-08-29 14:01:50";s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-08-22 14:01:50";s:10:"updated_at";s:19:"2026-08-22 14:01:50";s:6:"status";s:6:"active";s:14:"payment_status";s:7:"pending";s:17:"payment_reference";N;s:7:"paid_at";N;s:8:"archived";i:0;s:10:"deleted_at";N;}s:11:"\0*\0original";a:30:{s:2:"id";i:3;s:15:"subscription_id";i:2;s:13:"business_name";s:27:"Antonio Jr. Piloton\'s Store";s:13:"business_code";s:11:"MINI-4ELRRO";s:10:"owner_name";s:19:"Antonio Jr. Piloton";s:5:"email";s:35:"antoniollealdeluibpiloton@gmail.com";s:5:"phone";N;s:7:"address";N;s:3:"tin";N;s:11:"branch_code";N;s:10:"bir_acc_no";N;s:12:"bir_acc_date";N;s:7:"bir_min";N;s:6:"bir_sn";N;s:11:"header_text";N;s:11:"footer_text";N;s:4:"logo";N;s:18:"subscription_start";s:10:"2026-08-22";s:16:"subscription_end";s:10:"2026-09-21";s:13:"trial_ends_at";s:19:"2026-08-29 14:01:50";s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-08-22 14:01:50";s:10:"updated_at";s:19:"2026-08-22 14:01:50";s:6:"status";s:6:"active";s:14:"payment_status";s:7:"pending";s:17:"payment_reference";N;s:7:"paid_at";N;s:8:"archived";i:0;s:10:"deleted_at";N;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:7:{s:18:"subscription_start";s:4:"date";s:16:"subscription_end";s:4:"date";s:13:"trial_ends_at";s:8:"datetime";s:7:"paid_at";s:8:"datetime";s:12:"bir_acc_date";s:4:"date";s:8:"archived";s:7:"boolean";s:10:"deleted_at";s:8:"datetime";}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:1:{s:12:"subscription";O:30:"App\\Models\\POS\\POSSubscription":33:{s:13:"\0*\0connection";s:5:"mysql";s:8:"\0*\0table";s:17:"pos_subscriptions";s:13:"\0*\0primaryKey";s:2:"id";s:10:"\0*\0keyType";s:3:"int";s:12:"incrementing";b:1;s:7:"\0*\0with";a:0:{}s:12:"\0*\0withCount";a:0:{}s:19:"preventsLazyLoading";b:0;s:10:"\0*\0perPage";i:15;s:6:"exists";b:1;s:18:"wasRecentlyCreated";b:0;s:28:"\0*\0escapeWhenCastingToString";b:0;s:13:"\0*\0attributes";a:25:{s:2:"id";i:2;s:4:"name";s:11:"Suki Growth";s:11:"description";s:87:"Most popular plan for multi-shift minimarts (₱20/day • 1 Admin, 3 Cashier accounts)";s:5:"price";s:6:"599.00";s:13:"billing_cycle";s:7:"monthly";s:13:"duration_days";i:30;s:9:"max_users";i:4;s:18:"max_admin_accounts";i:1;s:20:"max_cashier_accounts";i:3;s:12:"max_products";i:5000;s:12:"max_branches";i:1;s:14:"max_storage_mb";i:1024;s:15:"allow_inventory";i:1;s:13:"allow_reports";i:1;s:18:"allow_multi_branch";i:0;s:16:"allow_api_access";i:1;s:10:"trial_days";i:0;s:10:"sort_order";i:2;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-06-11 12:58:47";s:10:"updated_at";s:19:"2026-08-21 22:54:09";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:11:"\0*\0original";a:25:{s:2:"id";i:2;s:4:"name";s:11:"Suki Growth";s:11:"description";s:87:"Most popular plan for multi-shift minimarts (₱20/day • 1 Admin, 3 Cashier accounts)";s:5:"price";s:6:"599.00";s:13:"billing_cycle";s:7:"monthly";s:13:"duration_days";i:30;s:9:"max_users";i:4;s:18:"max_admin_accounts";i:1;s:20:"max_cashier_accounts";i:3;s:12:"max_products";i:5000;s:12:"max_branches";i:1;s:14:"max_storage_mb";i:1024;s:15:"allow_inventory";i:1;s:13:"allow_reports";i:1;s:18:"allow_multi_branch";i:0;s:16:"allow_api_access";i:1;s:10:"trial_days";i:0;s:10:"sort_order";i:2;s:10:"created_by";N;s:10:"updated_by";N;s:10:"created_at";s:19:"2026-06-11 12:58:47";s:10:"updated_at";s:19:"2026-08-21 22:54:09";s:6:"status";s:6:"active";s:8:"archived";i:0;s:10:"deleted_at";N;}s:10:"\0*\0changes";a:0:{}s:11:"\0*\0previous";a:0:{}s:8:"\0*\0casts";a:0:{}s:17:"\0*\0classCastCache";a:0:{}s:21:"\0*\0attributeCastCache";a:0:{}s:13:"\0*\0dateFormat";N;s:10:"\0*\0appends";a:0:{}s:19:"\0*\0dispatchesEvents";a:0:{}s:14:"\0*\0observables";a:0:{}s:12:"\0*\0relations";a:0:{}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:32:{i:0;s:4:"name";i:1;s:11:"description";i:2;s:5:"price";i:3;s:13:"billing_cycle";i:4;s:13:"duration_days";i:5;s:9:"max_users";i:6;s:18:"max_admin_accounts";i:7;s:20:"max_cashier_accounts";i:8;s:12:"max_products";i:9;s:12:"max_branches";i:10;s:14:"max_storage_mb";i:11;s:15:"allow_inventory";i:12;s:13:"allow_reports";i:13;s:18:"allow_multi_branch";i:14;s:16:"allow_api_access";i:15;s:10:"trial_days";i:16;s:10:"sort_order";i:17;s:9:"tenant_id";i:18;s:13:"business_name";i:19;s:13:"business_code";i:20;s:10:"owner_name";i:21;s:5:"email";i:22;s:5:"phone";i:23;s:7:"address";i:24;s:4:"logo";i:25;s:18:"subscription_start";i:26;s:16:"subscription_end";i:27;s:13:"trial_ends_at";i:28;s:6:"status";i:29;s:8:"archived";i:30;s:10:"created_by";i:31;s:10:"updated_by";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}}}s:10:"\0*\0touches";a:0:{}s:27:"\0*\0relationAutoloadCallback";N;s:26:"\0*\0relationAutoloadContext";N;s:10:"timestamps";b:1;s:13:"usesUniqueIds";b:0;s:9:"\0*\0hidden";a:0:{}s:10:"\0*\0visible";a:0:{}s:11:"\0*\0fillable";a:26:{i:0;s:15:"subscription_id";i:1;s:13:"business_name";i:2;s:13:"business_code";i:3;s:10:"owner_name";i:4;s:5:"email";i:5;s:5:"phone";i:6;s:7:"address";i:7;s:3:"tin";i:8;s:11:"branch_code";i:9;s:10:"bir_acc_no";i:10;s:12:"bir_acc_date";i:11;s:7:"bir_min";i:12;s:6:"bir_sn";i:13;s:11:"header_text";i:14;s:11:"footer_text";i:15;s:4:"logo";i:16;s:18:"subscription_start";i:17;s:16:"subscription_end";i:18;s:13:"trial_ends_at";i:19;s:6:"status";i:20;s:14:"payment_status";i:21;s:17:"payment_reference";i:22;s:7:"paid_at";i:23;s:8:"archived";i:24;s:10:"created_by";i:25;s:10:"updated_by";}s:10:"\0*\0guarded";a:1:{i:0;s:1:"*";}s:16:"\0*\0forceDeleting";b:0;}', 1787382110);
 
 -- Dumping structure for table snsu_pos.cache_locks
+DROP TABLE IF EXISTS `cache_locks`;
 CREATE TABLE IF NOT EXISTS `cache_locks` (
   `key` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `owner` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -23142,6 +23169,7 @@ INSERT INTO `cache_locks` (`key`, `owner`, `expiration`) VALUES
 	('safetrack-a-qr-nfc-based-student-monitoring-and-alert-system-cache-framework\\schedule-7378ebb1f16e1d5e04a75a9faf10f26f7a954f0c', 'W5uQecleWa814o8g', 1778990640);
 
 -- Dumping structure for table snsu_pos.failed_jobs
+DROP TABLE IF EXISTS `failed_jobs`;
 CREATE TABLE IF NOT EXISTS `failed_jobs` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `uuid` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -23158,6 +23186,7 @@ CREATE TABLE IF NOT EXISTS `failed_jobs` (
 DELETE FROM `failed_jobs`;
 
 -- Dumping structure for table snsu_pos.jobs
+DROP TABLE IF EXISTS `jobs`;
 CREATE TABLE IF NOT EXISTS `jobs` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `queue` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -23174,6 +23203,7 @@ CREATE TABLE IF NOT EXISTS `jobs` (
 DELETE FROM `jobs`;
 
 -- Dumping structure for table snsu_pos.job_batches
+DROP TABLE IF EXISTS `job_batches`;
 CREATE TABLE IF NOT EXISTS `job_batches` (
   `id` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `name` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -23192,6 +23222,7 @@ CREATE TABLE IF NOT EXISTS `job_batches` (
 DELETE FROM `job_batches`;
 
 -- Dumping structure for table snsu_pos.knowledge_base_articles
+DROP TABLE IF EXISTS `knowledge_base_articles`;
 CREATE TABLE IF NOT EXISTS `knowledge_base_articles` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -23214,6 +23245,7 @@ CREATE TABLE IF NOT EXISTS `knowledge_base_articles` (
 DELETE FROM `knowledge_base_articles`;
 
 -- Dumping structure for table snsu_pos.login_activities
+DROP TABLE IF EXISTS `login_activities`;
 CREATE TABLE IF NOT EXISTS `login_activities` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `user_id` bigint unsigned DEFAULT NULL,
@@ -23230,9 +23262,9 @@ CREATE TABLE IF NOT EXISTS `login_activities` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `login_activities_user_id_foreign` (`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1970 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=1973 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table snsu_pos.login_activities: 1,969 rows
+-- Dumping data for table snsu_pos.login_activities: 1,955 rows
 DELETE FROM `login_activities`;
 /*!40000 ALTER TABLE `login_activities` DISABLE KEYS */;
 INSERT INTO `login_activities` (`id`, `user_id`, `email`, `ip_address`, `user_agent`, `device`, `platform`, `browser`, `status`, `logged_in_at`, `logged_out_at`, `created_at`, `updated_at`) VALUES
@@ -25204,10 +25236,14 @@ INSERT INTO `login_activities` (`id`, `user_id`, `email`, `ip_address`, `user_ag
 	(1966, 2, 'apiloton1@snsu.edu.ph', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', 'WebKit', 'Windows', 'Edge', 'success', '2026-08-21 15:12:32', NULL, '2026-08-21 15:12:32', '2026-08-21 15:12:32'),
 	(1967, 2, 'apiloton1@snsu.edu.ph', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', 'WebKit', 'Windows', 'Edge', 'logout', '2026-08-21 15:13:40', '2026-08-21 17:59:52', '2026-08-21 15:13:40', '2026-08-21 17:59:52'),
 	(1968, 1, 'antoniojrpiloton@gmail.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', 'WebKit', 'Windows', 'Edge', 'logout', '2026-08-21 18:00:01', '2026-08-21 18:09:27', '2026-08-21 18:00:01', '2026-08-21 18:09:27'),
-	(1969, 2, 'apiloton1@snsu.edu.ph', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', 'WebKit', 'Windows', 'Edge', 'success', '2026-08-21 18:09:33', NULL, '2026-08-21 18:09:33', '2026-08-21 18:09:33');
+	(1969, 2, 'apiloton1@snsu.edu.ph', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', 'WebKit', 'Windows', 'Edge', 'success', '2026-08-21 18:09:33', NULL, '2026-08-21 18:09:33', '2026-08-21 18:09:33'),
+	(1970, 2, 'apiloton1@snsu.edu.ph', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', 'WebKit', 'Windows', 'Edge', 'success', '2026-08-22 01:01:14', NULL, '2026-08-22 01:01:14', '2026-08-22 01:01:14'),
+	(1971, 6, 'antoniollealdeluibpiloton@gmail.com', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', 'WebKit', 'Windows', 'Edge', 'logout', '2026-08-22 06:01:50', '2026-08-22 06:08:00', '2026-08-22 06:01:50', '2026-08-22 06:08:00'),
+	(1972, 2, 'apiloton1@snsu.edu.ph', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', 'WebKit', 'Windows', 'Edge', 'logout', '2026-08-22 06:08:08', '2026-08-22 06:43:51', '2026-08-22 06:08:08', '2026-08-22 06:43:51');
 /*!40000 ALTER TABLE `login_activities` ENABLE KEYS */;
 
 -- Dumping structure for table snsu_pos.migrations
+DROP TABLE IF EXISTS `migrations`;
 CREATE TABLE IF NOT EXISTS `migrations` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `migration` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -25215,7 +25251,7 @@ CREATE TABLE IF NOT EXISTS `migrations` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table snsu_pos.migrations: ~23 rows (approximately)
+-- Dumping data for table snsu_pos.migrations: ~18 rows (approximately)
 DELETE FROM `migrations`;
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 	(1, '2026_05_25_163042_create_login_activities_table', 1),
@@ -25243,6 +25279,7 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 	(23, '2026_08_22_011717_add_allow_decimal_qty_to_pos_products_table', 8);
 
 -- Dumping structure for table snsu_pos.model_has_permissions
+DROP TABLE IF EXISTS `model_has_permissions`;
 CREATE TABLE IF NOT EXISTS `model_has_permissions` (
   `permission_id` bigint unsigned NOT NULL,
   `model_type` varchar(125) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -25255,6 +25292,7 @@ CREATE TABLE IF NOT EXISTS `model_has_permissions` (
 DELETE FROM `model_has_permissions`;
 
 -- Dumping structure for table snsu_pos.model_has_roles
+DROP TABLE IF EXISTS `model_has_roles`;
 CREATE TABLE IF NOT EXISTS `model_has_roles` (
   `role_id` bigint unsigned NOT NULL,
   `model_type` varchar(125) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -25263,7 +25301,7 @@ CREATE TABLE IF NOT EXISTS `model_has_roles` (
   KEY `model_has_roles_model_id_model_type_index` (`model_id`,`model_type`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table snsu_pos.model_has_roles: ~993 rows (approximately)
+-- Dumping data for table snsu_pos.model_has_roles: ~990 rows (approximately)
 DELETE FROM `model_has_roles`;
 INSERT INTO `model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES
 	(6, 'App\\Models\\User', 1),
@@ -25276,6 +25314,7 @@ INSERT INTO `model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES
 	(2, 'App\\Models\\User', 4),
 	(1, 'App\\Models\\User', 5),
 	(3, 'App\\Models\\User', 6),
+	(9, 'App\\Models\\User', 6),
 	(3, 'App\\Models\\User', 7),
 	(1, 'App\\Models\\User', 8),
 	(1, 'App\\Models\\User', 9),
@@ -26261,6 +26300,7 @@ INSERT INTO `model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES
 	(1, 'App\\Models\\User', 987);
 
 -- Dumping structure for table snsu_pos.notifications
+DROP TABLE IF EXISTS `notifications`;
 CREATE TABLE IF NOT EXISTS `notifications` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `student_id` bigint unsigned DEFAULT NULL,
@@ -34221,6 +34261,7 @@ INSERT INTO `notifications` (`id`, `student_id`, `parent_id`, `user_id`, `title`
 /*!40000 ALTER TABLE `notifications` ENABLE KEYS */;
 
 -- Dumping structure for table snsu_pos.notification_deliveries
+DROP TABLE IF EXISTS `notification_deliveries`;
 CREATE TABLE IF NOT EXISTS `notification_deliveries` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `notification_id` bigint unsigned NOT NULL,
@@ -42178,6 +42219,7 @@ INSERT INTO `notification_deliveries` (`id`, `notification_id`, `channel`, `Rema
 /*!40000 ALTER TABLE `notification_deliveries` ENABLE KEYS */;
 
 -- Dumping structure for table snsu_pos.password_reset_tokens
+DROP TABLE IF EXISTS `password_reset_tokens`;
 CREATE TABLE IF NOT EXISTS `password_reset_tokens` (
   `email` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `token` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -42189,6 +42231,7 @@ CREATE TABLE IF NOT EXISTS `password_reset_tokens` (
 DELETE FROM `password_reset_tokens`;
 
 -- Dumping structure for table snsu_pos.permissions
+DROP TABLE IF EXISTS `permissions`;
 CREATE TABLE IF NOT EXISTS `permissions` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(125) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -42246,6 +42289,7 @@ INSERT INTO `permissions` (`id`, `name`, `details`, `guard_name`, `created_at`, 
 	(41, 'classroom.view', 'classroom.view', 'web', '2026-07-18 07:30:44', '2026-07-18 07:30:44');
 
 -- Dumping structure for table snsu_pos.personal_access_tokens
+DROP TABLE IF EXISTS `personal_access_tokens`;
 CREATE TABLE IF NOT EXISTS `personal_access_tokens` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `tokenable_type` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -42803,6 +42847,7 @@ INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `n
 	(1315, 'App\\Models\\User', 40, 'mobile', 'ef8b98e8f8de72f86ed54a648c0c9ef143532b5eb6fd1e56f8c15d6590784f6a', '["*"]', '2026-07-30 03:47:01', NULL, '2026-07-30 03:44:38', '2026-07-30 03:47:01');
 
 -- Dumping structure for table snsu_pos.pos_branches
+DROP TABLE IF EXISTS `pos_branches`;
 CREATE TABLE IF NOT EXISTS `pos_branches` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `tenant_id` bigint unsigned NOT NULL,
@@ -42827,6 +42872,7 @@ CREATE TABLE IF NOT EXISTS `pos_branches` (
 DELETE FROM `pos_branches`;
 
 -- Dumping structure for table snsu_pos.pos_cash_counts
+DROP TABLE IF EXISTS `pos_cash_counts`;
 CREATE TABLE IF NOT EXISTS `pos_cash_counts` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `tenant_id` bigint unsigned DEFAULT NULL,
@@ -42864,6 +42910,7 @@ INSERT INTO `pos_cash_counts` (`id`, `tenant_id`, `shift_id`, `denomination`, `q
 /*!40000 ALTER TABLE `pos_cash_counts` ENABLE KEYS */;
 
 -- Dumping structure for table snsu_pos.pos_cash_drawers
+DROP TABLE IF EXISTS `pos_cash_drawers`;
 CREATE TABLE IF NOT EXISTS `pos_cash_drawers` (
   `id` int NOT NULL AUTO_INCREMENT,
   `drawer_code` varchar(20) DEFAULT NULL,
@@ -42897,6 +42944,7 @@ INSERT INTO `pos_cash_drawers` (`id`, `drawer_code`, `tenant_id`, `drawer_name`,
 /*!40000 ALTER TABLE `pos_cash_drawers` ENABLE KEYS */;
 
 -- Dumping structure for table snsu_pos.pos_cash_movements
+DROP TABLE IF EXISTS `pos_cash_movements`;
 CREATE TABLE IF NOT EXISTS `pos_cash_movements` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `movement_code` varchar(50) DEFAULT NULL,
@@ -42931,6 +42979,7 @@ CREATE TABLE IF NOT EXISTS `pos_cash_movements` (
 DELETE FROM `pos_cash_movements`;
 
 -- Dumping structure for table snsu_pos.pos_cash_shifts
+DROP TABLE IF EXISTS `pos_cash_shifts`;
 CREATE TABLE IF NOT EXISTS `pos_cash_shifts` (
   `id` int NOT NULL AUTO_INCREMENT,
   `shift_code` varchar(20) NOT NULL DEFAULT '0',
@@ -42961,9 +43010,9 @@ CREATE TABLE IF NOT EXISTS `pos_cash_shifts` (
   KEY `idx_cashier` (`cashier_id`) USING BTREE,
   KEY `idx_status` (`status`) USING BTREE,
   KEY `idx_opened_at` (`opened_at`) USING BTREE
-) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb3;
+) ENGINE=MyISAM AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb3;
 
--- Dumping data for table snsu_pos.pos_cash_shifts: 9 rows
+-- Dumping data for table snsu_pos.pos_cash_shifts: 4 rows
 DELETE FROM `pos_cash_shifts`;
 /*!40000 ALTER TABLE `pos_cash_shifts` DISABLE KEYS */;
 INSERT INTO `pos_cash_shifts` (`id`, `shift_code`, `tenant_id`, `drawer_id`, `cashier_id`, `opening_cash`, `cash_sales`, `cash_in`, `cash_out`, `expected_cash`, `actual_cash`, `over_amount`, `short_amount`, `opened_at`, `closed_at`, `remarks`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
@@ -42975,10 +43024,12 @@ INSERT INTO `pos_cash_shifts` (`id`, `shift_code`, `tenant_id`, `drawer_id`, `ca
 	(7, 'CSH-000007', 2, 3, 2, 2000.00, 200.00, 0.00, 0.00, 2200.00, 458.00, 0.00, 1742.00, '2026-08-21 23:56:15', '2026-08-22 00:22:19', NULL, 2, 2, '2026-08-21 23:56:15', '2026-08-21 16:22:19', 'closed', 0, NULL),
 	(8, 'CSH-000008', 2, 3, 2, 2000.00, 50.00, 0.00, 0.00, 2050.00, 12000.00, 9950.00, 0.00, '2026-08-21 23:57:13', '2026-08-22 01:36:36', NULL, 2, 2, '2026-08-21 23:57:13', '2026-08-21 17:36:36', 'closed', 0, NULL),
 	(9, 'CSH-000009', 1, 4, 1, 2000.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, '2026-08-22 00:00:00', NULL, NULL, 1, NULL, '2026-08-22 00:00:00', '2026-08-21 18:03:25', 'open', 0, NULL),
-	(10, 'CSH-000010', 2, 3, 2, 2000.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, '2026-08-22 00:00:00', NULL, NULL, 2, NULL, '2026-08-22 00:00:00', '2026-08-21 18:04:19', 'open', 0, NULL);
+	(10, 'CSH-000010', 2, 3, 2, 2000.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, '2026-08-22 00:00:00', NULL, NULL, 2, NULL, '2026-08-22 00:00:00', '2026-08-21 18:04:19', 'open', 0, NULL),
+	(11, 'CSH-000011', 3, 1, 6, 5000.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, '2026-08-22 14:05:29', NULL, NULL, 6, 6, '2026-08-22 14:05:29', '2026-08-22 06:05:29', 'open', 0, NULL);
 /*!40000 ALTER TABLE `pos_cash_shifts` ENABLE KEYS */;
 
 -- Dumping structure for table snsu_pos.pos_cash_transactions
+DROP TABLE IF EXISTS `pos_cash_transactions`;
 CREATE TABLE IF NOT EXISTS `pos_cash_transactions` (
   `id` int NOT NULL AUTO_INCREMENT,
   `transaction_code` varchar(20) NOT NULL DEFAULT '0',
@@ -43008,7 +43059,7 @@ CREATE TABLE IF NOT EXISTS `pos_cash_transactions` (
   KEY `idx_status` (`status`) USING BTREE
 ) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
 
--- Dumping data for table snsu_pos.pos_cash_transactions: 2 rows
+-- Dumping data for table snsu_pos.pos_cash_transactions: 0 rows
 DELETE FROM `pos_cash_transactions`;
 /*!40000 ALTER TABLE `pos_cash_transactions` DISABLE KEYS */;
 INSERT INTO `pos_cash_transactions` (`id`, `transaction_code`, `tenant_id`, `shift_id`, `drawer_id`, `cashier_id`, `transaction_type`, `category`, `amount`, `reference_no`, `approved_by`, `remarks`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
@@ -43017,6 +43068,7 @@ INSERT INTO `pos_cash_transactions` (`id`, `transaction_code`, `tenant_id`, `shi
 /*!40000 ALTER TABLE `pos_cash_transactions` ENABLE KEYS */;
 
 -- Dumping structure for table snsu_pos.pos_categories
+DROP TABLE IF EXISTS `pos_categories`;
 CREATE TABLE IF NOT EXISTS `pos_categories` (
   `id` int NOT NULL AUTO_INCREMENT,
   `tenant_id` int NOT NULL DEFAULT '0',
@@ -43068,6 +43120,7 @@ INSERT INTO `pos_categories` (`id`, `tenant_id`, `name`, `description`, `created
 	(33, 1, 'Condiments', 'Condiments', 3, 3, '2026-06-11 20:50:02', '2026-06-11 12:50:02', 'active', 0, NULL);
 
 -- Dumping structure for table snsu_pos.pos_customers
+DROP TABLE IF EXISTS `pos_customers`;
 CREATE TABLE IF NOT EXISTS `pos_customers` (
   `id` int NOT NULL AUTO_INCREMENT,
   `customer_code` varchar(20) NOT NULL DEFAULT '0',
@@ -43095,9 +43148,9 @@ CREATE TABLE IF NOT EXISTS `pos_customers` (
   KEY `idx_mobile` (`mobile_number`),
   KEY `idx_email` (`email`),
   KEY `idx_status` (`status`)
-) ENGINE=MyISAM AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb3;
+) ENGINE=MyISAM AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb3;
 
--- Dumping data for table snsu_pos.pos_customers: 35 rows
+-- Dumping data for table snsu_pos.pos_customers: 14 rows
 DELETE FROM `pos_customers`;
 /*!40000 ALTER TABLE `pos_customers` DISABLE KEYS */;
 INSERT INTO `pos_customers` (`id`, `customer_code`, `tenant_id`, `CustomerName`, `company_name`, `customer_type`, `mobile_number`, `email`, `TotalPoints`, `remarks`, `CustomerAddress`, `discount_percent`, `credit_limit`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
@@ -43135,10 +43188,15 @@ INSERT INTO `pos_customers` (`id`, `customer_code`, `tenant_id`, `CustomerName`,
 	(32, 'CUST-SGHP-007', 2, 'Teacher Grace Ramos', NULL, 'regular', '09287766554', NULL, 175, NULL, 'Teachers Village, QC', 0.00, 5000.00, 2, NULL, '2026-07-23 02:04:35', '2026-08-21 18:04:35', 'active', 0, NULL),
 	(33, 'CUST-9JA5-008', 2, 'Kuya Jun Karinderya', NULL, 'business', '09156677889', NULL, 520, NULL, 'Market Place, Mandaluyong', 0.00, 20000.00, 2, NULL, '2026-07-23 02:04:35', '2026-08-21 18:04:35', 'active', 0, NULL),
 	(34, 'CUST-WZAD-009', 2, 'Ate Linda Bakery', NULL, 'regular', '09201122334', NULL, 310, NULL, 'San Roque, Marikina', 0.00, 8000.00, 2, NULL, '2026-07-23 02:04:35', '2026-08-21 18:04:35', 'active', 0, NULL),
-	(35, 'CUST-R5IO-010', 2, 'Dr. Eduardo Gomez', NULL, 'credit', '09173344556', NULL, 640, NULL, 'Medical Center Clinic', 0.00, 50000.00, 2, NULL, '2026-07-23 02:04:35', '2026-08-21 18:04:35', 'active', 0, NULL);
+	(35, 'CUST-R5IO-010', 2, 'Dr. Eduardo Gomez', NULL, 'credit', '09173344556', NULL, 640, NULL, 'Medical Center Clinic', 0.00, 50000.00, 2, NULL, '2026-07-23 02:04:35', '2026-08-21 18:04:35', 'active', 0, NULL),
+	(36, '0', 2, 'hfj', NULL, 'regular', NULL, NULL, 0, NULL, 'gjgjh', 0.00, 0.00, 2, 2, '2026-08-22 09:07:23', '2026-08-22 01:07:23', 'active', 0, NULL),
+	(37, '0', 2, 'hgfh', NULL, 'regular', NULL, NULL, 0, NULL, 'dfgh', 0.00, 0.00, 2, 2, '2026-08-22 09:09:42', '2026-08-22 01:09:42', 'active', 0, NULL),
+	(38, '0', 2, 'jfghjfgh', NULL, 'regular', NULL, NULL, 0, NULL, 'jfghjgh', 0.00, 0.00, 2, 2, '2026-08-22 09:10:06', '2026-08-22 01:10:06', 'active', 0, NULL),
+	(39, '0', 2, 'nbcvnv', NULL, 'regular', NULL, NULL, 0, NULL, 'ncvbnvbn', 0.00, 0.00, 2, 2, '2026-08-22 09:12:51', '2026-08-22 01:12:51', 'active', 0, NULL);
 /*!40000 ALTER TABLE `pos_customers` ENABLE KEYS */;
 
 -- Dumping structure for table snsu_pos.pos_customer_ledgers
+DROP TABLE IF EXISTS `pos_customer_ledgers`;
 CREATE TABLE IF NOT EXISTS `pos_customer_ledgers` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `tenant_id` bigint unsigned NOT NULL,
@@ -43271,6 +43329,7 @@ INSERT INTO `pos_customer_ledgers` (`id`, `tenant_id`, `customer_id`, `sale_id`,
 /*!40000 ALTER TABLE `pos_customer_ledgers` ENABLE KEYS */;
 
 -- Dumping structure for table snsu_pos.pos_inventory_movements
+DROP TABLE IF EXISTS `pos_inventory_movements`;
 CREATE TABLE IF NOT EXISTS `pos_inventory_movements` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `tenant_id` bigint unsigned NOT NULL,
@@ -43288,9 +43347,9 @@ CREATE TABLE IF NOT EXISTS `pos_inventory_movements` (
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_product` (`product_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=68 DEFAULT CHARSET=utf8mb3;
 
--- Dumping data for table snsu_pos.pos_inventory_movements: ~53 rows (approximately)
+-- Dumping data for table snsu_pos.pos_inventory_movements: ~47 rows (approximately)
 DELETE FROM `pos_inventory_movements`;
 INSERT INTO `pos_inventory_movements` (`id`, `tenant_id`, `product_id`, `movement_type`, `reference_type`, `reference_id`, `qty`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
 	(1, 2, 3, 'sale', 'sale', 1, -2.00, 2, 2, '2026-07-30 18:17:47', '2026-07-30 10:17:47', 'active', 0, NULL),
@@ -43345,9 +43404,17 @@ INSERT INTO `pos_inventory_movements` (`id`, `tenant_id`, `product_id`, `movemen
 	(57, 2, 6, 'sale', 'sale', 20, -0.50, 2, 2, '2026-08-22 01:24:43', '2026-08-21 17:24:43', 'active', 0, NULL),
 	(58, 2, 1, 'sale', 'sale', 21, -30.00, 2, 2, '2026-08-22 01:36:13', '2026-08-21 17:36:13', 'active', 0, NULL),
 	(59, 2, 2, 'sale', 'sale', 21, -14.00, 2, 2, '2026-08-22 01:36:13', '2026-08-21 17:36:13', 'active', 0, NULL),
-	(60, 2, 3, 'sale', 'sale', 21, -20.00, 2, 2, '2026-08-22 01:36:13', '2026-08-21 17:36:13', 'active', 0, NULL);
+	(60, 2, 3, 'sale', 'sale', 21, -20.00, 2, 2, '2026-08-22 01:36:13', '2026-08-21 17:36:13', 'active', 0, NULL),
+	(61, 2, 1, 'sale', 'sale', 265, -3.00, 2, 2, '2026-08-22 09:11:36', '2026-08-22 01:11:36', 'active', 0, NULL),
+	(62, 2, 6, 'sale', 'sale', 265, -3.00, 2, 2, '2026-08-22 09:11:36', '2026-08-22 01:11:36', 'active', 0, NULL),
+	(63, 2, 2, 'sale', 'sale', 265, -6.00, 2, 2, '2026-08-22 09:11:36', '2026-08-22 01:11:36', 'active', 0, NULL),
+	(64, 2, 3, 'sale', 'sale', 265, -2.00, 2, 2, '2026-08-22 09:11:36', '2026-08-22 01:11:36', 'active', 0, NULL),
+	(65, 2, 2, 'sale', 'sale', 266, -11.00, 2, 2, '2026-08-22 09:24:14', '2026-08-22 01:24:14', 'active', 0, NULL),
+	(66, 2, 5, 'sale', 'sale', 267, -37.00, 2, 2, '2026-08-22 09:25:03', '2026-08-22 01:25:03', 'active', 0, NULL),
+	(67, 3, 586, 'sale', 'sale', 270, -12.00, 6, 6, '2026-08-22 14:06:07', '2026-08-22 06:06:07', 'active', 0, NULL);
 
 -- Dumping structure for table snsu_pos.pos_payments
+DROP TABLE IF EXISTS `pos_payments`;
 CREATE TABLE IF NOT EXISTS `pos_payments` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `tenant_id` bigint unsigned NOT NULL DEFAULT '0',
@@ -43380,9 +43447,9 @@ CREATE TABLE IF NOT EXISTS `pos_payments` (
   KEY `idx_shift` (`shift_id`) USING BTREE,
   KEY `idx_drawer` (`drawer_id`) USING BTREE,
   KEY `idx_payment_date` (`payment_date`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=255 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=259 DEFAULT CHARSET=utf8mb3;
 
--- Dumping data for table snsu_pos.pos_payments: ~254 rows (approximately)
+-- Dumping data for table snsu_pos.pos_payments: ~9 rows (approximately)
 DELETE FROM `pos_payments`;
 INSERT INTO `pos_payments` (`id`, `tenant_id`, `customer_id`, `sale_id`, `shift_id`, `drawer_id`, `terminal_id`, `payment_method`, `amount`, `reference_number`, `or_number`, `tendered_amount`, `change_amount`, `payment_date`, `notes`, `is_void`, `void_reason`, `void_by`, `void_at`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
 	(1, 3, 0, 1, 4, 1, 1, 'cash', 2000.00, NULL, NULL, 2000.000000, 0.000000, '2026-08-01 14:31:44', NULL, 0, NULL, NULL, NULL, 3, 3, '2026-08-01 14:31:44', '2026-08-01 06:31:44', 'active', 0, NULL),
@@ -43638,9 +43705,14 @@ INSERT INTO `pos_payments` (`id`, `tenant_id`, `customer_id`, `sale_id`, `shift_
 	(251, 2, 0, 260, 10, 3, 3, 'cash', 1007.58, NULL, NULL, 1050.000000, 42.420000, '2026-08-20 17:36:35', '', 0, NULL, NULL, NULL, 2, NULL, '2026-08-20 17:36:35', '2026-08-20 09:36:35', 'active', 0, NULL),
 	(252, 2, 0, 261, 10, 3, 3, 'maya', 1610.00, 'REF-25768618', NULL, 1610.000000, 0.000000, '2026-08-13 17:31:35', '', 0, NULL, NULL, NULL, 2, NULL, '2026-08-13 17:31:35', '2026-08-13 09:31:35', 'active', 0, NULL),
 	(253, 2, 31, 262, 10, 3, 3, 'maya', 738.75, 'REF-81757612', NULL, 738.750000, 0.000000, '2026-07-26 08:52:35', '', 0, NULL, NULL, NULL, 2, NULL, '2026-07-26 08:52:35', '2026-07-26 00:52:35', 'active', 0, NULL),
-	(254, 2, 28, 263, 10, 3, 3, 'maya', 2406.00, 'REF-44579379', NULL, 2406.000000, 0.000000, '2026-08-14 15:45:35', '', 0, NULL, NULL, NULL, 2, NULL, '2026-08-14 15:45:35', '2026-08-14 07:45:35', 'active', 0, NULL);
+	(254, 2, 28, 263, 10, 3, 3, 'maya', 2406.00, 'REF-44579379', NULL, 2406.000000, 0.000000, '2026-08-14 15:45:35', '', 0, NULL, NULL, NULL, 2, NULL, '2026-08-14 15:45:35', '2026-08-14 07:45:35', 'active', 0, NULL),
+	(255, 2, 0, 265, 10, 3, 3, 'cash', 3000.00, NULL, NULL, 3000.000000, 696.500000, '2026-08-22 09:11:36', NULL, 0, NULL, NULL, NULL, 2, 2, '2026-08-22 09:11:36', '2026-08-22 01:11:36', 'active', 0, NULL),
+	(256, 2, 0, 266, 10, 3, 3, 'cash', 3000.00, NULL, NULL, 3000.000000, 978.750000, '2026-08-22 09:24:14', NULL, 0, NULL, NULL, NULL, 2, 2, '2026-08-22 09:24:14', '2026-08-22 01:24:14', 'active', 0, NULL),
+	(257, 2, 0, 267, 10, 3, 3, 'cash', 16372.50, NULL, NULL, 16372.500000, 0.000000, '2026-08-22 09:25:03', NULL, 0, NULL, NULL, NULL, 2, 2, '2026-08-22 09:25:03', '2026-08-22 01:25:03', 'active', 0, NULL),
+	(258, 3, 0, 270, 11, 1, 1, 'cash', 4000.00, NULL, NULL, 4000.000000, 370.000000, '2026-08-22 14:06:07', NULL, 0, NULL, NULL, NULL, 6, 6, '2026-08-22 14:06:07', '2026-08-22 06:06:07', 'active', 0, NULL);
 
 -- Dumping structure for table snsu_pos.pos_payment_methods
+DROP TABLE IF EXISTS `pos_payment_methods`;
 CREATE TABLE IF NOT EXISTS `pos_payment_methods` (
   `id` int NOT NULL AUTO_INCREMENT,
   `payment_code` varchar(20) NOT NULL DEFAULT '0',
@@ -43669,6 +43741,7 @@ DELETE FROM `pos_payment_methods`;
 /*!40000 ALTER TABLE `pos_payment_methods` ENABLE KEYS */;
 
 -- Dumping structure for table snsu_pos.pos_products
+DROP TABLE IF EXISTS `pos_products`;
 CREATE TABLE IF NOT EXISTS `pos_products` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `stock_on_hand` double unsigned NOT NULL DEFAULT '0',
@@ -43698,15 +43771,15 @@ CREATE TABLE IF NOT EXISTS `pos_products` (
   KEY `idx_products_tenant` (`tenant_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=588 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table snsu_pos.pos_products: ~587 rows (approximately)
+-- Dumping data for table snsu_pos.pos_products: ~586 rows (approximately)
 DELETE FROM `pos_products`;
 INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `unit_id`, `barcode`, `sku`, `name`, `description`, `cost_price`, `selling_price`, `wholesale_price`, `reorder_level`, `allow_decimal_qty`, `image`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
-	(1, 835, 2, 7, 2, '4800361410816', 'SKU-OCNIJIHQ', 'bear brand (w) 33g', 'Bear Brand | Milks', 18.00, 22.00, 20.00, 7, 1, 'products/819PAoD8aV4oEr4nbAPjphgAX5SEcxh3VvJKDPA7.jpg', 1, 2, '2026-06-11 15:37:26', '2026-08-21 17:52:06', 'active', 0, NULL),
-	(2, 1795, 2, 2, 28, '0750515018402', 'SKU-CS7ENT4R', 'SkyFlakes Crackers 10 Single pack Condensada Falvor', 'SkyFlakes | Crackers (Appetizers)', 147.00, 183.75, 169.05, 19, 0, 'products/u9U30Qu573ReL1vT640sOJiOWiB4YTJ3mckNcfFo.webp', 1, 2, '2026-06-11 15:37:26', '2026-08-21 17:52:06', 'active', 0, NULL),
-	(3, 338, 2, 9, 28, '0750515017429', 'SKU-SPTJEFX2', 'fita crackers 30g', 'My.san | Biscuits and crackers', 367.00, 458.75, 422.05, 12, 0, 'products/wgco0gFPW75RCF3H70tcR6GunmZZIKGwQFgqx76b.webp', 1, 2, '2026-06-11 15:37:26', '2026-08-21 17:52:06', 'active', 0, NULL),
+	(1, 832, 2, 7, 2, '4800361410816', 'SKU-OCNIJIHQ', 'bear brand (w) 33g', 'Bear Brand | Milks', 18.00, 22.00, 20.00, 7, 1, 'products/819PAoD8aV4oEr4nbAPjphgAX5SEcxh3VvJKDPA7.jpg', 1, 2, '2026-06-11 15:37:26', '2026-08-22 01:11:36', 'active', 0, NULL),
+	(2, 1778, 2, 2, 28, '0750515018402', 'SKU-CS7ENT4R', 'SkyFlakes Crackers 10 Single pack Condensada Falvor', 'SkyFlakes | Crackers (Appetizers)', 147.00, 183.75, 169.05, 19, 0, 'products/u9U30Qu573ReL1vT640sOJiOWiB4YTJ3mckNcfFo.webp', 1, 2, '2026-06-11 15:37:26', '2026-08-22 01:24:14', 'active', 0, NULL),
+	(3, 336, 2, 9, 28, '0750515017429', 'SKU-SPTJEFX2', 'fita crackers 30g', 'My.san | Biscuits and crackers', 367.00, 458.75, 422.05, 12, 0, 'products/wgco0gFPW75RCF3H70tcR6GunmZZIKGwQFgqx76b.webp', 1, 2, '2026-06-11 15:37:26', '2026-08-22 01:11:36', 'active', 0, NULL),
 	(4, 0, 2, 1, 1, '4806502720615', 'SKU-GKJH6SBT', 'Gardenia White Bread Classic 600G', 'Gardenia | Sliced breads, White breads, Enriched white breads', 147.00, 183.75, 169.05, 10, 0, 'products/agazOcy3AVuzeJNMaZADBDB1VhQhNOKxnbZXgSmM.png', 1, 2, '2026-06-11 15:37:26', '2026-08-21 17:52:06', 'active', 0, NULL),
-	(5, 37, 2, 1, 15, '4800016068010', 'SKU-NXZS5YOI', 'c2 apple 500ml', 'C2 | Green teas, Sweetened beverages, Flavored green teas, Green apple tea, Ready-to-drink teas', 354.00, 442.50, 407.10, 17, 0, 'products/dRO0Hn97Qs3sUwTfxMms19kVD43ALK7rISUEiyh2.jpg', 1, 2, '2026-06-11 15:37:26', '2026-08-21 17:52:06', 'active', 0, NULL),
-	(6, 499.5, 2, 1, 1, '4800092113338', 'SKU-EUS9E0E8', 'rebisco crackers (g) 33g', 'Rebisco | Crackers (Appetizers)', 58.00, 72.50, 66.70, 13, 1, NULL, 1, 2, '2026-06-11 15:37:26', '2026-08-21 17:52:06', 'active', 0, NULL),
+	(5, 0, 2, 1, 15, '4800016068010', 'SKU-NXZS5YOI', 'c2 apple 500ml', 'C2 | Green teas, Sweetened beverages, Flavored green teas, Green apple tea, Ready-to-drink teas', 354.00, 442.50, 407.10, 17, 0, 'products/dRO0Hn97Qs3sUwTfxMms19kVD43ALK7rISUEiyh2.jpg', 1, 2, '2026-06-11 15:37:26', '2026-08-22 01:25:03', 'active', 0, NULL),
+	(6, 496.5, 2, 1, 1, '4800092113338', 'SKU-EUS9E0E8', 'rebisco crackers (g) 33g', 'Rebisco | Crackers (Appetizers)', 58.00, 72.50, 66.70, 13, 1, NULL, 1, 2, '2026-06-11 15:37:26', '2026-08-22 01:11:36', 'active', 0, NULL),
 	(7, 0, 1, 1, 1, '8997035600027', 'SKU-XDBIRTO4', 'pocari sweat 500ml', 'Pocari | Carbonated soft drinks without fruit juice with sugar and artificial sweeteners, Dietary drink for sport, Energy drink with sugar', 294.00, 367.50, 338.10, 18, 0, 'products/dt6dZLXtIt9CO2r1RZgFaRabvrLnvG0kYYdtI6Af.webp', 1, 1, '2026-06-11 15:37:26', '2026-06-12 06:07:05', 'active', 0, NULL),
 	(8, 0, 2, 1, 16, '4801981116072', 'SKU-GCQEGEUZ', 'Coca Cola original taste', 'coca cola | Colas', 355.00, 443.75, 408.25, 5, 0, 'products/UQSDoK9t9Djzu8l6e49wBkNtTXYhAO3L9Ao8ix5S.webp', 1, 2, '2026-06-11 15:37:26', '2026-08-21 17:52:06', 'active', 0, NULL),
 	(9, 0, 2, 1, 1, '4801981118502', 'SKU-RFZMPZ3P', 'Coke Mismo 290mL', 'Coca Cola | Colas, Sweetened beverages', 454.00, 567.50, 522.10, 15, 0, 'products/p8FT7b9re8MhOUKJ200qC8cudB2JER8EOoKwFvIA.webp', 1, 2, '2026-06-11 15:37:26', '2026-08-21 17:52:06', 'active', 0, NULL),
@@ -44286,10 +44359,11 @@ INSERT INTO `pos_products` (`id`, `stock_on_hand`, `tenant_id`, `category_id`, `
 	(583, 0, 1, 1, 1, '0748485804170', 'SKU-1KWM8T5A', 'argentina pork giniling 150g', 'Argentina', 106.00, 132.50, 121.90, 20, 0, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
 	(584, 0, 1, 1, 1, '4800249886030', 'SKU-YOEFPJD0', 'Ulam Burger CDO', 'CDO', 228.00, 285.00, 262.20, 11, 0, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
 	(585, 0, 1, 1, 1, '4804888624107', 'SKU-82QUNUSC', 'Hazelnut coffee Drink', 'Bo\'s Coffee', 386.00, 482.50, 443.90, 15, 0, NULL, 1, 1, '2026-06-11 15:37:38', '2026-06-11 07:37:38', 'active', 0, NULL),
-	(586, 359, 3, 1, 1, '0039000086639', 'SKU-SVRPPIAJ', 'Vienna Sausage', 'Libby\'s | Canned foods, Chicken preparations, Pork sausages, Chicken sausages, Industrial knacks', 250.00, 302.50, 0.00, 0, 0, NULL, 3, 3, '2026-07-31 15:11:06', '2026-08-01 07:10:03', 'active', 0, NULL),
+	(586, 347, 3, 1, 1, '0039000086639', 'SKU-SVRPPIAJ', 'Vienna Sausage', 'Libby\'s | Canned foods, Chicken preparations, Pork sausages, Chicken sausages, Industrial knacks', 250.00, 302.50, 0.00, 0, 0, NULL, 3, 3, '2026-07-31 15:11:06', '2026-08-22 06:06:07', 'active', 0, NULL),
 	(587, 0, 2, 1, 1, '0748485700038', '5TSC-95350', '555 tuna spicy caldereta 155g', '555 | Tunas in oil, tuna flakes in oil', 165.00, 206.25, 0.00, 0, 0, NULL, 2, 2, '2026-08-22 01:06:26', '2026-08-21 17:06:26', 'active', 0, NULL);
 
 -- Dumping structure for table snsu_pos.pos_product_price_histories
+DROP TABLE IF EXISTS `pos_product_price_histories`;
 CREATE TABLE IF NOT EXISTS `pos_product_price_histories` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `tenant_id` bigint unsigned NOT NULL,
@@ -44332,6 +44406,7 @@ INSERT INTO `pos_product_price_histories` (`id`, `tenant_id`, `product_id`, `cos
 	(10, 2, 587, 165.00, NULL, 206.25, NULL, 0.00, NULL, NULL, 'Initial product price', '2026-08-22 01:06:26', 2, 2, '2026-08-22 01:06:26', '2026-08-21 17:06:26', 'active', 0, NULL);
 
 -- Dumping structure for table snsu_pos.pos_product_variants
+DROP TABLE IF EXISTS `pos_product_variants`;
 CREATE TABLE IF NOT EXISTS `pos_product_variants` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `tenant_id` bigint unsigned NOT NULL,
@@ -44363,6 +44438,7 @@ DELETE FROM `pos_product_variants`;
 /*!40000 ALTER TABLE `pos_product_variants` ENABLE KEYS */;
 
 -- Dumping structure for table snsu_pos.pos_sales
+DROP TABLE IF EXISTS `pos_sales`;
 CREATE TABLE IF NOT EXISTS `pos_sales` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `sale_code` varchar(50) NOT NULL DEFAULT '0',
@@ -44398,9 +44474,9 @@ CREATE TABLE IF NOT EXISTS `pos_sales` (
   KEY `idx_sale_date` (`sale_date`),
   KEY `idx_drawer` (`drawer_id`) USING BTREE,
   KEY `idx_shift` (`cash_shift_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=264 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=271 DEFAULT CHARSET=utf8mb3;
 
--- Dumping data for table snsu_pos.pos_sales: ~262 rows (approximately)
+-- Dumping data for table snsu_pos.pos_sales: ~6 rows (approximately)
 DELETE FROM `pos_sales`;
 INSERT INTO `pos_sales` (`id`, `sale_code`, `tenant_id`, `customer_id`, `cash_shift_id`, `drawer_id`, `terminal_id`, `cashier_id`, `invoice_no`, `sale_date`, `subtotal`, `payment_method`, `discount_amount`, `discount_type`, `discount_holder`, `discount_id_no`, `tax_amount`, `total_amount`, `reference_number`, `notes`, `sale_status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
 	(1, '260801-0001', 3, NULL, 4, 1, 1, 3, NULL, '2026-08-01 14:31:44', 2117.50, 'split', 0.00, NULL, NULL, NULL, 226.88, 2117.50, '54545', NULL, 'completed', 3, 3, '2026-08-01 14:31:25', '2026-08-01 06:31:44', 'active', 0, NULL),
@@ -44664,9 +44740,17 @@ INSERT INTO `pos_sales` (`id`, `sale_code`, `tenant_id`, `customer_id`, `cash_sh
 	(260, '260822-0013', 2, NULL, 10, 3, 3, 2, 'INV-2-2608-0077-331', '2026-08-20 17:36:35', 1007.58, 'cash', 0.00, NULL, NULL, NULL, 107.96, 1007.58, NULL, 'POS terminal sale', 'completed', 2, NULL, '2026-08-20 17:36:35', '2026-08-20 09:36:35', 'active', 0, NULL),
 	(261, '260822-0013', 2, NULL, 10, 3, 3, 2, 'INV-2-2608-0078-431', '2026-08-13 17:31:35', 1610.00, 'maya', 0.00, NULL, NULL, NULL, 172.50, 1610.00, 'REF-25768618', 'POS terminal sale', 'completed', 2, NULL, '2026-08-13 17:31:35', '2026-08-13 09:31:35', 'active', 0, NULL),
 	(262, '260822-0013', 2, 31, 10, 3, 3, 2, 'INV-2-2607-0079-853', '2026-07-26 08:52:35', 738.75, 'maya', 0.00, NULL, NULL, NULL, 79.15, 738.75, 'REF-81757612', 'POS terminal sale', 'completed', 2, NULL, '2026-07-26 08:52:35', '2026-07-26 00:52:35', 'active', 0, NULL),
-	(263, '260822-0013', 2, 28, 10, 3, 3, 2, 'INV-2-2608-0080-460', '2026-08-14 15:45:35', 3007.50, 'maya', 601.50, 'senior_citizen', 'Maria Clara Santos (Senior)', 'OSCA-408613', 0.00, 2406.00, 'REF-44579379', 'POS terminal sale', 'completed', 2, NULL, '2026-08-14 15:45:35', '2026-08-14 07:45:35', 'active', 0, NULL);
+	(263, '260822-0013', 2, 28, 10, 3, 3, 2, 'INV-2-2608-0080-460', '2026-08-14 15:45:35', 3007.50, 'maya', 601.50, 'senior_citizen', 'Maria Clara Santos (Senior)', 'OSCA-408613', 0.00, 2406.00, 'REF-44579379', 'POS terminal sale', 'completed', 2, NULL, '2026-08-14 15:45:35', '2026-08-14 07:45:35', 'active', 0, NULL),
+	(264, '260822-0013', 2, NULL, 10, 3, 3, NULL, NULL, NULL, 0.00, '0.00', 0.00, '0.00', '0.00', '0.00', 0.00, 0.00, '0.00', NULL, 'pending', 2, 2, '2026-08-22 09:03:42', '2026-08-22 01:03:42', 'active', 0, NULL),
+	(265, '260822-0014', 2, 38, 10, 3, 3, 2, NULL, '2026-08-22 09:11:36', 2303.50, 'cash', 0.00, NULL, NULL, NULL, 246.80, 2303.50, NULL, NULL, 'completed', 2, 2, '2026-08-22 09:05:42', '2026-08-22 01:11:36', 'active', 0, NULL),
+	(266, '260822-0015', 2, 39, 10, 3, 3, 2, NULL, '2026-08-22 09:24:14', 2021.25, 'cash', 0.00, NULL, NULL, NULL, 216.56, 2021.25, NULL, NULL, 'completed', 2, 2, '2026-08-22 09:11:42', '2026-08-22 01:24:14', 'active', 0, NULL),
+	(267, '260822-0016', 2, NULL, 10, 3, 3, 2, NULL, '2026-08-22 09:25:03', 16372.50, 'cash', 0.00, NULL, NULL, NULL, 1754.20, 16372.50, NULL, NULL, 'completed', 2, 2, '2026-08-22 09:24:50', '2026-08-22 01:25:03', 'active', 0, NULL),
+	(268, '260822-0017', 2, NULL, 10, 3, 3, NULL, NULL, NULL, 0.00, '0.00', 0.00, '0.00', '0.00', '0.00', 0.00, 0.00, '0.00', NULL, 'pending', 2, 2, '2026-08-22 09:28:16', '2026-08-22 01:28:16', 'active', 0, NULL),
+	(269, '260822-0018', 2, NULL, 10, 3, 3, NULL, NULL, NULL, 0.00, '0.00', 0.00, '0.00', '0.00', '0.00', 0.00, 0.00, '0.00', NULL, 'pending', 2, 2, '2026-08-22 09:30:34', '2026-08-22 01:30:34', 'active', 0, NULL),
+	(270, '260822-0001', 3, 13, 11, 1, 1, 6, NULL, '2026-08-22 14:06:07', 3630.00, 'cash', 0.00, NULL, NULL, NULL, 388.93, 3630.00, NULL, NULL, 'completed', 6, 6, '2026-08-22 14:05:29', '2026-08-22 06:06:07', 'active', 0, NULL);
 
 -- Dumping structure for table snsu_pos.pos_sale_items
+DROP TABLE IF EXISTS `pos_sale_items`;
 CREATE TABLE IF NOT EXISTS `pos_sale_items` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `sale_id` bigint unsigned NOT NULL,
@@ -44689,9 +44773,9 @@ CREATE TABLE IF NOT EXISTS `pos_sale_items` (
   PRIMARY KEY (`id`),
   KEY `idx_sale` (`sale_id`),
   KEY `idx_product` (`product_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=622 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=629 DEFAULT CHARSET=utf8mb3;
 
--- Dumping data for table snsu_pos.pos_sale_items: ~621 rows (approximately)
+-- Dumping data for table snsu_pos.pos_sale_items: ~627 rows (approximately)
 DELETE FROM `pos_sale_items`;
 INSERT INTO `pos_sale_items` (`id`, `sale_id`, `product_id`, `barcode`, `sku`, `product_name`, `qty`, `unit_price`, `discount_amount`, `tax_amount`, `line_total`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
 	(1, 1, 586, '0039000086639', 'SKU-SVRPPIAJ', 'Vienna Sausage', 7.00, 302.50, 0.00, 0.00, 2117.50, 3, 3, '2026-08-01 14:31:44', '2026-08-01 06:31:44', 'active', 0, NULL),
@@ -45314,9 +45398,17 @@ INSERT INTO `pos_sale_items` (`id`, `sale_id`, `product_id`, `barcode`, `sku`, `
 	(618, 263, 4, '4806502720615', 'SKU-GKJH6SBT', 'Gardenia White Bread Classic 600G', 3.00, 183.75, 0.00, 0.00, 551.25, 2, NULL, '2026-08-14 15:45:35', '2026-08-14 07:45:35', 'active', 0, NULL),
 	(619, 263, 5, '4800016068010', 'SKU-NXZS5YOI', 'c2 apple 500ml', 4.00, 442.50, 0.00, 0.00, 1770.00, 2, NULL, '2026-08-14 15:45:35', '2026-08-14 07:45:35', 'active', 0, NULL),
 	(620, 263, 40, '4800194153225', 'SKU-JKOHMCNK', 'bread pan (g) cheese & onion 24g', 1.00, 563.75, 0.00, 0.00, 563.75, 2, NULL, '2026-08-14 15:45:35', '2026-08-14 07:45:35', 'active', 0, NULL),
-	(621, 263, 44, '4800216120013', 'SKU-VWNDQSWB', 'clover (b) cheesier 24g', 2.00, 61.25, 0.00, 0.00, 122.50, 2, NULL, '2026-08-14 15:45:35', '2026-08-14 07:45:35', 'active', 0, NULL);
+	(621, 263, 44, '4800216120013', 'SKU-VWNDQSWB', 'clover (b) cheesier 24g', 2.00, 61.25, 0.00, 0.00, 122.50, 2, NULL, '2026-08-14 15:45:35', '2026-08-14 07:45:35', 'active', 0, NULL),
+	(622, 265, 1, '4800361410816', 'SKU-OCNIJIHQ', 'bear brand (w) 33g', 3.00, 22.00, 0.00, 0.00, 66.00, 2, 2, '2026-08-22 09:11:36', '2026-08-22 01:11:36', 'active', 0, NULL),
+	(623, 265, 6, '4800092113338', 'SKU-EUS9E0E8', 'rebisco crackers (g) 33g', 3.00, 72.50, 0.00, 0.00, 217.50, 2, 2, '2026-08-22 09:11:36', '2026-08-22 01:11:36', 'active', 0, NULL),
+	(624, 265, 2, '0750515018402', 'SKU-CS7ENT4R', 'SkyFlakes Crackers 10 Single pack Condensada Falvor', 6.00, 183.75, 0.00, 0.00, 1102.50, 2, 2, '2026-08-22 09:11:36', '2026-08-22 01:11:36', 'active', 0, NULL),
+	(625, 265, 3, '0750515017429', 'SKU-SPTJEFX2', 'fita crackers 30g', 2.00, 458.75, 0.00, 0.00, 917.50, 2, 2, '2026-08-22 09:11:36', '2026-08-22 01:11:36', 'active', 0, NULL),
+	(626, 266, 2, '0750515018402', 'SKU-CS7ENT4R', 'SkyFlakes Crackers 10 Single pack Condensada Falvor', 11.00, 183.75, 0.00, 0.00, 2021.25, 2, 2, '2026-08-22 09:24:14', '2026-08-22 01:24:14', 'active', 0, NULL),
+	(627, 267, 5, '4800016068010', 'SKU-NXZS5YOI', 'c2 apple 500ml', 37.00, 442.50, 0.00, 0.00, 16372.50, 2, 2, '2026-08-22 09:25:03', '2026-08-22 01:25:03', 'active', 0, NULL),
+	(628, 270, 586, '0039000086639', 'SKU-SVRPPIAJ', 'Vienna Sausage', 12.00, 302.50, 0.00, 0.00, 3630.00, 6, 6, '2026-08-22 14:06:07', '2026-08-22 06:06:07', 'active', 0, NULL);
 
 -- Dumping structure for table snsu_pos.pos_stock_transactions
+DROP TABLE IF EXISTS `pos_stock_transactions`;
 CREATE TABLE IF NOT EXISTS `pos_stock_transactions` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `tenant_id` bigint unsigned NOT NULL,
@@ -46036,6 +46128,7 @@ INSERT INTO `pos_stock_transactions` (`id`, `tenant_id`, `product_id`, `transact
 	(689, 2, 587, 'IN', 81.00, 10.00, 161.00, 165.00, 'supplier_receive', 506, 'Direct supplier batch delivery', 2, NULL, '2026-07-31 02:04:37', '2026-08-21 18:04:37', 'active', 0, NULL);
 
 -- Dumping structure for table snsu_pos.pos_store_reviews
+DROP TABLE IF EXISTS `pos_store_reviews`;
 CREATE TABLE IF NOT EXISTS `pos_store_reviews` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `tenant_id` bigint unsigned DEFAULT NULL,
@@ -46064,6 +46157,7 @@ INSERT INTO `pos_store_reviews` (`id`, `tenant_id`, `reviewer_name`, `store_name
 /*!40000 ALTER TABLE `pos_store_reviews` ENABLE KEYS */;
 
 -- Dumping structure for table snsu_pos.pos_subscriptions
+DROP TABLE IF EXISTS `pos_subscriptions`;
 CREATE TABLE IF NOT EXISTS `pos_subscriptions` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -46104,6 +46198,7 @@ INSERT INTO `pos_subscriptions` (`id`, `name`, `description`, `price`, `billing_
 	(3, 'Negosyo Pro', 'Enterprise plan for multi-branch minimart chains (₱43/day • 5 Admins, 20 Cashiers)', 1299.00, 'monthly', 30, 25, 5, 20, 50000, 5, 5120, 1, 1, 1, 1, 0, 3, NULL, NULL, '2026-06-11 12:58:47', '2026-08-21 14:54:09', 'active', 0, NULL);
 
 -- Dumping structure for table snsu_pos.pos_tenants
+DROP TABLE IF EXISTS `pos_tenants`;
 CREATE TABLE IF NOT EXISTS `pos_tenants` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `subscription_id` bigint unsigned NOT NULL,
@@ -46136,15 +46231,17 @@ CREATE TABLE IF NOT EXISTS `pos_tenants` (
   `archived` tinyint NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table snsu_pos.pos_tenants: ~2 rows (approximately)
+-- Dumping data for table snsu_pos.pos_tenants: ~3 rows (approximately)
 DELETE FROM `pos_tenants`;
 INSERT INTO `pos_tenants` (`id`, `subscription_id`, `business_name`, `business_code`, `owner_name`, `email`, `phone`, `address`, `tin`, `branch_code`, `bir_acc_no`, `bir_acc_date`, `bir_min`, `bir_sn`, `header_text`, `footer_text`, `logo`, `subscription_start`, `subscription_end`, `trial_ends_at`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `payment_status`, `payment_reference`, `paid_at`, `archived`, `deleted_at`) VALUES
 	(1, 2, 'ANTONIO JR. PILOTON\'s Store', 'MINI-9ZD3RZ', 'ANTONIO JR. PILOTON', 'antoniojrpiloton@gmail.com', '0912 894 1731', 'AGUINALDO, Purok 8, A. Bonifacio, Abucay, Agusan Del Sur, Cagayan Valley', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-08-22', '2027-08-22', '2026-08-28 23:10:56', NULL, NULL, '2026-08-21 23:10:56', '2026-08-21 18:04:07', 'active', 'paid', 'MAYA-9JGGHK8VJS', '2026-08-21 18:04:07', 0, NULL),
-	(2, 2, 'Antonio Jr Piloton\'s Store', 'MINI-PETNRT', 'Antonio Jr Piloton', 'apiloton1@snsu.edu.ph', '09128941731', 'Purok Mabungahon, Brgy. Washington, Surigao City, Surigao del Norte, Philippines', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-08-21', '2026-09-20', '2026-08-28 23:11:29', NULL, NULL, '2026-08-21 23:11:29', '2026-08-21 15:12:51', 'active', 'pending', NULL, NULL, 0, NULL);
+	(2, 2, 'Antonio Jr Piloton\'s Store', 'MINI-PETNRT', 'Antonio Jr Piloton', 'apiloton1@snsu.edu.ph', '09128941731', 'Purok Mabungahon, Brgy. Washington, Surigao City, Surigao del Norte, Philippines', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-08-21', '2026-09-20', '2026-08-28 23:11:29', NULL, NULL, '2026-08-21 23:11:29', '2026-08-21 15:12:51', 'active', 'pending', NULL, NULL, 0, NULL),
+	(3, 2, 'Antonio Jr. Piloton\'s Store', 'MINI-4ELRRO', 'Antonio Jr. Piloton', 'antoniollealdeluibpiloton@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-08-22', '2026-09-21', '2026-08-29 14:01:50', NULL, NULL, '2026-08-22 14:01:50', '2026-08-22 06:01:50', 'active', 'pending', NULL, NULL, 0, NULL);
 
 -- Dumping structure for table snsu_pos.pos_terminals
+DROP TABLE IF EXISTS `pos_terminals`;
 CREATE TABLE IF NOT EXISTS `pos_terminals` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `terminal_code` varchar(50) DEFAULT NULL,
@@ -46169,7 +46266,7 @@ CREATE TABLE IF NOT EXISTS `pos_terminals` (
   KEY `idx_status` (`status`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3;
 
--- Dumping data for table snsu_pos.pos_terminals: ~4 rows (approximately)
+-- Dumping data for table snsu_pos.pos_terminals: ~2 rows (approximately)
 DELETE FROM `pos_terminals`;
 INSERT INTO `pos_terminals` (`id`, `terminal_code`, `terminal_name`, `tenant_id`, `drawer_id`, `device_name`, `device_uuid`, `ip_address`, `remarks`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
 	(1, NULL, 'Terminal 1', 3, 1, NULL, NULL, NULL, NULL, 3, 3, '2026-08-01 13:34:55', '2026-08-01 05:34:55', 'active', 0, NULL),
@@ -46178,6 +46275,7 @@ INSERT INTO `pos_terminals` (`id`, `terminal_code`, `terminal_name`, `tenant_id`
 	(4, 'TERM-01', 'Main Checkout POS-01', 1, NULL, NULL, NULL, NULL, NULL, 1, NULL, '2026-08-22 02:00:15', '2026-08-21 18:00:15', 'active', 0, NULL);
 
 -- Dumping structure for table snsu_pos.pos_units
+DROP TABLE IF EXISTS `pos_units`;
 CREATE TABLE IF NOT EXISTS `pos_units` (
   `id` int NOT NULL AUTO_INCREMENT,
   `tenant_id` int NOT NULL DEFAULT '0',
@@ -46226,6 +46324,7 @@ INSERT INTO `pos_units` (`id`, `tenant_id`, `name`, `description`, `created_by`,
 	(28, 1, 'Bag', 'Bag packaging', NULL, NULL, '2026-06-10 09:02:00', '2026-06-10 01:02:00', 'active', 0, NULL);
 
 -- Dumping structure for table snsu_pos.roles
+DROP TABLE IF EXISTS `roles`;
 CREATE TABLE IF NOT EXISTS `roles` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(125) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -46237,7 +46336,7 @@ CREATE TABLE IF NOT EXISTS `roles` (
   UNIQUE KEY `roles_name_guard_name_unique` (`name`,`guard_name`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table snsu_pos.roles: ~10 rows (approximately)
+-- Dumping data for table snsu_pos.roles: ~7 rows (approximately)
 DELETE FROM `roles`;
 INSERT INTO `roles` (`id`, `name`, `details`, `guard_name`, `created_at`, `updated_at`) VALUES
 	(1, 'students', 'students', 'web', '2025-07-16 15:55:56', '2025-07-16 15:55:56'),
@@ -46252,6 +46351,7 @@ INSERT INTO `roles` (`id`, `name`, `details`, `guard_name`, `created_at`, `updat
 	(11, 'manager', NULL, 'web', '2026-08-21 14:44:52', '2026-08-21 14:44:52');
 
 -- Dumping structure for table snsu_pos.role_has_permissions
+DROP TABLE IF EXISTS `role_has_permissions`;
 CREATE TABLE IF NOT EXISTS `role_has_permissions` (
   `permission_id` bigint unsigned NOT NULL,
   `role_id` bigint unsigned NOT NULL,
@@ -46371,6 +46471,7 @@ INSERT INTO `role_has_permissions` (`permission_id`, `role_id`) VALUES
 	(22, 17);
 
 -- Dumping structure for table snsu_pos.sessions
+DROP TABLE IF EXISTS `sessions`;
 CREATE TABLE IF NOT EXISTS `sessions` (
   `id` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `user_id` bigint unsigned DEFAULT NULL,
@@ -46386,9 +46487,10 @@ CREATE TABLE IF NOT EXISTS `sessions` (
 -- Dumping data for table snsu_pos.sessions: ~1 rows (approximately)
 DELETE FROM `sessions`;
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-	('6zeqDvL3oPJ67hMxFZjr12hNX056p032XVOWa9Kr', 2, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', 'YTo2OntzOjY6Il90b2tlbiI7czo0MDoiUnlDSWtZbmx5Vm9mcGdadDFmQmNFcW9XQ05lTG5STFNkeTN0VkpNRSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NjQ6Imh0dHA6Ly9wb3MuZGV2LmNvbS9jdXN0b21lcnMvY29sbGVjdGlvbnMvVmtaa2QyRnNRbEpRVkRBOS9jcmVhdGUiO3M6NToicm91dGUiO3M6Mjg6ImN1c3RvbWVycy5jb2xsZWN0aW9ucy5jcmVhdGUiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToyO3M6OToidGVuYW50X2lkIjtpOjI7czoxMToidGVuYW50X25hbWUiO3M6MjY6IkFudG9uaW8gSnIgUGlsb3RvbidzIFN0b3JlIjt9', 1787339530);
+	('FoXJJNdcUoY1P902gXINDFJVOtIcAh34IAJJhHO8', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoieHVGNEI3cG1ESWFtczRyR2hLZFNRWWtEQWZPSmZ2dTBsbXd0TU9NcyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MTg6Imh0dHA6Ly9wb3MuZGV2LmNvbSI7czo1OiJyb3V0ZSI7czo0OiJob21lIjt9fQ==', 1787381034);
 
 -- Dumping structure for table snsu_pos.sms_queues
+DROP TABLE IF EXISTS `sms_queues`;
 CREATE TABLE IF NOT EXISTS `sms_queues` (
   `id` int NOT NULL AUTO_INCREMENT,
   `school_id` int NOT NULL DEFAULT '0',
@@ -46405,7 +46507,7 @@ CREATE TABLE IF NOT EXISTS `sms_queues` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table snsu_pos.sms_queues: ~45 rows (approximately)
+-- Dumping data for table snsu_pos.sms_queues: ~0 rows (approximately)
 DELETE FROM `sms_queues`;
 INSERT INTO `sms_queues` (`id`, `school_id`, `PhoneNumber`, `Message`, `remark`, `created_by`, `updated_by`, `created_at`, `updated_at`, `status`, `archived`, `deleted_at`) VALUES
 	(1, 0, '639813581109', 'Dear Mr/Mrs. MORALES, \nMARK LOUIEJE MORALES just entered TUBAJON NATIONAL HIGH SCHOOL (LATE) @ May 22, 2026 10:14:36 AM. Code: VC-0000000026', 'sent', 0, 0, '2026-05-22 10:14:36', '2026-05-22 02:14:48', 'active', 0, NULL),
@@ -46455,6 +46557,7 @@ INSERT INTO `sms_queues` (`id`, `school_id`, `PhoneNumber`, `Message`, `remark`,
 	(45, 1, '639128941731', 'Dear Mr/Mrs. PILOTON,\n\nloreto PILOTON just entered TUBAJON NATIONAL HIGH SCHOOL @ May 26, 2026 10:25:32 AM. Code: VC00021', 'sent', NULL, NULL, '2026-05-26 10:25:32', '2026-05-26 02:28:25', 'active', 0, NULL);
 
 -- Dumping structure for table snsu_pos.support_tickets
+DROP TABLE IF EXISTS `support_tickets`;
 CREATE TABLE IF NOT EXISTS `support_tickets` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `ticket_no` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -46490,6 +46593,7 @@ CREATE TABLE IF NOT EXISTS `support_tickets` (
 DELETE FROM `support_tickets`;
 
 -- Dumping structure for table snsu_pos.support_ticket_replies
+DROP TABLE IF EXISTS `support_ticket_replies`;
 CREATE TABLE IF NOT EXISTS `support_ticket_replies` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `ticket_id` bigint unsigned NOT NULL,
@@ -46511,6 +46615,7 @@ CREATE TABLE IF NOT EXISTS `support_ticket_replies` (
 DELETE FROM `support_ticket_replies`;
 
 -- Dumping structure for table snsu_pos.suspicious_activities
+DROP TABLE IF EXISTS `suspicious_activities`;
 CREATE TABLE IF NOT EXISTS `suspicious_activities` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `user_id` bigint unsigned DEFAULT NULL,
@@ -46524,9 +46629,9 @@ CREATE TABLE IF NOT EXISTS `suspicious_activities` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `suspicious_activities_user_id_foreign` (`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=600 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=603 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table snsu_pos.suspicious_activities: 599 rows
+-- Dumping data for table snsu_pos.suspicious_activities: 594 rows
 DELETE FROM `suspicious_activities`;
 /*!40000 ALTER TABLE `suspicious_activities` DISABLE KEYS */;
 INSERT INTO `suspicious_activities` (`id`, `user_id`, `type`, `severity`, `description`, `ip_address`, `meta`, `detected_at`, `created_at`, `updated_at`) VALUES
@@ -47128,10 +47233,14 @@ INSERT INTO `suspicious_activities` (`id`, `user_id`, `type`, `severity`, `descr
 	(596, 1, 'multiple_sessions', 'warning', 'Multiple simultaneous active sessions detected.', NULL, '{"sessions": 21}', '2026-08-21 15:06:34', '2026-08-21 15:06:34', '2026-08-21 15:06:34'),
 	(597, 3, 'multiple_sessions', 'warning', 'Multiple simultaneous active sessions detected.', NULL, '{"sessions": 26}', '2026-08-21 15:08:28', '2026-08-21 15:08:28', '2026-08-21 15:08:28'),
 	(598, 1, 'multiple_sessions', 'warning', 'Multiple simultaneous active sessions detected.', NULL, '{"sessions": 25}', '2026-08-21 18:00:01', '2026-08-21 18:00:01', '2026-08-21 18:00:01'),
-	(599, 2, 'multiple_sessions', 'warning', 'Multiple simultaneous active sessions detected.', NULL, '{"sessions": 45}', '2026-08-21 18:09:33', '2026-08-21 18:09:33', '2026-08-21 18:09:33');
+	(599, 2, 'multiple_sessions', 'warning', 'Multiple simultaneous active sessions detected.', NULL, '{"sessions": 45}', '2026-08-21 18:09:33', '2026-08-21 18:09:33', '2026-08-21 18:09:33'),
+	(600, 2, 'multiple_sessions', 'warning', 'Multiple simultaneous active sessions detected.', NULL, '{"sessions": 46}', '2026-08-22 01:01:14', '2026-08-22 01:01:14', '2026-08-22 01:01:14'),
+	(601, 6, 'multiple_sessions', 'warning', 'Multiple simultaneous active sessions detected.', NULL, '{"sessions": 14}', '2026-08-22 06:01:50', '2026-08-22 06:01:50', '2026-08-22 06:01:50'),
+	(602, 2, 'multiple_sessions', 'warning', 'Multiple simultaneous active sessions detected.', NULL, '{"sessions": 47}', '2026-08-22 06:08:08', '2026-08-22 06:08:08', '2026-08-22 06:08:08');
 /*!40000 ALTER TABLE `suspicious_activities` ENABLE KEYS */;
 
 -- Dumping structure for table snsu_pos.system_settings
+DROP TABLE IF EXISTS `system_settings`;
 CREATE TABLE IF NOT EXISTS `system_settings` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `cacert_path` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
@@ -47165,6 +47274,7 @@ INSERT INTO `system_settings` (`id`, `cacert_path`, `python_path`, `port_com`, `
 /*!40000 ALTER TABLE `system_settings` ENABLE KEYS */;
 
 -- Dumping structure for table snsu_pos.users
+DROP TABLE IF EXISTS `users`;
 CREATE TABLE IF NOT EXISTS `users` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `username` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -47198,20 +47308,22 @@ CREATE TABLE IF NOT EXISTS `users` (
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_email_unique` (`email`)
-) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table snsu_pos.users: 5 rows
+-- Dumping data for table snsu_pos.users: 6 rows
 DELETE FROM `users`;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` (`id`, `username`, `is_super_admin`, `school_id`, `tenant_id`, `filepath`, `signature_path`, `qr_code`, `nfc_code`, `conn_id`, `user_type`, `name`, `email`, `email_verified_at`, `avatar`, `fcm_token`, `profile_pic`, `password`, `remember_token`, `current_session_id`, `google_id`, `verified`, `created_by`, `updated_by`, `created_at`, `updated_at`, `last_activity_at`, `status`, `archived`, `deleted_at`) VALUES
 	(1, 'antoniojrpiloton@gmail.com', 0, 0, 1, '0', NULL, '0', NULL, 0, 0, 'ANTONIO JR. PILOTON', 'antoniojrpiloton@gmail.com', NULL, NULL, NULL, NULL, '$2y$12$N0MuawRStHY7k7tDtsdR.Ovkzit0MtBOKqAn8Tb6AeeK0n89c6B2i', 's1ITVYJFeWWeaoiPRm19lI0FvoSxhO4sPmpZIJYNVYuHnSRukAd6edR5UkEQ', NULL, NULL, 1, NULL, NULL, '2026-08-21 23:10:56', '2026-08-21 18:09:27', '2026-08-22 02:09:01', NULL, 0, NULL),
-	(2, 'apiloton1@snsu.edu.ph', 0, 0, 2, '0', NULL, '0', NULL, 0, 0, 'Antonio Jr Piloton', 'apiloton1@snsu.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$nlbfo7EGPOvMruFwzWspJeRLHWG//Zs4OcrlpOSREoBLNgHcwkNNq', 'rA4umqTpWpLtrdvPQPejIpWvI9NQBUU0TR5Qvtvc0uEtHp2KUdTAUjRJpXFr', '6zeqDvL3oPJ67hMxFZjr12hNX056p032XVOWa9Kr', NULL, 1, NULL, NULL, '2026-08-21 23:11:29', '2026-08-21 19:09:54', '2026-08-22 03:09:54', NULL, 0, NULL),
+	(2, 'apiloton1@snsu.edu.ph', 0, 0, 2, '0', NULL, '0', NULL, 0, 0, 'Antonio Jr Piloton', 'apiloton1@snsu.edu.ph', NULL, NULL, NULL, NULL, '$2y$12$nlbfo7EGPOvMruFwzWspJeRLHWG//Zs4OcrlpOSREoBLNgHcwkNNq', 'ZrRS1cGqUHI0v1kQ4BuiTqYd7qm6Q93TMwzYiZvKbY0W1GjYfwEXoPkdEl8c', NULL, NULL, 1, NULL, NULL, '2026-08-21 23:11:29', '2026-08-22 06:43:51', '2026-08-22 14:42:37', NULL, 0, NULL),
 	(3, 'session_test@example.com', 0, 0, 0, '0', NULL, '0', NULL, 0, 0, 'Session Test User', 'session_test@example.com', NULL, NULL, NULL, NULL, '$2y$12$V1hUhsgPi0sC3BGmBDRXfukfr1ttqIKaY.9W3gAqK904/H240F6sW', NULL, '0fie2fYiKKEh6SNTpbFKKeLCEqt5zo2LTdIbw3XZ', NULL, NULL, NULL, NULL, '2026-08-21 23:13:08', '2026-08-21 15:13:08', NULL, NULL, 0, NULL),
 	(4, 'session_test_6a886b14ede30@example.com', 0, 0, 0, '0', NULL, '0', NULL, 0, 0, 'Session Test User', 'session_test_6a886b14ede30@example.com', NULL, NULL, NULL, NULL, '$2y$12$2K3Uu0NRKHlQaenB4.zhAOwk8Hsbr/aSO9YJee7VunTqysRBkM7H2', NULL, 'Vgyx3RhYWyUcM5QHt0wdEdsgGOTOkddwt5K78Oa5', NULL, NULL, NULL, NULL, '2026-08-21 23:13:25', '2026-08-21 15:13:25', NULL, NULL, 0, NULL),
-	(5, 'session_test_6a886b1ccf05c@example.com', 0, 0, 0, '0', NULL, '0', NULL, 0, 0, 'Session Test User', 'session_test_6a886b1ccf05c@example.com', NULL, NULL, NULL, NULL, '$2y$12$gt4OyZJC305gYrHcCFGEB.fW0bz1dFG43.mzDE1QfTVDQ/lI9EabW', NULL, 'yfVrcDpH0IV7VcWWU034v1q0JHiJset0Q53FVtHN', NULL, NULL, NULL, NULL, '2026-08-21 23:13:33', '2026-08-21 15:13:33', NULL, NULL, 0, NULL);
+	(5, 'session_test_6a886b1ccf05c@example.com', 0, 0, 0, '0', NULL, '0', NULL, 0, 0, 'Session Test User', 'session_test_6a886b1ccf05c@example.com', NULL, NULL, NULL, NULL, '$2y$12$gt4OyZJC305gYrHcCFGEB.fW0bz1dFG43.mzDE1QfTVDQ/lI9EabW', NULL, 'yfVrcDpH0IV7VcWWU034v1q0JHiJset0Q53FVtHN', NULL, NULL, NULL, NULL, '2026-08-21 23:13:33', '2026-08-21 15:13:33', NULL, NULL, 0, NULL),
+	(6, 'antoniollealdeluibpiloton@gmail.com', 0, 0, 3, '0', NULL, '0', NULL, 0, 0, 'Antonio Jr. Piloton', 'antoniollealdeluibpiloton@gmail.com', NULL, NULL, NULL, NULL, '$2y$12$BJtQ7/G4JxfbVnGvdTG.fOEM12vcXSDMa9Vdi33mVH8rg1OXtkfqC', 'KPflSLwOWWkioZfJE2G7GGIHV79Wv9uB43cAp4orWp3bRezi6mWTNypIevSS', NULL, NULL, 1, NULL, NULL, '2026-08-22 14:01:50', '2026-08-22 06:08:00', '2026-08-22 14:07:42', NULL, 0, NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 
 -- Dumping structure for table snsu_pos.user_fcm_tokens
+DROP TABLE IF EXISTS `user_fcm_tokens`;
 CREATE TABLE IF NOT EXISTS `user_fcm_tokens` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL DEFAULT '0',

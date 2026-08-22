@@ -14,14 +14,18 @@ use Illuminate\Validation\Rule;
 class POSTerminalController extends Controller
 {
     use TCommonFunctions;
-    public function index()
+    public function index(Request $request)
     {
         $terminals = POSTerminal::query()
             ->with('drawer')
             ->where('tenant_id', auth()->user()->tenant_id)
-            ->where('status', 'ACTIVE')
+            ->whereIn('status', ['active', 'ACTIVE'])
             ->orderBy('terminal_name')
             ->get();
+
+        if ($terminals->count() === 1 && !$request->boolean('change')) {
+            return $this->processTerminalSelection($terminals->first());
+        }
 
         return view(
             'pages.pos.terminal.select-terminal',
@@ -130,6 +134,11 @@ class POSTerminalController extends Controller
         $terminal = POSTerminal::with('drawer')
             ->findOrFail(decryptId($request->terminal_id));
 
+        return $this->processTerminalSelection($terminal);
+    }
+
+    protected function processTerminalSelection(POSTerminal $terminal)
+    {
         $shifts = POSCashShift::query()
             ->with('cashier')
             ->where('tenant_id', auth()->user()->tenant_id)
