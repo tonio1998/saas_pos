@@ -673,22 +673,14 @@
                                             </td>
                                             <td class="text-center">
                                                 <input type="hidden" name="variants[{{ $i }}][status]" value="{{ $v->status ?? 'active' }}" class="variant-status-input">
-                                                @if($hasRecords)
-                                                    {{-- Has POS records: status toggle only, no delete --}}
-                                                    @php $isActive = ($v->status ?? 'active') === 'active'; @endphp
-                                                    <button type="button"
-                                                        class="variant-status-btn btn btn-sm rounded-pill px-2 py-0.5 extra-small fw-bold {{ $isActive ? 'btn-success' : 'btn-secondary' }}"
-                                                        data-status="{{ $isActive ? 'active' : 'inactive' }}"
-                                                        title="Has POS records — toggle Active / Inactive only">
-                                                        <i class="bi {{ $isActive ? 'bi-check-circle-fill' : 'bi-pause-circle-fill' }}"></i>
-                                                        {{ $isActive ? 'Active' : 'Off' }}
-                                                    </button>
-                                                @else
-                                                    {{-- No POS records: safe to delete --}}
-                                                    <button type="button" class="variant-delete-btn" title="Remove variant (no records)">
-                                                        <i class="bi bi-trash3-fill"></i>
-                                                    </button>
-                                                @endif
+                                                @php $isActive = ($v->status ?? 'active') === 'active'; @endphp
+                                                <button type="button"
+                                                    class="variant-status-btn btn btn-sm rounded-pill px-2.5 py-1 extra-small fw-bold {{ $isActive ? 'btn-success' : 'btn-secondary' }}"
+                                                    data-status="{{ $isActive ? 'active' : 'inactive' }}"
+                                                    title="Toggle Active / Inactive (existing variants preserved to safeguard records)">
+                                                    <i class="bi {{ $isActive ? 'bi-check-circle-fill' : 'bi-pause-circle-fill' }} me-1"></i>
+                                                    {{ $isActive ? 'Active' : 'Off' }}
+                                                </button>
                                             </td>
                                         </tr>
                                         @endforeach

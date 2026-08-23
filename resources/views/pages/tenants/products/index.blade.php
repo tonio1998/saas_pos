@@ -326,7 +326,7 @@
 </div>
 
 {{-- 360° CRM Product Quick View Offcanvas Drawer --}}
-<div class="offcanvas offcanvas-end shadow-lg border-0" tabindex="-1" id="productQuickViewDrawer" style="width:560px;max-width:95vw;">
+<div class="offcanvas offcanvas-end shadow-lg border-0" tabindex="-1" id="productQuickViewDrawer" style="width:680px;max-width:95vw;">
     <div class="offcanvas-header bg-white border-bottom p-4">
         <div class="d-flex align-items-center gap-3">
             <div class="rounded-4 bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center flex-shrink-0" style="width:44px;height:44px;">
@@ -652,6 +652,13 @@
         // 360° Quick CRM View Drawer trigger
         $(document).on('click', '.btn-quick-view', function (e) {
             e.preventDefault();
+
+            const actionModalEl = document.getElementById('actionModal');
+            if (actionModalEl) {
+                const actionModalInst = bootstrap.Modal.getInstance(actionModalEl);
+                if (actionModalInst) actionModalInst.hide();
+            }
+
             const id = $(this).data('id');
             const drawerEl = document.getElementById('productQuickViewDrawer');
             const drawer = bootstrap.Offcanvas.getOrCreateInstance(drawerEl);
@@ -670,31 +677,76 @@
                 if (data.variants && data.variants.length > 0) {
                     variantsHtml = `
                         <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
-                            <div class="d-flex align-items-center gap-2 mb-3">
-                                <i class="bi bi-boxes text-primary fs-5"></i>
-                                <h6 class="fw-black text-dark mb-0 font-mono">Packaging & Variant Hierarchy (${data.variants.length})</h6>
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-diagram-3-fill text-purple fs-5" style="color:#7e22ce;"></i>
+                                    <h6 class="fw-black text-dark mb-0 font-mono">Variants & Packaging CRM (${data.variants.length})</h6>
+                                </div>
+                                <span class="badge extra-small font-mono fw-bold px-2.5 py-1 rounded-pill" style="background:#f3e8ff;color:#7e22ce;border:1px solid #d8b4fe;">
+                                    <i class="bi bi-box-seam me-1"></i>${data.variants.length} Item Variants
+                                </span>
                             </div>
-                            <div class="table-responsive rounded-3 border overflow-hidden">
-                                <table class="table table-hover align-middle mb-0 extra-small">
-                                    <thead class="bg-light text-muted text-uppercase">
-                                        <tr>
-                                            <th class="py-2.5 px-3">Variant Name</th>
-                                            <th class="py-2.5 px-3 text-center">Qty / Pack</th>
-                                            <th class="py-2.5 px-3 text-end">Retail Price</th>
-                                            <th class="py-2.5 px-3 text-end">Wholesale</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${data.variants.map(v => `
-                                            <tr>
-                                                <td class="py-2.5 px-3 fw-bold text-dark">${v.name}</td>
-                                                <td class="py-2.5 px-3 text-center font-mono fw-bold">${v.qty_per_pack}</td>
-                                                <td class="py-2.5 px-3 text-end font-mono fw-black text-success">₱${v.selling_price.toFixed(2)}</td>
-                                                <td class="py-2.5 px-3 text-end font-mono text-muted">${v.wholesale_price ? '₱' + v.wholesale_price.toFixed(2) : '-'}</td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
+
+                            <div class="d-flex flex-column gap-3">
+                                ${data.variants.map(v => {
+                                    const vStock = v.stock_on_hand || 0;
+                                    let stockBadge = `<span class="badge extra-small font-mono fw-bold" style="background:#dcfce7;color:#166534;border:1px solid #86efac;"><i class="bi bi-check-circle-fill me-1"></i>${vStock} ${data.unit_name} In Stock</span>`;
+                                    if (vStock <= 0) {
+                                        stockBadge = `<span class="badge extra-small font-mono fw-bold" style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;"><i class="bi bi-x-circle-fill me-1"></i>Out of Stock (0)</span>`;
+                                    } else if (vStock <= (data.reorder_level || 10)) {
+                                        stockBadge = `<span class="badge extra-small font-mono fw-bold" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;"><i class="bi bi-exclamation-triangle-fill me-1"></i>Low Stock (${vStock})</span>`;
+                                    }
+
+                                    return `
+                                        <div class="p-3.5 rounded-4 bg-light border hover-lift">
+                                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <span class="fw-black text-dark font-mono fs-6">${v.name}</span>
+                                                    <span class="badge extra-small font-mono fw-bold" style="background:#f3e8ff;color:#7e22ce;border:1px solid #e9d5ff;">Variant</span>
+                                                    ${(v.status || 'active') === 'active' 
+                                                        ? '<span class="badge extra-small fw-bold" style="background:#dcfce7;color:#166534;border:1px solid #86efac;">Active</span>' 
+                                                        : '<span class="badge extra-small fw-bold" style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;">Inactive</span>'
+                                                    }
+                                                </div>
+                                                <div>${stockBadge}</div>
+                                            </div>
+
+                                            <div class="row g-2 mb-2.5 font-mono extra-small">
+                                                <div class="col-6 col-md-3">
+                                                    <span class="text-muted d-block extra-small text-uppercase">SKU / Code:</span>
+                                                    <span class="fw-bold text-dark text-truncate d-block" title="${v.sku}">${v.sku}</span>
+                                                </div>
+                                                <div class="col-6 col-md-3">
+                                                    <span class="text-muted d-block extra-small text-uppercase">Capital Cost:</span>
+                                                    <span class="fw-bold text-dark">₱${v.cost_price.toFixed(2)}</span>
+                                                </div>
+                                                <div class="col-6 col-md-3">
+                                                    <span class="text-muted d-block extra-small text-uppercase">Retail Selling:</span>
+                                                    <span class="fw-black text-success">₱${v.selling_price.toFixed(2)}</span>
+                                                </div>
+                                                <div class="col-6 col-md-3">
+                                                    <span class="text-muted d-block extra-small text-uppercase">Profit Margin:</span>
+                                                    <span class="fw-bold text-primary">₱${v.profit.toFixed(2)} (${v.margin}%)</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="pt-2 border-top d-flex align-items-center justify-content-between flex-wrap gap-2 extra-small">
+                                                <div class="text-muted font-mono">
+                                                    <i class="bi bi-box me-1"></i>Pack Qty: <strong class="text-dark">${v.qty_per_pack} ${data.unit_name}</strong>
+                                                    ${v.wholesale_price ? ` | Wholesale: <strong class="text-dark">₱${v.wholesale_price.toFixed(2)}</strong>` : ''}
+                                                </div>
+                                                <div class="d-flex align-items-center gap-1.5">
+                                                    <a href="/products/stock/receive/${data.encrypted_id}?variant_id=${v.id}" class="btn btn-white border border-success-subtle text-success btn-sm rounded-pill px-2.5 py-1 extra-small fw-bold hover-lift shadow-xs">
+                                                        <i class="bi bi-box-arrow-in-down me-1"></i>Restock Variant
+                                                    </a>
+                                                    <a href="/products/stock/adjustment/${data.encrypted_id}" class="btn btn-white border border-warning-subtle text-warning-emphasis btn-sm rounded-pill px-2.5 py-1 extra-small fw-bold hover-lift shadow-xs">
+                                                        <i class="bi bi-sliders me-1"></i>Adjust Stock
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
                             </div>
                         </div>
                     `;
@@ -718,6 +770,39 @@
                                         <span class="badge ${s.qty >= 0 ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-danger-subtle text-danger border border-danger-subtle'} font-mono fw-black fs-6 px-3 py-2 rounded-pill">
                                             ${s.qty >= 0 ? '+' : ''}${s.qty}
                                         </span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                let priceHistoriesHtml = '';
+                if (data.price_histories && data.price_histories.length > 0) {
+                    priceHistoriesHtml = `
+                        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-graph-up-arrow text-purple fs-5"></i>
+                                    <h6 class="fw-black text-dark mb-0 font-mono">Price History Log</h6>
+                                </div>
+                                <a href="${data.price_history_index_url}" class="btn btn-light border btn-sm rounded-pill px-2.5 py-1 extra-small fw-bold text-primary">
+                                    View Full Audit <i class="bi bi-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                            <div class="d-flex flex-column gap-2.5">
+                                ${data.price_histories.map(h => `
+                                    <div class="p-3 rounded-3 bg-light border d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                                <span class="fw-bold text-dark extra-small">${h.reason}</span>
+                                                ${h.variant_name ? `<span class="badge bg-purple-subtle text-purple border extra-small" style="font-size:0.7rem;"><i class="bi bi-tag-fill me-1"></i>${h.variant_name}</span>` : '<span class="badge bg-primary-subtle text-primary border extra-small" style="font-size:0.7rem;">Base Product</span>'}
+                                            </div>
+                                            <div class="text-muted extra-small font-mono mt-1">
+                                                Selling: ₱${h.old_selling.toFixed(2)} &rarr; <strong class="text-success">₱${h.new_selling.toFixed(2)}</strong> | Cost: ₱${h.old_cost.toFixed(2)} &rarr; ₱${h.new_cost.toFixed(2)}
+                                            </div>
+                                            <div class="text-muted extra-small font-mono mt-0.5"><i class="bi bi-calendar3 me-1"></i>${h.date}</div>
+                                        </div>
                                     </div>
                                 `).join('')}
                             </div>
@@ -757,39 +842,33 @@
                     {{-- Financial & Margin KPI Cards (Generous Padding) --}}
                     <div class="row g-3 mb-4">
                         <div class="col-6">
-                            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
-                                <span class="extra-small text-muted fw-bold text-uppercase" style="letter-spacing:0.5px;">Retail Selling Price</span>
-                                <div class="font-mono fw-black text-success fs-3 my-1">₱${data.selling_price.toFixed(2)}</div>
-                                <div class="small text-muted font-mono">Cost Price: <strong class="text-dark">₱${data.cost_price.toFixed(2)}</strong></div>
+                            <div class="p-3.5 rounded-4 bg-light border">
+                                <span class="text-muted extra-small fw-bold text-uppercase">Capital Cost</span>
+                                <div class="font-mono fw-black text-dark fs-4 mt-1">₱${data.cost_price.toFixed(2)}</div>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
-                                <span class="extra-small text-muted fw-bold text-uppercase" style="letter-spacing:0.5px;">Profit Margin</span>
-                                <div class="font-mono fw-black text-primary fs-3 my-1">+₱${data.profit.toFixed(2)}</div>
-                                <div class="small text-muted font-mono"><strong class="text-dark">${data.margin}%</strong> Gross Margin</div>
+                            <div class="p-3.5 rounded-4 bg-light border">
+                                <span class="text-muted extra-small fw-bold text-uppercase">Retail Selling</span>
+                                <div class="font-mono fw-black text-success fs-4 mt-1">₱${data.selling_price.toFixed(2)}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3.5 rounded-4 bg-light border">
+                                <span class="text-muted extra-small fw-bold text-uppercase">Profit Margin</span>
+                                <div class="font-mono fw-black text-primary fs-4 mt-1">₱${data.profit.toFixed(2)} (${data.margin}%)</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3.5 rounded-4 bg-light border">
+                                <span class="text-muted extra-small fw-bold text-uppercase">On-Hand Stock</span>
+                                <div class="font-mono fw-black text-dark fs-4 mt-1">${data.stock_on_hand} ${data.unit_name}</div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Stock Status Box (Generous Padding) --}}
-                    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 ${data.stock_on_hand <= 0 ? 'bg-danger-subtle border border-danger-subtle' : data.stock_on_hand <= data.reorder_level ? 'bg-warning-subtle border border-warning-subtle' : 'bg-success-subtle border border-success-subtle'}">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div>
-                                <span class="extra-small fw-bold text-uppercase text-muted" style="letter-spacing:0.5px;">Current Stock on Hand</span>
-                                <div class="font-mono fw-black text-dark fs-2 mt-1">${data.stock_on_hand} <small class="text-muted fs-5">${data.unit_name}</small></div>
-                            </div>
-                            <div class="text-end">
-                                <span class="badge ${data.stock_on_hand <= 0 ? 'bg-danger' : data.stock_on_hand <= data.reorder_level ? 'bg-warning text-dark' : 'bg-success'} fw-bold font-mono px-3 py-2 rounded-pill fs-6">
-                                    ${data.stock_on_hand <= 0 ? 'Out of Stock' : data.stock_on_hand <= data.reorder_level ? 'Low Stock Alert' : 'Healthy Stock'}
-                                </span>
-                                <div class="small text-muted mt-1.5 font-mono">Reorder threshold: ${data.reorder_level} ${data.unit_name}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Lifetime Sales Performance (Generous Padding) --}}
-                    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+                    {{-- Lifetime Sales Performance --}}
+                    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
                         <div class="d-flex align-items-center gap-2 mb-3">
                             <i class="bi bi-graph-up-arrow text-success fs-5"></i>
                             <h6 class="fw-black text-dark mb-0 font-mono">Lifetime Sales Performance</h6>
@@ -804,11 +883,13 @@
                             <div class="col-6">
                                 <div class="p-3 rounded-3 bg-light border">
                                     <span class="text-muted extra-small fw-bold text-uppercase">Total Sales Revenue</span>
-                                    <div class="font-mono fw-black text-success fs-5 mt-1">₱${data.total_revenue.toFixed(2)}</div>
+                                    <div class="font-mono fw-black text-success fs-5 mt-1">₱${data.total_revenue}</div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    ${priceHistoriesHtml}
 
                     ${variantsHtml}
 

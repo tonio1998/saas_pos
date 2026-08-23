@@ -61,6 +61,11 @@ class User extends Authenticatable implements AuditableContract
         ];
     }
 
+    public function tenant()
+    {
+        return $this->belongsTo(\App\Models\POS\POSTenant::class, 'tenant_id');
+    }
+
     public function school()
     {
         return $this->belongsTo(School::class, 'school_id');

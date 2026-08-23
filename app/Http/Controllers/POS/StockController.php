@@ -4,6 +4,7 @@ namespace App\Http\Controllers\POS;
 
 use App\Http\Controllers\Controller;
 use App\Models\POS\POSProducts;
+use App\Models\POS\POSProductVariant;
 use App\Models\POS\Stocks;
 use App\Traits\TCommonFunctions;
 use Illuminate\Http\Request;
@@ -117,6 +118,26 @@ class StockController extends Controller
                 $variantData = ['stock_on_hand' => $stockAfter];
                 if ($newCostPrice !== null) {
                     $variantData['cost_price'] = $newCostPrice;
+
+                    if (round($currentCost, 2) !== round($newCostPrice, 2)) {
+                        \App\Models\POS\ProductPriceHistory::create([
+                            'tenant_id'           => auth()->user()->tenant_id,
+                            'product_id'          => $product->id,
+                            'variant_id'          => $variant->id,
+                            'cost_price'          => $currentCost,
+                            'new_cost_price'      => $newCostPrice,
+                            'selling_price'       => (float)($variant->selling_price ?? 0),
+                            'new_selling_price'   => (float)($variant->selling_price ?? 0),
+                            'wholesale_price'     => $variant->wholesale_price !== null ? (float)$variant->wholesale_price : null,
+                            'new_wholesale_price' => $variant->wholesale_price !== null ? (float)$variant->wholesale_price : null,
+                            'reason'              => 'Stock Receive Cost Adjustment',
+                            'remarks'             => "Stock Receive for Variant: {$variant->variant_name}",
+                            'effective_date'      => now(),
+                            'status'              => 'active',
+                            'created_by'          => auth()->id(),
+                            'updated_by'          => auth()->id(),
+                        ]);
+                    }
                 }
                 $variant->update($variantData);
 
@@ -129,6 +150,26 @@ class StockController extends Controller
                 $productData = ['stock_on_hand' => $stockAfter];
                 if ($newCostPrice !== null) {
                     $productData['cost_price'] = $newCostPrice;
+
+                    if (round($currentCost, 2) !== round($newCostPrice, 2)) {
+                        \App\Models\POS\ProductPriceHistory::create([
+                            'tenant_id'           => auth()->user()->tenant_id,
+                            'product_id'          => $product->id,
+                            'variant_id'          => null,
+                            'cost_price'          => $currentCost,
+                            'new_cost_price'      => $newCostPrice,
+                            'selling_price'       => (float)($product->selling_price ?? 0),
+                            'new_selling_price'   => (float)($product->selling_price ?? 0),
+                            'wholesale_price'     => $product->wholesale_price !== null ? (float)$product->wholesale_price : null,
+                            'new_wholesale_price' => $product->wholesale_price !== null ? (float)$product->wholesale_price : null,
+                            'reason'              => 'Stock Receive Cost Adjustment',
+                            'remarks'             => "Stock Receive for Product: {$product->name}",
+                            'effective_date'      => now(),
+                            'status'              => 'active',
+                            'created_by'          => auth()->id(),
+                            'updated_by'          => auth()->id(),
+                        ]);
+                    }
                 }
                 $product->update($productData);
             }
@@ -171,13 +212,28 @@ class StockController extends Controller
 
     public function adjustment(string $id)
     {
-        $product = POSProducts::findOrFail(
-            decrypt($id)
-        );
+        $tenantId = auth()->user()->tenant_id;
+        $realId = decrypt($id);
+
+        $product = POSProducts::with([
+            'category',
+            'unit',
+            'variants' => fn($q) => $q->where('status', 'active'),
+        ])
+        ->where('tenant_id', $tenantId)
+        ->findOrFail($realId);
+
+        $recentAdjustments = Stocks::with(['variant', 'createdBy'])
+            ->where('tenant_id', $tenantId)
+            ->where('product_id', $product->id)
+            ->where('transaction_type', Stocks::TYPE_ADJUSTMENT)
+            ->latest('created_at')
+            ->limit(6)
+            ->get();
 
         return view(
             'pages.tenants.products.stock.adjustment',
-            compact('product')
+            compact('product', 'recentAdjustments')
         );
     }
 
@@ -186,91 +242,75 @@ class StockController extends Controller
         string $id
     ) {
         $request->validate([
-            'actual_stock' => [
-                'required',
-                'numeric',
-                'min:0'
-            ],
-            'reason' => [
-                'required',
-                'string',
-                'max:255'
-            ],
-            'remarks' => [
-                'nullable',
-                'string',
-                'max:1000'
-            ]
+            'variant_id'   => ['nullable', 'integer'],
+            'actual_stock' => ['required', 'numeric', 'min:0'],
+            'reason'       => ['required', 'string', 'max:255'],
+            'remarks'      => ['nullable', 'string', 'max:1000']
         ]);
+
+        $tenantId = auth()->user()->tenant_id;
+        $realId = decrypt($id);
 
         DB::beginTransaction();
 
         try {
-
             $product = POSProducts::lockForUpdate()
-                ->findOrFail(
-                    decrypt($id)
-                );
+                ->where('tenant_id', $tenantId)
+                ->findOrFail($realId);
 
-            $stockBefore = (float) $product->stock_on_hand;
+            $targetVariant = null;
+            if ($request->filled('variant_id')) {
+                $targetVariant = POSProductVariant::lockForUpdate()
+                    ->where('product_id', $product->id)
+                    ->where('tenant_id', $tenantId)
+                    ->find($request->variant_id);
+            }
+
+            if ($targetVariant) {
+                $stockBefore = (float) $targetVariant->stock_on_hand;
+                $unitCost    = (float) ($targetVariant->cost_price ?? $product->cost_price ?? 0);
+            } else {
+                $stockBefore = (float) $product->stock_on_hand;
+                $unitCost    = (float) ($product->cost_price ?? 0);
+            }
 
             $stockAfter = (float) $request->actual_stock;
-
             $adjustmentQty = $stockAfter - $stockBefore;
 
-            if ($adjustmentQty == 0) {
-
-                return back()
-                    ->with(
-                        'warning',
-                        'No stock adjustment detected.'
-                    );
-
+            if (round($adjustmentQty, 4) == 0) {
+                return back()->with('warning', 'Physical count matches current stock. No adjustment needed.');
             }
 
             Stocks::create([
-                'tenant_id' => auth()->user()->tenant_id,
-                'product_id' => $product->id,
+                'tenant_id'        => $tenantId,
+                'product_id'       => $product->id,
+                'variant_id'       => $targetVariant?->id,
                 'transaction_type' => Stocks::TYPE_ADJUSTMENT,
-                'quantity' => abs($adjustmentQty),
-                'stock_before' => $stockBefore,
-                'stock_after' => $stockAfter,
-                'unit_cost' => null,
-                'reference_type' => 'STOCK_ADJUSTMENT',
-                'reference_id' => null,
-                'remarks' => $request->reason .
-                    ($request->remarks
-                        ? ' - ' . $request->remarks
-                        : ''),
-                'created_by' => auth()->id(),
+                'quantity'         => abs($adjustmentQty),
+                'stock_before'     => $stockBefore,
+                'stock_after'      => $stockAfter,
+                'unit_cost'        => $unitCost,
+                'reference_type'   => 'STOCK_ADJUSTMENT',
+                'reference_id'     => null,
+                'remarks'          => $request->reason . ($request->remarks ? ' - ' . $request->remarks : ''),
+                'created_by'       => auth()->id(),
             ]);
 
-            $product->update([
-                'stock_on_hand' => $stockAfter
-            ]);
+            if ($targetVariant) {
+                $targetVariant->update(['stock_on_hand' => $stockAfter]);
+            } else {
+                $product->update(['stock_on_hand' => $stockAfter]);
+            }
 
             DB::commit();
 
             return redirect()
-                ->route(
-                    'products.stock.history',
-                    encrypt($product->id)
-                )
-                ->with(
-                    'success',
-                    'Stock adjusted successfully.'
-                );
+                ->route('products.stock.history', encrypt($product->id))
+                ->with('success', 'Physical stock adjustment successfully recorded.');
 
         } catch (\Throwable $e) {
-
             DB::rollBack();
-
-            return back()
-                ->withInput()
-                ->with(
-                    'error',
-                    $e->getMessage()
-                );
+            return back()->with('warning', 'Failed to save stock adjustment: ' . $e->getMessage());
         }
     }
 

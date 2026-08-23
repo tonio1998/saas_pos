@@ -191,19 +191,33 @@
 
         <form id="paymentForm" method="POST" action="{{ route('subscription.pay') }}">
             @csrf
-            <input type="hidden" name="plan_id" id="selectedPlan" value="monthly">
+            <input type="hidden" name="plan_id" id="selectedPlan" value="{{ $tenant->subscription_id ?? ($plans->first()?->id ?? 1) }}">
             <input type="hidden" name="payment_method" id="selectedMethod" value="gcash">
 
             <!-- Plan Selection -->
-            <div class="plan-grid">
-                @foreach($plans as $plan)
-                    <div class="plan-card {{ $plan['id'] === 'monthly' ? 'selected' : '' }}" onclick="selectPlan('{{ $plan['id'] }}', this)">
-                        @if($plan['popular'])
-                            <span class="popular-tag">Best Value</span>
+            <div class="plan-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+                @foreach($plans as $index => $plan)
+                    @php
+                        $isCurrent = ($tenant->subscription_id ?? null) == $plan->id;
+                        $isPopular = str_contains(strtolower($plan->name), 'growth') || $plan->sort_order == 2;
+                    @endphp
+                    <div class="plan-card {{ ($isCurrent || ($index === 0 && !$tenant->subscription_id)) ? 'selected' : '' }}" onclick="selectPlan('{{ $plan->id }}', {{ $plan->price }}, this)">
+                        @if($isPopular)
+                            <span class="popular-tag">Most Popular</span>
                         @endif
-                        <h4 class="fw-bold mb-1" style="color: #064e3b;">{{ $plan['name'] }}</h4>
-                        <div class="h2 fw-bold mb-2" style="color: #059669;">₱{{ number_format($plan['price'], 2) }} <small class="fs-6 text-muted">/ {{ $plan['period'] }}</small></div>
-                        <p class="text-secondary small mb-0">{{ $plan['description'] }}</p>
+                        @if($isCurrent)
+                            <span class="badge bg-success text-white position-absolute top-0 start-0 translate-middle-y ms-3 px-2 py-1 extra-small fw-bold">Active Plan</span>
+                        @endif
+                        <h4 class="fw-bold mb-1" style="color: #064e3b;">{{ $plan->name }}</h4>
+                        <div class="h3 fw-bold mb-2" style="color: #059669;">
+                            ₱{{ number_format($plan->price, 2) }} 
+                            <small class="fs-6 text-muted">/ {{ $plan->billing_cycle ?? 'monthly' }}</small>
+                        </div>
+                        <p class="text-secondary extra-small mb-2">{{ $plan->description }}</p>
+                        <div class="pt-2 border-top extra-small font-mono text-muted">
+                            <div><i class="bi bi-people-fill text-primary me-1"></i>Max Users: <strong>{{ $plan->max_users }} Accounts</strong></div>
+                            <div><i class="bi bi-person-badge text-success me-1"></i>Admins: <strong>{{ $plan->max_admin_accounts }}</strong> | Cashiers: <strong>{{ $plan->max_cashier_accounts }}</strong></div>
+                        </div>
                     </div>
                 @endforeach
             </div>
