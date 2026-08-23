@@ -260,9 +260,9 @@ class ProductController extends Controller
                 (float) ($validated['wholesale_price'] ?? 0);
 
             $priceChanged =
-                $oldCostPrice !== $newCostPrice
-                || $oldSellingPrice !== $newSellingPrice
-                || $oldWholesalePrice !== $newWholesalePrice;
+                round($oldCostPrice, 2) !== round($newCostPrice, 2)
+                || round($oldSellingPrice, 2) !== round($newSellingPrice, 2)
+                || round($oldWholesalePrice, 2) !== round($newWholesalePrice, 2);
 
             if ($priceChanged) {
 
@@ -377,7 +377,7 @@ class ProductController extends Controller
 
             $oldCostPrice      = $variant->exists ? (float)$variant->cost_price : null;
             $oldSellingPrice   = $variant->exists ? (float)$variant->selling_price : null;
-            $oldWholesalePrice = $variant->exists ? (float)$variant->wholesale_price : null;
+            $oldWholesalePrice = $variant->exists && $variant->wholesale_price !== null ? (float)$variant->wholesale_price : null;
 
             $newCostPrice      = (float)($vData['cost_price'] ?? 0);
             $newSellingPrice   = (float)($vData['selling_price'] ?? 0);
@@ -401,7 +401,13 @@ class ProductController extends Controller
             $variant->save();
 
             // Track variant price history if prices changed or if newly created
-            if ($oldSellingPrice === null || $oldCostPrice != $newCostPrice || $oldSellingPrice != $newSellingPrice || $oldWholesalePrice != $newWholesalePrice) {
+            $costPriceChanged      = $oldCostPrice === null || round($oldCostPrice, 2) !== round($newCostPrice, 2);
+            $sellingPriceChanged   = $oldSellingPrice === null || round($oldSellingPrice, 2) !== round($newSellingPrice, 2);
+            $wholesalePriceChanged = ($oldWholesalePrice === null && $newWholesalePrice !== null)
+                || ($oldWholesalePrice !== null && $newWholesalePrice === null)
+                || ($oldWholesalePrice !== null && $newWholesalePrice !== null && round($oldWholesalePrice, 2) !== round($newWholesalePrice, 2));
+
+            if ($costPriceChanged || $sellingPriceChanged || $wholesalePriceChanged) {
                 ProductPriceHistory::create([
                     'tenant_id'           => $tenantId,
                     'product_id'          => $product->id,
@@ -424,21 +430,8 @@ class ProductController extends Controller
             $keptIds[] = $variant->id;
         }
 
-        // Only delete variants that were removed from the form AND have NO POS records
-        // (variants with records are preserved to maintain data integrity)
-        $removedIds = $product->variants()->whereNotIn('id', $keptIds)->pluck('id');
-
-        if ($removedIds->isNotEmpty()) {
-            $safeToDelete = $removedIds->filter(function ($variantId) {
-                $hasSaleItems  = \App\Models\POS\POSSaleItem::where('variant_id', $variantId)->exists();
-                $hasMovements  = \App\Models\POS\InventoryMovement::where('variant_id', $variantId)->exists();
-                return !$hasSaleItems && !$hasMovements;
-            });
-
-            if ($safeToDelete->isNotEmpty()) {
-                $product->variants()->whereIn('id', $safeToDelete)->delete();
-            }
-        }
+        // Preserve all existing variants — set removed ones to 'inactive' to safeguard records
+        $product->variants()->whereNotIn('id', $keptIds)->update(['status' => 'inactive']);
     }
 
     public function suggestions(Request $request)
@@ -617,54 +610,44 @@ class ProductController extends Controller
             ->addColumn('actions', function ($product) {
                 $id = encrypt($product->id);
                 return '
-                    <div class="dropdown text-center">
-                        <button class="btn btn-sm btn-light border rounded-pill px-3 py-1 text-dark fw-bold extra-small shadow-xs dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-gear-fill text-primary me-1"></i> Actions
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border rounded-4 p-2 extra-small" style="min-width:200px;">
-                            <li>
-                                <button type="button" class="dropdown-item rounded-3 py-2 d-flex align-items-center gap-2 fw-semibold text-dark btn-quick-view" data-id="' . $product->id . '">
-                                    <div class="rounded-circle bg-info bg-opacity-10 text-info d-flex align-items-center justify-content-center" style="width:26px;height:26px;">
-                                        <i class="bi bi-eye-fill" style="font-size:0.75rem;"></i>
-                                    </div>
-                                    <span>360° Quick CRM View</span>
-                                </button>
-                            </li>
-                            <li>
-                                <a class="dropdown-item rounded-3 py-2 d-flex align-items-center gap-2 fw-semibold text-dark" href="' . route('products.edit', $id) . '">
-                                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center" style="width:26px;height:26px;">
-                                        <i class="bi bi-pencil-fill" style="font-size:0.75rem;"></i>
-                                    </div>
-                                    <span>Edit Product Details</span>
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider my-1"></li>
-                            <li>
-                                <a class="dropdown-item rounded-3 py-2 d-flex align-items-center gap-2 fw-semibold text-dark" href="' . route('products.stock.receive', $id) . '">
-                                    <div class="rounded-circle bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center" style="width:26px;height:26px;">
-                                        <i class="bi bi-box-arrow-in-down" style="font-size:0.75rem;"></i>
-                                    </div>
-                                    <span>Receive Stock In</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item rounded-3 py-2 d-flex align-items-center gap-2 fw-semibold text-dark" href="' . route('products.stock.adjustment', $id) . '">
-                                    <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center" style="width:26px;height:26px;">
-                                        <i class="bi bi-sliders" style="font-size:0.75rem;"></i>
-                                    </div>
-                                    <span>Stock Adjustment</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item rounded-3 py-2 d-flex align-items-center gap-2 fw-semibold text-dark" href="' . route('products.stock.history', $id) . '">
-                                    <div class="rounded-circle bg-secondary bg-opacity-10 text-secondary d-flex align-items-center justify-content-center" style="width:26px;height:26px;">
-                                        <i class="bi bi-clock-history" style="font-size:0.75rem;"></i>
-                                    </div>
-                                    <span>Stock Movement Log</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                <div class="dropdown">
+                    <button class="btn btn-light border btn-sm rounded-2 extra-small font-mono fw-bold px-2.5 shadow-xs" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport" data-bs-popper-config=\'{"strategy":"fixed"}\'>
+                        Actions <i class="bi bi-chevron-down ms-1"></i>
+                    </button>
+                    <ul class="dropdown-menu shadow-lg border-0 font-mono small rounded-3 p-1.5" style="z-index:1080; min-width: 210px;">
+                        <li>
+                            <button type="button" class="dropdown-item d-flex align-items-center gap-2 text-info fw-semibold py-1.5 rounded-2 btn-quick-view" data-id="' . $product->id . '">
+                                <i class="bi bi-eye-fill"></i> 360° Quick CRM View
+                            </button>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 text-primary fw-semibold py-1.5 rounded-2" href="' . route('products.edit', $id) . '">
+                                <i class="bi bi-pencil-square"></i> Edit Product Details
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 text-success fw-semibold py-1.5 rounded-2" href="' . route('products.stock.receive', $id) . '">
+                                <i class="bi bi-box-arrow-in-down"></i> Receive Stock In
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 text-warning-emphasis fw-semibold py-1.5 rounded-2" href="' . route('products.stock.adjustment', $id) . '">
+                                <i class="bi bi-sliders"></i> Adjust Stock
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 fw-semibold py-1.5 rounded-2" style="color:#7e22ce;" href="' . route('products.price-history.index', ['product_id' => $product->id]) . '">
+                                <i class="bi bi-graph-up-arrow"></i> Price History Audit
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 text-secondary fw-semibold py-1.5 rounded-2" href="' . route('products.stock.history', $id) . '">
+                                <i class="bi bi-clock-history"></i> Stock Movement Log
+                            </a>
+                        </li>
+                    </ul>
+                </div>
                 ';
             })
             ->addColumn('product_info', function ($product) {
@@ -672,16 +655,16 @@ class ProductController extends Controller
                 $firstChar = strtoupper(mb_substr($product->name ?: 'P', 0, 1));
 
                 $imgHtml = $imageSrc
-                    ? '<img src="'.$imageSrc.'" class="rounded-3 border object-fit-cover shadow-xs flex-shrink-0 me-3" style="width:44px;height:44px;min-width:44px;" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';"><div class="rounded-3 bg-primary bg-opacity-10 border border-primary-subtle align-items-center justify-content-center fw-black text-primary shadow-xs flex-shrink-0 me-3" style="display:none;width:44px;height:44px;min-width:44px;font-size:1.1rem;">'.$firstChar.'</div>'
-                    : '<div class="rounded-3 bg-primary bg-opacity-10 border border-primary-subtle d-flex align-items-center justify-content-center fw-black text-primary shadow-xs flex-shrink-0 me-3" style="width:44px;height:44px;min-width:44px;font-size:1.1rem;">'.$firstChar.'</div>';
+                    ? '<img src="'.$imageSrc.'" class="rounded-3 border object-fit-cover shadow-xs flex-shrink-0 me-2.5" style="width:36px;height:36px;min-width:36px;" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';"><div class="rounded-3 bg-primary bg-opacity-10 border border-primary-subtle align-items-center justify-content-center fw-black text-primary shadow-xs flex-shrink-0 me-2.5" style="display:none;width:36px;height:36px;min-width:36px;font-size:0.9rem;">'.$firstChar.'</div>'
+                    : '<div class="rounded-3 bg-primary bg-opacity-10 border border-primary-subtle d-flex align-items-center justify-content-center fw-black text-primary shadow-xs flex-shrink-0 me-2.5" style="width:36px;height:36px;min-width:36px;font-size:0.9rem;">'.$firstChar.'</div>';
 
                 $variantCount = $product->variants->count();
                 $variantBadge = $variantCount > 0
-                    ? '<span class="badge bg-primary-subtle text-primary border border-primary-subtle extra-small fw-bold"><i class="bi bi-boxes me-1"></i>'.$variantCount.' Variants</span>'
+                    ? '<span class="badge extra-small font-mono fw-bold" style="background:#f3e8ff;color:#7e22ce;border:1px solid #d8b4fe;"><i class="bi bi-boxes me-1"></i>'.$variantCount.' Variants</span>'
                     : '';
 
                 $fractionalBadge = $product->allow_decimal_qty
-                    ? '<span class="badge bg-info-subtle text-info-emphasis border border-info-subtle extra-small fw-bold">⚖️ Tinitimbang</span>'
+                    ? '<span class="badge extra-small font-mono fw-bold" style="background:#e0f2fe;color:#0369a1;border:1px solid #7dd3fc;">⚖️ Tinitimbang</span>'
                     : '';
 
                 $codePill = ($product->barcode || $product->sku)
@@ -689,15 +672,15 @@ class ProductController extends Controller
                     : '<span class="text-muted extra-small fst-italic">No Code</span>';
 
                 return '
-                    <div class="d-flex align-items-center py-1" style="min-width:280px;">
+                    <div class="d-flex align-items-center py-0.5" style="min-width:260px;">
                         <div class="cursor-pointer btn-quick-view flex-shrink-0" data-id="'.$product->id.'" title="360° Quick View">
                             '.$imgHtml.'
                         </div>
                         <div class="min-w-0 flex-grow-1">
-                            <a href="javascript:void(0)" class="fw-bold text-dark text-decoration-none d-block text-truncate hover-primary btn-quick-view fs-6 mb-1" data-id="'.$product->id.'" title="'.e($product->name).'">
+                            <a href="javascript:void(0)" class="fw-bold text-dark text-decoration-none d-block text-truncate hover-primary btn-quick-view mb-0.5" style="font-size:0.875rem;" data-id="'.$product->id.'" title="'.e($product->name).'">
                                 '.e($product->name ?: 'Unnamed Product').'
                             </a>
-                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <div class="d-flex align-items-center gap-1.5 flex-wrap">
                                 '.$codePill.'
                                 '.$variantBadge.'
                                 '.$fractionalBadge.'
@@ -847,6 +830,24 @@ class ProductController extends Controller
         $profit = $retail - $cost;
         $margin = $retail > 0 ? round(($profit / $retail) * 100, 1) : 0;
 
+        $priceHistories = ProductPriceHistory::with('variant')
+            ->where('tenant_id', $tenantId)
+            ->where('product_id', $product->id)
+            ->latest()
+            ->limit(5)
+            ->get()
+            ->map(fn($h) => [
+                'id'           => $h->id,
+                'variant_name' => $h->variant?->variant_name,
+                'old_selling'  => (float)$h->selling_price,
+                'new_selling'  => (float)($h->new_selling_price ?? $h->selling_price),
+                'old_cost'     => (float)$h->cost_price,
+                'new_cost'     => (float)($h->new_cost_price ?? $h->cost_price),
+                'reason'       => $h->reason ?: 'Price Update',
+                'remarks'      => $h->remarks,
+                'date'         => $h->created_at?->format('M d, Y h:i A'),
+            ]);
+
         return response()->json([
             'id' => $product->id,
             'encrypted_id' => encrypt($product->id),
@@ -872,21 +873,34 @@ class ProductController extends Controller
             'barcode_svg' => $barcodeSvg,
             'total_units_sold' => (float)$totalUnitsSold,
             'total_revenue' => (float)$totalRevenue,
-            'variants' => $product->variants->map(fn($v) => [
-                'id' => $v->id,
-                'name' => $v->variant_name,
-                'qty_per_pack' => (float)$v->qty_per_pack,
-                'selling_price' => (float)$v->selling_price,
-                'wholesale_price' => $v->wholesale_price ? (float)$v->wholesale_price : null,
-                'cost_price' => (float)$v->cost_price,
-                'barcode' => $v->barcode,
-            ]),
+            'variants' => $product->variants->map(function($v) use ($product) {
+                $vCost   = (float)($v->cost_price ?? $product->cost_price ?? 0);
+                $vRetail = (float)($v->selling_price ?? $product->selling_price ?? 0);
+                $vProfit = $vRetail - $vCost;
+                $vMargin = $vRetail > 0 ? round(($vProfit / $vRetail) * 100, 1) : 0;
+                return [
+                    'id'              => $v->id,
+                    'name'            => $v->variant_name,
+                    'sku'             => $v->sku ?: ($product->sku ?? 'N/A'),
+                    'barcode'         => $v->barcode ?: ($product->barcode ?? 'N/A'),
+                    'qty_per_pack'    => (float)$v->qty_per_pack,
+                    'cost_price'      => $vCost,
+                    'selling_price'   => $vRetail,
+                    'wholesale_price' => $v->wholesale_price ? (float)$v->wholesale_price : null,
+                    'profit'          => $vProfit,
+                    'margin'          => $vMargin,
+                    'stock_on_hand'   => (float)$v->stock_on_hand,
+                    'status'          => $v->status ?? 'active',
+                ];
+            }),
             'recent_stocks' => $product->stocks->map(fn($s) => [
                 'type' => $s->type ?? 'movement',
                 'qty' => (float)($s->qty ?? $s->quantity ?? 0),
                 'note' => $s->notes ?? $s->reason ?? 'Stock adjustment',
                 'date' => $s->created_at?->format('M d, Y h:i A'),
             ]),
+            'price_histories' => $priceHistories,
+            'price_history_index_url' => route('products.price-history.index'),
         ]);
     }
 

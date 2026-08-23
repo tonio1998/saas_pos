@@ -157,6 +157,13 @@ return [
                         'active' => 'products.units.*',
                     ],
 
+                    [
+                        'label'  => 'Price History',
+                        'route'  => 'products.price-history.index',
+                        'icon'   => 'bi bi-graph-up-arrow',
+                        'active' => 'products.price-history.*',
+                    ],
+
                 ],
             ],
 
@@ -370,6 +377,41 @@ return [
                         'route'  => 'reports.profit',
                         'icon'   => 'bi bi-currency-dollar',
                         'active' => 'reports.profit',
+                    ],
+
+                ],
+            ],
+
+        ],
+    ],
+
+    [
+        'title' => 'Settings',
+        'items' => [
+
+            [
+                'type'   => 'collapse',
+                'id'     => 'settingsMenu',
+                'label'  => 'Settings',
+                'icon'   => 'bi bi-gear-fill',
+                'active' => [
+                    'settings.*',
+                    'users.*',
+                ],
+                'children' => [
+
+                    [
+                        'label'  => 'Store Settings',
+                        'route'  => 'settings.index',
+                        'icon'   => 'bi bi-shop',
+                        'active' => 'settings.*',
+                    ],
+
+                    [
+                        'label'  => 'Users & Staff',
+                        'route'  => 'users.index',
+                        'icon'   => 'bi bi-people-fill',
+                        'active' => 'users.*',
                     ],
 
                 ],

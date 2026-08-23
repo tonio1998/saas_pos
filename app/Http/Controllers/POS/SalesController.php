@@ -43,8 +43,15 @@ class SalesController extends Controller
             'image',
             'updated_at'
         )
-            ->with(['variants', 'unit'])
-            ->where('tenant_id', auth()->user()->tenant_id);
+            ->with(['variants' => function ($v) {
+                $v->where(function ($sq) {
+                    $sq->whereNull('status')->orWhere('status', 'active');
+                });
+            }, 'unit'])
+            ->where('tenant_id', auth()->user()->tenant_id)
+            ->where(function ($q) {
+                $q->whereNull('status')->orWhere('status', 'active');
+            });
 
         if ($request->has('q') && !empty($request->q)) {
             $keyword = trim($request->q);
@@ -53,9 +60,14 @@ class SalesController extends Controller
                   ->orWhere('barcode', 'like', "%{$keyword}%")
                   ->orWhere('sku', 'like', "%{$keyword}%")
                   ->orWhereHas('variants', function ($v) use ($keyword) {
-                      $v->where('variant_name', 'like', "%{$keyword}%")
-                        ->orWhere('barcode', 'like', "%{$keyword}%")
-                        ->orWhere('sku', 'like', "%{$keyword}%");
+                      $v->where(function ($sq) {
+                          $sq->whereNull('status')->orWhere('status', 'active');
+                      })
+                      ->where(function ($vq) use ($keyword) {
+                          $vq->where('variant_name', 'like', "%{$keyword}%")
+                             ->orWhere('barcode', 'like', "%{$keyword}%")
+                             ->orWhere('sku', 'like', "%{$keyword}%");
+                      });
                   });
             });
         }

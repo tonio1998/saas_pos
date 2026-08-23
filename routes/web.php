@@ -38,6 +38,8 @@ use App\Http\Controllers\POS\TenantsContextController;
 use App\Http\Controllers\POS\TenantsController;
 use App\Http\Controllers\POS\SubscriptionPaymentController;
 use App\Http\Controllers\POS\BIRReportController;
+use App\Http\Controllers\POS\StoreSettingsController;
+use App\Http\Controllers\POS\TenantUserController;
 use App\Http\Controllers\POS\UnitController;
 use App\Http\Controllers\SADashboardController;
 use App\Http\Controllers\TenantsDashboardController;
@@ -173,24 +175,12 @@ Route::prefix('support-center')->name('support-center.')->middleware(['auth', 'r
 
 Route::middleware('auth')->group(function(){
     Route::prefix('users')->name('users.')->group(function () {
-        Route::get('/', [UserController::class, 'index'])->name('index');
-        Route::get('data', [UserController::class, 'users_data'])->name('data');
-        Route::get('/create', [UserController::class, 'create'])->name('create');
-        Route::post('/', [UserController::class, 'store'])->name('store');
-        Route::get('/{user}/edit', [UserController::class, 'edit'])->name('edit');
-        Route::put('/{user}', [UserController::class, 'update'])->name('update');
-        Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
-        Route::post('/generate-password/{type}/{typeId}/{userId}',[UserController::class,'generatePassword'])
-            ->name('password');
-        Route::get('/{user}/roles', [UserController::class,'editRoles'])->name('roles');
-        Route::get('/{user}/permissions', [UserController::class,'editPermissions'])->name('permissions');
-        Route::put('/{user}/roles',[UserController::class,'updateRoles'])->name('roles.update');
-        Route::put('/{user}/permissions',[UserController::class,'updatePermissions'])->name('permissions.update');
-        Route::get('/{user}/change-photo', [UserController::class,'changePhoto'])->name('change-photo');
-        Route::post('/upload', [UserController::class,'upload'])->name('upload');
-//        Route::get('/print-id/{id}', [UserController::class, 'printID'])->name('printID');
-        Route::get('/{id}/nfc', [UserController::class, 'nfc'])->name('nfc');
-        Route::post('/nfc/assign', [UserController::class, 'assignNfc'])->name('nfc.assign');
+        Route::get('/', [TenantUserController::class, 'index'])->name('index');
+        Route::get('data', [TenantUserController::class, 'ajaxData'])->name('data');
+        Route::post('/store', [TenantUserController::class, 'store'])->name('store');
+        Route::put('/update/{id}', [TenantUserController::class, 'update'])->name('update');
+        Route::post('/reset-password/{id}', [TenantUserController::class, 'resetPassword'])->name('reset-password');
+        Route::delete('/delete/{id}', [TenantUserController::class, 'destroy'])->name('destroy');
     });
 
     Route::prefix('context')->name('context.')->group(function(){
@@ -229,10 +219,8 @@ Route::middleware('auth')->group(function(){
     });
 
     Route::prefix('settings')->name('settings.')->group(function(){
-        Route::get('', [SchoolSettingsController::class, 'index'])->name('index');
-        Route::get('/edit/{id}', [SchoolSettingsController::class, 'edit'])->name('edit');
-        Route::post('/store', [SchoolSettingsController::class, 'store'])->name('store');
-        Route::get('/data', [SchoolSettingsController::class, 'ajaxData'])->name('data');
+        Route::get('', [StoreSettingsController::class, 'index'])->name('index');
+        Route::post('/update', [StoreSettingsController::class, 'update'])->name('update');
     });
     Route::prefix('select2')->name('select2.')->group(function(){
         Route::get('roles/search',[RoleController::class,'search'])->name('roles');

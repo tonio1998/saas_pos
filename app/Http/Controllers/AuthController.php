@@ -161,15 +161,17 @@ class AuthController extends Controller
         $validated = $request->validate([
             'name'            => ['required', 'string', 'max:255'],
             'business_name'   => ['required', 'string', 'max:255'],
-            'subscription_id' => ['required', 'exists:pos_subscriptions,id'],
+            'subscription_id' => ['nullable', 'exists:pos_subscriptions,id'],
             'email'           => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password'        => ['required', 'string', 'min:6', 'confirmed'],
         ]);
 
+        $subId = $validated['subscription_id'] ?? 4; // Default to Free Trial Tier (5 Days)
+
         DB::beginTransaction();
         try {
             $tenant = POSTenant::create([
-                'subscription_id'    => $validated['subscription_id'],
+                'subscription_id'    => $subId,
                 'business_name'      => trim($validated['business_name']),
                 'business_code'      => 'MINI-' . strtoupper(Str::random(6)),
                 'owner_name'         => trim($validated['name']),
@@ -178,10 +180,10 @@ class AuthController extends Controller
                 'address'            => $validated['address'] ?? null,
                 'tin'                => $validated['tin'] ?? null,
                 'status'             => 'active',
-                'payment_status'     => 'pending',
+                'payment_status'     => 'trial',
                 'subscription_start' => now()->toDateString(),
-                'subscription_end'   => now()->addDays(30)->toDateString(),
-                'trial_ends_at'      => now()->addDays(7),
+                'subscription_end'   => now()->addDays(5)->toDateString(),
+                'trial_ends_at'      => now()->addDays(5),
             ]);
 
             $user = User::create([
@@ -209,7 +211,7 @@ class AuthController extends Controller
 
             app(SecurityService::class)->logLogin($request, $user, 'success');
 
-            return redirect()->route('subscription.checkout')->with('success', 'Registration successful! Welcome to RetailPOS. Please complete your online subscription payment to unlock full POS features.');
+            return redirect()->route('dashboard.index')->with('success', 'Registration successful! Welcome to LikhaPOS. Your 5-Day Free Trial is now ACTIVE.');
 
         } catch (\Throwable $e) {
             DB::rollBack();

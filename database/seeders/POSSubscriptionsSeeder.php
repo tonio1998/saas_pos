@@ -18,6 +18,25 @@ class POSSubscriptionsSeeder extends Seeder
         }
         $plans = [
             [
+                'id' => 4,
+                'name' => 'Free Trial Tier (5 Days)',
+                'description' => '5-Day Full Access Free Trial for new retail stores & minimarts (1 Admin, 2 Cashiers)',
+                'price' => 0.00,
+                'billing_cycle' => 'monthly',
+                'duration_days' => 5,
+                'max_users' => 3,
+                'max_admin_accounts' => 1,
+                'max_cashier_accounts' => 2,
+                'max_products' => 500,
+                'max_branches' => 1,
+                'allow_inventory' => 1,
+                'allow_reports' => 1,
+                'allow_multi_branch' => 0,
+                'allow_api_access' => 1,
+                'status' => 'active',
+                'sort_order' => 0,
+            ],
+            [
                 'id' => 1,
                 'name' => 'Tindahan Starter',
                 'description' => 'Affordable plan for single-register stores (₱10/day • 1 Admin, 1 Cashier account)',

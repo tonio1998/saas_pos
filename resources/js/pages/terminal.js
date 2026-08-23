@@ -3,6 +3,181 @@ import ProductService from './services/product.service.js';
 import { Modal } from 'bootstrap';
 import * as bootstrap from 'bootstrap';
 window.bootstrap = bootstrap;
+
+window.buildBIRThermalReceiptHTML = function (sale, storeConfig = null, state = null) {
+    const store = storeConfig || window.POS_STORE_CONFIG || {
+        business_name: 'MINIMART POS STORE',
+        owner_name: '',
+        phone: '',
+        address: '',
+        tin: '',
+        header_text: '',
+        footer_text: 'THANK YOU FOR YOUR PURCHASE!\nPLEASE COME AGAIN',
+        logo: null,
+        currency_symbol: '₱'
+    };
+
+    const cartItems = sale?.items || state?.cart || [];
+    const payments = sale?.payments || [];
+    const totalAmount = Number(sale?.total_amount || state?.total || 0);
+    const subtotalAmount = Number(sale?.subtotal || state?.subtotal || totalAmount);
+    const discountAmount = Number(sale?.discount_amount || state?.discount || 0);
+    const tenderedAmount = Number(sale?.tendered_amount || payments.reduce((s, p) => s + Number(p.amount || 0), 0));
+    const changeAmount = Number(sale?.change_amount || state?.change || Math.max(0, tenderedAmount - totalAmount));
+
+    const vatableSales = (totalAmount / 1.12).toFixed(2);
+    const vatAmount = (totalAmount - Number(vatableSales)).toFixed(2);
+    const invoiceNo = sale?.sale_code || sale?.invoice_no || 'SI-' + Math.floor(100000 + Math.random() * 900000);
+    const cashierName = sale?.cashier_name || sale?.cashier?.name || sale?.user?.name || store.cashier_name || 'Cashier';
+    const currSym = store.currency_symbol || '₱';
+
+    return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Official BIR Receipt - ${invoiceNo}</title>
+<style>
+@page {
+    size: 78mm auto;
+    margin: 0;
+}
+html, body {
+    width: 78mm;
+    margin: 0 auto;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    color: #000;
+    padding: 6px;
+    box-sizing: border-box;
+    background: #fff;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+.center { text-align: center; }
+.right { text-align: right; }
+.left { text-align: left; }
+.fw-bold { font-weight: bold; }
+.fw-black { font-weight: 900; }
+.line { border-top: 1px dashed #000; margin: 5px 0; }
+.line-double { border-top: 3px double #000; margin: 5px 0; }
+.row { display: flex; justify-content: space-between; gap: 6px; }
+.item { margin-bottom: 5px; }
+.item-name { font-weight: bold; font-size: 12px; word-break: break-word; }
+.total { font-size: 14px; font-weight: 900; }
+.store-logo { max-width: 75px; max-height: 75px; object-fit: contain; margin: 0 auto 4px auto; display: block; }
+.footer-text { text-align: center; margin-top: 8px; font-size: 10px; }
+</style>
+</head>
+<body>
+
+<div class="center">
+    ${store.logo ? `<img src="${store.logo}" class="store-logo" alt="Store Logo">` : ''}
+    <div style="font-size:15px;font-weight:900;text-transform:uppercase;letter-spacing:0.5px;">
+        ${store.business_name || 'LikhaPOS Store'}
+    </div>
+    ${store.owner_name ? `<div>Prop: ${store.owner_name}</div>` : ''}
+    ${store.address ? `<div>${store.address}</div>` : ''}
+    ${store.phone ? `<div>Tel: ${store.phone}</div>` : ''}
+    ${store.tin ? `<div>TIN: ${store.tin} (VAT Reg)</div>` : ''}
+    ${store.header_text ? `<div style="font-style:italic;margin-top:2px;">${store.header_text}</div>` : ''}
+</div>
+
+<div class="line"></div>
+
+<div class="center">
+    <div class="fw-bold" style="font-size:12px;">SALES INVOICE / OFFICIAL RECEIPT</div>
+    <div>OR / SI #: <strong>${invoiceNo}</strong></div>
+    <div>Date: ${new Date().toLocaleString()}</div>
+    <div>Cashier: ${cashierName}</div>
+</div>
+
+<div class="line"></div>
+
+${cartItems.map(item => `
+<div class="item">
+    <div class="item-name">${item.name || item.product_name}</div>
+    <div class="row">
+        <span>${item.qty} × ${currSym}${Number(item.price || item.unit_price || 0).toFixed(2)}</span>
+        <span class="fw-bold">${currSym}${Number(item.subtotal || item.line_total || (item.qty * (item.price || 0))).toFixed(2)}</span>
+    </div>
+</div>
+`).join('')}
+
+<div class="line"></div>
+
+<div class="row">
+    <span>Subtotal (Gross)</span>
+    <span>${currSym}${subtotalAmount.toFixed(2)}</span>
+</div>
+
+${discountAmount > 0 ? `
+<div class="row text-danger">
+    <span>Discount</span>
+    <span>-${currSym}${discountAmount.toFixed(2)}</span>
+</div>
+` : ''}
+
+<div class="line"></div>
+
+<div class="row total">
+    <span>TOTAL AMOUNT DUE</span>
+    <span>${currSym}${totalAmount.toFixed(2)}</span>
+</div>
+
+<div class="line"></div>
+
+<div class="fw-bold" style="margin-bottom:2px;">PAYMENT DETAILS</div>
+${payments.length > 0 ? payments.map(p => `
+<div class="row">
+    <span>${(p.payment_method || 'CASH').replace('_', ' ').toUpperCase()}</span>
+    <span>${currSym}${Number(p.amount || 0).toFixed(2)}</span>
+</div>
+${p.reference_number ? `<div style="font-size:10px;">Ref #: ${p.reference_number}</div>` : ''}
+`).join('') : `
+<div class="row">
+    <span>CASH</span>
+    <span>${currSym}${tenderedAmount.toFixed(2)}</span>
+</div>
+`}
+
+<div class="line"></div>
+
+<div class="row fw-bold">
+    <span>Tendered / Paid</span>
+    <span>${currSym}${tenderedAmount.toFixed(2)}</span>
+</div>
+
+<div class="row fw-bold">
+    <span>Change</span>
+    <span>${currSym}${changeAmount.toFixed(2)}</span>
+</div>
+
+<div class="line"></div>
+
+<div class="center fw-bold" style="font-size:11px;margin-bottom:2px;">BIR TAX COMPUTATION</div>
+<div class="row" style="font-size:10px;">
+    <span>VATable Sales (12%)</span>
+    <span>${currSym}${vatableSales}</span>
+</div>
+<div class="row" style="font-size:10px;">
+    <span>VAT Amount (12%)</span>
+    <span>${currSym}${vatAmount}</span>
+</div>
+<div class="row" style="font-size:10px;">
+    <span>VAT Exempt Sales</span>
+    <span>${currSym}0.00</span>
+</div>
+
+<div class="line-double"></div>
+
+<div class="footer-text">
+    <div class="fw-bold" style="font-size:11px;white-space:pre-line;">${store.footer_text || 'THANK YOU FOR YOUR PURCHASE!\nPLEASE COME AGAIN'}</div>
+    <div style="font-size:8.5px;margin-top:4px;font-weight:bold;">THIS SERVES AS YOUR OFFICIAL RECEIPT</div>
+    <div style="font-size:8px;color:#444;">POS Engine: LikhaPOS Enterprise</div>
+</div>
+
+</body>
+</html>`;
+};
 $(function () {
     document.getElementById('btnSelectCustomer').addEventListener('click', async function () {
 
@@ -325,16 +500,16 @@ const POS = {
 
                     // ─── VARIANT CHILD ROWS ──────────────────────────────
                     product.variants.forEach(v => {
-                        const vRetail    = Number(v.selling_price || 0);
+                        const vRetail = Number(v.selling_price || 0);
                         const vWholesale = Number(v.wholesale_price || 0);
-                        const vActive    = (isWholesale && vWholesale > 0) ? vWholesale : vRetail;
-                        const vStock     = Number(v.stock_on_hand || 0);
-                        const vUnit      = v.unit?.name || product.unit?.name || '';
+                        const vActive = (isWholesale && vWholesale > 0) ? vWholesale : vRetail;
+                        const vStock = Number(v.stock_on_hand || 0);
+                        const vUnit = v.unit?.name || product.unit?.name || '';
 
                         let vStockBadge = '';
-                        if (vStock <= 0)      vStockBadge = `<span class="badge bg-danger-subtle text-danger border border-danger-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-x-circle me-1"></i>Out</span>`;
+                        if (vStock <= 0) vStockBadge = `<span class="badge bg-danger-subtle text-danger border border-danger-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-x-circle me-1"></i>Out</span>`;
                         else if (vStock <= 10) vStockBadge = `<span class="badge bg-warning-subtle text-warning border border-warning-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-exclamation me-1"></i>${vStock} Left</span>`;
-                        else                  vStockBadge = `<span class="badge bg-success-subtle text-success border border-success-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-check-circle me-1"></i>${vStock}</span>`;
+                        else vStockBadge = `<span class="badge bg-success-subtle text-success border border-success-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-check-circle me-1"></i>${vStock}</span>`;
 
                         let vPriceDisplay = '';
                         if (isWholesale && vWholesale > 0) {
@@ -383,15 +558,15 @@ const POS = {
 
                 } else {
                     // ─── REGULAR PRODUCT ROW (no variants) ───────────────
-                    const retailPrice   = Number(product.selling_price || 0);
+                    const retailPrice = Number(product.selling_price || 0);
                     const wholesalePrice = Number(product.wholesale_price || 0);
-                    const activePrice   = (isWholesale && wholesalePrice > 0) ? wholesalePrice : retailPrice;
-                    const stock         = Number(product.stock_on_hand || 0);
+                    const activePrice = (isWholesale && wholesalePrice > 0) ? wholesalePrice : retailPrice;
+                    const stock = Number(product.stock_on_hand || 0);
 
                     let stockBadge = '';
-                    if (stock <= 0)      stockBadge = `<span class="badge bg-danger-subtle text-danger border border-danger-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-x-circle me-1"></i>Out of Stock</span>`;
+                    if (stock <= 0) stockBadge = `<span class="badge bg-danger-subtle text-danger border border-danger-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-x-circle me-1"></i>Out of Stock</span>`;
                     else if (stock <= 10) stockBadge = `<span class="badge bg-warning-subtle text-warning border border-warning-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-exclamation-circle me-1"></i>${stock} Left</span>`;
-                    else                  stockBadge = `<span class="badge bg-success-subtle text-success border border-success-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-check-circle me-1"></i>${stock} Available</span>`;
+                    else stockBadge = `<span class="badge bg-success-subtle text-success border border-success-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-check-circle me-1"></i>${stock} Available</span>`;
 
                     let priceDisplay = '';
                     if (isWholesale && wholesalePrice > 0) {
@@ -455,12 +630,12 @@ const POS = {
                 if (hasVariants) {
                     // ─── VARIANT GROUP CARD ──────────────────────────────
                     let variantChips = product.variants.map(v => {
-                        const vRetail    = Number(v.selling_price || 0);
+                        const vRetail = Number(v.selling_price || 0);
                         const vWholesale = Number(v.wholesale_price || 0);
-                        const vActive    = (isWholesale && vWholesale > 0) ? vWholesale : vRetail;
-                        const vStock     = Number(v.stock_on_hand || 0);
-                        const vUnit      = v.unit?.name || product.unit?.name || '';
-                        const disabled   = vStock <= 0;
+                        const vActive = (isWholesale && vWholesale > 0) ? vWholesale : vRetail;
+                        const vStock = Number(v.stock_on_hand || 0);
+                        const vUnit = v.unit?.name || product.unit?.name || '';
+                        const disabled = vStock <= 0;
 
                         return `
                             <div class="variant-chip d-flex align-items-center justify-content-between p-2 rounded-3 border mb-1 ${disabled ? 'opacity-50' : 'cursor-pointer'}"
@@ -503,15 +678,15 @@ const POS = {
 
                 } else {
                     // ─── REGULAR PRODUCT CARD ────────────────────────────
-                    const retailPrice    = Number(product.selling_price || 0);
+                    const retailPrice = Number(product.selling_price || 0);
                     const wholesalePrice = Number(product.wholesale_price || 0);
-                    const activePrice    = (isWholesale && wholesalePrice > 0) ? wholesalePrice : retailPrice;
-                    const stock          = Number(product.stock_on_hand || 0);
+                    const activePrice = (isWholesale && wholesalePrice > 0) ? wholesalePrice : retailPrice;
+                    const stock = Number(product.stock_on_hand || 0);
 
                     let stockBadge = '';
-                    if (stock <= 0)      stockBadge = `<span class="stock-badge out">Out of Stock</span>`;
+                    if (stock <= 0) stockBadge = `<span class="stock-badge out">Out of Stock</span>`;
                     else if (stock <= 10) stockBadge = `<span class="stock-badge low">${stock} Left</span>`;
-                    else                  stockBadge = `<span class="stock-badge in">${stock} Available</span>`;
+                    else stockBadge = `<span class="stock-badge in">${stock} Available</span>`;
 
                     let priceDisplay = '';
                     if (isWholesale && wholesalePrice > 0) {
@@ -561,10 +736,10 @@ const POS = {
         container.querySelectorAll('.product-row:not(.product-group-header)').forEach(row => {
             row.addEventListener('click', () => {
                 const productId = Number(row.dataset.id);
-                const product   = this.products?.find(p => p.id === productId);
-                const retail    = Number(row.dataset.retailPrice || row.dataset.price);
+                const product = this.products?.find(p => p.id === productId);
+                const retail = Number(row.dataset.retailPrice || row.dataset.price);
                 const wholesale = Number(row.dataset.wholesalePrice || 0);
-                const active    = (this.state.priceMode === 'wholesale' && wholesale > 0) ? wholesale : retail;
+                const active = (this.state.priceMode === 'wholesale' && wholesale > 0) ? wholesale : retail;
                 this.addToCart({
                     id: productId, variant_id: null,
                     barcode: row.dataset.barcode, name: row.dataset.name,
@@ -582,10 +757,10 @@ const POS = {
                 if (e.target.closest('.btn-add-variant')?.disabled) return;
                 const productId = Number(row.dataset.id);
                 const variantId = Number(row.dataset.variantId);
-                const product   = this.products?.find(p => p.id === productId);
-                const retail    = Number(row.dataset.retailPrice || row.dataset.price);
+                const product = this.products?.find(p => p.id === productId);
+                const retail = Number(row.dataset.retailPrice || row.dataset.price);
                 const wholesale = Number(row.dataset.wholesalePrice || 0);
-                const active    = (this.state.priceMode === 'wholesale' && wholesale > 0) ? wholesale : retail;
+                const active = (this.state.priceMode === 'wholesale' && wholesale > 0) ? wholesale : retail;
                 this.addToCart({
                     id: productId, variant_id: variantId,
                     barcode: row.dataset.barcode, name: row.dataset.name,
@@ -600,9 +775,9 @@ const POS = {
         // ── Group header rows — toggle collapse/expand variant rows ─────
         container.querySelectorAll('.product-group-header').forEach(header => {
             header.addEventListener('click', () => {
-                const groupId  = header.dataset.groupId;
-                const rows     = container.querySelectorAll(`.product-variant-row[data-group="${groupId}"]`);
-                const chevron  = header.querySelector('.variant-chevron');
+                const groupId = header.dataset.groupId;
+                const rows = container.querySelectorAll(`.product-variant-row[data-group="${groupId}"]`);
+                const chevron = header.querySelector('.variant-chevron');
                 const isHidden = rows.length && rows[0].style.display === 'none';
                 rows.forEach(r => r.style.display = isHidden ? '' : 'none');
                 if (chevron) chevron.className = `bi ${isHidden ? 'bi-chevron-up' : 'bi-chevron-down'} variant-chevron text-muted`;
@@ -614,10 +789,10 @@ const POS = {
             chip.addEventListener('click', () => {
                 const productId = Number(chip.dataset.id);
                 const variantId = Number(chip.dataset.variantId);
-                const product   = this.products?.find(p => p.id === productId);
-                const retail    = Number(chip.dataset.retailPrice || chip.dataset.price);
+                const product = this.products?.find(p => p.id === productId);
+                const retail = Number(chip.dataset.retailPrice || chip.dataset.price);
                 const wholesale = Number(chip.dataset.wholesalePrice || 0);
-                const active    = (this.state.priceMode === 'wholesale' && wholesale > 0) ? wholesale : retail;
+                const active = (this.state.priceMode === 'wholesale' && wholesale > 0) ? wholesale : retail;
                 this.addToCart({
                     id: productId, variant_id: variantId,
                     barcode: chip.dataset.barcode, name: chip.dataset.name,
@@ -633,10 +808,10 @@ const POS = {
         container.querySelectorAll('.product-card').forEach(card => {
             card.addEventListener('click', () => {
                 const productId = Number(card.dataset.id);
-                const product   = this.products?.find(p => p.id === productId);
-                const retail    = Number(card.dataset.retailPrice || card.dataset.price);
+                const product = this.products?.find(p => p.id === productId);
+                const retail = Number(card.dataset.retailPrice || card.dataset.price);
                 const wholesale = Number(card.dataset.wholesalePrice || 0);
-                const active    = (this.state.priceMode === 'wholesale' && wholesale > 0) ? wholesale : retail;
+                const active = (this.state.priceMode === 'wholesale' && wholesale > 0) ? wholesale : retail;
                 this.addToCart({
                     id: productId, variant_id: null,
                     barcode: card.dataset.barcode, name: card.dataset.name,
@@ -1430,11 +1605,21 @@ const POS = {
                 );
         }
 
+        const tenderModalTotal = document.getElementById('tenderModalTotal');
+        const tenderModalBalance = document.getElementById('tenderModalBalance');
+        if (tenderModalTotal) {
+            tenderModalTotal.textContent = this.formatCurrency(this.state.total);
+        }
+        if (tenderModalBalance) {
+            tenderModalBalance.textContent = this.formatCurrency(this.state.balance);
+        }
+
         this.paymentChange.textContent =
             this.formatCurrency(
                 this.state.change
             );
 
+        this.updateCheckoutReceiptPreview();
     },
     bindDiscount() {
 
@@ -1724,6 +1909,34 @@ const POS = {
             }
         });
 
+        const paymentModalEl = document.getElementById('paymentModal');
+        if (paymentModalEl) {
+            paymentModalEl.addEventListener('shown.bs.modal', () => {
+                this.updateCheckoutReceiptPreview();
+            });
+        }
+
+        const tenderSubModal = document.getElementById('checkoutTenderModal');
+        if (tenderSubModal) {
+            tenderSubModal.addEventListener('hidden.bs.modal', () => {
+                const mainModalEl = document.getElementById('paymentModal');
+                if (mainModalEl) {
+                    const bsMainModal = bootstrap.Modal.getOrCreateInstance(mainModalEl);
+                    bsMainModal.show();
+                }
+            });
+        }
+
+        const discountSubModal = document.getElementById('checkoutDiscountModal');
+        if (discountSubModal) {
+            discountSubModal.addEventListener('hidden.bs.modal', () => {
+                const mainModalEl = document.getElementById('paymentModal');
+                if (mainModalEl) {
+                    const bsMainModal = bootstrap.Modal.getOrCreateInstance(mainModalEl);
+                    bsMainModal.show();
+                }
+            });
+        }
     },
     async completeSale() {
         if (!this.validateCheckout()) {
@@ -1854,8 +2067,7 @@ const POS = {
 
         this.discountType.value = '';
 
-        this.discountMode.value =
-            'percentage';
+        this.discountMode.value = 'percentage';
 
         this.discountValue.value = '';
 
@@ -1883,402 +2095,15 @@ const POS = {
         this.state.priceMode = 'retail';
         const retailRadio = document.getElementById('priceModeRetail');
         if (retailRadio) retailRadio.checked = true;
-
     },
+
     printReceipt(sale) {
-
-        const payments =
-            sale.payments || [];
-
-        const totalPaid =
-            payments.reduce(
-                (sum, payment) =>
-                    sum +
-                    Number(
-                        payment.amount || 0
-                    ),
-                0
-            );
-
-        const receipt =
-            window.open(
-                '',
-                '_blank',
-                'width=300,height=900'
-            );
-
-        receipt.document.write(`
-
-<!DOCTYPE html>
-
-<html>
-
-<head>
-
-<meta charset="UTF-8">
-
-<title>
-Receipt
-</title>
-
-<style>
-@page {
-    size: 70mm auto;
-    margin: 0;
-}
-
-html,
-body {
-    width: 70mm;
-    margin: 0;
-    font-family: monospace;
-    font-size: 16px;
-    box-sizing: border-box;
-}
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-
-.center {
-    text-align: center;
-}
-
-.right {
-    text-align: right;
-}
-
-.line {
-
-    border-top:
-        1px dashed #000;
-
-    margin:
-        6px 0;
-
-}
-
-.row {
-
-    display: flex;
-
-    justify-content:
-        space-between;
-
-    gap: 10px;
-
-}
-
-.item {
-
-    margin-bottom:
-        6px;
-
-}
-
-.item-name {
-
-    font-weight:
-        bold;
-
-}
-
-.footer {
-
-    text-align:
-        center;
-
-    margin-top:
-        10px;
-
-}
-
-.total {
-
-    font-size:
-        14px;
-
-    font-weight:
-        bold;
-
-}
-
-</style>
-
-</head>
-
-<body>
-
-<div class="center">
-    <div style="font-size:16px;font-weight:bold;">
-        LikhaPOS
-    </div>
-
-    <div>
-        Your Store Name
-    </div>
-
-    <div>
-        Invoice #${sale.invoice_no ?? '-'}
-    </div>
-</div>
-
-<div class="line"></div>
-
-<div>
-
-    Date:
-    ${new Date().toLocaleString()}
-
-</div>
-
-<div>
-
-    Cashier:
-    ${sale.cashier_name ?? ''}
-
-</div>
-
-${this.discountHolder?.value
-                ? `
-<div>
-    Customer:
-    ${this.discountHolder.value}
-</div>
-`
-                : ''
-            }
-
-<div class="line"></div>
-
-${this.state.cart.map(item => `
-
-<div class="item">
-
-    <div class="item-name">
-        ${item.name}
-    </div>
-
-    <div class="row">
-
-        <span>
-
-            ${item.qty}
-            ×
-            ${this.formatCurrency(
-                item.price
-            )}
-
-        </span>
-
-        <span>
-
-            ${this.formatCurrency(
-                item.subtotal
-            )}
-
-        </span>
-
-    </div>
-
-</div>
-
-`).join('')}
-
-<div class="line"></div>
-
-<div class="row">
-
-    <span>
-        Subtotal
-    </span>
-
-    <span>
-        ${this.formatCurrency(
-                this.state.subtotal
-            )}
-    </span>
-
-</div>
-
-<div class="row">
-
-    <span>
-        Discount
-    </span>
-
-    <span>
-        ${this.formatCurrency(
-                this.state.discount
-            )}
-    </span>
-
-</div>
-
-${this.discountType?.value
-                ? `
-<div>
-    Discount Type:
-    ${this.discountType.value.toUpperCase()}
-</div>
-`
-                : ''
-            }
-
-${this.discountIdNo?.value
-                ? `
-<div>
-    ID No:
-    ${this.discountIdNo.value}
-</div>
-`
-                : ''
-            }
-
-<div class="row total">
-
-    <span>
-        TOTAL
-    </span>
-
-    <span>
-        ${this.formatCurrency(
-                this.state.total
-            )}
-    </span>
-
-</div>
-
-<div class="line"></div>
-
-<div>
-
-    <strong>
-        PAYMENTS
-    </strong>
-
-</div>
-
-${payments.map(payment => `
-
-<div class="row">
-
-    <span>
-
-        ${payment.payment_method
-                    ?.replace(
-                        '_',
-                        ' '
-                    )
-                    .toUpperCase()
-                }
-
-    </span>
-
-    <span>
-
-        ${this.formatCurrency(
-                    payment.amount
-                )}
-
-    </span>
-
-</div>
-
-${payment.reference_number
-                    ? `
-<div>
-    Ref:
-    ${payment.reference_number}
-</div>
-`
-                    : ''
-                }
-
-`).join('')}
-
-<div class="line"></div>
-
-<div class="row">
-
-    <strong>
-        Paid
-    </strong>
-
-    <strong>
-        ${this.formatCurrency(
-                    totalPaid
-                )}
-    </strong>
-
-</div>
-
-<div class="row">
-
-    <strong>
-        Change
-    </strong>
-
-    <strong>
-        ${this.formatCurrency(
-                    this.state.change
-                )}
-    </strong>
-
-</div>
-
-<div class="line"></div>
-
-${this.paymentNotes?.value?.trim()
-                ? `
-<div>
-    Notes:
-</div>
-
-<div>
-    ${this.paymentNotes.value}
-</div>
-
-<div class="line"></div>
-`
-                : ''
-            }
-
-<div class="footer">
-
-    Thank You!
-
-    <br>
-
-    Please Come Again
-
-</div>
-
-<script>
-
-window.onload = () => {
-
-    window.print();
-
-    setTimeout(
-        () => window.close(),
-        500
-    );
-
-};
-
-</script>
-
-</body>
-
-</html>
-
-`);
-
-        receipt.document.close();
-
+        const html = window.buildBIRThermalReceiptHTML(sale, window.POS_STORE_CONFIG, this.state);
+        const receipt = window.open('', '_blank', 'width=380,height=900');
+        if (receipt) {
+            receipt.document.write(html + `<script>window.onload = () => { window.print(); setTimeout(() => window.close(), 600); };</script>`);
+            receipt.document.close();
+        }
     },
     calculateChange() {
 
@@ -2331,72 +2156,82 @@ window.onload = () => {
                 }
             )}`;
 
+        this.updateCheckoutReceiptPreview();
     },
+
+    updateCheckoutReceiptPreview() {
+        const frame = document.getElementById('checkoutReceiptPreviewFrame');
+        const tenderModalTotal = document.getElementById('tenderModalTotal');
+        const tenderModalBalance = document.getElementById('tenderModalBalance');
+
+        const totalFormatted = `₱${Number(this.state.total || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        const balanceFormatted = `₱${Number(this.state.balance || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+        if (tenderModalTotal) tenderModalTotal.textContent = totalFormatted;
+        if (tenderModalBalance) tenderModalBalance.textContent = balanceFormatted;
+
+        if (!frame) return;
+
+        const saleData = {
+            sale_code: `#${this.saleCode || '260823-0030'}`,
+            cashier_name: window.POS_STORE_CONFIG?.cashier_name || 'Cashier',
+            items: this.state.cart || [],
+            subtotal: this.state.subtotal || 0,
+            discount_amount: this.state.discount || 0,
+            total_amount: this.state.total || 0,
+            tendered_amount: this.state.paid || this.state.tendered || 0,
+            change_amount: this.state.change || 0,
+            payments: this.getPaymentLinesData ? this.getPaymentLinesData() : []
+        };
+
+        if (typeof window.buildBIRThermalReceiptHTML === 'function') {
+            const html = window.buildBIRThermalReceiptHTML(saleData, window.POS_STORE_CONFIG, this.state);
+            const doc = frame.contentWindow ? frame.contentWindow.document : (frame.contentDocument || frame.document);
+            if (doc) {
+                doc.open();
+                doc.write(html);
+                doc.close();
+            }
+        }
+    },
+
     validateCheckout() {
-
-        if (
-            this.state.cart.length === 0
-        ) {
-
-            alert(
-                'Cart is empty.'
-            );
-
+        if (this.state.cart.length === 0) {
+            if (typeof window.appAlert === 'function') {
+                window.appAlert({ title: 'Cart Empty', text: 'Please add items to cart before proceeding.', type: 'warning' });
+            } else {
+                alert('Cart is empty.');
+            }
             return false;
-
         }
 
-        const discountType =
-            this.discountType?.value;
+        const discountType = this.discountType?.value;
 
-        if (
-            [
-                'senior',
-                'pwd',
-                'student',
-                'employee'
-            ].includes(
-                discountType
-            )
-        ) {
-
-            if (
-                !this.discountHolder.value.trim()
-            ) {
-
-                alert(
-                    'Customer name is required.'
-                );
-
+        if (['senior', 'pwd', 'student', 'employee'].includes(discountType)) {
+            if (!this.discountHolder.value.trim()) {
+                if (typeof window.appAlert === 'function') {
+                    window.appAlert({ title: 'ID Name Required', text: 'Please enter cardholder name as shown on ID.', type: 'warning' });
+                } else {
+                    alert('Customer name is required.');
+                }
                 return false;
-
             }
 
-            if (
-                !this.discountIdNo.value.trim()
-            ) {
-
-                alert(
-                    'ID number is required.'
-                );
-
-                return false;
-
+            if (!this.discountIdNo.value.trim()) {
+                if (typeof window.appAlert === 'function') {
+                    window.appAlert({ title: 'ID Number Required', text: 'Please enter ID number for special discount.', type: 'warning' });
+                } else {
+                    alert('ID number is required.');
+                }
             }
-
         }
-
-        if (
-            !this.state.payments ||
-            this.state.payments.length === 0
-        ) {
-
-            alert(
-                'No payment entered.'
-            );
-
+        if (!this.state.payments || this.state.payments.length === 0) {
+            if (typeof window.appAlert === 'function') {
+                window.appAlert({ title: 'No Payment Tendered', text: 'Please enter at least one payment method.', type: 'warning' });
+            } else {
+                alert('No payment entered.');
+            }
             return false;
-
         }
 
         if (
@@ -2485,17 +2320,17 @@ window.onload = () => {
     },
     openCheckout() {
 
-        if (
-            !this.state.cart ||
-            this.state.cart.length === 0
-        ) {
-
-            alert(
-                'Cart is empty.'
-            );
-
+        if (!this.state.cart || this.state.cart.length === 0) {
+            if (typeof window.appAlert === 'function') {
+                window.appAlert({
+                    title: 'Cart is Empty',
+                    text: 'Please select items to add to cart before opening checkout.',
+                    type: 'warning'
+                });
+            } else {
+                alert('Cart is empty.');
+            }
             return;
-
         }
 
         // Only reset discount and payment lines if this is a genuinely fresh checkout!
@@ -2601,8 +2436,8 @@ window.onload = () => {
                 const name = (p.name || '').toLowerCase();
                 const barcode = (p.barcode || '').toLowerCase();
                 const sku = (p.sku || '').toLowerCase();
-                const variantMatch = p.variants && Array.isArray(p.variants) && p.variants.some(v => 
-                    (v.variant_name || '').toLowerCase().includes(keyword) || 
+                const variantMatch = p.variants && Array.isArray(p.variants) && p.variants.some(v =>
+                    (v.variant_name || '').toLowerCase().includes(keyword) ||
                     (v.barcode || '').toLowerCase().includes(keyword) ||
                     (v.sku || '').toLowerCase().includes(keyword)
                 );
