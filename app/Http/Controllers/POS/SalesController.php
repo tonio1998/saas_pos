@@ -1054,43 +1054,80 @@ class SalesController extends Controller
         );
     }
 
-    public function ajaxNewSale(Request $request)
+    public function cashierTransactions(Request $request)
     {
         $tenantId = auth()->user()->tenant_id;
-        $currentSaleId = $request->input('current_sale_id') ? decryptId($request->input('current_sale_id')) : null;
-        $currentSale = $currentSaleId ? POSSale::find($currentSaleId) : null;
-
-        $terminalId = $currentSale?->terminal_id ?? session('terminal_id');
-        $drawerId = $currentSale?->drawer_id ?? session('drawer_id');
-        $cashShiftId = $currentSale?->cash_shift_id ?? session('cash_shift_id');
-
-        if (!$terminalId) {
-            $terminal = POSTerminal::where('tenant_id', $tenantId)->first();
-            $terminalId = $terminal?->id;
-            $drawerId = $terminal?->drawer_id;
+        $currentSaleEncrypted = $request->query('current_sale_id');
+        $currentSaleId = null;
+        if ($currentSaleEncrypted) {
+            try {
+                $currentSaleId = decryptId($currentSaleEncrypted);
+            } catch (\Exception $e) {}
         }
 
-        $sale = new POSSale();
-        $sale->tenant_id = $tenantId;
-        $sale->terminal_id = $terminalId;
-        $sale->drawer_id = $drawerId;
-        $sale->cash_shift_id = $cashShiftId;
-        $this->setCommonFields($sale);
-        $sale->save();
+        $query = POSSale::with([
+            'customer',
+            'items.product',
+            'items.variant',
+            'payments',
+            'cashier'
+        ])
+            ->where('tenant_id', $tenantId)
+            ->where(function ($q) {
+                $q->where('cashier_id', auth()->id())
+                  ->orWhere('created_by', auth()->id())
+                  ->orWhereDate('sale_date', now())
+                  ->orWhereDate('created_at', now());
+            })
+            ->orderByDesc('id')
+            ->limit(60);
 
-        session()->put([
-            'terminal_id'   => $terminalId,
-            'drawer_id'     => $drawerId,
-            'cash_shift_id' => $cashShiftId,
-            'sale_id'       => $sale->id,
-        ]);
+        $sales = $query->get();
+
+        $todaySalesTotal = (float) $sales->where('sale_status', 'completed')->sum('total_amount');
+        $completedCount  = $sales->where('sale_status', 'completed')->count();
+        $pendingCount    = $sales->where('sale_status', '!=', 'completed')->count();
+
+        $list = $sales->map(function ($sale) use ($currentSaleId) {
+            $isCompleted = strtolower($sale->sale_status ?? '') === 'completed';
+            $customerName = $sale->customer?->CustomerName ?: ($sale->customer?->name ?? 'Walk-in Customer');
+            $totalQty = (float) $sale->items->sum('qty');
+            $itemsCount = $sale->items->count();
+
+            $itemNames = $sale->items->take(2)->map(function ($it) {
+                return $it->product_name ?: ($it->product?->name ?? 'Item');
+            })->implode(', ');
+            if ($itemsCount > 2) {
+                $itemNames .= ' +' . ($itemsCount - 2) . ' more';
+            }
+
+            return [
+                'id'              => encryptId($sale->id),
+                'sale_id_raw'     => $sale->id,
+                'sale_code'       => $sale->sale_code ?: ('#' . $sale->id),
+                'invoice_no'      => $sale->invoice_no ?: $sale->sale_code,
+                'customer_name'   => $customerName,
+                'status'          => $isCompleted ? 'completed' : 'pending',
+                'status_label'    => $isCompleted ? 'Completed (Paid)' : 'Open / In-Progress',
+                'total_amount'    => (float) ($sale->total_amount ?? 0),
+                'total_formatted' => '₱' . number_format($sale->total_amount ?? 0, 2),
+                'items_count'     => $itemsCount,
+                'total_qty'       => $totalQty,
+                'items_preview'   => $itemNames ?: 'No items yet',
+                'payment_method'  => ucfirst(str_replace('_', ' ', $sale->payment_method ?? 'cash')),
+                'time_formatted'  => $sale->sale_date ? $sale->sale_date->format('h:i A') : ($sale->created_at ? $sale->created_at->format('h:i A') : '-'),
+                'date_formatted'  => $sale->sale_date ? $sale->sale_date->format('M d, Y') : ($sale->created_at ? $sale->created_at->format('M d, Y') : '-'),
+                'is_current'      => $currentSaleId && (int)$currentSaleId === (int)$sale->id,
+                'url'             => route('sales.create', encryptId($sale->id)),
+            ];
+        });
 
         return response()->json([
-            'success' => true,
-            'sale_id' => encryptId($sale->id),
-            'sale_code' => $sale->sale_code,
-            'sale_url' => route('sales.create', [encryptId($sale->id)]),
-            'message' => 'New transaction started.'
+            'success'          => true,
+            'today_sales_total'=> '₱' . number_format($todaySalesTotal, 2),
+            'completed_count'  => $completedCount,
+            'pending_count'    => $pendingCount,
+            'transactions'     => $list,
         ]);
     }
 

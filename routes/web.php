@@ -261,7 +261,7 @@ Route::middleware('auth')->group(function(){
         Route::get('/{sale}/bir-receipt', [SalesController::class, 'birReceipt'])->name('bir-receipt');
         Route::post('/complete', [SalesController::class, 'complete'])->name('complete');
         Route::get('/{sale}/sales_details', [SalesController::class, 'sales_details']);
-        Route::post('/new-transaction', [SalesController::class, 'ajaxNewSale'])->name('new-transaction');
+        Route::get('/cashier-transactions', [SalesController::class, 'cashierTransactions'])->name('cashier-transactions');
         Route::post('/customers/quick-store', [CustomerController::class, 'quickStore'])->name('quick-store');
         Route::post('/{customers}/customer', [SalesController::class, 'updateCustomer'])->name('quick-store-2');
     });

@@ -37,12 +37,16 @@ Route::prefix('v1')->group(function () {
         Route::post('/customers/{id}/credit-limit', [POSApiController::class, 'updateCreditLimit']);
         Route::get('/customers/{id}/ledger', [POSApiController::class, 'customerLedger']);
         Route::get('/customers/{id}/sales', [POSApiController::class, 'customerSales']);
-        Route::post('/customers/collections', [POSApiController::class, 'payUtangCollection']);
+        Route::get('/dashboard', [POSApiController::class, 'dashboard']);
+        Route::get('/promotions', [POSApiController::class, 'promotions']);
+        Route::get('/cash-shifts/active', [POSApiController::class, 'activeShift']);
+        Route::post('/cash-shifts/open', [POSApiController::class, 'openShift']);
+        Route::post('/cash-shifts/close', [POSApiController::class, 'closeShift']);
+        Route::get('/orders/switcher', [POSApiController::class, 'ordersSwitcher']);
 
         Route::get('/sales', [POSApiController::class, 'salesList']);
         Route::post('/sales', [POSApiController::class, 'createSale']);
         Route::get('/sales/{id}', [POSApiController::class, 'saleDetails']);
-
 
         Route::get('/reports/x-reading', [BIRReportController::class, 'xReading']);
         Route::get('/reports/z-reading', [BIRReportController::class, 'zReading']);

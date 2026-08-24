@@ -49,28 +49,38 @@
     <!-- Right: Order Switcher, Shift Info & Actions -->
     <div class="d-flex align-items-center gap-2">
         <!-- Order Switcher -->
-        <div class="d-flex align-items-center bg-light border rounded-3 p-1 gap-1">
+        <div class="d-flex align-items-center bg-light border rounded-3 p-1 gap-1 shadow-2xs">
             @if($previousSale)
-                <a href="{{ route('sales.create', encryptId($previousSale->id)) }}" class="btn btn-sm btn-white border-0 text-dark px-2 py-0.5" title="Previous Sale">
+                <a href="{{ route('sales.create', encryptId($previousSale->id)) }}" class="btn btn-sm btn-white border-0 text-dark px-2 py-0.5 rounded-2 hover-lift" title="Previous Sale">
                     <i class="bi bi-chevron-left"></i>
                 </a>
             @else
-                <button class="btn btn-sm btn-light border-0 text-muted px-2 py-0.5" disabled>
+                <button class="btn btn-sm btn-light border-0 text-muted px-2 py-0.5 rounded-2" disabled>
                     <i class="bi bi-chevron-left"></i>
                 </button>
             @endif
 
-            <div class="px-1.5 text-center">
-                <small class="text-muted text-uppercase d-block" style="font-size:0.6rem;letter-spacing:0.5px;line-height:1;">Order</small>
-                <strong class="text-dark font-mono" style="font-size:0.82rem;">#{{ $sale->sale_code }}</strong>
-            </div>
+            <button type="button" 
+                class="btn btn-sm btn-white border border-slate-200 rounded-2 px-2.5 py-0.5 text-center d-flex align-items-center gap-1.5 shadow-2xs hover-lift" 
+                id="btnOpenCashierOrdersModal" 
+                data-bs-toggle="modal" 
+                data-bs-target="#cashierOrdersModal" 
+                title="Click to view & switch between cashier transactions">
+                <div class="text-start">
+                    <small class="text-muted text-uppercase d-block fw-bold" style="font-size:0.58rem;letter-spacing:0.5px;line-height:1;">Order</small>
+                    <strong class="text-dark font-mono d-flex align-items-center gap-1" style="font-size:0.84rem;">
+                        #{{ $sale->sale_code }}
+                        <i class="bi bi-chevron-expand extra-small text-muted ms-0.5" style="font-size:0.65rem;"></i>
+                    </strong>
+                </div>
+            </button>
 
-            <a href="{{ route('sales.create', [encryptId(session('sale_id')), 'q=new']) }}" class="btn btn-sm btn-success text-white px-2 py-0.5 rounded-2 shadow-xs" style="background:#059669;border:none;" title="New Sale Order">
+            <a href="{{ route('sales.create', [encryptId(session('sale_id')), 'q=new']) }}" class="btn btn-sm btn-success text-white px-2 py-0.5 rounded-2 shadow-xs hover-lift" style="background:#059669;border:none;" title="Start New Sale Order">
                 <i class="bi bi-plus-lg"></i>
             </a>
 
             @if($nextSale)
-                <a href="{{ route('sales.create', encryptId($nextSale->id)) }}" class="btn btn-sm btn-white border-0 text-dark px-2 py-0.5" title="Next Sale">
+                <a href="{{ route('sales.create', encryptId($nextSale->id)) }}" class="btn btn-sm btn-white border-0 text-dark px-2 py-0.5 rounded-2 hover-lift" title="Next Sale">
                     <i class="bi bi-chevron-right"></i>
                 </a>
             @endif

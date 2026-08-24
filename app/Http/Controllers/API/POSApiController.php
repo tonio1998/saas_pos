@@ -14,6 +14,10 @@ use App\Models\POS\POSTenant;
 use App\Models\POS\POSCategories;
 use App\Models\POS\POSUnits;
 use App\Models\POS\POSProductVariant;
+use App\Models\POS\POSCashShift;
+use App\Models\POS\POSCashDrawer;
+use App\Models\POS\POSPromotion;
+use Carbon\Carbon;
 
 
 use App\Models\User;
@@ -1079,6 +1083,337 @@ class POSApiController extends Controller
             'total' => $sales->total(),
             'current_page' => $sales->currentPage(),
             'last_page' => $sales->lastPage(),
+        ]);
+    }
+
+    public function dashboard(Request $request)
+    {
+        $user = $this->getAuthenticatedUser($request);
+        $tenantId = $user?->tenant_id ?? $request->input('tenant_id');
+
+        if (!$tenantId) {
+            return response()->json(['success' => false, 'message' => 'Tenant ID required.'], 400);
+        }
+
+        $today = Carbon::today();
+        $yesterday = Carbon::yesterday();
+        $thisMonthStart = Carbon::now()->startOfMonth();
+
+        // 1. Sales & Growth
+        $todaySales = (float) POSSale::where('tenant_id', $tenantId)
+            ->whereDate('sale_date', $today)
+            ->whereIn('sale_status', ['completed', 'refund'])
+            ->sum('total_amount');
+
+        $yesterdaySales = (float) POSSale::where('tenant_id', $tenantId)
+            ->whereDate('sale_date', $yesterday)
+            ->whereIn('sale_status', ['completed', 'refund'])
+            ->sum('total_amount');
+
+        $salesGrowth = $yesterdaySales > 0 
+            ? round((($todaySales - $yesterdaySales) / $yesterdaySales) * 100, 1) 
+            : ($todaySales > 0 ? 100 : 0);
+
+        $todayOrdersCount = POSSale::where('tenant_id', $tenantId)
+            ->whereDate('sale_date', $today)
+            ->where('sale_status', 'completed')
+            ->count();
+
+        $monthSales = (float) POSSale::where('tenant_id', $tenantId)
+            ->where('sale_date', '>=', $thisMonthStart)
+            ->whereIn('sale_status', ['completed', 'refund'])
+            ->sum('total_amount');
+
+        // 2. Gross Profit Calculation (Today) with Variant-aware costing
+        $todaySaleIds = POSSale::where('tenant_id', $tenantId)
+            ->whereDate('sale_date', $today)
+            ->whereIn('sale_status', ['completed', 'refund'])
+            ->pluck('id');
+
+        $todayCostOfGoods = (float) POSSaleItem::whereIn('sale_id', $todaySaleIds)
+            ->leftJoin('pos_products', 'pos_sale_items.product_id', '=', 'pos_products.id')
+            ->leftJoin('pos_product_variants', 'pos_sale_items.variant_id', '=', 'pos_product_variants.id')
+            ->selectRaw('SUM(pos_sale_items.qty * COALESCE(NULLIF(pos_product_variants.cost_price, 0), pos_products.cost_price, 0)) as total_cost')
+            ->value('total_cost') ?? 0;
+
+        $todayGrossProfit = max(0, $todaySales - $todayCostOfGoods);
+        $todayProfitMargin = $todaySales > 0 ? round(($todayGrossProfit / $todaySales) * 100, 1) : 0;
+
+        // 3. Drawer Balance & Shift
+        $activeShift = POSCashShift::with(['cashier', 'drawer'])
+            ->where('tenant_id', $tenantId)
+            ->where('status', 'open')
+            ->latest('opened_at')
+            ->first();
+
+        $drawerStartingCash = $activeShift ? (float)$activeShift->opening_cash : 2000.00;
+        $shiftCashSales = $activeShift
+            ? (float) POSPayment::where('shift_id', $activeShift->id)->where('payment_method', 'cash')->sum('amount')
+            : (float) POSPayment::where('tenant_id', $tenantId)->whereDate('payment_date', $today)->where('payment_method', 'cash')->sum('amount');
+
+        $currentDrawerBalance = $drawerStartingCash + $shiftCashSales;
+
+        // 4. Receivables (Utang)
+        $totalDebits = (float) POSCustomerLedger::where('tenant_id', $tenantId)->sum('debit');
+        $totalCredits = (float) POSCustomerLedger::where('tenant_id', $tenantId)->sum('credit');
+        $totalUtangReceivables = max(0, $totalDebits - $totalCredits);
+
+        // 5. Stock Health & Valuations
+        $standaloneInventoryCost = (float) POSProducts::where('tenant_id', $tenantId)
+            ->doesntHave('variants')
+            ->selectRaw('SUM(COALESCE(stock_on_hand, 0) * COALESCE(cost_price, 0)) as total_val')
+            ->value('total_val') ?? 0;
+
+        $variantInventoryCost = (float) POSProductVariant::join('pos_products', 'pos_product_variants.product_id', '=', 'pos_products.id')
+            ->where('pos_products.tenant_id', $tenantId)
+            ->where(function ($q) {
+                $q->whereNull('pos_product_variants.status')->orWhere('pos_product_variants.status', 'active');
+            })
+            ->selectRaw('SUM(COALESCE(pos_product_variants.stock_on_hand, 0) * COALESCE(NULLIF(pos_product_variants.cost_price, 0), pos_products.cost_price, 0)) as total_val')
+            ->value('total_val') ?? 0;
+
+        $totalInventoryCost = $standaloneInventoryCost + $variantInventoryCost;
+
+        $lowStockProducts = POSProducts::where('tenant_id', $tenantId)
+            ->where(function ($q) {
+                $q->whereColumn('stock_on_hand', '<=', 'reorder_level')
+                  ->orWhere('stock_on_hand', '<=', 0);
+            })
+            ->count();
+
+        // 6. Recent Sales
+        $recentSales = POSSale::with('customer')
+            ->where('tenant_id', $tenantId)
+            ->orderByDesc('sale_date')
+            ->limit(6)
+            ->get()
+            ->map(function ($sale) {
+                return [
+                    'id' => $sale->id,
+                    'invoice_no' => $sale->invoice_no ?: $sale->sale_code,
+                    'customer_name' => $sale->customer?->CustomerName ?: ($sale->customer?->name ?? 'Walk-In Customer'),
+                    'payment_method' => ucfirst(str_replace('_', ' ', $sale->payment_method ?: 'cash')),
+                    'total_amount' => (float)$sale->total_amount,
+                    'total_amount_formatted' => '₱' . number_format($sale->total_amount, 2),
+                    'time_formatted' => $sale->sale_date ? $sale->sale_date->format('M d, h:i A') : ($sale->created_at ? $sale->created_at->format('M d, h:i A') : '-'),
+                ];
+            });
+
+        // 7. 7-Day Trend Chart
+        $startDate = Carbon::now()->subDays(6)->startOfDay();
+        $rawSales = POSSale::where('tenant_id', $tenantId)
+            ->whereIn('sale_status', ['completed', 'refund'])
+            ->whereBetween('sale_date', [$startDate, Carbon::now()->endOfDay()])
+            ->selectRaw('DATE(sale_date) as date, SUM(total_amount) as total_revenue, COUNT(CASE WHEN sale_status = \'completed\' THEN 1 END) as total_orders')
+            ->groupBy(DB::raw('DATE(sale_date)'))
+            ->get()
+            ->keyBy('date');
+
+        $trend = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $curr = Carbon::now()->subDays($i)->format('Y-m-d');
+            $trend[] = [
+                'date' => Carbon::parse($curr)->format('M d'),
+                'revenue' => (float)($rawSales[$curr]->total_revenue ?? 0),
+                'orders' => (int)($rawSales[$curr]->total_orders ?? 0),
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'kpis' => [
+                'today_sales' => $todaySales,
+                'today_sales_formatted' => '₱' . number_format($todaySales, 2),
+                'yesterday_sales' => $yesterdaySales,
+                'sales_growth' => $salesGrowth,
+                'today_orders_count' => $todayOrdersCount,
+                'month_sales' => $monthSales,
+                'month_sales_formatted' => '₱' . number_format($monthSales, 2),
+                'today_gross_profit' => $todayGrossProfit,
+                'today_gross_profit_formatted' => '₱' . number_format($todayGrossProfit, 2),
+                'today_profit_margin' => $todayProfitMargin,
+                'current_drawer_balance' => $currentDrawerBalance,
+                'current_drawer_balance_formatted' => '₱' . number_format($currentDrawerBalance, 2),
+                'total_utang_receivables' => $totalUtangReceivables,
+                'total_utang_receivables_formatted' => '₱' . number_format($totalUtangReceivables, 2),
+                'total_inventory_cost' => $totalInventoryCost,
+                'total_inventory_cost_formatted' => '₱' . number_format($totalInventoryCost, 2),
+                'low_stock_count' => $lowStockProducts,
+                'active_shift' => $activeShift ? [
+                    'id' => $activeShift->id,
+                    'shift_code' => $activeShift->shift_code ?: ('SHIFT-' . $activeShift->id),
+                    'cashier_name' => $activeShift->cashier?->name ?? 'Cashier',
+                    'opening_cash' => (float)$activeShift->opening_cash,
+                    'opened_at' => $activeShift->opened_at ? Carbon::parse($activeShift->opened_at)->format('M d, h:i A') : '-',
+                ] : null,
+            ],
+            'recent_sales' => $recentSales,
+            'sales_trend' => $trend,
+        ]);
+    }
+
+    public function promotions(Request $request)
+    {
+        $user = $this->getAuthenticatedUser($request);
+        $tenantId = $user?->tenant_id ?? $request->input('tenant_id');
+
+        $promos = POSPromotion::with(['items.product', 'items.variant'])
+            ->where('tenant_id', $tenantId)
+            ->where(function ($q) {
+                $q->whereNull('status')->orWhere('status', 'active');
+            })
+            ->orderByDesc('id')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $promos,
+        ]);
+    }
+
+    public function activeShift(Request $request)
+    {
+        $user = $this->getAuthenticatedUser($request);
+        $tenantId = $user?->tenant_id ?? $request->input('tenant_id');
+
+        $shift = POSCashShift::with(['cashier', 'drawer', 'terminal'])
+            ->where('tenant_id', $tenantId)
+            ->where('status', 'open')
+            ->latest('opened_at')
+            ->first();
+
+        if ($shift) {
+            $shiftSales = (float) POSPayment::where('shift_id', $shift->id)->sum('amount');
+            $shiftCashSales = (float) POSPayment::where('shift_id', $shift->id)->where('payment_method', 'cash')->sum('amount');
+            $currentCashInDrawer = (float)$shift->opening_cash + $shiftCashSales;
+
+            return response()->json([
+                'success' => true,
+                'has_active_shift' => true,
+                'shift' => [
+                    'id' => $shift->id,
+                    'shift_code' => $shift->shift_code ?: ('SHIFT-' . $shift->id),
+                    'cashier_name' => $shift->cashier?->name ?? ($user?->name ?? 'Cashier'),
+                    'drawer_name' => $shift->drawer?->drawer_name ?? 'Main Drawer',
+                    'opening_cash' => (float)$shift->opening_cash,
+                    'opening_cash_formatted' => '₱' . number_format($shift->opening_cash, 2),
+                    'shift_sales' => $shiftSales,
+                    'shift_sales_formatted' => '₱' . number_format($shiftSales, 2),
+                    'current_cash' => $currentCashInDrawer,
+                    'current_cash_formatted' => '₱' . number_format($currentCashInDrawer, 2),
+                    'opened_at' => $shift->opened_at ? Carbon::parse($shift->opened_at)->format('M d, Y h:i A') : '-',
+                ]
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'has_active_shift' => false,
+            'shift' => null,
+        ]);
+    }
+
+    public function openShift(Request $request)
+    {
+        $user = $this->getAuthenticatedUser($request);
+        $tenantId = $user?->tenant_id ?? $request->input('tenant_id');
+
+        $request->validate([
+            'opening_cash' => 'required|numeric|min:0',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        $existing = POSCashShift::where('tenant_id', $tenantId)->where('status', 'open')->first();
+        if ($existing) {
+            return response()->json([
+                'success' => false,
+                'message' => 'There is already an active open shift (' . ($existing->shift_code ?: $existing->id) . '). Close it first.',
+            ], 422);
+        }
+
+        $shift = new POSCashShift();
+        $shift->tenant_id = $tenantId;
+        $shift->cashier_id = $user?->id ?? auth()->id();
+        $shift->opening_cash = $request->input('opening_cash', 2000);
+        $shift->status = 'open';
+        $shift->opened_at = now();
+        $shift->notes = $request->input('notes');
+        $shift->shift_code = 'SHIFT-' . date('YmdHis');
+        $shift->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cash shift opened successfully.',
+            'shift' => $shift,
+        ]);
+    }
+
+    public function closeShift(Request $request)
+    {
+        $user = $this->getAuthenticatedUser($request);
+        $tenantId = $user?->tenant_id ?? $request->input('tenant_id');
+
+        $shift = POSCashShift::where('tenant_id', $tenantId)->where('status', 'open')->latest('opened_at')->first();
+        if (!$shift) {
+            return response()->json(['success' => false, 'message' => 'No active shift found to close.'], 404);
+        }
+
+        $actualCash = (float) $request->input('actual_cash', 0);
+        $shiftCashSales = (float) POSPayment::where('shift_id', $shift->id)->where('payment_method', 'cash')->sum('amount');
+        $expectedCash = (float)$shift->opening_cash + $shiftCashSales;
+        $shortageExcess = $actualCash - $expectedCash;
+
+        $shift->closing_cash = $actualCash;
+        $shift->expected_cash = $expectedCash;
+        $shift->difference = $shortageExcess;
+        $shift->status = 'closed';
+        $shift->closed_at = now();
+        $shift->closing_notes = $request->input('notes');
+        $shift->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Shift closed successfully.',
+            'shift' => $shift,
+        ]);
+    }
+
+    public function ordersSwitcher(Request $request)
+    {
+        $user = $this->getAuthenticatedUser($request);
+        $tenantId = $user?->tenant_id ?? $request->input('tenant_id');
+
+        $sales = POSSale::with(['customer', 'items', 'payments', 'cashier'])
+            ->where('tenant_id', $tenantId)
+            ->orderByDesc('id')
+            ->limit(50)
+            ->get()
+            ->map(function ($sale) {
+                $isCompleted = strtolower($sale->sale_status ?? '') === 'completed';
+                $customerName = $sale->customer?->CustomerName ?: ($sale->customer?->name ?? 'Walk-in Customer');
+                $itemsCount = $sale->items->count();
+                $totalQty = (float) $sale->items->sum('qty');
+
+                return [
+                    'id' => $sale->id,
+                    'sale_code' => $sale->sale_code ?: ('#' . $sale->id),
+                    'invoice_no' => $sale->invoice_no ?: $sale->sale_code,
+                    'customer_name' => $customerName,
+                    'status' => $isCompleted ? 'completed' : 'pending',
+                    'status_label' => $isCompleted ? 'Completed (Paid)' : 'Open / In-Progress',
+                    'total_amount' => (float)$sale->total_amount,
+                    'total_formatted' => '₱' . number_format($sale->total_amount, 2),
+                    'items_count' => $itemsCount,
+                    'total_qty' => $totalQty,
+                    'payment_method' => ucfirst(str_replace('_', ' ', $sale->payment_method ?? 'cash')),
+                    'time_formatted' => $sale->sale_date ? $sale->sale_date->format('h:i A') : ($sale->created_at ? $sale->created_at->format('h:i A') : '-'),
+                    'date_formatted' => $sale->sale_date ? $sale->sale_date->format('M d, Y') : ($sale->created_at ? $sale->created_at->format('M d, Y') : '-'),
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $sales,
         ]);
     }
 }

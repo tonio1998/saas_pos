@@ -733,26 +733,270 @@
         </div>
     </div>
 
+    {{-- Cashier Orders & Quick Switcher Modal --}}
+    <div class="modal fade" id="cashierOrdersModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow-2xl rounded-4 overflow-hidden">
+                <!-- Header -->
+                <div class="modal-header bg-white border-bottom py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-3 p-2.5 d-flex align-items-center justify-content-center text-white shadow-xs" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); width: 44px; height: 44px;">
+                            <i class="bi bi-receipt-cutoff fs-5"></i>
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-center gap-2">
+                                <h5 class="modal-title fw-black text-dark font-mono mb-0" style="letter-spacing:-0.3px;">Cashier Order Switcher</h5>
+                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-0.5 extra-small fw-bold">Live Register</span>
+                            </div>
+                            <small class="text-muted extra-small">Browse transactions and quickly switch or jump to any order.</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="{{ route('sales.create', [encryptId(session('sale_id')), 'q=new']) }}" class="btn btn-sm btn-success fw-bold rounded-pill px-3 py-1.5 shadow-xs d-flex align-items-center gap-1.5" style="background:#059669;border:none;">
+                            <i class="bi bi-plus-circle-fill"></i>
+                            <span>Start New Sale</span>
+                        </a>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                </div>
+
+                <!-- KPI Summary Pills & Search Controls -->
+                <div class="bg-slate-50 border-bottom p-3.5">
+                    <div class="row g-2.5 align-items-center justify-content-between">
+                        <div class="col-lg-5 col-12">
+                            <div class="position-relative">
+                                <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                                <input type="text" id="inpSearchCashierOrders" class="form-control rounded-pill ps-5 pe-3 py-2 bg-white border" placeholder="Search order #, customer, item, or amount..." autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="col-lg-7 col-12 d-flex align-items-center justify-content-lg-end gap-2 flex-wrap">
+                            <div class="btn-group btn-group-sm rounded-pill p-0.5 bg-white border shadow-2xs" id="orderFilterTabs">
+                                <button type="button" class="btn btn-sm btn-filter-order active rounded-pill px-3 py-1 fw-bold" data-status="all" style="background:#059669;color:#fff;border:none;">All</button>
+                                <button type="button" class="btn btn-sm btn-filter-order rounded-pill px-3 py-1 fw-bold btn-light border-0 text-muted" data-status="completed">Paid / Completed</button>
+                                <button type="button" class="btn btn-sm btn-filter-order rounded-pill px-3 py-1 fw-bold btn-light border-0 text-muted" data-status="pending">Open / In-Progress</button>
+                            </div>
+                            <span class="text-muted extra-small ms-1 font-mono d-none d-md-inline" id="txtOrderCountLabel">Loading orders...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Body: Table of Orders -->
+                <div class="modal-body p-0" style="min-height: 380px;">
+                    <div id="cashierOrdersLoader" class="text-center py-5">
+                        <div class="spinner-border text-success" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="text-muted small mt-2 mb-0">Fetching cashier transactions...</p>
+                    </div>
+
+                    <div id="cashierOrdersContainer" class="d-none">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
+                                <thead class="bg-slate-100 text-muted extra-small text-uppercase font-mono border-bottom">
+                                    <tr>
+                                        <th class="ps-4 py-2.5">Order # / Time</th>
+                                        <th class="py-2.5">Customer</th>
+                                        <th class="py-2.5">Items Summary</th>
+                                        <th class="py-2.5 text-end">Total Amount</th>
+                                        <th class="py-2.5 text-center">Status</th>
+                                        <th class="py-2.5 text-center">Payment</th>
+                                        <th class="pe-4 py-2.5 text-end">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cashierOrdersTableBody">
+                                    <!-- Populated dynamically by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="cashierOrdersEmptyState" class="text-center py-5 d-none">
+                        <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center p-3 mb-2 text-muted">
+                            <i class="bi bi-inbox fs-3"></i>
+                        </div>
+                        <h6 class="fw-bold text-dark mb-1">No Transactions Found</h6>
+                        <p class="text-muted small mb-0">No matching sales records for this cashier / filter.</p>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer bg-light border-top py-2.5 px-4 d-flex align-items-center justify-content-between">
+                    <small class="text-muted extra-small">
+                        <i class="bi bi-info-circle me-1 text-primary"></i> Tip: Click on any order row or the <strong>Switch</strong> button to jump to that transaction immediately.
+                    </small>
+                    <button type="button" class="btn btn-sm btn-secondary rounded-pill px-3 py-1.5 fw-bold" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Theme toggle
             const toggle = document.getElementById('themeToggle');
+            if (toggle) {
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+                toggle.checked = savedTheme === 'dark';
+                toggle.addEventListener('change', function () {
+                    const theme = this.checked ? 'dark' : 'light';
+                    document.documentElement.setAttribute('data-theme', theme);
+                    localStorage.setItem('theme', theme);
+                });
+            }
 
-            if (!toggle) return;
+            // Cashier Orders Switcher Modal Handler
+            const ordersModalEl = document.getElementById('cashierOrdersModal');
+            if (!ordersModalEl) return;
 
-            // Restore saved theme
-            const savedTheme = localStorage.getItem('theme') || 'light';
+            let cachedTransactions = [];
+            let activeStatusFilter = 'all';
 
-            document.documentElement.setAttribute('data-theme', savedTheme);
+            const loader = document.getElementById('cashierOrdersLoader');
+            const container = document.getElementById('cashierOrdersContainer');
+            const emptyState = document.getElementById('cashierOrdersEmptyState');
+            const tbody = document.getElementById('cashierOrdersTableBody');
+            const searchInput = document.getElementById('inpSearchCashierOrders');
+            const countLabel = document.getElementById('txtOrderCountLabel');
+            const currentSaleId = document.getElementById('saleId')?.value || '';
 
-            toggle.checked = savedTheme === 'dark';
+            async function loadCashierTransactions() {
+                loader.classList.remove('d-none');
+                container.classList.add('d-none');
+                emptyState.classList.add('d-none');
 
-            // Switch theme
-            toggle.addEventListener('change', function () {
-                const theme = this.checked ? 'dark' : 'light';
+                try {
+                    const res = await fetch(`/sales/cashier-transactions?current_sale_id=${encodeURIComponent(currentSaleId)}`, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
 
-                document.documentElement.setAttribute('data-theme', theme);
+                    if (!res.ok) throw new Error('Failed to load transactions');
+                    const data = await res.json();
+                    cachedTransactions = data.transactions || [];
+                    renderTransactionList();
+                } catch (e) {
+                    console.error('Failed to load cashier orders:', e);
+                    loader.classList.add('d-none');
+                    emptyState.classList.remove('d-none');
+                }
+            }
 
-                localStorage.setItem('theme', theme);
+            function renderTransactionList() {
+                loader.classList.add('d-none');
+
+                const keyword = (searchInput?.value || '').trim().toLowerCase();
+
+                let filtered = cachedTransactions.filter(tx => {
+                    if (activeStatusFilter !== 'all' && tx.status !== activeStatusFilter) {
+                        return false;
+                    }
+                    if (keyword) {
+                        const code = (tx.sale_code || '').toLowerCase();
+                        const inv = (tx.invoice_no || '').toLowerCase();
+                        const cust = (tx.customer_name || '').toLowerCase();
+                        const items = (tx.items_preview || '').toLowerCase();
+                        const amt = String(tx.total_amount || '');
+                        const amtFmt = (tx.total_formatted || '').toLowerCase();
+
+                        return code.includes(keyword) || inv.includes(keyword) || cust.includes(keyword) || items.includes(keyword) || amt.includes(keyword) || amtFmt.includes(keyword);
+                    }
+                    return true;
+                });
+
+                if (countLabel) {
+                    countLabel.textContent = `Showing ${filtered.length} of ${cachedTransactions.length} orders`;
+                }
+
+                if (filtered.length === 0) {
+                    container.classList.add('d-none');
+                    emptyState.classList.remove('d-none');
+                    return;
+                }
+
+                emptyState.classList.add('d-none');
+                container.classList.remove('d-none');
+
+                tbody.innerHTML = filtered.map(tx => {
+                    const isCurrent = tx.is_current;
+                    const isCompleted = tx.status === 'completed';
+                    const rowClass = isCurrent ? 'bg-success bg-opacity-10 border-start border-3 border-success' : 'cursor-pointer';
+
+                    return `
+                        <tr class="${rowClass}" onclick="window.location.href='${tx.url}'" style="cursor: pointer; transition: background 0.15s ease;">
+                            <td class="ps-4 py-2.5">
+                                <div class="d-flex align-items-center gap-2">
+                                    <strong class="font-mono text-dark fs-6">${tx.sale_code}</strong>
+                                    ${isCurrent ? `<span class="badge bg-success text-white rounded-pill px-2 py-0.5 extra-small fw-bold"><i class="bi bi-check-circle-fill me-0.5"></i> Active Now</span>` : ''}
+                                </div>
+                                <div class="extra-small text-muted font-mono mt-0.5">${tx.date_formatted} &bull; ${tx.time_formatted}</div>
+                            </td>
+                            <td class="py-2.5">
+                                <div class="fw-bold text-dark small text-truncate" style="max-width:180px;">${tx.customer_name}</div>
+                            </td>
+                            <td class="py-2.5">
+                                <div class="text-truncate text-muted small" style="max-width:220px;" title="${tx.items_preview}">
+                                    ${tx.items_preview}
+                                </div>
+                                <div class="extra-small text-secondary font-mono">${tx.items_count} item${tx.items_count > 1 ? 's' : ''} (${tx.total_qty} pcs)</div>
+                            </td>
+                            <td class="py-2.5 text-end">
+                                <span class="fw-black font-mono fs-6 text-dark">${tx.total_formatted}</span>
+                            </td>
+                            <td class="py-2.5 text-center">
+                                ${isCompleted 
+                                    ? `<span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 extra-small fw-bold"><i class="bi bi-check2 me-0.5"></i> Paid</span>`
+                                    : `<span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2.5 py-1 extra-small fw-bold"><i class="bi bi-hourglass-split me-0.5"></i> Open</span>`
+                                }
+                            </td>
+                            <td class="py-2.5 text-center">
+                                <span class="badge bg-light border text-muted extra-small font-mono px-2 py-0.5">${tx.payment_method}</span>
+                            </td>
+                            <td class="pe-4 py-2.5 text-end" onclick="event.stopPropagation();">
+                                ${isCurrent
+                                    ? `<button class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 extra-small fw-bold" disabled>Current</button>`
+                                    : `<a href="${tx.url}" class="btn btn-sm btn-primary rounded-pill px-3 py-1 extra-small fw-bold shadow-2xs hover-lift"><i class="bi bi-box-arrow-in-right me-1"></i> Switch</a>`
+                                }
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            ordersModalEl.addEventListener('show.bs.modal', function () {
+                loadCashierTransactions();
+            });
+
+            ordersModalEl.addEventListener('shown.bs.modal', function () {
+                if (searchInput) {
+                    searchInput.value = '';
+                    searchInput.focus();
+                }
+            });
+
+            if (searchInput) {
+                searchInput.addEventListener('input', renderTransactionList);
+            }
+
+            document.querySelectorAll('.btn-filter-order').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    document.querySelectorAll('.btn-filter-order').forEach(b => {
+                        b.classList.remove('active');
+                        b.classList.add('btn-light', 'text-muted');
+                        b.style.background = '';
+                        b.style.color = '';
+                    });
+
+                    this.classList.add('active');
+                    this.classList.remove('btn-light', 'text-muted');
+                    this.style.background = '#059669';
+                    this.style.color = '#fff';
+
+                    activeStatusFilter = this.dataset.status;
+                    renderTransactionList();
+                });
             });
         });
     </script>
