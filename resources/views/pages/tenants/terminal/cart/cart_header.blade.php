@@ -37,6 +37,26 @@
     </div>
 </div>
 
+@if($isSalePaid ?? false)
+    <div class="px-3 py-1.5 border-bottom d-flex align-items-center justify-content-between gap-1.5" style="background: #ecfdf5; border-color: #a7f3d0; flex-shrink: 0;">
+        <span class="badge bg-success text-white font-mono fw-bold px-2.5 py-1 extra-small">
+            <i class="bi bi-check-circle-fill me-1"></i>PAID TRANSACTION
+        </span>
+        <small class="text-success fw-bold extra-small font-mono">Archived Receipt</small>
+    </div>
+@else
+    <!-- Multi-Sale / Multi-Transaction Tabs Bar -->
+    <div class="pos-order-tabs-bar px-3 py-1.5 bg-white border-bottom d-flex align-items-center justify-content-between gap-1.5" id="posOrderTabsBar" style="flex-shrink: 0; background: #f8fafc;">
+        <div id="orderTabsContainer" class="d-flex align-items-center gap-1.5 flex-grow-1 overflow-x-auto py-0.5" style="scrollbar-width: thin;">
+            <!-- Populated dynamically by JS -->
+        </div>
+        <button type="button" class="btn btn-sm btn-success rounded-pill px-2.5 py-1 extra-small fw-bold shadow-xs d-flex align-items-center gap-1 flex-shrink-0" id="btnNewOrderTab" style="background:#059669;border:none;" title="Start a new transaction / Next Customer">
+            <i class="bi bi-plus-lg"></i>
+            <span>Next Sale</span>
+        </button>
+    </div>
+@endif
+
 <div
     class="modal fade"
     id="customerModal"

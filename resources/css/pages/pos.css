@@ -195,8 +195,9 @@ body {
 }
 
 .pos-right {
-    width: 420px;
-    min-width: 420px;
+    width: 380px;
+    min-width: 350px;
+    max-width: 400px;
     background: #ffffff;
     border-left: 1px solid var(--border);
     display: flex;
@@ -204,6 +205,46 @@ body {
     height: 100%;
     overflow: hidden;
 }
+
+.pos-receipt-pane {
+    width: 330px;
+    min-width: 310px;
+    max-width: 360px;
+    background: #f8fafc;
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.pos-receipt-paper-wrapper {
+    background: #f1f5f9;
+}
+
+.pos-thermal-paper {
+    width: 100%;
+    max-width: 290px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    position: relative;
+}
+
+.pos-receipt-divider {
+    border-top: 1px dashed #94a3b8;
+}
+
+.pos-receipt-divider-double {
+    border-top: 3px double #475569;
+}
+
+@media (max-width: 1200px) {
+    .pos-receipt-pane {
+        display: none !important;
+    }
+}
+
 .brand-area {
 
     display: flex;

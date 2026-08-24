@@ -47,12 +47,15 @@ class POSCustomers extends Model
         );
     }
 
+    public function getNameAttribute()
+    {
+        return $this->CustomerName ?: $this->full_name;
+    }
+
     public function getFullNameAttribute()
     {
         return trim(
-            $this->first_name . ' ' .
-            $this->middle_name . ' ' .
-            $this->last_name
+            $this->CustomerName ?: ($this->first_name . ' ' . $this->middle_name . ' ' . $this->last_name)
         );
     }
 

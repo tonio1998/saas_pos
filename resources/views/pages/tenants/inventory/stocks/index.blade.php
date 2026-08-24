@@ -22,6 +22,11 @@
         </div>
 
         <div class="d-flex align-items-center gap-2 flex-wrap">
+            <button type="button" class="btn btn-warning fw-bold px-3.5 py-2 rounded-3 shadow-xs d-flex align-items-center gap-2 hover-lift text-dark" data-bs-toggle="modal" data-bs-target="#modalRapidRestock">
+                <i class="bi bi-lightning-charge-fill text-dark fs-6"></i>
+                <span>⚡ Rapid Restock Scanner</span>
+            </button>
+
             <a href="{{ route('stocks.adjustments.index') }}" class="btn btn-white border rounded-3 px-3 py-2 fw-bold text-dark extra-small shadow-xs hover-lift d-flex align-items-center gap-1.5">
                 <i class="bi bi-sliders text-warning"></i>
                 <span>Stock Adjustments</span>
@@ -337,6 +342,122 @@
                     </tbody>
                 </table>
             </div>
+</div>
+
+{{-- Rapid Restock Scanner Modal --}}
+<div class="modal fade" id="modalRapidRestock" tabindex="-1" aria-labelledby="modalRapidRestockLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-dark text-white border-0 px-4 py-3">
+                <div>
+                    <h5 class="modal-title fw-black font-mono mb-0 text-white" id="modalRapidRestockLabel">
+                        <i class="bi bi-lightning-charge-fill text-warning me-2"></i>⚡ Rapid Restock Scanner
+                    </h5>
+                    <div class="text-white-50 extra-small">Continuous barcode scanning & instant stock-in for supermarket/palengke grocery purchases</div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-4 bg-light">
+                {{-- Scanner Input Box --}}
+                <div class="card border-0 shadow-sm rounded-4 bg-white p-3.5 mb-3">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-12 col-md-8">
+                            <label class="form-label fw-bold small text-dark">
+                                <i class="bi bi-upc-scan text-primary me-1"></i> Scan Barcode or Type SKU <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <input type="text" id="inpScanBarcode" class="form-control form-control-lg font-mono fw-black text-dark rounded-start-3" placeholder="Scan barcode with scanner gun..." autofocus>
+                                <button type="button" id="btnLookupBarcode" class="btn btn-dark px-4 fw-bold font-mono">
+                                    <i class="bi bi-search me-1"></i> Lookup
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label fw-bold small text-dark">
+                                <i class="bi bi-plus-circle text-success me-1"></i> +Qty to Add <span class="text-danger">*</span>
+                            </label>
+                            <input type="number" id="inpAddQty" class="form-control form-control-lg font-mono fw-black text-success rounded-3 text-center" value="10" min="0.01" step="any">
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Product Preview Box --}}
+                <div id="boxScannedProduct" class="card border-0 shadow-sm rounded-4 bg-white p-3.5 mb-3" style="display:none;">
+                    <div class="d-flex align-items-start justify-content-between">
+                        <div>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle extra-small font-mono mb-1">
+                                <i class="bi bi-check-circle-fill me-1"></i>PRODUCT IDENTIFIED
+                            </span>
+                            <h4 class="fw-black text-dark font-mono mb-1" id="lblScanProdName">—</h4>
+                            <div class="text-muted small font-mono">
+                                SKU: <span id="lblScanProdSku" class="fw-bold text-dark">—</span> | 
+                                Barcode: <span id="lblScanProdBarcode" class="fw-bold text-dark">—</span>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="text-muted extra-small font-mono text-uppercase">Current Stock</div>
+                            <div class="h3 fw-black text-primary font-mono mb-0" id="lblScanCurrentStock">0</div>
+                        </div>
+                    </div>
+
+                    <hr class="my-2.5">
+
+                    <div class="row g-2 align-items-end">
+                        <div class="col-6 col-md-4">
+                            <label class="form-label extra-small text-uppercase fw-bold text-muted mb-1">Cost Price (₱)</label>
+                            <input type="number" step="0.01" id="inpScanCostPrice" class="form-control form-control-sm font-mono rounded-3">
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <label class="form-label extra-small text-uppercase fw-bold text-muted mb-1">Expiry Date (Optional)</label>
+                            <input type="date" id="inpScanExpiryDate" class="form-control form-control-sm rounded-3">
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <button type="button" id="btnSubmitQuickStockIn" class="btn btn-success fw-bold w-100 py-1.5 rounded-3 shadow-xs d-flex align-items-center justify-content-center gap-1.5">
+                                <i class="bi bi-plus-lg"></i>
+                                <span>Add Stock (Enter)</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Recent Session Stock In Activity Log --}}
+                <div class="card border-0 shadow-sm rounded-4 bg-white p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="extra-small fw-bold font-mono text-uppercase text-muted">
+                            <i class="bi bi-clock-history me-1"></i>Restocked Items This Session
+                        </span>
+                        <span class="badge bg-light text-dark border font-mono" id="lblSessionRestockCount">0 items</span>
+                    </div>
+
+                    <div class="table-responsive" style="max-height: 180px; overflow-y: auto;">
+                        <table class="table table-sm table-hover align-middle mb-0 extra-small">
+                            <thead class="bg-light text-muted font-mono">
+                                <tr>
+                                    <th>Product Name</th>
+                                    <th class="text-center">Added</th>
+                                    <th class="text-end">New Stock</th>
+                                    <th class="text-end">Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tblRecentRestocksBody">
+                                <tr id="rowEmptyRecentRestock">
+                                    <td colspan="4" class="text-center text-muted py-3">
+                                        Scan a barcode above to quickly restock items.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer bg-light border-0 px-4 py-3">
+                <button type="button" class="btn btn-sm btn-dark fw-bold rounded-pill px-4" data-bs-dismiss="modal" onclick="location.reload();">
+                    Done & Refresh Stocks
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -345,17 +466,136 @@
 @push('scripts')
 <script>
 (function () {
+    function initStocksTable($) {
+        $('#stocksMasterTable').DataTable({
+            responsive: true,
+            order: [[1, 'asc']],
+            pageLength: 25
+        });
+
+        // ── Rapid Restock Scanner Logic ─────────────────────────────
+        let activeProduct = null;
+        let sessionCount = 0;
+
+        $('#modalRapidRestock').on('shown.bs.modal', function () {
+            $('#inpScanBarcode').val('').focus();
+        });
+
+        // Handle Barcode Scan / Enter
+        $('#inpScanBarcode').on('keypress', function (e) {
+            if (e.which === 13) {
+                e.preventDefault();
+                lookupScannedBarcode();
+            }
+        });
+
+        $('#btnLookupBarcode').on('click', function () {
+            lookupScannedBarcode();
+        });
+
+        function lookupScannedBarcode() {
+            const barcode = $('#inpScanBarcode').val().trim();
+            if (!barcode) return;
+
+            $.ajax({
+                url: "{{ route('stocks.adjustments.find-barcode') }}",
+                type: 'GET',
+                data: { barcode: barcode },
+                success: function (res) {
+                    if (res && res.success) {
+                        activeProduct = res;
+                        $('#lblScanProdName').text(res.name);
+                        $('#lblScanProdSku').text(res.sku || 'N/A');
+                        $('#lblScanProdBarcode').text(res.barcode || 'N/A');
+                        $('#lblScanCurrentStock').text(res.current_stock + ' ' + res.unit);
+                        $('#inpScanCostPrice').val(res.cost_price);
+
+                        $('#boxScannedProduct').slideDown();
+                        $('#inpAddQty').focus().select();
+                    }
+                },
+                error: function (xhr) {
+                    alert(xhr.responseJSON?.message || 'Product not found for barcode: ' + barcode);
+                    $('#inpScanBarcode').focus().select();
+                }
+            });
+        }
+
+        // Handle Add Quantity Enter
+        $('#inpAddQty, #inpScanCostPrice').on('keypress', function (e) {
+            if (e.which === 13) {
+                e.preventDefault();
+                submitQuickStockIn();
+            }
+        });
+
+        $('#btnSubmitQuickStockIn').on('click', function () {
+            submitQuickStockIn();
+        });
+
+        function submitQuickStockIn() {
+            if (!activeProduct) return;
+
+            const qty = parseFloat($('#inpAddQty').val()) || 0;
+            if (qty <= 0) {
+                alert('Please enter a valid quantity to add.');
+                return;
+            }
+
+            const costPrice = $('#inpScanCostPrice').val();
+            const expiryDate = $('#inpScanExpiryDate').val();
+
+            $.ajax({
+                url: "{{ route('stocks.adjustments.quick-stock-in') }}",
+                type: 'POST',
+                data: {
+                    product_id: activeProduct.product_id,
+                    variant_id: activeProduct.variant_id,
+                    qty_to_add: qty,
+                    cost_price: costPrice,
+                    expiry_date: expiryDate
+                },
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                success: function (res) {
+                    if (res && res.success) {
+                        sessionCount++;
+                        $('#lblSessionRestockCount').text(sessionCount + ' item' + (sessionCount === 1 ? '' : 's'));
+
+                        $('#rowEmptyRecentRestock').remove();
+                        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                        $('#tblRecentRestocksBody').prepend(`
+                            <tr>
+                                <td class="fw-bold text-dark">${res.product_name}</td>
+                                <td class="text-center font-mono fw-black text-success">+${qty}</td>
+                                <td class="text-end font-mono fw-bold text-dark">${res.new_stock}</td>
+                                <td class="text-end text-muted font-mono">${time}</td>
+                            </tr>
+                        `);
+
+                        // Reset for next scan
+                        activeProduct = null;
+                        $('#boxScannedProduct').slideUp();
+                        $('#inpScanBarcode').val('').focus();
+                    }
+                },
+                error: function (xhr) {
+                    alert(xhr.responseJSON?.message || 'Failed to add stock.');
+                }
+            });
+        }
+    }
+
     function checkJQuery() {
         if (window.$ && window.$.fn && window.$.fn.DataTable) {
-            window.$('#stocksMasterTable').DataTable({
-                responsive: true,
-                order: [[1, 'asc']],
-                pageLength: 25
-            });
+            initStocksTable(window.$);
         } else {
             setTimeout(checkJQuery, 50);
         }
     }
+
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
         checkJQuery();
     } else {

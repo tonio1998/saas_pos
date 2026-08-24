@@ -261,11 +261,11 @@ Route::middleware('auth')->group(function(){
         Route::get('/{sale}/bir-receipt', [SalesController::class, 'birReceipt'])->name('bir-receipt');
         Route::post('/complete', [SalesController::class, 'complete'])->name('complete');
         Route::get('/{sale}/sales_details', [SalesController::class, 'sales_details']);
-        Route::get('/terminal/{sale}/new-sale', [SalesController::class, 'create'])->name('new');
-
+        Route::post('/new-transaction', [SalesController::class, 'ajaxNewSale'])->name('new-transaction');
         Route::post('/customers/quick-store', [CustomerController::class, 'quickStore'])->name('quick-store');
         Route::post('/{customers}/customer', [SalesController::class, 'updateCustomer'])->name('quick-store-2');
     });
+
 
     Route::prefix('cashiering')->name('cashiering.')->group(function () {
         Route::prefix('cash-drawers')->name('cash-drawers.')->group(function () {
@@ -326,6 +326,11 @@ Route::middleware('auth')->group(function(){
         Route::get('suggestions', [ProductController::class, 'suggestions'])->name('suggestions');
         Route::get('import-search', [ProductController::class, 'importSearch'])->name('import-search');
 
+        Route::prefix('barcode-labels')->name('barcode-labels.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\POS\BarcodeLabelController::class, 'index'])->name('index');
+            Route::post('/print', [\App\Http\Controllers\POS\BarcodeLabelController::class, 'printPreview'])->name('print');
+        });
+
         Route::prefix('price-history')->name('price-history.')->group(function () {
             Route::get('/', [PriceHistoryController::class, 'index'])->name('index');
             Route::get('/create', [PriceHistoryController::class, 'create'])->name('create');
@@ -367,6 +372,29 @@ Route::middleware('auth')->group(function(){
 
     });
 
+    Route::prefix('promotions')->name('promotions.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\POS\PromotionController::class, 'index'])->name('index');
+        Route::get('/data', [\App\Http\Controllers\POS\PromotionController::class, 'ajaxData'])->name('data');
+        Route::post('/store', [\App\Http\Controllers\POS\PromotionController::class, 'store'])->name('store');
+        Route::get('/show/{id}', [\App\Http\Controllers\POS\PromotionController::class, 'show'])->name('show');
+        Route::put('/update/{id}', [\App\Http\Controllers\POS\PromotionController::class, 'update'])->name('update');
+        Route::post('/toggle-active/{id}', [\App\Http\Controllers\POS\PromotionController::class, 'toggleActive'])->name('toggle-active');
+        Route::delete('/delete/{id}', [\App\Http\Controllers\POS\PromotionController::class, 'destroy'])->name('destroy');
+        Route::post('/validate-promo', [\App\Http\Controllers\POS\PromotionController::class, 'validatePromo'])->name('validate');
+        Route::get('/active-promos', [\App\Http\Controllers\POS\PromotionController::class, 'getActivePromos'])->name('active-promos');
+
+        // Dedicated Separate Page for Managing Promo Items & Categories
+        Route::get('/{id}/items', [\App\Http\Controllers\POS\PromotionController::class, 'manageItems'])->name('items.index');
+        Route::get('/{id}/items/data', [\App\Http\Controllers\POS\PromotionController::class, 'itemsData'])->name('items.data');
+        Route::get('/{id}/items/catalog', [\App\Http\Controllers\POS\PromotionController::class, 'catalogData'])->name('items.catalog');
+        Route::post('/{id}/items/add-batch', [\App\Http\Controllers\POS\PromotionController::class, 'addBatchItems'])->name('items.add_batch');
+        Route::post('/{id}/items/add-barcode', [\App\Http\Controllers\POS\PromotionController::class, 'addByBarcode'])->name('items.add_barcode');
+        Route::delete('/items/remove/{itemId}', [\App\Http\Controllers\POS\PromotionController::class, 'removeItem'])->name('items.remove');
+        Route::post('/{id}/items/remove-all', [\App\Http\Controllers\POS\PromotionController::class, 'removeAllItems'])->name('items.remove_all');
+        Route::get('/profit-preview', [\App\Http\Controllers\POS\PromotionController::class, 'profitPreview'])->name('profit-preview');
+    });
+
+
     Route::prefix('stocks')->name('stocks.')->group(function () {
         Route::get('/', [StockController::class, 'index'])->name('index');
         Route::get('/create', [StockController::class, 'create'])->name('create');
@@ -379,6 +407,8 @@ Route::middleware('auth')->group(function(){
 
         Route::prefix('adjustments')->name('adjustments.')->group(function () {
             Route::get('/', [StockAdjustmentController::class, 'index'])->name('index');
+            Route::get('/find-barcode', [StockAdjustmentController::class, 'findByBarcode'])->name('find-barcode');
+            Route::post('/quick-stock-in', [StockAdjustmentController::class, 'quickStockIn'])->name('quick-stock-in');
             Route::get('/create', [StockAdjustmentController::class, 'create'])->name('create');
             Route::post('/create', [StockAdjustmentController::class, 'store'])->name('store');
             Route::get('/view/{id}', [StockAdjustmentController::class, 'show'])->name('show');
@@ -458,6 +488,7 @@ Route::middleware('auth')->group(function(){
 
     Route::prefix('expenses')->name('expenses.')->group(function () {
         Route::get('/', [ExpenseController::class, 'index'])->name('index');
+        Route::get('/kpis', [ExpenseController::class, 'kpis'])->name('kpis');
         Route::get('/create', [ExpenseController::class, 'create'])->name('create');
         Route::post('/create', [ExpenseController::class, 'store'])->name('store');
         Route::get('/edit/{id}', [ExpenseController::class, 'edit'])->name('edit');

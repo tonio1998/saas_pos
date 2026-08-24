@@ -32,147 +32,158 @@ window.buildBIRThermalReceiptHTML = function (sale, storeConfig = null, state = 
     const currSym = store.currency_symbol || '₱';
 
     return `<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Official BIR Receipt - ${invoiceNo}</title>
+<title>Sales Receipt - ${invoiceNo}</title>
 <style>
 @page {
-    size: 78mm auto;
+    size: 80mm 200mm;
     margin: 0;
 }
-html, body {
+body {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 11px;
+    color: #000;
     width: 78mm;
     margin: 0 auto;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 12px;
-    color: #000;
-    padding: 6px;
-    box-sizing: border-box;
+    padding: 4mm 2mm;
     background: #fff;
+    box-sizing: border-box;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; }
-.center { text-align: center; }
-.right { text-align: right; }
-.left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-left { text-align: left; }
 .fw-bold { font-weight: bold; }
-.fw-black { font-weight: 900; }
-.line { border-top: 1px dashed #000; margin: 5px 0; }
-.line-double { border-top: 3px double #000; margin: 5px 0; }
-.row { display: flex; justify-content: space-between; gap: 6px; }
-.item { margin-bottom: 5px; }
-.item-name { font-weight: bold; font-size: 12px; word-break: break-word; }
-.total { font-size: 14px; font-weight: 900; }
-.store-logo { max-width: 75px; max-height: 75px; object-fit: contain; margin: 0 auto 4px auto; display: block; }
-.footer-text { text-align: center; margin-top: 8px; font-size: 10px; }
+.divider {
+    border-bottom: 1px dashed #000;
+    margin: 4px 0;
+}
+.double-divider {
+    border-bottom: 3px double #000;
+    margin: 4px 0;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 2px 0;
+    vertical-align: top;
+}
+.header-title {
+    font-size: 13.5px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.footer-note {
+    font-size: 9px;
+    margin-top: 8px;
+}
+@media print {
+    .no-print { display: none; }
+}
 </style>
 </head>
 <body>
 
-<div class="center">
-    ${store.logo ? `<img src="${store.logo}" class="store-logo" alt="Store Logo">` : ''}
-    <div style="font-size:15px;font-weight:900;text-transform:uppercase;letter-spacing:0.5px;">
-        ${store.business_name || 'LikhaPOS Store'}
-    </div>
+<div class="text-center">
+    ${store.logo ? `<img src="${store.logo}" style="max-height: 48px; max-width: 120px; object-fit: contain; margin: 0 auto 4px auto; display: block;" alt="Logo">` : ''}
+    <div class="header-title">${store.business_name || 'MINIMART STORE'}</div>
     ${store.owner_name ? `<div>Prop: ${store.owner_name}</div>` : ''}
     ${store.address ? `<div>${store.address}</div>` : ''}
     ${store.phone ? `<div>Tel: ${store.phone}</div>` : ''}
-    ${store.tin ? `<div>TIN: ${store.tin} (VAT Reg)</div>` : ''}
-    ${store.header_text ? `<div style="font-style:italic;margin-top:2px;">${store.header_text}</div>` : ''}
-</div>
-
-<div class="line"></div>
-
-<div class="center">
-    <div class="fw-bold" style="font-size:12px;">SALES INVOICE / OFFICIAL RECEIPT</div>
-    <div>OR / SI #: <strong>${invoiceNo}</strong></div>
+    ${store.tin ? `<div>TIN: ${store.tin}</div>` : ''}
+    <div class="divider"></div>
+    <div class="fw-bold">SALES RECEIPT / TRANSACTION SLIP</div>
+    <div>OR / SI #: ${invoiceNo}</div>
     <div>Date: ${new Date().toLocaleString()}</div>
     <div>Cashier: ${cashierName}</div>
 </div>
 
-<div class="line"></div>
+<div class="divider"></div>
 
-${cartItems.map(item => `
-<div class="item">
-    <div class="item-name">${item.name || item.product_name}</div>
-    <div class="row">
-        <span>${item.qty} × ${currSym}${Number(item.price || item.unit_price || 0).toFixed(2)}</span>
-        <span class="fw-bold">${currSym}${Number(item.subtotal || item.line_total || (item.qty * (item.price || 0))).toFixed(2)}</span>
-    </div>
-</div>
-`).join('')}
+<div>Customer: ${sale?.customer?.name || 'Walk-in Customer'}</div>
 
-<div class="line"></div>
+<div class="divider"></div>
 
-<div class="row">
-    <span>Subtotal (Gross)</span>
-    <span>${currSym}${subtotalAmount.toFixed(2)}</span>
-</div>
+<table>
+    <thead>
+        <tr>
+            <th class="text-left">Qty Item</th>
+            <th class="text-right">Price</th>
+            <th class="text-right">Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        ${cartItems.map(item => `
+            <tr>
+                <td class="text-left">
+                    ${Number(item.qty || 1).toFixed(0)} x ${item.name || item.product_name}
+                    <span style="font-size:9px;">(V)</span>
+                </td>
+                <td class="text-right">${currSym}${Number(item.price || item.unit_price || 0).toFixed(2)}</td>
+                <td class="text-right">${currSym}${Number(item.subtotal || item.line_total || ((item.qty || 1) * (item.price || 0))).toFixed(2)}</td>
+            </tr>
+        `).join('')}
+    </tbody>
+</table>
 
-${discountAmount > 0 ? `
-<div class="row text-danger">
-    <span>Discount</span>
-    <span>-${currSym}${discountAmount.toFixed(2)}</span>
-</div>
-` : ''}
+<div class="divider"></div>
 
-<div class="line"></div>
+<table>
+    <tr>
+        <td>Subtotal (Gross):</td>
+        <td class="text-right">${currSym}${subtotalAmount.toFixed(2)}</td>
+    </tr>
+    ${discountAmount > 0 ? `
+    <tr>
+        <td>Discount:</td>
+        <td class="text-right">-${currSym}${discountAmount.toFixed(2)}</td>
+    </tr>
+    ` : ''}
+    <tr class="fw-bold">
+        <td>TOTAL AMOUNT DUE:</td>
+        <td class="text-right">${currSym}${totalAmount.toFixed(2)}</td>
+    </tr>
+    <tr>
+        <td>Payment:</td>
+        <td class="text-right">${currSym}${tenderedAmount > 0 ? tenderedAmount.toFixed(2) : totalAmount.toFixed(2)}</td>
+    </tr>
+    <tr>
+        <td>Change:</td>
+        <td class="text-right">${currSym}${changeAmount.toFixed(2)}</td>
+    </tr>
+</table>
 
-<div class="row total">
-    <span>TOTAL AMOUNT DUE</span>
-    <span>${currSym}${totalAmount.toFixed(2)}</span>
-</div>
+<div class="divider"></div>
 
-<div class="line"></div>
+<div class="fw-bold text-center">TAX BREAKDOWN (12% VAT)</div>
+<table>
+    <tr>
+        <td>VATable Sales (12%):</td>
+        <td class="text-right">${currSym}${vatableSales}</td>
+    </tr>
+    <tr>
+        <td>VAT Amount (12%):</td>
+        <td class="text-right">${currSym}${vatAmount}</td>
+    </tr>
+    <tr>
+        <td>VAT Exempt Sales:</td>
+        <td class="text-right">${currSym}0.00</td>
+    </tr>
+    <tr>
+        <td>Zero Rated Sales:</td>
+        <td class="text-right">${currSym}0.00</td>
+    </tr>
+</table>
 
-<div class="fw-bold" style="margin-bottom:2px;">PAYMENT DETAILS</div>
-${payments.length > 0 ? payments.map(p => `
-<div class="row">
-    <span>${(p.payment_method || 'CASH').replace('_', ' ').toUpperCase()}</span>
-    <span>${currSym}${Number(p.amount || 0).toFixed(2)}</span>
-</div>
-${p.reference_number ? `<div style="font-size:10px;">Ref #: ${p.reference_number}</div>` : ''}
-`).join('') : `
-<div class="row">
-    <span>CASH</span>
-    <span>${currSym}${tenderedAmount.toFixed(2)}</span>
-</div>
-`}
+<div class="double-divider"></div>
 
-<div class="line"></div>
-
-<div class="row fw-bold">
-    <span>Tendered / Paid</span>
-    <span>${currSym}${tenderedAmount.toFixed(2)}</span>
-</div>
-
-<div class="row fw-bold">
-    <span>Change</span>
-    <span>${currSym}${changeAmount.toFixed(2)}</span>
-</div>
-
-<div class="line"></div>
-
-<div class="center fw-bold" style="font-size:11px;margin-bottom:2px;">BIR TAX COMPUTATION</div>
-<div class="row" style="font-size:10px;">
-    <span>VATable Sales (12%)</span>
-    <span>${currSym}${vatableSales}</span>
-</div>
-<div class="row" style="font-size:10px;">
-    <span>VAT Amount (12%)</span>
-    <span>${currSym}${vatAmount}</span>
-</div>
-<div class="row" style="font-size:10px;">
-    <span>VAT Exempt Sales</span>
-    <span>${currSym}0.00</span>
-</div>
-
-<div class="line-double"></div>
-
-<div class="footer-text">
-    <div class="fw-bold" style="font-size:11px;white-space:pre-line;">${store.footer_text || 'THANK YOU FOR YOUR PURCHASE!\nPLEASE COME AGAIN'}</div>
-    <div style="font-size:8.5px;margin-top:4px;font-weight:bold;">THIS SERVES AS YOUR OFFICIAL RECEIPT</div>
-    <div style="font-size:8px;color:#444;">POS Engine: LikhaPOS Enterprise</div>
+<div class="text-center footer-note">
+    <div style="margin-top: 4px;" class="fw-bold">${store.footer_text || 'THANK YOU FOR YOUR PURCHASE!\nPLEASE COME AGAIN'}</div>
+    <div style="font-size: 8px; margin-top: 4px;">THIS DOCUMENT SERVES AS AN OFFICIAL SALES RECORD</div>
+    <div style="font-size: 7.5px; color: #555; margin-top: 2px;">POS Software: LikhaPOS Enterprise</div>
 </div>
 
 </body>
@@ -412,12 +423,118 @@ const POS = {
 
         await ProductDB.init();
 
+        await this.loadActivePromos();
+
         await this.loadProducts();
 
-        this.events();
+        this.bindSearch();
+        this.bindCategories();
+        this.bindPricingMode();
+        this.bindBarcodeScanner();
+        this.bindKeyboardShortcuts();
+        this.bindOrderTabsEvents();
+        this.bindDiscount();
+        this.bindCashButtons();
+        this.bindCheckout();
+        this.bindSplitPayments();
+        this.bindCustomerModalTransitions();
+        this.bindViewMode();
+        this.bindForceRefresh();
 
-        this.renderCart();
+        if (this._isSaleAlreadyPaid) {
+            const pastSaleScript = document.getElementById('pastSaleDataPayload');
+            if (pastSaleScript) {
+                try {
+                    const pastData = JSON.parse(pastSaleScript.textContent);
+                    this.state.cart = pastData.items || [];
+                    this.state.subtotal = pastData.subtotal || 0;
+                    this.state.discount = pastData.discount || 0;
+                    this.state.total = pastData.total || 0;
+                    this.state.customer_name = pastData.customer_name || 'Walk-in Customer';
+                    this.state.lastPaidSale = pastData;
 
+                    // Update customer UI
+                    const custEl = document.getElementById('cartCustomerName');
+                    if (custEl) custEl.innerHTML = `<i class="bi bi-person me-1"></i>${this.state.customer_name}`;
+
+                    this.calculateTotals();
+                    this.renderCart();
+                    this.renderSummary();
+                    this.renderLiveReceiptPreview();
+
+                    // Attach Print Receipt event
+                    const btnPrintPast = document.getElementById('btnPrintPastSaleReceipt');
+                    if (btnPrintPast && !btnPrintPast.dataset.bound) {
+                        btnPrintPast.dataset.bound = 'true';
+                        btnPrintPast.addEventListener('click', () => {
+                            this.printReceipt(pastData);
+                        });
+                    }
+
+                    return;
+                } catch (e) {
+                    console.error('Failed to parse past sale payload:', e);
+                }
+            }
+        }
+
+        this.initMultiOrdersSystem();
+
+    },
+    async loadActivePromos() {
+        try {
+            const res = await fetch('/promotions/active-promos', {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                this.state.autoPromotions = data.promotions || [];
+            }
+        } catch (e) {
+            console.warn('Failed to load auto promotions:', e);
+            this.state.autoPromotions = [];
+        }
+    },
+    getMatchingPromosForItem(productId, variantId = null, categoryId = null) {
+        if (!this.state.autoPromotions || this.state.autoPromotions.length === 0) return [];
+        const matches = [];
+        for (const promo of this.state.autoPromotions) {
+            let matched = false;
+
+            if (promo.applies_to === 'all') {
+                matched = true;
+            } else if (promo.items && Array.isArray(promo.items)) {
+                // pos_promotion_items is the strict single source of truth
+                if (variantId && promo.items.some(it => it.item_type === 'variant' && Number(it.item_id) === Number(variantId))) {
+                    matched = true;
+                } else if (productId && promo.items.some(it => it.item_type === 'product' && Number(it.item_id) === Number(productId))) {
+                    matched = true;
+                } else if (categoryId && promo.items.some(it => it.item_type === 'category' && Number(it.item_id) === Number(categoryId))) {
+                    matched = true;
+                }
+            }
+
+            if (matched) {
+                matches.push(promo);
+            }
+        }
+        return matches;
+    },
+    getItemPromo(productId, variantId = null, categoryId = null) {
+        const matches = this.getMatchingPromosForItem(productId, variantId, categoryId);
+        return matches.length > 0 ? matches[0] : null;
+    },
+    getPromoDiscountedPrice(regularPrice, promo) {
+        if (!promo || regularPrice <= 0) return regularPrice;
+        if (promo.promo_type === 'percentage') {
+            const disc = regularPrice * (parseFloat(promo.discount_value || 0) / 100);
+            return Math.max(0, regularPrice - disc);
+        } else if (promo.promo_type === 'fixed_amount') {
+            return Math.max(0, regularPrice - parseFloat(promo.discount_value || 0));
+        } else if (promo.promo_type === 'bulk_tier') {
+            return parseFloat(promo.discount_value || regularPrice);
+        }
+        return regularPrice;
     },
     formatCurrency(amount) {
 
@@ -499,12 +616,21 @@ const POS = {
                         </tr>`;
 
                     // ─── VARIANT CHILD ROWS ──────────────────────────────
-                    product.variants.forEach(v => {
+                    product.variants.filter(v => Number(v.stock_on_hand || 0) > 0).forEach(v => {
                         const vRetail = Number(v.selling_price || 0);
                         const vWholesale = Number(v.wholesale_price || 0);
                         const vActive = (isWholesale && vWholesale > 0) ? vWholesale : vRetail;
                         const vStock = Number(v.stock_on_hand || 0);
                         const vUnit = v.unit?.name || product.unit?.name || '';
+
+                        const vPromo = this.getItemPromo(product.id, v.id, product.category_id);
+                        let vPromoBadge = '';
+                        let vPromoPrice = 0;
+                        if (vPromo) {
+                            vPromoPrice = this.getPromoDiscountedPrice(vActive, vPromo);
+                            const label = vPromo.promo_type === 'percentage' ? `${parseFloat(vPromo.discount_value)}% OFF` : 'PROMO';
+                            vPromoBadge = `<span class="badge bg-danger text-white extra-small fw-bold px-1.5 py-0.5 rounded-pill"><i class="bi bi-tag-fill me-0.5"></i>${label}</span>`;
+                        }
 
                         let vStockBadge = '';
                         if (vStock <= 0) vStockBadge = `<span class="badge bg-danger-subtle text-danger border border-danger-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-x-circle me-1"></i>Out</span>`;
@@ -512,7 +638,9 @@ const POS = {
                         else vStockBadge = `<span class="badge bg-success-subtle text-success border border-success-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-check-circle me-1"></i>${vStock}</span>`;
 
                         let vPriceDisplay = '';
-                        if (isWholesale && vWholesale > 0) {
+                        if (vPromo && vPromoPrice < vActive) {
+                            vPriceDisplay = `<div class="text-end lh-sm"><div class="font-mono fw-black text-danger" style="font-size:0.88rem;">${this.formatCurrency(vPromoPrice)}</div><small class="text-muted extra-small font-mono text-decoration-line-through">${this.formatCurrency(vActive)}</small>${isWholesale ? '<span class="badge bg-primary-subtle text-primary border ms-1 extra-small" style="font-size:0.6rem;">WS</span>' : ''}</div>`;
+                        } else if (isWholesale && vWholesale > 0) {
                             vPriceDisplay = `<div class="d-flex align-items-baseline justify-content-end gap-1"><span class="font-mono fw-black text-primary" style="font-size:0.88rem;">${this.formatCurrency(vWholesale)}</span><span class="badge bg-primary-subtle text-primary border extra-small" style="font-size:0.6rem;">WS</span></div>`;
                         } else if (vWholesale > 0) {
                             vPriceDisplay = `<div class="text-end lh-sm"><div class="font-mono fw-black text-emerald" style="font-size:0.88rem;">${this.formatCurrency(vRetail)}</div><small class="text-muted extra-small font-mono" style="font-size:0.65rem;">WS: ${this.formatCurrency(vWholesale)}</small></div>`;
@@ -542,6 +670,7 @@ const POS = {
                                         <span class="badge fw-bold d-inline-flex align-items-center gap-1" style="background:#f3e8ff;color:#7e22ce;border:1px solid #e9d5ff;font-size:0.72rem;">
                                             <i class="bi bi-tag-fill"></i>${v.variant_name}
                                         </span>
+                                        ${vPromoBadge}
                                         ${v.barcode ? `<span class="badge bg-light text-muted border font-mono" style="font-size:0.65rem;">${v.barcode}</span>` : ''}
                                         ${v.qty_per_pack ? `<span class="badge bg-light text-muted border extra-small" style="font-size:0.62rem;">×${v.qty_per_pack}</span>` : ''}
                                     </div>
@@ -563,14 +692,25 @@ const POS = {
                     const activePrice = (isWholesale && wholesalePrice > 0) ? wholesalePrice : retailPrice;
                     const stock = Number(product.stock_on_hand || 0);
 
+                    const pPromo = this.getItemPromo(product.id, null, product.category_id);
+                    let pPromoBadge = '';
+                    let pPromoPrice = 0;
+                    if (pPromo) {
+                        pPromoPrice = this.getPromoDiscountedPrice(activePrice, pPromo);
+                        const label = pPromo.promo_type === 'percentage' ? `${parseFloat(pPromo.discount_value)}% OFF` : 'PROMO';
+                        pPromoBadge = `<span class="badge bg-danger text-white extra-small fw-bold px-1.5 py-0.5 rounded-pill"><i class="bi bi-tag-fill me-0.5"></i>${label}</span>`;
+                    }
+
                     let stockBadge = '';
                     if (stock <= 0) stockBadge = `<span class="badge bg-danger-subtle text-danger border border-danger-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-x-circle me-1"></i>Out of Stock</span>`;
                     else if (stock <= 10) stockBadge = `<span class="badge bg-warning-subtle text-warning border border-warning-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-exclamation-circle me-1"></i>${stock} Left</span>`;
                     else stockBadge = `<span class="badge bg-success-subtle text-success border border-success-subtle extra-small fw-bold px-2 py-0.5 rounded-pill"><i class="bi bi-check-circle me-1"></i>${stock} Available</span>`;
 
                     let priceDisplay = '';
-                    if (isWholesale && wholesalePrice > 0) {
-                        priceDisplay = `<div class="d-flex align-items-baseline justify-content-end gap-1"><span class="font-mono fw-black text-primary" style="font-size:0.92rem;">${this.formatCurrency(wholesalePrice)}</span><span class="badge bg-primary-subtle text-primary border border-primary-subtle extra-small" style="font-size:0.6rem;">WS</span></div>`;
+                    if (pPromo && pPromoPrice < activePrice) {
+                        priceDisplay = `<div class="text-end lh-sm"><div class="font-mono fw-black text-danger" style="font-size:0.92rem;">${this.formatCurrency(pPromoPrice)}</div><small class="text-muted extra-small font-mono text-decoration-line-through">${this.formatCurrency(activePrice)}</small>${isWholesale ? '<span class="badge bg-primary-subtle text-primary border ms-1 extra-small" style="font-size:0.6rem;">WS</span>' : ''}</div>`;
+                    } else if (isWholesale && wholesalePrice > 0) {
+                        priceDisplay = `<div class="d-flex align-items-baseline justify-content-end gap-1"><span class="font-mono fw-black text-primary" style="font-size:0.92rem;">${this.formatCurrency(wholesalePrice)}</span><span class="badge bg-primary-subtle text-primary border border-primary-subtle extra-small" style="font-size:0.65rem;">WS</span></div>`;
                     } else if (wholesalePrice > 0) {
                         priceDisplay = `<div class="text-end lh-sm"><div class="font-mono fw-black text-emerald" style="font-size:0.92rem;">${this.formatCurrency(retailPrice)}</div><small class="text-muted extra-small font-mono" style="font-size:0.68rem;">WS: ${this.formatCurrency(wholesalePrice)}</small></div>`;
                     } else {
@@ -592,7 +732,10 @@ const POS = {
                                 <img src="${imgUrl}" onerror="this.onerror=null;this.src='/images/no_image.jpg';" alt="" class="rounded-2 border shadow-xs" style="width:36px;height:36px;object-fit:cover;">
                             </td>
                             <td class="align-middle py-1.5 px-2.5">
-                                <div class="fw-bold text-dark text-truncate" style="max-width:360px;font-size:0.88rem;">${product.name}</div>
+                                <div class="d-flex align-items-center gap-1.5">
+                                    <span class="fw-bold text-dark text-truncate" style="max-width:300px;font-size:0.88rem;">${product.name}</span>
+                                    ${pPromoBadge}
+                                </div>
                                 <div class="d-flex align-items-center gap-1.5 mt-0.5">
                                     ${product.barcode ? `<span class="badge bg-light text-muted border font-mono extra-small" style="font-size:0.7rem;padding:2px 6px;">${product.barcode}</span>` : ''}
                                 </div>
@@ -629,7 +772,7 @@ const POS = {
 
                 if (hasVariants) {
                     // ─── VARIANT GROUP CARD ──────────────────────────────
-                    let variantChips = product.variants.map(v => {
+                    let variantChips = product.variants.filter(v => Number(v.stock_on_hand || 0) > 0).map(v => {
                         const vRetail = Number(v.selling_price || 0);
                         const vWholesale = Number(v.wholesale_price || 0);
                         const vActive = (isWholesale && vWholesale > 0) ? vWholesale : vRetail;
@@ -977,9 +1120,17 @@ const POS = {
     },
     cache() {
         this.saleId = document.getElementById('saleId');
+        this.isSalePaidInput = document.getElementById('isSalePaid');
+        this._isSaleAlreadyPaid = this.isSalePaidInput?.value === '1';
+        this.saleCode = document.getElementById('saleCode')?.value || '';
+        if (this._isSaleAlreadyPaid) {
+            this.state.isPaid = true;
+        }
+
         this.customer_id = document.getElementById('customer_id');
         this.cartItemsList =
             document.getElementById('cartItemsList');
+
 
         this.summarySubtotal =
             document.getElementById('summarySubtotal');
@@ -1364,28 +1515,31 @@ const POS = {
 
     },
     bindSplitPayments() {
-
-        this.btnAddPayment?.addEventListener(
-            'click',
-            () => {
+        const btn = document.getElementById('btnAddPayment') || this.btnAddPayment;
+        if (btn) {
+            btn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
 
                 this.state.payments.push({
-
                     id: Date.now(),
-
                     method: 'cash',
-
-                    amount: 0,
-
+                    amount: '',
                     reference_number: ''
-
                 });
 
                 this.renderPaymentLines();
+                this.calculatePayments();
 
-            }
-        );
-
+                setTimeout(() => {
+                    const inputs = document.querySelectorAll('.payment-amount');
+                    if (inputs.length) {
+                        const last = inputs[inputs.length - 1];
+                        last.focus();
+                    }
+                }, 50);
+            };
+        }
     },
     renderPaymentLines() {
 
@@ -1688,6 +1842,10 @@ const POS = {
 
                 }
 
+                if (type === 'promo' && this.state.appliedPromo) {
+                    // Promo discount active
+                }
+
                 this.calculateTotals();
 
                 this.calculatePayments();
@@ -1710,6 +1868,110 @@ const POS = {
             'input',
             refreshDiscount
         );
+
+        // Quick Preset Buttons (Senior, PWD, Student, Clear)
+        document.querySelectorAll('.btn-quick-discount').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const discountModeType = btn.dataset.type;
+                if (discountModeType === 'clear') {
+                    this.discountType.value = '';
+                    this.state.appliedPromo = null;
+                    const feedback = document.getElementById('promoVoucherFeedback');
+                    if (feedback) {
+                        feedback.style.display = 'none';
+                        feedback.innerHTML = '';
+                    }
+                    const codeInp = document.getElementById('inpPromoVoucherCode');
+                    if (codeInp) codeInp.value = '';
+                } else {
+                    this.discountType.value = discountModeType;
+                }
+                refreshDiscount();
+
+                if (discountModeType === 'senior' || discountModeType === 'pwd') {
+                    setTimeout(() => {
+                        this.discountIdNo?.focus();
+                    }, 150);
+                }
+            });
+        });
+
+        // Promo Voucher Validator
+        const applyPromoBtn = document.getElementById('btnApplyPromoVoucher');
+        const promoCodeInput = document.getElementById('inpPromoVoucherCode');
+        const promoFeedback = document.getElementById('promoVoucherFeedback');
+
+        const handleApplyPromo = async () => {
+            const code = (promoCodeInput?.value || '').trim();
+            if (!code) {
+                if (promoFeedback) {
+                    promoFeedback.className = 'extra-small text-danger mt-1.5 font-mono';
+                    promoFeedback.innerHTML = '<i class="bi bi-exclamation-circle me-1"></i>Please enter a promo code.';
+                    promoFeedback.style.display = 'block';
+                }
+                return;
+            }
+
+            if (applyPromoBtn) {
+                applyPromoBtn.disabled = true;
+                applyPromoBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+            }
+
+            try {
+                const res = await fetch('/promotions/validate-promo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        code: code,
+                        subtotal: this.state.subtotal,
+                        items: this.state.cart
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    this.state.appliedPromo = data;
+                    this.discountType.value = 'promo';
+                    if (promoFeedback) {
+                        promoFeedback.className = 'extra-small text-success mt-1.5 font-mono fw-bold';
+                        promoFeedback.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i>${data.message} (-₱${parseFloat(data.discount_amount).toFixed(2)})`;
+                        promoFeedback.style.display = 'block';
+                    }
+                    refreshDiscount();
+                } else {
+                    this.state.appliedPromo = null;
+                    if (promoFeedback) {
+                        promoFeedback.className = 'extra-small text-danger mt-1.5 font-mono';
+                        promoFeedback.innerHTML = `<i class="bi bi-x-circle-fill me-1"></i>${data.message || 'Invalid promo code.'}`;
+                        promoFeedback.style.display = 'block';
+                    }
+                }
+            } catch (err) {
+                console.error('Promo validation error:', err);
+                if (promoFeedback) {
+                    promoFeedback.className = 'extra-small text-danger mt-1.5 font-mono';
+                    promoFeedback.innerHTML = '<i class="bi bi-x-circle-fill me-1"></i>Failed to validate promo code.';
+                    promoFeedback.style.display = 'block';
+                }
+            } finally {
+                if (applyPromoBtn) {
+                    applyPromoBtn.disabled = false;
+                    applyPromoBtn.innerHTML = 'Apply';
+                }
+            }
+        };
+
+        applyPromoBtn?.addEventListener('click', handleApplyPromo);
+        promoCodeInput?.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleApplyPromo();
+            }
+        });
 
     },
     bindCashButtons() {
@@ -1967,8 +2229,29 @@ const POS = {
                 const modal = bootstrap.Modal.getOrCreateInstance(this.paymentModal);
                 modal.hide();
                 await this.updateCachedStocks();
-                this.printReceipt(result);
+
+                const paidSaleData = {
+                    sale_code: result.sale?.sale_code || result.sale_code || `#${this.saleCode || '260824-0001'}`,
+                    invoice_no: result.sale?.invoice_no || result.invoice_no,
+                    cashier_name: window.POS_STORE_CONFIG?.cashier_name || 'Cashier',
+                    customer: this.state.customer,
+                    items: [...this.state.cart],
+                    subtotal: this.state.subtotal,
+                    discount_amount: this.state.discount,
+                    total_amount: this.state.total,
+                    tendered_amount: this.state.paid || this.state.tendered || this.state.total,
+                    change_amount: this.state.change || 0,
+                    payments: this.state.payments
+                };
+
+                this.state.lastPaidSale = paidSaleData;
+                this.state.isPaid = true;
+
+                this.printReceipt(paidSaleData);
                 this.reset();
+                this.state.isPaid = true;
+                this.state.lastPaidSale = paidSaleData;
+                this.renderLiveReceiptPreview();
 
                 // Automatically switch terminal state to the new transaction!
                 if (result.next_sale_id) {
@@ -1984,6 +2267,7 @@ const POS = {
             } else {
                 renderSaleStatus(result.type, result.success, result.sale_status, result.message);
             }
+
 
         } catch (error) {
             console.error(error);
@@ -2033,68 +2317,49 @@ const POS = {
         this.renderProducts(this.getFilteredProducts());
     },
     reset() {
+        // Remove current completed order from active tabs
+        if (this.state.orders && this.state.orders.length > 0) {
+            this.state.orders = this.state.orders.filter(o => o.id !== this.state.activeOrderId);
+        }
 
-        this.state.cart = [];
+        if (!this.state.orders || this.state.orders.length === 0) {
+            const newOrder = {
+                id: 'ORDER_' + Date.now(),
+                label: 'Sale 1',
+                customer_name: 'Walk-in Customer',
+                customer_id: null,
+                customer: null,
+                cart: [],
+                priceMode: 'retail',
+                subtotal: 0,
+                discount: 0,
+                total: 0
+            };
+            this.state.orders = [newOrder];
+            this.state.activeOrderId = newOrder.id;
+        } else {
+            this.state.activeOrderId = this.state.orders[0].id;
+        }
 
-        this.state.subtotal = 0;
-
-        this.state.discount = 0;
-
-        this.state.total = 0;
+        this.loadOrderIntoCurrentState(this.state.activeOrderId);
+        this.saveCurrentOrderToStorage();
 
         this.state.paid = 0;
-
         this.state.balance = 0;
-
         this.state.change = 0;
-
         this.state.payments = [];
-
-        this.state.customer_id = null;
-
-        this.state.customer_name = null;
-
-        // Allow fresh payment init on next checkout
         this._freshCheckout = true;
 
-        this.renderCart();
-
-        this.renderSummary();
+        if (this.paymentLines) this.paymentLines.innerHTML = '';
+        if (this.discountType) this.discountType.value = '';
+        if (this.discountMode) this.discountMode.value = 'percentage';
+        if (this.discountValue) this.discountValue.value = '';
+        if (this.discountHolder) this.discountHolder.value = '';
+        if (this.discountIdNo) this.discountIdNo.value = '';
+        if (this.paymentNotes) this.paymentNotes.value = '';
 
         this.searchInput.value = '';
-
         this.searchInput.focus();
-
-        this.discountType.value = '';
-
-        this.discountMode.value = 'percentage';
-
-        this.discountValue.value = '';
-
-        this.discountHolder.value = '';
-
-        this.discountIdNo.value = '';
-
-        this.paymentNotes.value = '';
-
-        if (
-            this.paymentLines
-        ) {
-
-            this.paymentLines.innerHTML = '';
-
-        }
-
-        // Reset cart customer display
-        const cartCustomerName = document.getElementById('cartCustomerName');
-        if (cartCustomerName) {
-            cartCustomerName.innerHTML = '<i class="bi bi-person me-1"></i>Walk-in Customer';
-        }
-
-        // Reset pricing mode to Retail
-        this.state.priceMode = 'retail';
-        const retailRadio = document.getElementById('priceModeRetail');
-        if (retailRadio) retailRadio.checked = true;
     },
 
     printReceipt(sale) {
@@ -2306,16 +2571,55 @@ const POS = {
             discount_value: this.discountValue?.value || null,
             discount_holder: this.discountHolder?.value?.trim() || null,
             discount_id_no: this.discountIdNo?.value?.trim() || null,
+            discount_reference: this.discountIdNo?.value?.trim() || (this.state.appliedPromo?.promo_code || null),
+            promo_id: this.state.appliedPromo?.promo_id || null,
             notes: this.paymentNotes?.value?.trim() || null,
             payments: this.state.payments,
             paid: this.state.paid,
             change: this.state.change,
-            items: this.state.cart.map(item => ({
-                product_id: item.id,
-                variant_id: item.variant_id || null,
-                qty: item.qty,
-                price: item.price,
-            })),
+            items: this.state.cart.map(item => {
+                const matchingPromos = typeof this.getMatchingPromosForItem === 'function' ? this.getMatchingPromosForItem(item.id, item.variant_id, item.category_id) : [];
+                let activePromo = null;
+                if (matchingPromos.length > 1) {
+                    activePromo = (item.selectedPromoId && item.selectedPromoId !== 'none') ? this.state.autoPromotions.find(p => p.id === Number(item.selectedPromoId)) : null;
+                } else if (matchingPromos.length === 1) {
+                    activePromo = (item.selectedPromoId !== 'none') ? matchingPromos[0] : null;
+                }
+
+                let itemDiscount = 0;
+                let effectiveUnitPrice = item.price;
+                if (activePromo) {
+                    const isMinSpendMet = !(activePromo.min_spend > 0 && this.state.subtotal < activePromo.min_spend);
+                    const isMinQtyMet = item.qty >= (activePromo.min_quantity || 1);
+                    if (isMinSpendMet && isMinQtyMet) {
+                        effectiveUnitPrice = typeof this.getPromoDiscountedPrice === 'function' ? this.getPromoDiscountedPrice(item.price, activePromo) : item.price;
+                        if (activePromo.promo_type === 'percentage') {
+                            itemDiscount = (item.subtotal * (parseFloat(activePromo.discount_value || 0) / 100));
+                        } else if (activePromo.promo_type === 'fixed_amount') {
+                            itemDiscount = Math.min(parseFloat(activePromo.discount_value || 0), item.subtotal);
+                        } else if (activePromo.promo_type === 'bulk_tier') {
+                            const specialPrice = parseFloat(activePromo.discount_value || 0);
+                            if (specialPrice < item.price) {
+                                itemDiscount = (item.price - specialPrice) * item.qty;
+                            }
+                        }
+                    }
+                }
+
+                const lineTotal = Math.max(0, (item.subtotal || (item.qty * item.price)) - itemDiscount);
+
+                return {
+                    product_id: item.id,
+                    variant_id: item.variant_id || null,
+                    qty: item.qty,
+                    price: item.price,
+                    original_price: item.price,
+                    effective_price: effectiveUnitPrice,
+                    discount_amount: itemDiscount,
+                    promo_id: activePromo ? activePromo.id : null,
+                    subtotal: lineTotal
+                };
+            }),
         };
     },
     openCheckout() {
@@ -2445,8 +2749,33 @@ const POS = {
             });
         }
 
+        // Helper to compute effective stock including variants
+        const getEffectiveStock = (p) => {
+            if (p.variants && Array.isArray(p.variants) && p.variants.length > 0) {
+                const varSum = p.variants.reduce((sum, v) => sum + Number(v.stock_on_hand || 0), 0);
+                if (varSum > 0 || Number(p.stock_on_hand || 0) <= 0) {
+                    return varSum;
+                }
+            }
+            return Number(p.stock_on_hand || p.stock || 0);
+        };
+
+        // Filter: Return ONLY in-stock products (stock > 0)
+        filtered = filtered.filter(p => getEffectiveStock(p) > 0);
+
+        // Sort by stock descending, then name ascending
+        filtered.sort((a, b) => {
+            const stockA = getEffectiveStock(a);
+            const stockB = getEffectiveStock(b);
+            if (stockA !== stockB) {
+                return stockB - stockA; // Higher stock first
+            }
+            return (a.name || '').localeCompare(b.name || '');
+        });
+
         return filtered;
     },
+
     bindSearch() {
         if (!this.searchInput) {
             return;
@@ -2507,6 +2836,55 @@ const POS = {
     },
     filterCategory(categoryId) {
         this.renderProducts(this.getFilteredProducts());
+    },
+    bindPricingMode() {
+        const modeRadios = document.querySelectorAll('input[name="priceMode"]');
+        modeRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    this.state.priceMode = e.target.value;
+
+                    // Update prices of existing cart items
+                    const isWholesale = this.state.priceMode === 'wholesale';
+                    this.state.cart.forEach(item => {
+                        const prod = (this.products || []).find(p => p.id === item.id);
+                        let ws = Number(item.wholesale_price || 0);
+                        let ret = Number(item.retail_price || item.selling_price || item.price || 0);
+
+                        if (item.variant_id && prod && prod.variants) {
+                            const v = prod.variants.find(va => va.id === item.variant_id);
+                            if (v) {
+                                if (Number(v.wholesale_price || 0) > 0) ws = Number(v.wholesale_price);
+                                if (Number(v.selling_price || 0) > 0) ret = Number(v.selling_price);
+                            }
+                        } else if (prod) {
+                            if (Number(prod.wholesale_price || 0) > 0) ws = Number(prod.wholesale_price);
+                            if (Number(prod.selling_price || 0) > 0) ret = Number(prod.selling_price);
+                        }
+
+                        item.wholesale_price = ws;
+                        item.retail_price = ret;
+
+                        if (isWholesale && ws > 0) {
+                            item.price = ws;
+                        } else if (ret > 0) {
+                            item.price = ret;
+                        }
+                        item.subtotal = item.qty * item.price;
+                    });
+
+                    // Re-render product catalog table/grid with the active price mode
+                    this.renderProducts(this.getFilteredProducts());
+
+                    // Recalculate totals and update cart display
+                    this.calculateTotals();
+                    this.renderCart();
+                    this.renderSummary();
+                    this.renderLiveReceiptPreview();
+                    this.saveCurrentOrderToStorage();
+                }
+            });
+        });
     },
     bindBarcodeScanner() {
 
@@ -2653,6 +3031,14 @@ const POS = {
 
                         break;
 
+                    case 'F6':
+
+                        e.preventDefault();
+
+                        this.holdCurrentTransaction();
+
+                        break;
+
                     case 'Escape':
 
                         e.preventDefault();
@@ -2704,7 +3090,87 @@ const POS = {
         return isNaN(val) ? 0 : Math.max(0.0001, val);
     },
 
-    addToCart(product) {
+    async ensureActiveTransaction() {
+        if (!this._isSaleAlreadyPaid && !this.state.isPaid) {
+            return true;
+        }
+
+        try {
+            this.setStatus('Starting new transaction...', 'info');
+            const res = await fetch('/sales/new-transaction', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ current_sale_id: this.state.saleId })
+            });
+            const data = await res.json();
+            if (data.success && data.sale_id) {
+                this.state.saleId = data.sale_id;
+                this.state.saleCode = data.sale_code;
+                this._isSaleAlreadyPaid = false;
+                this.state.isPaid = false;
+                this.state.cart = [];
+                this.state.subtotal = 0;
+                this.state.discount = 0;
+                this.state.total = 0;
+                this.state.paid = 0;
+                this.state.change = 0;
+
+                const saleIdInput = document.getElementById('saleId');
+                if (saleIdInput) saleIdInput.value = data.sale_id;
+
+                const isSalePaidInput = document.getElementById('isSalePaid');
+                if (isSalePaidInput) isSalePaidInput.value = '0';
+
+                // Update order code badge on top bar and receipt preview
+                const orderCodeEl = document.querySelector('.pos-top-header strong.font-mono');
+                if (orderCodeEl) orderCodeEl.textContent = `#${data.sale_code}`;
+                const receiptInvoiceEl = document.getElementById('receiptInvoiceNo');
+                if (receiptInvoiceEl) receiptInvoiceEl.textContent = `#${data.sale_code}`;
+
+                // Update browser URL silently without page reload
+                if (data.sale_url && window.history.replaceState) {
+                    window.history.replaceState(null, '', data.sale_url);
+                }
+
+                if (typeof window.appAlert === 'function') {
+                    window.appAlert({
+                        title: 'New Transaction Started',
+                        text: `Previous transaction was already completed. Started new order #${data.sale_code}.`,
+                        type: 'info'
+                    });
+                }
+
+                this.renderCart();
+                this.renderSummary();
+                return true;
+            }
+        } catch (e) {
+            console.error('Failed to auto-create new transaction:', e);
+        }
+        return true;
+    },
+
+    async addToCart(product) {
+        if (this._isSaleAlreadyPaid || this.state.isPaid) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Past Completed Sale',
+                text: 'This transaction has already been paid and finalized. Start a new sale to punch items.',
+                confirmButtonColor: '#059669',
+                confirmButtonText: 'Start New Sale',
+                showCancelButton: true,
+                cancelButtonText: 'Close'
+            }).then(res => {
+                if (res.isConfirmed) {
+                    window.location.href = `/sales/terminal/${document.getElementById('saleId')?.value}/sale?q=new`;
+                }
+            });
+            return;
+        }
 
         if (
             product.stock <= 0
@@ -2724,6 +3190,8 @@ const POS = {
         }
 
         const cartKey = product.id + '_' + (product.variant_id || 0);
+
+
         const existing =
             this.state.cart.find(
                 item => (item.cartKey || (item.id + '_' + (item.variant_id || 0))) === cartKey
@@ -2996,6 +3464,58 @@ const POS = {
                 this.state.subtotal *
                 0.10;
 
+        } else if (
+            type === 'promo' && this.state.appliedPromo
+        ) {
+            const promo = this.state.appliedPromo;
+            if (promo.promo_type === 'percentage') {
+                discount = this.state.subtotal * (parseFloat(promo.discount_value || 0) / 100);
+            } else if (promo.promo_type === 'fixed_amount') {
+                discount = parseFloat(promo.discount_value || 0);
+            } else if (promo.discount_amount) {
+                discount = parseFloat(promo.discount_amount || 0);
+            }
+        } else if (!type && this.state.autoPromotions && this.state.autoPromotions.length > 0) {
+            // Automatic promotions: exactly 1 promo per item (NO stacking)
+            for (const cartItem of this.state.cart) {
+                if (cartItem.selectedPromoId === 'none') continue;
+
+                let chosenPromo = null;
+                if (cartItem.selectedPromoId) {
+                    chosenPromo = this.state.autoPromotions.find(p => p.id === Number(cartItem.selectedPromoId));
+                } else {
+                    const matching = this.getMatchingPromosForItem(cartItem.id, cartItem.variant_id, cartItem.category_id);
+                    if (matching.length > 0) {
+                        chosenPromo = matching[0];
+                        cartItem.selectedPromoId = chosenPromo.id;
+                    }
+                }
+
+                if (chosenPromo) {
+                    // Check min spend if configured
+                    if (chosenPromo.min_spend > 0 && this.state.subtotal < chosenPromo.min_spend) {
+                        continue;
+                    }
+
+                    const qty = parseFloat(cartItem.qty || 0);
+                    if (qty >= (chosenPromo.min_quantity || 1)) {
+                        if (chosenPromo.promo_type === 'bulk_tier') {
+                            const specialPrice = parseFloat(chosenPromo.discount_value || 0);
+                            if (specialPrice < cartItem.price) {
+                                const diff = (cartItem.price - specialPrice) * qty;
+                                discount += diff;
+                                this.state.appliedPromo = chosenPromo;
+                            }
+                        } else if (chosenPromo.promo_type === 'percentage') {
+                            discount += (cartItem.subtotal * (parseFloat(chosenPromo.discount_value || 0) / 100));
+                            this.state.appliedPromo = chosenPromo;
+                        } else if (chosenPromo.promo_type === 'fixed_amount') {
+                            discount += Math.min(parseFloat(chosenPromo.discount_value || 0), cartItem.subtotal);
+                            this.state.appliedPromo = chosenPromo;
+                        }
+                    }
+                }
+            }
         }
 
         discount =
@@ -3050,6 +3570,55 @@ const POS = {
 
         }
 
+        if (this._isSaleAlreadyPaid || this.state.isPaid) {
+            const saleSubtotal = Number(this.state.subtotal || 0);
+            const saleDiscount = Number(this.state.discount || 0);
+            const overallDiscountRate = (saleSubtotal > 0 && saleDiscount > 0) ? (saleDiscount / saleSubtotal) : 0;
+
+            this.cartItemsList.innerHTML = this.state.cart.map(item => {
+                const unitStr = typeof item.unit === 'object' && item.unit !== null ? (item.unit.name || '') : (item.unit || '');
+                const qty = Number(item.qty || 1);
+                const originalUnitPrice = Number(item.original_price || item.price || 0);
+                const grossLineTotal = qty * originalUnitPrice;
+
+                let lineDiscount = Number(item.discount || item.discount_amount || 0);
+                if (lineDiscount === 0 && overallDiscountRate > 0) {
+                    lineDiscount = grossLineTotal * overallDiscountRate;
+                }
+
+                const effectiveSubtotal = lineDiscount > 0 ? Math.max(0, grossLineTotal - lineDiscount) : (Number(item.subtotal) || grossLineTotal);
+                const effectiveUnitPrice = qty > 0 ? (effectiveSubtotal / qty) : originalUnitPrice;
+                const hasDiscount = lineDiscount > 0 || (effectiveUnitPrice < (originalUnitPrice - 0.001) && effectiveUnitPrice > 0);
+
+                return `
+                    <div class="card border rounded-3 p-2.5 mb-2 bg-light shadow-xs">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <div class="fw-bold text-dark font-mono small">${item.name}</div>
+                            <span class="badge bg-success text-white font-mono extra-small fw-bold px-2 py-0.5 rounded-pill">Sold</span>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between text-muted extra-small font-mono">
+                            <div>
+                                ${qty} ${unitStr ? unitStr : 'unit(s)'} × 
+                                ${hasDiscount ? `
+                                    <span class="text-danger fw-bold font-mono">₱${effectiveUnitPrice.toFixed(2)}</span>
+                                    <span class="text-decoration-line-through text-muted extra-small font-mono">₱${originalUnitPrice.toFixed(2)}</span>
+                                ` : `
+                                    <span>₱${originalUnitPrice.toFixed(2)}</span>
+                                `}
+                            </div>
+                            <div class="text-end font-mono">
+                                <div class="fw-black ${hasDiscount ? 'text-danger' : 'text-dark'} fs-6">₱${effectiveSubtotal.toFixed(2)}</div>
+                                ${hasDiscount ? `<small class="text-muted extra-small text-decoration-line-through">₱${grossLineTotal.toFixed(2)}</small>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            this.renderSummary();
+            return;
+        }
+
         this.cartItemsList.innerHTML =
             this.state.cart
                 .map(item => {
@@ -3058,21 +3627,82 @@ const POS = {
                     const badgeHtml = isWholesaleItem ? '<span class="badge bg-primary-subtle text-primary border border-primary-subtle extra-small ms-1.5" style="font-size:0.65rem;">Wholesale</span>' : '';
                     const itemKey = item.cartKey || (item.id + '_' + (item.variant_id || 0));
 
+                    // Promotions for this item
+                    const matchingPromos = this.getMatchingPromosForItem(item.id, item.variant_id, item.category_id);
+                    let promoHtml = '';
+                    let activePromo = null;
+
+                    if (matchingPromos.length > 1) {
+                        activePromo = (item.selectedPromoId && item.selectedPromoId !== 'none') ? this.state.autoPromotions.find(p => p.id === Number(item.selectedPromoId)) : null;
+                        const label = activePromo ? activePromo.title : 'No Promo';
+                        promoHtml = `
+                            <div class="mt-1">
+                                <button type="button" class="btn btn-xs btn-primary-subtle text-primary border border-primary-subtle rounded-pill extra-small fw-bold px-2 py-0.5 open-promo-modal-btn d-inline-flex align-items-center gap-1" data-key="${itemKey}" title="Multiple promos available. Click to choose.">
+                                    <i class="bi bi-tag-fill"></i>
+                                    <span>${label}</span>
+                                    <span class="badge bg-primary text-white rounded-pill ms-0.5" style="font-size:0.6rem;">${matchingPromos.length} promos ▾</span>
+                                </button>
+                            </div>
+                        `;
+                    } else if (matchingPromos.length === 1) {
+                        activePromo = (item.selectedPromoId !== 'none') ? matchingPromos[0] : null;
+                        if (activePromo) {
+                            promoHtml = `
+                                <div class="mt-1">
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle extra-small fw-bold px-2 py-0.5 rounded-pill">
+                                        <i class="bi bi-tag-fill me-1"></i>${activePromo.title}
+                                    </span>
+                                </div>
+                            `;
+                        }
+                    }
+
+                    // Calculate line discount for visual display
+                    let itemDiscount = 0;
+                    let effectiveUnitPrice = item.price;
+                    if (activePromo) {
+                        const isMinSpendMet = !(activePromo.min_spend > 0 && this.state.subtotal < activePromo.min_spend);
+                        const isMinQtyMet = item.qty >= (activePromo.min_quantity || 1);
+
+                        if (isMinSpendMet && isMinQtyMet) {
+                            effectiveUnitPrice = this.getPromoDiscountedPrice(item.price, activePromo);
+                            if (activePromo.promo_type === 'percentage') {
+                                itemDiscount = (item.subtotal * (parseFloat(activePromo.discount_value || 0) / 100));
+                            } else if (activePromo.promo_type === 'fixed_amount') {
+                                itemDiscount = Math.min(parseFloat(activePromo.discount_value || 0), item.subtotal);
+                            } else if (activePromo.promo_type === 'bulk_tier') {
+                                const specialPrice = parseFloat(activePromo.discount_value || 0);
+                                if (specialPrice < item.price) {
+                                    itemDiscount = (item.price - specialPrice) * item.qty;
+                                }
+                            }
+                        }
+                    }
+
+                    const effectiveSubtotal = Math.max(0, item.subtotal - itemDiscount);
+
+                    let priceDisplay = '';
+                    let subtotalDisplay = '';
+                    if (itemDiscount > 0) {
+                        priceDisplay = `<div class="receipt-item-calc font-mono" style="font-size: 0.82rem; font-weight: 600;"><span class="text-danger fw-black">₱${effectiveUnitPrice.toFixed(2)}</span> <span class="extra-small text-muted text-decoration-line-through">₱${item.price.toFixed(2)}</span> / ${item.unit || 'unit'}</div>`;
+                        subtotalDisplay = `<div class="text-end font-mono"><div class="fw-extrabold text-danger font-mono" style="font-size: 1.05rem; font-weight: 900;">₱${effectiveSubtotal.toFixed(2)}</div><small class="text-muted extra-small text-decoration-line-through font-mono">₱${item.subtotal.toFixed(2)}</small></div>`;
+                    } else {
+                        priceDisplay = `<div class="receipt-item-calc text-muted font-mono" style="font-size: 0.82rem; font-weight: 600; color: #64748b;">₱${item.price.toFixed(2)} / ${item.unit || 'unit'}</div>`;
+                        subtotalDisplay = `<div class="receipt-item-total fw-extrabold text-dark font-mono text-end" style="font-size: 1.05rem; font-weight: 900; color: #0f172a; white-space: nowrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">₱${item.subtotal.toFixed(2)}</div>`;
+                    }
+
                     return `
 <div class="receipt-item py-2.5 px-3 border-bottom bg-white" style="border-bottom: 1px dashed #cbd5e1 !important;" data-key="${itemKey}" data-id="${item.id}">
     <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
         <div class="receipt-item-title fw-bold text-dark lh-sm flex-grow-1" style="font-size: 0.92rem; color: #0f172a;">
             ${item.name} ${badgeHtml}
+            ${promoHtml}
         </div>
-        <div class="receipt-item-total fw-extrabold text-dark font-mono text-end" style="font-size: 1.05rem; font-weight: 900; color: #0f172a; white-space: nowrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
-            ₱${item.subtotal.toFixed(2)}
-        </div>
+        ${subtotalDisplay}
     </div>
 
     <div class="d-flex justify-content-between align-items-center mt-1">
-        <div class="receipt-item-calc text-muted font-mono" style="font-size: 0.82rem; font-weight: 600; color: #64748b;">
-            ₱${item.price.toFixed(2)} / ${item.unit || 'unit'}
-        </div>
+        ${priceDisplay}
 
         <div class="d-flex align-items-center gap-1.5">
             <!-- Stepper / Clickable Quantity Pill -->
@@ -3101,6 +3731,98 @@ const POS = {
 
         this.renderSummary();
 
+        this.saveCurrentOrderToStorage();
+
+    },
+
+    showPromoModal(cartKey) {
+        const item = this.state.cart.find(row => (row.cartKey || (row.id + '_' + (row.variant_id || 0))) === String(cartKey));
+        if (!item) return;
+
+        const modalEl = document.getElementById('modalSelectPromo');
+        if (!modalEl) return;
+
+        const matching = this.getMatchingPromosForItem(item.id, item.variant_id, item.category_id);
+        const listEl = document.getElementById('promoOptionsList');
+        const keyInput = document.getElementById('inpPromoModalCartKey');
+        const titleEl = document.getElementById('txtPromoModalTitle');
+        const subEl = document.getElementById('txtPromoModalSubtitle');
+
+        if (titleEl) titleEl.textContent = `Select Promo: ${item.name}`;
+        if (subEl) subEl.textContent = `${matching.length} promotions available for this item (Choose 1)`;
+        if (keyInput) keyInput.value = cartKey;
+
+        const currentSelectedId = item.selectedPromoId !== undefined ? item.selectedPromoId : (matching[0]?.id || 'none');
+
+        let optionsHtml = '';
+
+        matching.forEach(p => {
+            const isChecked = String(currentSelectedId) === String(p.id) ? 'checked' : '';
+            const discPrice = this.getPromoDiscountedPrice(item.price, p);
+            let promoBadge = '';
+            if (p.promo_type === 'percentage') {
+                promoBadge = `<span class="badge bg-primary text-white font-mono fw-bold">${parseFloat(p.discount_value)}% OFF</span>`;
+            } else if (p.promo_type === 'fixed_amount') {
+                promoBadge = `<span class="badge bg-success text-white font-mono fw-bold">₱${parseFloat(p.discount_value).toFixed(2)} OFF</span>`;
+            } else if (p.promo_type === 'bulk_tier') {
+                promoBadge = `<span class="badge bg-warning text-dark font-mono fw-bold">₱${parseFloat(p.discount_value).toFixed(2)} / pc (${p.min_quantity}+ pcs)</span>`;
+            } else if (p.promo_type === 'buy_x_get_y') {
+                promoBadge = `<span class="badge bg-purple text-white font-mono fw-bold" style="background:#6d28d9;">Buy ${p.min_quantity} Get ${p.get_quantity}</span>`;
+            }
+
+            optionsHtml += `
+                <label class="d-flex align-items-center justify-content-between p-3 rounded-3 border bg-white cursor-pointer hover-bg-light position-relative mb-1">
+                    <div class="d-flex align-items-center gap-2.5">
+                        <input class="form-check-input radio-promo-option mt-0" type="radio" name="selectedPromoRadio" value="${p.id}" ${isChecked}>
+                        <div>
+                            <div class="fw-bold text-dark small mb-0.5">${p.title}</div>
+                            <div class="d-flex align-items-center gap-1.5 flex-wrap">
+                                ${promoBadge}
+                                ${p.min_spend > 0 ? `<span class="extra-small text-muted font-mono">(Min spend: ₱${p.min_spend})</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-end font-mono">
+                        <div class="fw-black text-success fs-6">${this.formatCurrency(discPrice)}</div>
+                        <small class="text-muted extra-small text-decoration-line-through">${this.formatCurrency(item.price)}</small>
+                    </div>
+                </label>
+            `;
+        });
+
+        // "No Promo / Regular Price" option
+        const isNoneChecked = (currentSelectedId === 'none' || currentSelectedId === null) ? 'checked' : '';
+        optionsHtml += `
+            <label class="d-flex align-items-center justify-content-between p-3 rounded-3 border bg-light cursor-pointer position-relative">
+                <div class="d-flex align-items-center gap-2.5">
+                    <input class="form-check-input radio-promo-option mt-0" type="radio" name="selectedPromoRadio" value="none" ${isNoneChecked}>
+                    <div>
+                        <div class="fw-bold text-muted small">No Promotion (Regular Price)</div>
+                        <small class="extra-small text-muted">Sell at standard SRP without promo discount</small>
+                    </div>
+                </div>
+                <div class="text-end font-mono fw-bold text-dark">
+                    ${this.formatCurrency(item.price)}
+                </div>
+            </label>
+        `;
+
+        if (listEl) listEl.innerHTML = optionsHtml;
+
+        const modal = Modal.getOrCreateInstance(modalEl);
+        modal.show();
+
+        const confirmBtn = document.getElementById('btnConfirmPromoModal');
+        if (confirmBtn) {
+            confirmBtn.onclick = () => {
+                const selectedRadio = modalEl.querySelector('input[name="selectedPromoRadio"]:checked');
+                const chosenVal = selectedRadio ? selectedRadio.value : 'none';
+                item.selectedPromoId = chosenVal === 'none' ? 'none' : Number(chosenVal);
+                this.calculateTotals();
+                this.renderCart();
+                modal.hide();
+            };
+        }
     },
 
     showQuantityModal(cartKey) {
@@ -3185,6 +3907,14 @@ const POS = {
             btn.addEventListener('click', () => {
                 const key = btn.dataset.key;
                 this.showQuantityModal(key);
+            });
+        });
+
+        // Open Promotion Selector Modal
+        document.querySelectorAll('.open-promo-modal-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const key = btn.dataset.key;
+                this.showPromoModal(key);
             });
         });
 
@@ -3332,7 +4062,448 @@ const POS = {
 
         }
 
+        this.renderLiveReceiptPreview();
+
     },
+
+    renderLiveReceiptPreview() {
+        const container = document.getElementById('receiptItemsContainer');
+        const subtotalEl = document.getElementById('receiptSubtotal');
+        const discountRow = document.getElementById('receiptDiscountRow');
+        const discountEl = document.getElementById('receiptDiscount');
+        const totalEl = document.getElementById('receiptTotal');
+        const vatableEl = document.getElementById('receiptVatable');
+        const vatAmountEl = document.getElementById('receiptVatAmount');
+        const customerNameEl = document.getElementById('receiptCustomerName');
+        const printBtn = document.getElementById('btnPrintLiveReceipt');
+
+        if (customerNameEl) {
+            customerNameEl.textContent = (this.state.customer && this.state.customer.name) ? this.state.customer.name : 'Walk-in Customer';
+        }
+
+        const total = this.state.total || 0;
+        const subtotal = this.state.subtotal || total;
+        const discount = this.state.discount || 0;
+        const vatableSales = (total / 1.12).toFixed(2);
+        const vatAmount = (total - Number(vatableSales)).toFixed(2);
+
+        if (subtotalEl) subtotalEl.textContent = this.formatCurrency(subtotal);
+        if (totalEl) totalEl.textContent = this.formatCurrency(total);
+        if (vatableEl) vatableEl.textContent = this.formatCurrency(Number(vatableSales));
+        if (vatAmountEl) vatAmountEl.textContent = this.formatCurrency(Number(vatAmount));
+
+        if (discountRow && discountEl) {
+            if (discount > 0) {
+                discountRow.classList.remove('d-none');
+                discountEl.textContent = '-' + this.formatCurrency(discount);
+            } else {
+                discountRow.classList.add('d-none');
+            }
+        }
+
+        if (container) {
+            if (!this.state.cart || this.state.cart.length === 0) {
+                container.innerHTML = `
+                    <tr>
+                        <td colspan="3" class="text-center py-4 text-muted" style="font-size: 10.5px;">
+                            (Receipt is empty)<br>
+                            <small>Scan or add items</small>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                container.innerHTML = this.state.cart.map(item => `
+                    <tr>
+                        <td class="text-start py-0.5" style="vertical-align: top;">
+                            <div>${Number(item.qty || 1).toFixed(0)} x ${item.name} <span style="font-size:9px;">(V)</span></div>
+                        </td>
+                        <td class="text-end py-0.5" style="vertical-align: top; white-space: nowrap;">₱${Number(item.price || 0).toFixed(2)}</td>
+                        <td class="text-end py-0.5 fw-bold" style="vertical-align: top; white-space: nowrap;">₱${Number(item.subtotal || 0).toFixed(2)}</td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+
+        if (printBtn) {
+            printBtn.classList.toggle('d-none', !this.state.isPaid);
+        }
+
+        if (printBtn && !printBtn.dataset.bound) {
+            printBtn.dataset.bound = 'true';
+            printBtn.addEventListener('click', () => {
+                const saleToPrint = this.state.lastPaidSale || {
+                    items: this.state.cart,
+                    total_amount: this.state.total,
+                    subtotal: this.state.subtotal,
+                    discount_amount: this.state.discount,
+                    customer: this.state.customer,
+                };
+                if (!saleToPrint.items || saleToPrint.items.length === 0) {
+                    alert('No completed transaction to print.');
+                    return;
+                }
+                const html = window.buildBIRThermalReceiptHTML(saleToPrint);
+                const printWin = window.open('', '_blank', 'width=380,height=600');
+                if (printWin) {
+                    printWin.document.write(html);
+                    printWin.document.close();
+                    printWin.focus();
+                    setTimeout(() => {
+                        printWin.print();
+                    }, 300);
+                }
+            });
+        }
+    },
+
+    // ─── MULTI-SALE ACTIVE TABS SYSTEM (BASED ON SALE_CODE) ────────
+    bindOrderTabsEvents() {
+        const btnNew = document.getElementById('btnNewOrderTab');
+        if (btnNew && !btnNew.dataset.bound) {
+            btnNew.dataset.bound = 'true';
+            btnNew.addEventListener('click', () => this.createNewOrderTab());
+        }
+    },
+
+    initMultiOrdersSystem() {
+        const currentCode = this.saleCode || document.getElementById('saleCode')?.value || 'current';
+
+        try {
+            const raw = localStorage.getItem('pos_active_multi_orders');
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    this.state.orders = parsed;
+
+                    // Find if current sale_code is already in tabs
+                    let current = this.state.orders.find(o => o.sale_code === currentCode || o.id === currentCode);
+                    if (!current) {
+                        current = {
+                            id: currentCode,
+                            sale_code: currentCode,
+                            sale_id: this.state.saleId,
+                            label: `#${currentCode}`,
+                            customer_name: 'Walk-in Customer',
+                            customer_id: null,
+                            customer: null,
+                            cart: [],
+                            priceMode: 'retail',
+                            subtotal: 0,
+                            discount: 0,
+                            total: 0
+                        };
+                        this.state.orders.push(current);
+                    }
+
+                    this.state.activeOrderId = current.id;
+                    this.loadOrderIntoCurrentState(current.id);
+                    return;
+                }
+            }
+        } catch (e) {
+            console.warn('Failed to parse active multi-orders:', e);
+        }
+
+        // Initialize with current sale_code order
+        const initialOrder = {
+            id: currentCode,
+            sale_code: currentCode,
+            sale_id: this.state.saleId,
+            label: `#${currentCode}`,
+            customer_name: 'Walk-in Customer',
+            customer_id: null,
+            customer: null,
+            cart: [],
+            priceMode: 'retail',
+            subtotal: 0,
+            discount: 0,
+            total: 0
+        };
+        this.state.orders = [initialOrder];
+        this.state.activeOrderId = initialOrder.id;
+        this.loadOrderIntoCurrentState(initialOrder.id);
+        this.saveCurrentOrderToStorage();
+    },
+
+    saveCurrentOrderToStorage() {
+        if (!this.state.orders || this.state.orders.length === 0) return;
+
+        const current = this.state.orders.find(o => o.id === this.state.activeOrderId || o.sale_code === this.state.activeOrderId);
+        if (current) {
+            current.cart = this.state.cart || [];
+            current.customer = this.state.customer || null;
+            current.customer_name = this.state.customer?.CustomerName || this.state.customer_name || 'Walk-in Customer';
+            current.customer_id = this.state.customer_id || null;
+            current.priceMode = this.state.priceMode || 'retail';
+            current.subtotal = this.state.subtotal || 0;
+            current.discount = this.state.discount || 0;
+            current.total = this.state.total || 0;
+        }
+
+        try {
+            localStorage.setItem('pos_active_multi_orders', JSON.stringify(this.state.orders));
+            localStorage.setItem('pos_current_active_order_id', this.state.activeOrderId);
+        } catch (e) {
+            console.warn('Failed to save multi orders to localStorage:', e);
+        }
+
+        this.renderOrderTabs();
+    },
+
+    loadOrderIntoCurrentState(orderId) {
+        const order = this.state.orders?.find(o => o.id === orderId || o.sale_code === orderId);
+        if (!order) return;
+
+        this.state.activeOrderId = order.id;
+        this.saleCode = order.sale_code || order.id;
+        if (order.sale_id) this.state.saleId = order.sale_id;
+
+        this.state.cart = JSON.parse(JSON.stringify(order.cart || []));
+        this.state.customer = order.customer || null;
+        this.state.customer_name = order.customer_name || 'Walk-in Customer';
+        this.state.customer_id = order.customer_id || null;
+        this.state.priceMode = order.priceMode || 'retail';
+
+        // Update customer display in UI
+        const cartCustomerNameEl = document.getElementById('cartCustomerName');
+        if (cartCustomerNameEl) {
+            cartCustomerNameEl.innerHTML = `<i class="bi bi-person me-1"></i>${this.state.customer_name}`;
+        }
+
+        // Update price mode switch UI
+        const wsRadio = document.getElementById('priceModeWholesale');
+        const retailRadio = document.getElementById('priceModeRetail');
+        if (this.state.priceMode === 'wholesale' && wsRadio) wsRadio.checked = true;
+        else if (retailRadio) retailRadio.checked = true;
+
+        this.calculateTotals();
+        this.renderCart();
+        this.renderSummary();
+        this.renderOrderTabs();
+    },
+
+    renderOrderTabs() {
+        const container = document.getElementById('orderTabsContainer');
+        if (!container || !this.state.orders) return;
+
+        container.innerHTML = this.state.orders.map((order, idx) => {
+            const isActive = order.id === this.state.activeOrderId || order.sale_code === this.state.activeOrderId;
+            const itemCount = (order.cart || []).reduce((sum, item) => sum + (Number(item.qty) || 1), 0);
+            const codeDisplay = order.sale_code ? `#${order.sale_code}` : `Sale ${idx + 1}`;
+            const customerDisplay = (order.customer_name && order.customer_name !== 'Walk-in Customer') ? ` (${order.customer_name})` : '';
+            const displayLabel = `${codeDisplay}${customerDisplay}`;
+
+            return `
+                <div class="btn-group btn-group-sm shadow-xs me-1 flex-shrink-0" role="group">
+                    <button
+                        type="button"
+                        class="btn btn-sm ${isActive ? 'btn-primary fw-bold text-white' : 'btn-light border text-dark font-mono'} px-2.5 py-1 extra-small rounded-pill-start btn-switch-order-tab d-flex align-items-center gap-1.5"
+                        data-id="${order.id}"
+                        style="${isActive ? 'background:#2563eb;border-color:#2563eb;' : ''}"
+                        title="Switch to ${displayLabel}"
+                    >
+                        <i class="bi ${isActive ? 'bi-bag-check-fill' : 'bi-bag'}"></i>
+                        <span>${displayLabel}</span>
+                        ${itemCount > 0 ? `<span class="badge ${isActive ? 'bg-white text-primary' : 'bg-warning text-dark'} rounded-pill ms-1 font-mono" style="font-size:0.65rem;">${itemCount}</span>` : ''}
+                    </button>
+                    ${this.state.orders.length > 1 ? `
+                        <button
+                            type="button"
+                            class="btn btn-sm ${isActive ? 'btn-primary text-white' : 'btn-light border text-danger'} px-1.5 py-1 extra-small rounded-pill-end btn-close-order-tab"
+                            data-id="${order.id}"
+                            style="${isActive ? 'background:#1d4ed8;border-color:#1d4ed8;' : ''}"
+                            title="Close / Void this sale"
+                        >
+                            <i class="bi bi-x fs-6 lh-1"></i>
+                        </button>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
+
+        // Attach click events to switch tabs
+        container.querySelectorAll('.btn-switch-order-tab').forEach(btn => {
+            btn.onclick = () => {
+                const orderId = btn.dataset.id;
+                this.switchOrderTab(orderId);
+            };
+        });
+
+        // Attach click events to close tabs
+        container.querySelectorAll('.btn-close-order-tab').forEach(btn => {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                const orderId = btn.dataset.id;
+                this.closeOrderTab(orderId);
+            };
+        });
+    },
+
+    async createNewOrderTab() {
+        const currentOrder = this.state.orders.find(o => o.id === this.state.activeOrderId || o.sale_code === this.state.activeOrderId);
+        if (this.state.cart && this.state.cart.length > 0 && currentOrder) {
+            const defaultPromptVal = this.state.customer?.CustomerName || currentOrder.customer_name || '';
+
+            const { value: labelInput, isConfirmed } = await Swal.fire({
+                title: '🏷️ Customer / Order Indicator',
+                text: `Add a customer name for current transaction #${currentOrder.sale_code || 'Sale'}:`,
+                input: 'text',
+                inputValue: defaultPromptVal === 'Walk-in Customer' ? '' : defaultPromptVal,
+                inputPlaceholder: 'e.g. Juan / Customer in Red Shirt',
+                showCancelButton: true,
+                confirmButtonText: 'Next Sale ➔',
+                confirmButtonColor: '#059669',
+                cancelButtonText: 'Cancel'
+            });
+
+            if (!isConfirmed) return;
+
+            if (labelInput && labelInput.trim()) {
+                currentOrder.customer_name = labelInput.trim();
+                currentOrder.label = `#${currentOrder.sale_code} - ${labelInput.trim()}`;
+            }
+        }
+
+        // Save active state before creating new
+        this.saveCurrentOrderToStorage();
+
+        // Create actual new sale record in backend
+        try {
+            const res = await fetch('/sales/new-transaction', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ current_sale_id: this.state.saleId })
+            });
+
+            const data = await res.json();
+            if (data.success && data.sale_code) {
+                const newOrder = {
+                    id: data.sale_code,
+                    sale_code: data.sale_code,
+                    sale_id: data.sale_id,
+                    sale_url: data.sale_url,
+                    label: `#${data.sale_code}`,
+                    customer_name: 'Walk-in Customer',
+                    customer_id: null,
+                    customer: null,
+                    cart: [],
+                    priceMode: 'retail',
+                    subtotal: 0,
+                    discount: 0,
+                    total: 0
+                };
+
+                this.state.orders.push(newOrder);
+                this.state.activeOrderId = newOrder.id;
+                this.state.saleId = data.sale_id;
+                this.saleCode = data.sale_code;
+
+                const saleIdInput = document.getElementById('saleId');
+                if (saleIdInput) saleIdInput.value = data.sale_id;
+                const saleCodeInput = document.getElementById('saleCode');
+                if (saleCodeInput) saleCodeInput.value = data.sale_code;
+
+                if (data.sale_url && window.history.replaceState) {
+                    window.history.replaceState(null, '', data.sale_url);
+                }
+
+                this.loadOrderIntoCurrentState(newOrder.id);
+                this.saveCurrentOrderToStorage();
+                this.searchInput?.focus();
+                return;
+            }
+        } catch (e) {
+            console.warn('Failed to create server sale transaction, falling back to local:', e);
+        }
+
+        // Fallback local code
+        const fallbackCode = `Sale ${this.state.orders.length + 1}`;
+        const newOrder = {
+            id: fallbackCode,
+            sale_code: fallbackCode,
+            label: fallbackCode,
+            customer_name: 'Walk-in Customer',
+            customer_id: null,
+            customer: null,
+            cart: [],
+            priceMode: 'retail',
+            subtotal: 0,
+            discount: 0,
+            total: 0
+        };
+
+        this.state.orders.push(newOrder);
+        this.state.activeOrderId = newOrder.id;
+        this.loadOrderIntoCurrentState(newOrder.id);
+        this.saveCurrentOrderToStorage();
+        this.searchInput?.focus();
+    },
+
+    switchOrderTab(orderId) {
+        if (orderId === this.state.activeOrderId) return;
+
+        // Save current tab's items first
+        this.saveCurrentOrderToStorage();
+
+        // Load targeted tab - MATIC NA AGAD LALABAS ANG LAHAT NG ITEMS!
+        this.loadOrderIntoCurrentState(orderId);
+
+        const targetOrder = this.state.orders.find(o => o.id === orderId || o.sale_code === orderId);
+        if (targetOrder && targetOrder.sale_url && window.history.replaceState) {
+            window.history.replaceState(null, '', targetOrder.sale_url);
+        }
+
+        this.saveCurrentOrderToStorage();
+    },
+
+    async closeOrderTab(orderId) {
+        const order = this.state.orders.find(o => o.id === orderId);
+        if (!order) return;
+
+        if (order.cart && order.cart.length > 0) {
+            const { isConfirmed } = await Swal.fire({
+                title: 'Void / Close this Sale?',
+                text: `Order "${order.label}" has ${order.cart.length} punched items. Are you sure you want to void and remove it?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Void Sale',
+                confirmButtonColor: '#dc2626',
+                cancelButtonText: 'Cancel'
+            });
+
+            if (!isConfirmed) return;
+        }
+
+        this.state.orders = this.state.orders.filter(o => o.id !== orderId);
+
+        if (this.state.orders.length === 0) {
+            // Re-create Sale 1
+            const initialOrder = {
+                id: 'ORDER_' + Date.now(),
+                label: 'Sale 1',
+                customer_name: 'Walk-in Customer',
+                customer_id: null,
+                customer: null,
+                cart: [],
+                priceMode: 'retail',
+                subtotal: 0,
+                discount: 0,
+                total: 0
+            };
+            this.state.orders = [initialOrder];
+            this.state.activeOrderId = initialOrder.id;
+        } else if (this.state.activeOrderId === orderId) {
+            this.state.activeOrderId = this.state.orders[0].id;
+        }
+
+        this.loadOrderIntoCurrentState(this.state.activeOrderId);
+        this.saveCurrentOrderToStorage();
+    }
 
 };
 

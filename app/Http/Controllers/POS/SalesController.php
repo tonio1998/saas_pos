@@ -15,7 +15,9 @@ use App\Models\POS\POSProductVariant;
 use App\Models\POS\POSSale;
 use App\Models\POS\POSSaleItem;
 use App\Models\POS\POSSales;
+use App\Models\POS\POSTenant;
 use App\Models\POS\POSTerminal;
+use App\Models\User;
 use App\Traits\TCommonFunctions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -73,24 +75,43 @@ class SalesController extends Controller
         }
 
         $products = $query->get();
-        $products->transform(function ($product) {
+        $products = $products->filter(function ($product) {
             if ($product->variants && $product->variants->count() > 0) {
-                $variantStockSum = (float) $product->variants->sum('stock_on_hand');
-                if ($variantStockSum > 0 || (float) $product->stock_on_hand <= 0) {
-                    $product->stock_on_hand = $variantStockSum;
-                }
+                // Keep only variants with stock > 0
+                $inStockVariants = $product->variants->filter(function ($v) {
+                    return (float) ($v->stock_on_hand ?? 0) > 0;
+                })->values();
+
+                $product->setRelation('variants', $inStockVariants);
+                $product->stock_on_hand = (float) $inStockVariants->sum('stock_on_hand');
+
+                return $inStockVariants->count() > 0;
             }
-            return $product;
-        });
+
+            return (float) ($product->stock_on_hand ?? 0) > 0;
+        })->values();
+
+        // Sort products by stock descending, then name ascending
+        $products = $products->sort(function ($a, $b) {
+            $stockA = (float) ($a->stock_on_hand ?? 0);
+            $stockB = (float) ($b->stock_on_hand ?? 0);
+
+            if ($stockA !== $stockB) {
+                return $stockB <=> $stockA;
+            }
+            return strcasecmp($a->name, $b->name);
+        })->values();
 
         return response()->json($products);
     }
+
 
     public function sales_details(Request $request, $sale)
     {
         $sale = POSSale::with([
             'customer',
             'items.product',
+            'items.variant',
             'payments',
             'cashier'
         ])->findOrFail(($sale));
@@ -103,7 +124,7 @@ class SalesController extends Controller
 
     public function birReceipt(POSSale $sale)
     {
-        $sale->load(['customer', 'cashier', 'payments', 'items.product']);
+        $sale->load(['customer', 'cashier', 'payments', 'items.product', 'items.variant']);
         $tenant = POSTenant::find($sale->tenant_id);
 
         return view('pages.pos.sales.bir_receipt', compact('sale', 'tenant'));
@@ -121,289 +142,317 @@ class SalesController extends Controller
             'cashier',
             'payments',
             'items.product',
+            'items.variant',
         ]);
 
-        $profit = $sale->items->sum(function ($item) {
-
-            $cost =
-                $item->product?->cost_price ?? 0;
-
-            return (
-                ($item->unit_price - $cost)
-                * $item->qty
-            );
+        $totalCost = $sale->items->sum(function ($item) {
+            $cost = (float) ($item->variant?->cost_price ?: ($item->product?->cost_price ?? 0));
+            return $cost * (float) ($item->qty ?? 1);
         });
+
+        $netRevenue = (float) ($sale->total_amount ?? 0);
+        $netProfit  = $netRevenue - $totalCost;
 
         return response()->json([
 
-            'id' => $sale->id,
+            'id'             => $sale->id,
+            'invoice_no'     => $sale->sale_code ?? $sale->invoice_no,
+            'sale_date'      => $sale->sale_date ? format_date($sale->sale_date) : '-',
+            'customer'       => $sale->customer?->CustomerName ?: ($sale->customer?->name ?? 'Walk-in Customer'),
+            'cashier'        => $sale->cashier?->name ?? 'System',
+            'status'         => ucfirst($sale->sale_status ?? 'completed'),
+            'payment_method' => $sale->payment_method ?? '-',
+            'promo_id'       => $sale->promo_id,
+            'discount_type'  => $sale->discount_type,
+            'discount_holder'=> $sale->discount_holder ?: null,
+            'notes'          => $sale->notes ?: '-',
 
-            'invoice_no' => $sale->invoice_no,
+            // Financial summary (raw + formatted)
+            'subtotal'       => '₱' . number_format($sale->subtotal ?? 0, 2),
+            'discount'       => '₱' . number_format($sale->discount_amount ?? 0, 2),
+            'total'          => '₱' . number_format($sale->total_amount ?? 0, 2),
+            'tendered'       => '₱' . number_format($sale->tendered_amount ?? 0, 2),
+            'change'         => '₱' . number_format($sale->change_amount ?? 0, 2),
 
-            'sale_date' => $sale->sale_date
-                ? format_date($sale->sale_date)
-                : '-',
-
-            'customer' => $sale->customer?->name
-                ?? 'Walk-in Customer',
-
-            'cashier' => $sale->cashier?->name
-                ?? 'System',
-
-            'status' => ucfirst(
-                $sale->status
-            ),
-
-            'subtotal' => '₱' . number_format(
-                    $sale->subtotal ?? 0,
-                    2
-                ),
-
-            'discount' => '₱' . number_format(
-                    $sale->discount_amount ?? 0,
-                    2
-                ),
-
-            'total' => '₱' . number_format(
-                    $sale->total_amount ?? 0,
-                    2
-                ),
-
-            'tendered' => '₱' . number_format(
-                    $sale->tendered_amount ?? 0,
-                    2
-                ),
-
-            'change' => '₱' . number_format(
-                    $sale->change_amount ?? 0,
-                    2
-                ),
-
-            'profit' => '₱' . number_format(
-                    $profit,
-                    2
-                ),
-
-            'notes' => $sale->notes ?: '-',
+            // Profit summary
+            'total_cost'     => '₱' . number_format($totalCost, 2),
+            'net_profit'     => '₱' . number_format($netProfit, 2),
+            'net_profit_raw' => round($netProfit, 2),
+            'total_raw'      => $netRevenue,
+            'profit_margin_pct' => $netRevenue > 0 ? round(($netProfit / $netRevenue) * 100, 1) : 0,
 
             'payments' => $sale->payments->map(function ($payment) {
-
                 return [
-
-                    'method' => ucfirst(
-                        str_replace(
-                            '_',
-                            ' ',
-                            $payment->payment_method
-                        )
-                    ),
-
-                    'reference' => $payment->reference_number
-                        ?: '-',
-
-                    'amount' => '₱' . number_format(
-                            $payment->amount ?? 0,
-                            2
-                        ),
-
-                    'tendered_amount' => '₱' . number_format(
-                            $payment->tendered_amount ?? 0,
-                            2
-                        ),
-
-                    'change_amount' => '₱' . number_format(
-                            $payment->change_amount ?? 0,
-                            2
-                        ),
-
-                    'payment_date' => $payment->payment_date
-                        ? format_date(
-                            $payment->payment_date
-                        )
-                        : '-',
-
-                    'notes' => $payment->notes ?: '-',
+                    'method'         => ucfirst(str_replace('_', ' ', $payment->payment_method)),
+                    'reference'      => $payment->reference_number ?: '-',
+                    'amount'         => '₱' . number_format($payment->amount ?? 0, 2),
+                    'tendered_amount'=> '₱' . number_format($payment->tendered_amount ?? 0, 2),
+                    'change_amount'  => '₱' . number_format($payment->change_amount ?? 0, 2),
+                    'payment_date'   => $payment->payment_date ? format_date($payment->payment_date) : '-',
+                    'notes'          => $payment->notes ?: '-',
                 ];
             })->values(),
 
             'items' => $sale->items->map(function ($item) {
+                $costPrice        = (float) ($item->variant?->cost_price ?: ($item->product?->cost_price ?? 0));
+                $unitPrice        = (float) ($item->unit_price ?? 0);
+                $discountAmt      = (float) ($item->discount_amount ?? 0);
+                $qty              = (float) ($item->qty ?? 1);
+                $lineTotal        = (float) ($item->line_total ?? ($unitPrice * $qty - $discountAmt));
+                $effectiveUnit    = $qty > 0 ? ($lineTotal / $qty) : $unitPrice;
+                $lineCost         = $costPrice * $qty;
+                $grossProfit      = ($unitPrice - $costPrice) * $qty;
+                $netProfit        = $lineTotal - $lineCost;
+                $hasDiscount      = $discountAmt > 0.001;
 
-                $cost =
-                    $item->product?->cost_price ?? 0;
-
-                $profit =
-                    (
-                        ($item->unit_price - $cost)
-                        * $item->qty
-                    );
+                $productName = $item->product_name;
+                if (!$productName) {
+                    if ($item->variant) {
+                        $productName = ($item->product?->name ?? 'Product') . ' (' . $item->variant->variant_name . ')';
+                    } else {
+                        $productName = $item->product?->name ?? '-';
+                    }
+                }
 
                 return [
-
-                    'barcode' => $item->barcode
-                        ?: '-',
-
-                    'product' => $item->product_name
-                        ?: ($item->product?->name ?? '-'),
-
-                    'quantity' => $item->qty,
-
-                    'price' => '₱' . number_format(
-                            $item->unit_price ?? 0,
-                            2
-                        ),
-
-                    'total' => '₱' . number_format(
-                            $item->line_total ?? 0,
-                            2
-                        ),
-
-                    'profit' => '₱' . number_format(
-                            $profit,
-                            2
-                        ),
+                    'barcode'           => $item->barcode ?: ($item->variant?->barcode ?: ($item->product?->barcode ?: '-')),
+                    'product'           => $productName,
+                    'quantity'          => $qty,
+                    'cost_price'        => '₱' . number_format($costPrice, 2),
+                    'original_price'    => '₱' . number_format($unitPrice, 2),
+                    'effective_price'   => '₱' . number_format($effectiveUnit, 2),
+                    'price'             => '₱' . number_format($effectiveUnit, 2), // alias for compatibility
+                    'discount_amount'   => '₱' . number_format($discountAmt, 2),
+                    'has_discount'      => $hasDiscount,
+                    'promo_id'          => $item->promo_id,
+                    'line_total'        => '₱' . number_format($lineTotal, 2),
+                    'total'             => '₱' . number_format($lineTotal, 2), // alias
+                    'cost_total'        => '₱' . number_format($lineCost, 2),
+                    'gross_profit'      => '₱' . number_format($grossProfit, 2),
+                    'net_profit'        => '₱' . number_format($netProfit, 2),
+                    'net_profit_raw'    => round($netProfit, 2),
+                    'profit_margin_pct' => $lineTotal > 0 ? round(($netProfit / $lineTotal) * 100, 1) : 0,
                 ];
             })->values(),
         ]);
     }
 
+
+
     public function ajaxData(Request $request)
     {
-        $query = POSSale::with(['customer', 'cashier', 'payments', 'items', 'items.product',])
-            ->where('tenant_id', auth()->user()->tenant_id)
-            ->latest();
+        $tenantId = auth()->user()->tenant_id;
+        $query = POSSale::with(['customer', 'cashier', 'payments', 'items.product', 'items.variant'])
+            ->where('tenant_id', $tenantId)
+            ->where('sale_status', 'completed');
+
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->payment_method);
+        }
+
+        if ($request->filled('cashier_id')) {
+            $query->where('cashier_id', $request->cashier_id);
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('sale_date', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('sale_date', '<=', $request->date_to);
+        }
+
+        $query->latest('sale_date')->latest('id');
 
         return datatables()
             ->eloquent($query)
             ->addColumn('actions', function ($sale) {
                 return '
-                    <div class="btn-group">
+                    <div class="d-flex align-items-center gap-1.5 justify-content-center">
                         <button
                             type="button"
-                            class="btn btn-soft-primary btn-sm btn-view-sale"
+                            class="btn btn-sm btn-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-1 btn-view-sale shadow-xs"
                             data-id="' . $sale->id . '"
+                            title="View Full Breakdown & Profit Ledger"
                         >
-                            <i class="bi bi-eye"></i>
+                            <i class="bi bi-eye-fill me-1"></i><span class="extra-small fw-bold">View</span>
                         </button>
-                        <button
-                            type="button"
-                            class="btn btn-soft-success btn-sm btn-print-sale"
-                            data-id="' . $sale->id . '"
+                        <a
+                            href="' . route('sales.bir-receipt', $sale->id) . '"
+                            target="_blank"
+                            class="btn btn-sm btn-light border text-dark rounded-circle d-inline-flex align-items-center justify-content-center shadow-xs"
+                            style="width:28px;height:28px;"
+                            title="Print Customer Receipt"
                         >
-                            <i class="bi bi-printer"></i>
-                        </button>
+                            <i class="bi bi-printer-fill" style="font-size:0.75rem;"></i>
+                        </a>
                     </div>
                 ';
             })
             ->addColumn('invoice_number', function ($sale) {
+                $code = $sale->sale_code ?: $sale->invoice_no ?: ('#SALE-' . str_pad($sale->id, 5, '0', STR_PAD_LEFT));
                 return '
-                <span class="fw-semibold">
-                    ' . ($sale->sale_code ?? '-') . '
-                </span>
-            ';
+                    <div>
+                        <a href="javascript:void(0)" class="btn-view-sale font-mono fw-black text-primary text-decoration-none d-inline-flex align-items-center gap-1" data-id="' . $sale->id . '">
+                            <i class="bi bi-receipt extra-small"></i> ' . e($code) . '
+                        </a>
+                    </div>
+                ';
             })
             ->addColumn('sale_date', function ($sale) {
-                return $sale->sale_date
-                    ? format_date($sale->sale_date)
-                    : 'N/A';
+                if (!$sale->sale_date) return '<span class="text-muted">—</span>';
+                return '
+                    <div>
+                        <div class="fw-bold text-dark small">' . $sale->sale_date->format('M d, Y') . '</div>
+                        <div class="extra-small text-muted font-mono">' . $sale->sale_date->format('h:i A') . '</div>
+                    </div>
+                ';
             })
             ->addColumn('customer', function ($sale) {
-                return $sale->customer
-                    ? '<span class="fw-semibold">' .
-                    e($sale->customer->CustomerName) .
-                    '</span>'
-                    : '<span class="badge bg-light text-dark">
-                    Walk-in
-                </span>';
+                if ($sale->customer) {
+                    $cName = $sale->customer->CustomerName ?: ($sale->customer->name ?? 'Customer');
+                    $initials = strtoupper(substr($cName, 0, 1));
+                    return '
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle bg-primary bg-opacity-10 text-primary fw-black d-flex align-items-center justify-content-center extra-small flex-shrink-0" style="width:24px;height:24px;">
+                                ' . e($initials) . '
+                            </div>
+                            <span class="fw-bold text-dark small text-truncate" style="max-width:140px;" title="' . e($cName) . '">' . e($cName) . '</span>
+                        </div>
+                    ';
+                }
+                return '<span class="badge rounded-pill bg-light border text-muted extra-small fw-semibold px-2 py-0.5">Walk-in</span>';
             })
             ->addColumn('total_items', function ($sale) {
+                $totalQty = (float) $sale->items->sum('qty');
+                $count = $sale->items->count();
+                $qtyFormatted = fmod($totalQty, 1) === 0.0 ? (int)$totalQty : number_format($totalQty, 1);
                 return '
-                    <span class="badge bg-info">
-                        ' . $sale->items->sum('qty') . '
+                    <span class="badge rounded-pill px-2.5 py-1 fw-bold font-mono" style="background:#f1f5f9;color:#334155;font-size:0.75rem;">
+                        ' . $count . ' item' . ($count > 1 ? 's' : '') . ' <span class="fw-normal text-muted">(' . $qtyFormatted . ' pcs)</span>
                     </span>
                 ';
             })
             ->addColumn('subtotal', function ($sale) {
-                return '₱' . number_format(
-                        $sale->subtotal ?? 0,
-                        2
-                    );
+                return '<span class="font-mono text-muted small">₱' . number_format($sale->subtotal ?? 0, 2) . '</span>';
             })
             ->addColumn('discount', function ($sale) {
-                return '₱' . number_format(
-                        $sale->discount_amount ?? 0,
-                        2
-                    );
+                $disc = (float) ($sale->discount_amount ?? 0);
+                if ($disc > 0.001) {
+                    $dType = $sale->discount_type ? '<div class="extra-small text-muted text-uppercase mt-0.5" style="font-size:0.62rem;">' . e($sale->discount_type) . '</div>' : '';
+                    return '
+                        <div>
+                            <span class="badge rounded-pill px-2 py-0.5 fw-bold font-mono" style="background:#fee2e2;color:#dc2626;font-size:0.72rem;">
+                                -₱' . number_format($disc, 2) . '
+                            </span>
+                            ' . $dType . '
+                        </div>
+                    ';
+                }
+                return '<span class="text-muted extra-small font-mono">—</span>';
             })
             ->addColumn('total', function ($sale) {
                 return '
-                    <span class="fw-bold text-success">
-                        ₱' . number_format(
-                            $sale->total_amount ?? 0,
-                            2
-                        ) . '
+                    <span class="fw-black text-dark font-mono fs-6">
+                        ₱' . number_format($sale->total_amount ?? 0, 2) . '
                     </span>
                 ';
             })
             ->addColumn('profit', function ($sale) {
-                $profit = $sale->items->sum(function ($item) {
-                    $cost = $item->product->cost_price ?? 0;
-                    return (($item->selling_price - $cost) * $item->qty);
+                $costTotal = $sale->items->sum(function ($item) {
+                    $cost = (float) ($item->variant?->cost_price ?: ($item->product?->cost_price ?? 0));
+                    return $cost * (float) ($item->qty ?? 1);
                 });
+                $netRevenue = (float) ($sale->total_amount ?? 0);
+                $netProfit = $netRevenue - $costTotal;
+                $margin = $netRevenue > 0 ? round(($netProfit / $netRevenue) * 100, 1) : 0;
+
+                $isProfitable = $netProfit >= 0;
+                $profitColor = $isProfitable ? '#16a34a' : '#dc2626';
+                $marginBadgeBg = $margin >= 20 ? '#dcfce7' : ($margin >= 5 ? '#fef9c3' : '#fee2e2');
+                $marginBadgeClr = $margin >= 20 ? '#166534' : ($margin >= 5 ? '#854d0e' : '#991b1b');
+                $icon = $isProfitable ? '▲' : '▼';
+
                 return '
-                        <span class="fw-bold text-primary">
-                            ₱' . number_format(
-                                $profit,
-                                2
-                            ) . '
+                    <div>
+                        <div class="fw-black font-mono small" style="color:' . $profitColor . ';">
+                            ₱' . number_format($netProfit, 2) . '
+                        </div>
+                        <span class="badge rounded-1 px-1.5 py-0.5 fw-bold font-mono" style="font-size:0.65rem;background:' . $marginBadgeBg . ';color:' . $marginBadgeClr . ';">
+                            ' . $icon . ' ' . number_format($margin, 1) . '%
                         </span>
-                    ';
+                    </div>
+                ';
             })
             ->addColumn('payment_method', function ($sale) {
-                return StatusHelper::badge($sale->payment_method);
+                $payments = $sale->payments;
+                if ($payments && $payments->count() > 1) {
+                    $methods = $payments->map(function ($p) {
+                        return ucfirst(str_replace('_', ' ', $p->payment_method));
+                    })->unique()->implode(' + ');
+                    return '<span class="badge rounded-pill px-2.5 py-1 fw-bold" style="background:#ede9fe;color:#6d28d9;font-size:0.72rem;"><i class="bi bi-pie-chart-fill me-1"></i>Split (' . e($methods) . ')</span>';
+                }
+
+                $pm = strtolower($sale->payment_method ?? 'cash');
+                $pmConfig = [
+                    'cash' => ['bg' => '#ecfdf5', 'color' => '#059669', 'icon' => 'bi-cash-stack'],
+                    'gcash' => ['bg' => '#eff6ff', 'color' => '#2563eb', 'icon' => 'bi-phone-fill'],
+                    'bank_transfer' => ['bg' => '#f0fdfa', 'color' => '#0d9488', 'icon' => 'bi-bank'],
+                    'utang' => ['bg' => '#fffbeb', 'color' => '#d97706', 'icon' => 'bi-journal-text'],
+                    'credit' => ['bg' => '#fffbeb', 'color' => '#d97706', 'icon' => 'bi-journal-text'],
+                ];
+                $conf = $pmConfig[$pm] ?? ['bg' => '#f1f5f9', 'color' => '#475569', 'icon' => 'bi-credit-card-2-front'];
+                $label = ucfirst(str_replace('_', ' ', $sale->payment_method ?: 'Cash'));
+
+                return '
+                    <span class="badge rounded-pill px-2.5 py-1 fw-bold d-inline-flex align-items-center gap-1" style="background:' . $conf['bg'] . ';color:' . $conf['color'] . ';font-size:0.72rem;">
+                        <i class="bi ' . $conf['icon'] . '"></i> ' . e($label) . '
+                    </span>
+                ';
             })
             ->addColumn('tendered', function ($sale) {
-                return '₱' . number_format(
-                        $sale->tendered_amount ?? 0,
-                        2
-                    );
-            })
-            ->addColumn('change_amount', function ($sale) {
-                return '₱' . number_format(
-                        $sale->change_amount ?? 0,
-                        2
-                    );
-            })
-            ->addColumn('status', function ($sale) {
-                return StatusHelper::badge($sale->sale_status);
+                $tendered = (float) ($sale->tendered_amount ?? 0);
+                $change = (float) ($sale->change_amount ?? 0);
+                if ($tendered <= 0 && $sale->payments->count() > 0) {
+                    $tendered = (float) $sale->payments->sum('tendered_amount');
+                    $change = (float) $sale->payments->sum('change_amount');
+                }
+                return '
+                    <div>
+                        <div class="font-mono text-dark small fw-semibold">₱' . number_format($tendered, 2) . '</div>
+                        ' . ($change > 0 ? '<div class="extra-small font-mono text-muted">Chg: ₱' . number_format($change, 2) . '</div>' : '') . '
+                    </div>
+                ';
             })
             ->addColumn('cashier', function ($sale) {
-                return $sale->cashier
-                    ? '<span class="fw-semibold">' .
-                    e($sale->cashier->name) .
-                    '</span>'
-                    : '<span class="badge bg-light text-dark">
-                    System
-                </span>';
-            })
-            ->editColumn('created_at', function ($sale) {
-                return $sale->created_at ? $sale->created_at->format('M d, Y h:i A') : 'N/A';
+                if ($sale->cashier) {
+                    return '
+                        <div class="d-flex align-items-center gap-1.5">
+                            <i class="bi bi-person-circle text-muted extra-small"></i>
+                            <span class="small fw-semibold text-dark">' . e($sale->cashier->name) . '</span>
+                        </div>
+                    ';
+                }
+                return '<span class="text-muted extra-small">System</span>';
             })
             ->filterColumn('invoice_number', function ($query, $keyword) {
-                    $query->where(
-                        'invoice_no',
-                        'like',
-                        "%{$keyword}%"
-                    );
+                $query->where(function ($q) use ($keyword) {
+                    $q->where('invoice_no', 'like', "%{$keyword}%")
+                      ->orWhere('sale_code', 'like', "%{$keyword}%");
+                });
             })
             ->rawColumns([
                 'actions',
                 'invoice_number',
+                'sale_date',
                 'customer',
                 'total_items',
+                'subtotal',
+                'discount',
                 'total',
                 'profit',
                 'payment_method',
-                'status',
+                'tendered',
                 'cashier',
             ])
             ->make(true);
@@ -448,6 +497,7 @@ class SalesController extends Controller
     {
         $data = $request->validate([
             'sale_id' => ['required'],
+            'customer_id' => ['nullable'],
             'subtotal' => ['required', 'numeric', 'min:0'],
             'discount' => ['required', 'numeric', 'min:0'],
             'total' => ['required', 'numeric', 'min:0'],
@@ -456,6 +506,8 @@ class SalesController extends Controller
             'discount_value' => ['nullable', 'numeric'],
             'discount_holder' => ['nullable', 'string', 'max:255'],
             'discount_id_no' => ['nullable', 'string', 'max:255'],
+            'discount_reference' => ['nullable', 'string', 'max:255'],
+            'promo_id' => ['nullable', 'integer'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'payments' => ['required', 'array', 'min:1'],
             'payments.*.method' => ['required', 'string', 'in:cash,gcash,bank_transfer,utang'],
@@ -474,7 +526,7 @@ class SalesController extends Controller
             ->contains(fn ($payment) => $payment['method'] === 'utang');
 
         if ($hasUtang) {
-            $customerId = POSSale::where('id', $saleID)->value('customer_id');
+            $customerId = $data['customer_id'] ?? POSSale::where('id', $saleID)->value('customer_id');
 
             if (!$customerId) {
                 return response()->json([
@@ -534,6 +586,9 @@ class SalesController extends Controller
                 ->firstOrFail();
 
             $sale->cashier_id = auth()->id();
+            if (!empty($data['customer_id'])) {
+                $sale->customer_id = $data['customer_id'];
+            }
             $sale->payment_method = count($data['payments']) === 1
                 ? $data['payments'][0]['method']
                 : 'split';
@@ -543,6 +598,8 @@ class SalesController extends Controller
             $sale->discount_type = $data['discount_type'] ?? null;
             $sale->discount_holder = $data['discount_holder'] ?? null;
             $sale->discount_id_no = $data['discount_id_no'] ?? null;
+            $sale->discount_reference = $data['discount_reference'] ?? ($data['discount_id_no'] ?? null);
+            $sale->promo_id = $data['promo_id'] ?? null;
             $sale->tax_amount = round($taxAmount, 2);
             $sale->total_amount = $data['total'];
             $sale->sale_status = 'completed';
@@ -554,6 +611,11 @@ class SalesController extends Controller
 
             $sale->notes = $data['notes'] ?? null;
             $sale->save();
+
+            // Track promo campaign usage count
+            if ($sale->promo_id) {
+                \App\Models\POS\POSPromotion::where('id', $sale->promo_id)->increment('usage_count');
+            }
 
             foreach ($data['items'] as $item) {
                 $product = POSProducts::findOrFail($item['product_id']);
@@ -590,10 +652,11 @@ class SalesController extends Controller
                 $newSaleItem->sku = $variant?->sku ?: $product->sku;
                 $newSaleItem->product_name = $variant ? "{$product->name} ({$variant->variant_name})" : $product->name;
                 $newSaleItem->qty = $item['qty'];
-                $newSaleItem->unit_price = $item['price'];
-                $newSaleItem->discount_amount = 0;
+                $newSaleItem->unit_price = $item['original_price'] ?? $item['price'];
+                $newSaleItem->discount_amount = $item['discount_amount'] ?? 0;
+                $newSaleItem->promo_id = $item['promo_id'] ?? null;
                 $newSaleItem->tax_amount = 0;
-                $newSaleItem->line_total = $item['qty'] * $item['price'];
+                $newSaleItem->line_total = $item['subtotal'] ?? ($item['qty'] * $item['price']);
                 $this->setCommonFields($newSaleItem);
                 $newSaleItem->save();
 
@@ -909,35 +972,64 @@ class SalesController extends Controller
     public function index()
     {
         $tenantId = auth()->user()->tenant_id;
-        $salesToday = POSSale::query()
-            ->where('tenant_id', $tenantId)
-            ->where('sale_date', '>=', now()->subDays(1))
-            ->where('sale_date', '<=', now())
-            ->sum('subtotal');
+        $startOfDay = now()->startOfDay();
+        $endOfDay = now()->endOfDay();
 
-        $transactionsToday = POSSale::query()
+        $todaySalesQuery = POSSale::query()
+            ->with(['items.product', 'items.variant'])
             ->where('tenant_id', $tenantId)
-            ->where('sale_date', '>=', now()->subDays(1))
-            ->where('sale_date', '<=', now())
-            ->count();
+            ->where('sale_status', 'completed')
+            ->where('sale_date', '>=', $startOfDay)
+            ->where('sale_date', '<=', $endOfDay);
 
-        $averageSale = POSSale::query()
-            ->where('tenant_id', $tenantId)
-            ->where('sale_date', '>=', now()->subDays(1))
-            ->where('sale_date', '<=', now())
-            ->avg('subtotal');
+        $todaySales = $todaySalesQuery->get();
+
+        $salesToday = (float) $todaySales->sum('total_amount');
+        $transactionsToday = $todaySales->count();
+        $averageSale = $transactionsToday > 0 ? ($salesToday / $transactionsToday) : 0;
+
+        $profitToday = (float) $todaySales->sum(function ($sale) {
+            $cost = $sale->items->sum(function ($item) {
+                $c = (float) ($item->variant?->cost_price ?: ($item->product?->cost_price ?? 0));
+                return $c * (float) ($item->qty ?? 1);
+            });
+            return (float) ($sale->total_amount ?? 0) - $cost;
+        });
+
+        $profitMarginToday = $salesToday > 0 ? round(($profitToday / $salesToday) * 100, 1) : 0;
+
+        $cashiers = User::where('tenant_id', $tenantId)->get(['id', 'name']);
 
         return view('pages.tenants.terminal.index', [
             'salesToday' => $salesToday,
             'transactionsToday' => $transactionsToday,
             'averageSale' => $averageSale,
+            'profitToday' => $profitToday,
+            'profitMarginToday' => $profitMarginToday,
+            'cashiers' => $cashiers,
         ]);
     }
 
-    protected function createSale(Request $request){
-        $terminalId = session('terminal_id');
-        $drawerId = session('drawer_id');
-        $cashShiftId = session('cash_shift_id');
+    protected function createSale(Request $request)
+    {
+        $saleParam = $request->route('sale') ?? $request->segment(3);
+        $currentSale = null;
+        try {
+            $decrypted = decryptId($saleParam);
+            if ($decrypted) {
+                $currentSale = POSSale::find($decrypted);
+            }
+        } catch (\Exception $e) {}
+
+        $terminalId = $currentSale?->terminal_id ?? session('terminal_id');
+        $drawerId = $currentSale?->drawer_id ?? session('drawer_id');
+        $cashShiftId = $currentSale?->cash_shift_id ?? session('cash_shift_id');
+
+        if (!$terminalId) {
+            $terminal = POSTerminal::where('tenant_id', auth()->user()->tenant_id)->first();
+            $terminalId = $terminal?->id;
+            $drawerId = $terminal?->drawer_id;
+        }
 
         $sale = new POSSale();
         $sale->tenant_id = auth()->user()->tenant_id;
@@ -955,12 +1047,53 @@ class SalesController extends Controller
         ]);
 
         return redirect()->route(
-            'sales.new',
+            'sales.create',
             [
                 encryptId($sale->id)
             ]
         );
     }
+
+    public function ajaxNewSale(Request $request)
+    {
+        $tenantId = auth()->user()->tenant_id;
+        $currentSaleId = $request->input('current_sale_id') ? decryptId($request->input('current_sale_id')) : null;
+        $currentSale = $currentSaleId ? POSSale::find($currentSaleId) : null;
+
+        $terminalId = $currentSale?->terminal_id ?? session('terminal_id');
+        $drawerId = $currentSale?->drawer_id ?? session('drawer_id');
+        $cashShiftId = $currentSale?->cash_shift_id ?? session('cash_shift_id');
+
+        if (!$terminalId) {
+            $terminal = POSTerminal::where('tenant_id', $tenantId)->first();
+            $terminalId = $terminal?->id;
+            $drawerId = $terminal?->drawer_id;
+        }
+
+        $sale = new POSSale();
+        $sale->tenant_id = $tenantId;
+        $sale->terminal_id = $terminalId;
+        $sale->drawer_id = $drawerId;
+        $sale->cash_shift_id = $cashShiftId;
+        $this->setCommonFields($sale);
+        $sale->save();
+
+        session()->put([
+            'terminal_id'   => $terminalId,
+            'drawer_id'     => $drawerId,
+            'cash_shift_id' => $cashShiftId,
+            'sale_id'       => $sale->id,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'sale_id' => encryptId($sale->id),
+            'sale_code' => $sale->sale_code,
+            'sale_url' => route('sales.create', [encryptId($sale->id)]),
+            'message' => 'New transaction started.'
+        ]);
+    }
+
 
     public function create(Request $request)
     {
@@ -968,14 +1101,29 @@ class SalesController extends Controller
             return $this->createSale($request);
         }
 
+        $saleParam = $request->route('sale') ?? $request->segment(3);
+        $decryptedId = null;
+        try {
+            $decryptedId = decryptId($saleParam);
+        } catch (\Exception $e) {}
+
+        if (!$decryptedId) {
+            return redirect()->route('terminal.index');
+        }
+
         $sale = POSSale::with([
             'customer',
             'terminal',
             'drawer',
             'cashShift.cashier',
-        ])->findOrFail(decryptId($request->segment(3)));
+            'items.product.unit',
+            'items.variant',
+            'payments'
+        ])->find($decryptedId);
 
-        abort_if($sale->tenant_id !== auth()->user()->tenant_id, 403);
+        if (!$sale || $sale->tenant_id !== auth()->user()->tenant_id) {
+            return redirect()->route('terminal.index');
+        }
 
         $categories = POSCategories::query()
             ->where('tenant_id', auth()->user()->tenant_id)
@@ -983,12 +1131,14 @@ class SalesController extends Controller
 
         $previousSale = POSSale::query()
             ->where('tenant_id', auth()->user()->tenant_id)
+            ->where('sale_status', 'completed')
             ->where('id', '<', $sale->id)
             ->orderByDesc('id')
             ->first();
 
         $nextSale = POSSale::query()
             ->where('tenant_id', auth()->user()->tenant_id)
+            ->where('sale_status', 'completed')
             ->where('id', '>', $sale->id)
             ->orderBy('id')
             ->first();

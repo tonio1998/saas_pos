@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\POS\POSSale;
 use App\Models\POS\POSSaleItem;
 use App\Models\POS\POSCashTransaction;
+use App\Models\POS\POSExpense;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -38,11 +39,20 @@ class ProfitReportController extends Controller
 
         $grossProfit = $grossRevenue - $cogs;
 
-        $operatingExpenses = (float)POSCashTransaction::where('tenant_id', $tenantId)
+        // Calculate store operating expenses from pos_expenses table
+        $posExpensesTotal = (float)POSExpense::where('tenant_id', $tenantId)
+            ->whereDate('expense_date', '>=', $startDate)
+            ->whereDate('expense_date', '<=', $endDate)
+            ->sum('amount');
+
+        // Fallback or additional drawer cashouts not logged in pos_expenses
+        $cashPayoutsTotal = (float)POSCashTransaction::where('tenant_id', $tenantId)
             ->whereIn('transaction_type', ['out', 'expense', 'payout', 'OUT'])
             ->whereDate('created_at', '>=', $startDate)
             ->whereDate('created_at', '<=', $endDate)
             ->sum('amount');
+
+        $operatingExpenses = $posExpensesTotal > 0 ? $posExpensesTotal : $cashPayoutsTotal;
 
         $netProfit = $grossProfit - $operatingExpenses;
         $profitMargin = $grossRevenue > 0 ? (($netProfit / $grossRevenue) * 100) : 0;

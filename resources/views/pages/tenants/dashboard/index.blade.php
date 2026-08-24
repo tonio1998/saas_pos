@@ -235,49 +235,75 @@
         </div>
     </div>
 
-    {{-- Quick Action Command Bar --}}
-    <div class="modern-card bg-white p-3.5 mb-3">
-        <div class="d-flex align-items-center justify-content-between mb-2.5">
-            <div>
-                <h5 class="section-title font-mono mb-0">Quick POS Commands & Management</h5>
-                <div class="section-subtitle">Fast shortcuts to essential POS, inventory, and cashiering operations</div>
+    {{-- Row: Quick POS Commands (6 cols) + Top Customers CRM Leaderboard (6 cols) --}}
+    <div class="row g-3 mb-3">
+        {{-- Quick Action Command Bar --}}
+        <div class="col-xl-6">
+            <div class="modern-card h-100 bg-white p-3.5">
+                <div class="d-flex align-items-center justify-content-between mb-2.5">
+                    <div>
+                        <h5 class="section-title font-mono mb-0">Quick POS Commands & Management</h5>
+                        <div class="section-subtitle">Fast shortcuts to essential POS, inventory, and cashiering operations</div>
+                    </div>
+                </div>
+                <div class="quick-grid">
+                    <a href="{{ route('terminal.index') }}" class="quick-action-tile emerald">
+                        <div class="quick-tile-icon"><i class="bi bi-calculator-fill"></i></div>
+                        <div class="quick-tile-title">Open POS</div>
+                    </a>
+                    <a href="{{ route('products.create') }}" class="quick-action-tile blue">
+                        <div class="quick-tile-icon"><i class="bi bi-plus-circle-fill"></i></div>
+                        <div class="quick-tile-title">Add Item</div>
+                    </a>
+                    <a href="{{ route('products.index') }}" class="quick-action-tile cyan">
+                        <div class="quick-tile-icon"><i class="bi bi-box-seam-fill"></i></div>
+                        <div class="quick-tile-title">Masterlist</div>
+                    </a>
+                    <a href="{{ route('customers.index') }}" class="quick-action-tile rose">
+                        <div class="quick-tile-icon"><i class="bi bi-people-fill"></i></div>
+                        <div class="quick-tile-title">Suki CRM</div>
+                    </a>
+                    <a href="{{ route('reports.sales') }}" class="quick-action-tile amber">
+                        <div class="quick-tile-icon"><i class="bi bi-bar-chart-line-fill"></i></div>
+                        <div class="quick-tile-title">Reports</div>
+                    </a>
+                    <a href="{{ route('cashiering.cash-shifts.index') }}" class="quick-action-tile purple">
+                        <div class="quick-tile-icon"><i class="bi bi-clock-history"></i></div>
+                        <div class="quick-tile-title">Shift Logs</div>
+                    </a>
+                    <a href="{{ route('cashiering.cash-transactions.index') }}" class="quick-action-tile emerald">
+                        <div class="quick-tile-icon"><i class="bi bi-arrow-left-right"></i></div>
+                        <div class="quick-tile-title">Cash In/Out</div>
+                    </a>
+                    <a href="{{ route('settings.index') }}" class="quick-action-tile slate">
+                        <div class="quick-tile-icon"><i class="bi bi-gear-fill"></i></div>
+                        <div class="quick-tile-title">Settings</div>
+                    </a>
+                </div>
             </div>
         </div>
-        <div class="quick-grid">
-            <a href="{{ route('terminal.index') }}" class="quick-action-tile emerald">
-                <div class="quick-tile-icon"><i class="bi bi-calculator-fill"></i></div>
-                <div class="quick-tile-title">Open POS</div>
-            </a>
-            <a href="{{ route('products.create') }}" class="quick-action-tile blue">
-                <div class="quick-tile-icon"><i class="bi bi-plus-circle-fill"></i></div>
-                <div class="quick-tile-title">Add Item</div>
-            </a>
-            <a href="{{ route('products.index') }}" class="quick-action-tile cyan">
-                <div class="quick-tile-icon"><i class="bi bi-box-seam-fill"></i></div>
-                <div class="quick-tile-title">Masterlist</div>
-            </a>
-            <a href="{{ route('customers.index') }}" class="quick-action-tile rose">
-                <div class="quick-tile-icon"><i class="bi bi-people-fill"></i></div>
-                <div class="quick-tile-title">Suki CRM</div>
-            </a>
-            <a href="{{ route('reports.sales') }}" class="quick-action-tile amber">
-                <div class="quick-tile-icon"><i class="bi bi-bar-chart-line-fill"></i></div>
-                <div class="quick-tile-title">Reports</div>
-            </a>
-            <a href="{{ route('cashiering.cash-shifts.index') }}" class="quick-action-tile purple">
-                <div class="quick-tile-icon"><i class="bi bi-clock-history"></i></div>
-                <div class="quick-tile-title">Shift Logs</div>
-            </a>
-            <a href="{{ route('cashiering.cash-transactions.index') }}" class="quick-action-tile emerald">
-                <div class="quick-tile-icon"><i class="bi bi-arrow-left-right"></i></div>
-                <div class="quick-tile-title">Cash In/Out</div>
-            </a>
-            <a href="{{ route('settings.index') }}" class="quick-action-tile slate">
-                <div class="quick-tile-icon"><i class="bi bi-gear-fill"></i></div>
-                <div class="quick-tile-title">Settings</div>
-            </a>
+
+        {{-- Top Customers & Loyalty Leaderboard --}}
+        <div class="col-xl-6">
+            <div class="modern-card h-100 bg-white p-3.5">
+                <div class="d-flex align-items-center justify-content-between mb-2.5">
+                    <div>
+                        <h5 class="section-title font-mono mb-0">Top Customers & Loyalty Leaderboard</h5>
+                        <div class="section-subtitle">Store VIP accounts, accumulated rewards, and active receivables</div>
+                    </div>
+                    <a href="{{ route('customers.index') }}" class="btn btn-xs btn-light border fw-bold text-primary rounded-pill px-2.5 py-1" style="font-size:0.75rem;">CRM &rarr;</a>
+                </div>
+
+                <div class="row g-2" id="topSukiContainer">
+                    <div class="col-12 text-center py-4 text-muted">
+                        <div class="spinner-border spinner-border-sm text-primary me-1"></div>
+                        Loading CRM leaderboard...
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
 
     {{-- Real DB Data Grids: Recent Transactions & Low Stock Alert --}}
     <div class="row g-3 mb-3">
@@ -384,25 +410,8 @@
             </div>
         </div>
     </div>
-
-    {{-- Top Customers & Loyalty Leaderboard (Async Pulled via /dashboard/top-suki) --}}
-    <div class="modern-card bg-white p-3.5 mb-3">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-            <div>
-                <h5 class="section-title font-mono mb-0">Top Customers & Loyalty Leaderboard</h5>
-                <div class="section-subtitle">Store VIP accounts, accumulated rewards, and active receivables</div>
-            </div>
-            <a href="{{ route('customers.index') }}" class="btn btn-xs btn-light border fw-bold text-primary rounded-pill px-2.5 py-1" style="font-size:0.75rem;">Customer CRM &rarr;</a>
-        </div>
-
-        <div class="row g-3" id="topSukiContainer">
-            <div class="col-12 text-center py-4 text-muted">
-                <div class="spinner-border spinner-border-sm text-primary me-1"></div>
-                Loading CRM leaderboard...
-            </div>
-        </div>
-    </div>
 </div>
+
 
 @push('scripts')
 <script src="{{ asset('js/apexcharts.min.js') }}"></script>
@@ -909,35 +918,35 @@
             tbody.innerHTML = d.sales.map(s => {
                 const initials = s.customer_name ? s.customer_name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() : 'GS';
                 const methodBadge = s.payment_method === 'cash' 
-                    ? '<span class="badge bg-success-subtle text-success border border-success-subtle fw-bold" style="font-size:0.68rem;padding:3px 7px;"><i class="bi bi-cash me-1"></i>Cash</span>'
+                    ? '<span class="badge bg-success-subtle text-success border border-success-subtle fw-bold" style="font-size:0.75rem;padding:4px 8px;"><i class="bi bi-cash me-1"></i>Cash</span>'
                     : (s.payment_method === 'credit'
-                        ? '<span class="badge bg-danger-subtle text-danger border border-danger-subtle fw-bold" style="font-size:0.68rem;padding:3px 7px;"><i class="bi bi-book me-1"></i>Credit</span>'
+                        ? '<span class="badge bg-danger-subtle text-danger border border-danger-subtle fw-bold" style="font-size:0.75rem;padding:4px 8px;"><i class="bi bi-book me-1"></i>Credit</span>'
                         : (s.payment_method === 'gcash'
-                            ? '<span class="badge bg-primary-subtle text-primary border border-primary-subtle fw-bold" style="font-size:0.68rem;padding:3px 7px;"><i class="bi bi-phone me-1"></i>GCash</span>'
-                            : '<span class="badge bg-info-subtle text-info border border-info-subtle fw-bold" style="font-size:0.68rem;padding:3px 7px;"><i class="bi bi-wallet2 me-1"></i>Maya</span>'
+                            ? '<span class="badge bg-primary-subtle text-primary border border-primary-subtle fw-bold" style="font-size:0.75rem;padding:4px 8px;"><i class="bi bi-phone me-1"></i>GCash</span>'
+                            : '<span class="badge bg-info-subtle text-info border border-info-subtle fw-bold" style="font-size:0.75rem;padding:4px 8px;"><i class="bi bi-wallet2 me-1"></i>Maya</span>'
                         )
                     );
 
                 return `
                     <tr>
-                        <td class="py-2.5 px-3">
-                            <a href="${s.details_url}" class="badge bg-light text-dark border font-mono fw-bold text-decoration-none hover-primary" style="font-size:0.72rem;">
+                        <td class="py-3 px-3">
+                            <a href="${s.details_url}" class="badge bg-light text-dark border font-mono fw-bold text-decoration-none hover-primary" style="font-size:0.8rem;padding:4px 8px;">
                                 ${s.invoice_no}
                             </a>
                         </td>
-                        <td class="py-2.5 px-3">
+                        <td class="py-3 px-3">
                             <div class="d-flex align-items-center gap-2">
-                                <span class="avatar-initials" style="background:#475569;">${initials}</span>
-                                <span class="fw-bold text-dark text-truncate" style="max-width:130px;">${s.customer_name}</span>
+                                <span class="avatar-initials" style="background:#334155;font-weight:700;font-size:0.75rem;">${initials}</span>
+                                <span class="fw-bold text-dark" style="font-size:0.88rem;">${s.customer_name}</span>
                             </div>
                         </td>
-                        <td class="py-2.5 px-3 text-center">
+                        <td class="py-3 px-3 text-center">
                             ${methodBadge}
                         </td>
-                        <td class="py-2.5 px-3 text-end font-mono fw-black text-dark" style="font-size:0.85rem;">
+                        <td class="py-3 px-3 text-end font-mono fw-black text-dark" style="font-size:0.92rem;">
                             ${s.total_amount_formatted}
                         </td>
-                        <td class="py-2.5 px-3 text-end text-muted font-mono extra-small">
+                        <td class="py-3 px-3 text-end text-muted font-mono" style="font-size:0.78rem;">
                             ${s.time_formatted}
                         </td>
                     </tr>
@@ -967,27 +976,27 @@
 
             tbody.innerHTML = d.products.map(p => {
                 const stockBadge = p.is_out_of_stock 
-                    ? '<span class="badge bg-danger text-white fw-bold font-mono" style="font-size:0.68rem;padding:3px 7px;"><i class="bi bi-x-circle-fill me-1"></i>0 Left</span>'
-                    : `<span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-bold font-mono" style="font-size:0.68rem;padding:3px 7px;"><i class="bi bi-exclamation-circle-fill me-1"></i>${p.stock} ${p.unit}</span>`;
+                    ? '<span class="badge bg-danger text-white fw-bold font-mono" style="font-size:0.78rem;padding:4px 8px;"><i class="bi bi-x-circle-fill me-1"></i>0 Left</span>'
+                    : `<span class="badge bg-warning-subtle text-dark border border-warning fw-bold font-mono" style="font-size:0.78rem;padding:4px 8px;"><i class="bi bi-exclamation-circle-fill text-warning me-1"></i>${p.stock} ${p.unit}</span>`;
 
                 return `
                     <tr>
-                        <td class="py-2.5 px-3">
-                            <div class="fw-bold text-dark text-truncate mb-0.5" style="max-width:160px;" title="${p.name}">
+                        <td class="py-3 px-3">
+                            <div class="fw-bold text-dark mb-1" style="font-size:0.9rem;">
                                 ${p.name}
                             </div>
-                            <span class="badge bg-light text-muted border font-mono" style="font-size:0.62rem;">${p.barcode}</span>
+                            <span class="badge bg-light text-secondary border font-mono fw-bold" style="font-size:0.72rem;padding:2px 6px;">${p.barcode}</span>
                         </td>
-                        <td class="py-2.5 px-3">
-                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle" style="font-size:0.68rem;">
+                        <td class="py-3 px-3">
+                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle fw-semibold" style="font-size:0.78rem;padding:4px 8px;">
                                 ${p.category}
                             </span>
                         </td>
-                        <td class="py-2.5 px-3 text-center">
+                        <td class="py-3 px-3 text-center">
                             ${stockBadge}
                         </td>
-                        <td class="py-2.5 px-3 text-end">
-                            <a href="${p.restock_url}" class="btn btn-xs btn-outline-success fw-bold rounded-pill px-2.5 py-1 hover-lift" style="font-size:0.72rem;">
+                        <td class="py-3 px-3 text-end">
+                            <a href="${p.restock_url}" class="btn btn-sm btn-outline-success fw-bold rounded-pill px-3 py-1 hover-lift" style="font-size:0.78rem;">
                                 <i class="bi bi-plus-lg me-0.5"></i> Restock
                             </a>
                         </td>
@@ -1018,35 +1027,41 @@
 
             tbody.innerHTML = d.fast_moving.map((p, idx) => {
                 const rankBadges = [
-                    '<span class="badge bg-warning text-dark font-mono fw-black" style="font-size:0.65rem;padding:3px 7px;">#1 Top</span>',
-                    '<span class="badge bg-secondary text-white font-mono fw-bold" style="font-size:0.65rem;padding:3px 7px;">#2 Top</span>',
-                    '<span class="badge text-white font-mono fw-bold" style="background:#d97706;font-size:0.65rem;padding:3px 7px;">#3 Top</span>'
+                    '<span class="badge font-mono fw-black text-dark" style="background:#fef08a;color:#854d0e;border:1px solid #facc15;font-size:0.75rem;padding:4px 8px;">#1 Top</span>',
+                    '<span class="badge font-mono fw-bold text-dark" style="background:#e2e8f0;color:#334155;border:1px solid #cbd5e1;font-size:0.75rem;padding:4px 8px;">#2 Top</span>',
+                    '<span class="badge font-mono fw-bold text-white" style="background:#ea580c;border:1px solid #c2410c;font-size:0.75rem;padding:4px 8px;">#3 Top</span>'
                 ];
-                const badge = rankBadges[idx] || `<span class="badge bg-light text-dark border font-mono" style="font-size:0.65rem;padding:3px 7px;">#${idx+1}</span>`;
+                const badge = rankBadges[idx] || `<span class="badge bg-light text-dark border font-mono fw-bold" style="font-size:0.75rem;padding:4px 8px;">#${idx+1}</span>`;
                 const categoryBadge = (p.category && p.category !== 'General') 
-                    ? `<span class="badge bg-primary-subtle text-primary border border-primary-subtle font-mono fw-semibold" style="font-size:0.68rem;">${p.category}</span>`
-                    : `<span class="badge bg-light text-muted border font-mono" style="font-size:0.68rem;">General</span>`;
+                    ? `<span class="badge bg-primary-subtle text-primary border border-primary-subtle font-mono fw-bold" style="font-size:0.78rem;padding:4px 8px;">${p.category}</span>`
+                    : `<span class="badge bg-light text-muted border font-mono" style="font-size:0.78rem;padding:4px 8px;">General</span>`;
+                const variantBadge = p.is_variant 
+                    ? `<span class="badge font-mono fw-bold ms-1" style="background:#ede9fe;color:#5b21b6;border:1px solid #c4b5fd;font-size:0.72rem;padding:2px 6px;">Variant</span>`
+                    : '';
 
                 return `
                     <tr>
-                        <td class="py-2.5 px-3">
-                            <div class="d-flex align-items-center gap-2">
+                        <td class="py-3 px-3">
+                            <div class="d-flex align-items-center gap-2.5">
                                 ${badge}
-                                <div class="overflow-hidden">
-                                    <div class="fw-bold text-dark text-truncate mb-0.5" style="max-width:170px;" title="${p.name}">
+                                <div>
+                                    <div class="fw-bold text-dark mb-1 lh-sm" style="font-size:0.92rem;" title="${p.name}">
                                         ${p.name}
                                     </div>
-                                    <span class="badge bg-light text-muted border font-mono" style="font-size:0.62rem;">${p.barcode}</span>
+                                    <div class="d-flex align-items-center gap-1">
+                                        <span class="badge bg-light text-secondary border font-mono fw-semibold" style="font-size:0.72rem;padding:2px 6px;">${p.barcode}</span>
+                                        ${variantBadge}
+                                    </div>
                                 </div>
                             </div>
                         </td>
-                        <td class="py-2.5 px-3">
+                        <td class="py-3 px-3">
                             ${categoryBadge}
                         </td>
-                        <td class="py-2.5 px-3 text-center font-mono fw-black text-purple" style="font-size:0.85rem;">
+                        <td class="py-3 px-3 text-center font-mono fw-black" style="font-size:0.95rem;color:#4338ca;">
                             🚀 ${p.total_sold_formatted}
                         </td>
-                        <td class="py-2.5 px-3 text-end font-mono fw-black text-success" style="font-size:0.85rem;">
+                        <td class="py-3 px-3 text-end font-mono fw-black" style="font-size:0.95rem;color:#047857;">
                             ${p.total_revenue_formatted}
                         </td>
                     </tr>
@@ -1056,6 +1071,7 @@
             console.error('Fast moving error:', e);
         }
     }
+
 
     /**
      * 5. Pull Top Customers CRM Leaderboard
@@ -1082,42 +1098,40 @@
 
             container.innerHTML = d.customers.map((c, index) => {
                 const rankCards = [
-                    { rank: '👑 #1 VIP', cls: 'rank-1', badge: 'bg-warning text-dark' },
-                    { rank: '🥈 #2 Top', cls: 'rank-2', badge: 'bg-secondary text-white' },
-                    { rank: '🥉 #3 Top', cls: 'rank-3', badge: 'bg-amber-600 text-white' },
-                    { rank: `#${index+1}`, cls: '', badge: 'bg-light text-dark border' },
-                    { rank: `#${index+1}`, cls: '', badge: 'bg-light text-dark border' }
+                    { rank: '👑 #1 VIP', cls: 'rank-1', badge: 'background:#fef08a;color:#854d0e;border:1px solid #facc15;' },
+                    { rank: '🥈 #2 Top', cls: 'rank-2', badge: 'background:#e2e8f0;color:#334155;border:1px solid #cbd5e1;' },
+                    { rank: '🥉 #3 Top', cls: 'rank-3', badge: 'background:#ffedd5;color:#9a3412;border:1px solid #fdba74;' },
                 ];
-                const r = rankCards[index] || { rank: `#${index+1}`, cls: '', badge: 'bg-light text-muted border' };
+                const r = rankCards[index] || { rank: `#${index+1}`, cls: '', badge: 'background:#f8fafc;color:#475569;border:1px solid #e2e8f0;' };
                 const initials = c.name ? c.name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() : 'SK';
                 const avatarBg = index === 0 ? '#d97706' : (index === 1 ? '#475569' : (index === 2 ? '#b45309' : '#059669'));
 
                 return `
-                    <div class="col-12 col-md-6 col-xl">
-                        <div class="crm-leaderboard-card ${r.cls} h-100 d-flex flex-column justify-content-between">
+                    <div class="col-12 col-sm-6">
+                        <div class="crm-leaderboard-card ${r.cls} h-100 d-flex flex-column justify-content-between p-2.5 rounded-3 border bg-light shadow-xs">
                             <div>
                                 <div class="d-flex align-items-center justify-content-between mb-2">
-                                    <span class="badge ${r.badge} fw-black" style="font-size:0.65rem;padding:3px 7px;">${r.rank}</span>
-                                    <span class="badge ${c.type === 'vip' ? 'bg-warning-subtle text-warning-emphasis' : (c.type === 'senior' ? 'bg-info-subtle text-info-emphasis' : 'bg-primary-subtle text-primary')} extra-small fw-bold text-uppercase" style="font-size:0.65rem;padding:2px 6px;">
+                                    <span class="badge fw-black" style="${r.badge};font-size:0.7rem;padding:3px 7px;">${r.rank}</span>
+                                    <span class="badge ${c.type === 'vip' ? 'bg-warning-subtle text-dark border border-warning' : (c.type === 'senior' ? 'bg-info-subtle text-dark border border-info' : 'bg-primary-subtle text-primary border border-primary-subtle')} extra-small fw-bold text-uppercase" style="font-size:0.68rem;padding:2px 6px;">
                                         ${c.type}
                                     </span>
                                 </div>
                                 <div class="d-flex align-items-center gap-2 mb-2">
-                                    <span class="avatar-initials" style="background:${avatarBg};width:32px;height:32px;font-size:0.75rem;">${initials}</span>
+                                    <span class="avatar-initials rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" style="background:${avatarBg};width:32px;height:32px;font-size:0.78rem;">${initials}</span>
                                     <div class="overflow-hidden">
-                                        <h6 class="fw-bold text-dark mb-0 text-truncate" style="font-size:0.84rem;" title="${c.name}">${c.name}</h6>
-                                        <div class="text-muted extra-small font-mono" style="font-size:0.68rem;">${c.phone}</div>
+                                        <h6 class="fw-bold text-dark mb-0 text-truncate" style="font-size:0.88rem;" title="${c.name}">${c.name}</h6>
+                                        <div class="text-secondary extra-small font-mono" style="font-size:0.72rem;">${c.phone}</div>
                                     </div>
                                 </div>
                             </div>
                             <div class="p-2 rounded-2 bg-white border d-flex align-items-center justify-content-between gap-1 mt-1 shadow-xs">
                                 <div>
-                                    <div class="text-muted extra-small text-uppercase fw-bold" style="font-size:0.6rem;">Points</div>
-                                    <div class="font-mono fw-black text-success" style="font-size:0.82rem;">${c.points_formatted}</div>
+                                    <div class="text-muted extra-small text-uppercase fw-bold" style="font-size:0.62rem;">Points</div>
+                                    <div class="font-mono fw-black text-success" style="font-size:0.86rem;">${c.points_formatted}</div>
                                 </div>
                                 <div class="text-end">
-                                    <div class="text-muted extra-small text-uppercase fw-bold" style="font-size:0.6rem;">Utang Bal</div>
-                                    <div class="font-mono fw-black ${c.balance > 0 ? 'text-danger' : 'text-dark'}" style="font-size:0.82rem;">
+                                    <div class="text-muted extra-small text-uppercase fw-bold" style="font-size:0.62rem;">Utang Bal</div>
+                                    <div class="font-mono fw-black ${c.balance > 0 ? 'text-danger' : 'text-dark'}" style="font-size:0.86rem;">
                                         ${c.balance_formatted}
                                     </div>
                                 </div>
@@ -1126,6 +1140,7 @@
                     </div>
                 `;
             }).join('');
+
         } catch (e) {
             console.error('Top suki error:', e);
         }

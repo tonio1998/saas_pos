@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>BIR Official Receipt - {{ $sale->invoice_no }}</title>
+    <title>Sales Receipt - {{ $sale->invoice_no }}</title>
     <style>
         @page {
             size: 80mm 200mm;
@@ -38,8 +38,9 @@
             vertical-align: top;
         }
         .header-title {
-            font-size: 14px;
+            font-size: 13.5px;
             font-weight: bold;
+            text-transform: uppercase;
         }
         .footer-note {
             font-size: 9px;
@@ -53,20 +54,24 @@
 <body onload="window.print()">
 
 <div class="no-print" style="margin-bottom: 10px; text-align: center;">
-    <button onclick="window.print()" style="padding: 8px 16px; background: #2563eb; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Print BIR Receipt</button>
+    <button onclick="window.print()" style="padding: 8px 16px; background: #059669; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Print Receipt</button>
 </div>
 
 <div class="text-center">
     <div class="header-title">{{ $tenant->business_name ?? 'MINIMART STORE' }}</div>
-    <div>Prop: {{ $tenant->owner_name ?? 'Store Proprietor' }}</div>
+    @if(!empty($tenant->owner_name))
+        <div>Prop: {{ $tenant->owner_name }}</div>
+    @endif
     <div>{{ $tenant->address ?? 'Philippines' }}</div>
-    <div>TIN: {{ $tenant->tin ?? '000-000-000-00000' }} (VAT Reg)</div>
-    <div>MIN: {{ $tenant->bir_min ?? 'MIN-2026-89127' }}</div>
-    <div>SN: {{ $tenant->bir_sn ?? 'SN-891273918' }}</div>
-    <div>BIR Acc: {{ $tenant->bir_acc_no ?? 'BIR-ACC-2026-001' }}</div>
+    @if(!empty($tenant->phone))
+        <div>Tel: {{ $tenant->phone }}</div>
+    @endif
+    @if(!empty($tenant->tin))
+        <div>TIN: {{ $tenant->tin }}</div>
+    @endif
     <div class="divider"></div>
-    <div class="fw-bold">SALES INVOICE / OFFICIAL RECEIPT</div>
-    <div>OR/SI #: {{ $sale->invoice_no }}</div>
+    <div class="fw-bold">SALES RECEIPT / TRANSACTION SLIP</div>
+    <div>OR / SI #: {{ $sale->invoice_no }}</div>
     <div>Date: {{ $sale->sale_date ? $sale->sale_date->format('Y-m-d H:i:s') : date('Y-m-d H:i:s') }}</div>
     <div>Cashier: {{ $sale->cashier?->name ?? 'Cashier' }}</div>
 </div>
@@ -75,8 +80,12 @@
 
 @if($sale->customer)
     <div>Customer: {{ $sale->customer->name }}</div>
-    <div>Address: {{ $sale->customer->address ?? 'N/A' }}</div>
-    <div>TIN: {{ $sale->customer->tin ?? 'N/A' }}</div>
+    @if(!empty($sale->customer->address))
+        <div>Address: {{ $sale->customer->address }}</div>
+    @endif
+    <div class="divider"></div>
+@else
+    <div>Customer: Walk-in Customer</div>
     <div class="divider"></div>
 @endif
 
@@ -95,8 +104,8 @@
                     {{ number_format($item->qty, 0) }} x {{ $item->product_name }}
                     <span style="font-size:9px;">({{ $sale->vat_exempt_sales > 0 ? 'E' : 'V' }})</span>
                 </td>
-                <td class="text-right">{{ number_format($item->unit_price, 2) }}</td>
-                <td class="text-right">{{ number_format($item->line_total, 2) }}</td>
+                <td class="text-right">₱{{ number_format($item->unit_price, 2) }}</td>
+                <td class="text-right">₱{{ number_format($item->line_total, 2) }}</td>
             </tr>
         @endforeach
     </tbody>
@@ -120,7 +129,7 @@
         <td class="text-right">₱{{ number_format($sale->total_amount, 2) }}</td>
     </tr>
     <tr>
-        <td>Payment ({{ strtoupper($sale->payment_method) }}):</td>
+        <td>Payment ({{ strtoupper($sale->payment_method ?? 'CASH') }}):</td>
         <td class="text-right">₱{{ number_format($sale->tendered_amount > 0 ? $sale->tendered_amount : $sale->total_amount, 2) }}</td>
     </tr>
     <tr>
@@ -131,7 +140,7 @@
 
 <div class="divider"></div>
 
-<div class="fw-bold text-center">BIR TAX BREAKDOWN</div>
+<div class="fw-bold text-center">TAX BREAKDOWN (12% VAT)</div>
 <table>
     <tr>
         <td>VATable Sales (12%):</td>
@@ -160,11 +169,9 @@
 <div class="double-divider"></div>
 
 <div class="text-center footer-note">
-    <div>POS Provider: RetailPOS Inc.</div>
-    <div>TIN: 999-888-777-00000</div>
-    <div>Accreditation No: BIR-ACC-2026-999</div>
-    <div style="margin-top: 6px;" class="fw-bold">THANK YOU FOR YOUR PURCHASE!</div>
-    <div style="font-size: 8px; margin-top: 4px;">THIS SERVES AS YOUR OFFICIAL RECEIPT</div>
+    <div style="margin-top: 4px;" class="fw-bold">{{ $tenant->footer_text ?? "THANK YOU FOR YOUR PURCHASE!\nPLEASE COME AGAIN" }}</div>
+    <div style="font-size: 8px; margin-top: 4px;">THIS DOCUMENT SERVES AS AN OFFICIAL SALES RECORD</div>
+    <div style="font-size: 7.5px; color: #555; margin-top: 2px;">POS Software: LikhaPOS Enterprise</div>
 </div>
 
 </body>

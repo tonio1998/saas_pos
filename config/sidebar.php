@@ -69,10 +69,6 @@ return [
                 'icon'   => 'bi bi-tablet-landscape',
                 'active' => [
                     'terminal.*',
-                    'sales.*',
-                    'returns.*',
-                    'payments.*',
-                    'cashiering.cash-shifts.*',
                 ],
                 'children' => [
 
@@ -87,33 +83,6 @@ return [
                         'route'  => 'terminal.create',
                         'icon'   => 'bi bi-plus-circle-fill',
                         'active' => 'terminal.create',
-                    ],
-                    [
-                        'label'  => 'Sales History',
-                        'route'  => 'sales.index',
-                        'icon'   => 'bi bi-receipt-cutoff',
-                        'active' => 'sales.index',
-                    ],
-
-                    [
-                        'label'  => 'Returns',
-                        'route'  => 'returns.index',
-                        'icon'   => 'bi bi-arrow-return-left',
-                        'active' => 'returns.*',
-                    ],
-
-                    [
-                        'label'  => 'Payments',
-                        'route'  => 'payments.index',
-                        'icon'   => 'bi bi-cash-stack',
-                        'active' => 'payments.*',
-                    ],
-
-                    [
-                        'label'  => 'Cash Shifts',
-                        'route'  => 'cashiering.cash-shifts.index',
-                        'icon'   => 'bi bi-clock-history',
-                        'active' => 'cashiering.cash-shifts.*',
                     ],
 
                 ],
@@ -164,7 +133,22 @@ return [
                         'active' => 'products.price-history.*',
                     ],
 
+                    [
+                        'label'  => 'Print Barcode Tags',
+                        'route'  => 'products.barcode-labels.index',
+                        'icon'   => 'bi bi-upc-scan',
+                        'active' => 'products.barcode-labels.*',
+                    ],
+
                 ],
+            ],
+
+            [
+                'type'   => 'link',
+                'label'  => 'Promotions & Deals',
+                'icon'   => 'bi bi-ticket-perforated-fill',
+                'route'  => 'promotions.index',
+                'active' => 'promotions.*',
             ],
 
         ],
@@ -211,34 +195,6 @@ return [
                         'route'  => 'stocks.low-stocks.index',
                         'icon'   => 'bi bi-exclamation-triangle-fill',
                         'active' => 'stocks.low-stocks.*',
-                    ],
-
-                ],
-            ],
-
-            [
-                'type'   => 'collapse',
-                'id'     => 'purchasingMenu',
-                'label'  => 'Purchasing',
-                'icon'   => 'bi bi-cart-plus-fill',
-                'active' => [
-                    'purchases.*',
-                    'suppliers.*',
-                ],
-                'children' => [
-
-                    [
-                        'label'  => 'Purchases',
-                        'route'  => 'purchases.index',
-                        'icon'   => 'bi bi-bag-check-fill',
-                        'active' => 'purchases.*',
-                    ],
-
-                    [
-                        'label'  => 'Suppliers',
-                        'route'  => 'suppliers.index',
-                        'icon'   => 'bi bi-truck',
-                        'active' => 'suppliers.*',
                     ],
 
                 ],
@@ -322,7 +278,7 @@ return [
             [
                 'type'   => 'link',
                 'label'  => 'Expenses',
-                'icon'   => 'bi bi-receipt',
+                'icon'   => 'bi bi-wallet2',
                 'route'  => 'expenses.index',
                 'active' => 'expenses.*',
             ],
@@ -359,13 +315,6 @@ return [
                     ],
 
                     [
-                        'label'  => 'Purchase Report',
-                        'route'  => 'reports.purchases',
-                        'icon'   => 'bi bi-bag-check-fill',
-                        'active' => 'reports.purchases',
-                    ],
-
-                    [
                         'label'  => 'Expense Report',
                         'route'  => 'reports.expenses',
                         'icon'   => 'bi bi-receipt',
@@ -373,7 +322,7 @@ return [
                     ],
 
                     [
-                        'label'  => 'Profit Report',
+                        'label'  => 'Profit & Loss (P&L)',
                         'route'  => 'reports.profit',
                         'icon'   => 'bi bi-currency-dollar',
                         'active' => 'reports.profit',

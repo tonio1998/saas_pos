@@ -18,9 +18,44 @@
         </div>
 
         <div class="pos-right d-flex flex-column h-100 bg-white border-start">
+            @php
+                $isSalePaid = strtolower($sale->sale_status ?? '') === 'completed' || ($sale->items && $sale->items->isNotEmpty());
+            @endphp
             <input type="hidden" id="saleId" value="{{ encryptId($sale->id) }}">
+            <input type="hidden" id="isSalePaid" value="{{ $isSalePaid ? '1' : '0' }}">
+            <input type="hidden" id="saleCode" value="{{ $sale->sale_code }}">
+
+            @if($isSalePaid)
+                <script id="pastSaleDataPayload" type="application/json">
+                    {!! json_encode([
+                        'id' => encryptId($sale->id),
+                        'sale_code' => $sale->sale_code,
+                        'is_paid' => true,
+                        'customer_name' => $sale->customer?->CustomerName ?? 'Walk-in Customer',
+                        'subtotal' => (float)$sale->subtotal,
+                        'discount' => (float)$sale->discount_amount,
+                        'total' => (float)$sale->total_amount,
+                        'items' => $sale->items->map(function($it) {
+                            return [
+                                'id' => $it->product_id,
+                                'variant_id' => $it->variant_id,
+                                'cartKey' => $it->product_id . '_' . ($it->variant_id ?? 0),
+                                'name' => $it->product_name,
+                                'price' => (float)$it->unit_price,
+                                'qty' => (float)$it->qty,
+                                'subtotal' => (float)$it->line_total,
+                                'discount' => (float)$it->discount_amount,
+                                'unit' => $it->product?->unit?->name ?? (is_string($it->product?->unit) ? $it->product->unit : ''),
+                                'allow_decimal_qty' => (bool)($it->product?->allow_decimal_qty ?? false),
+                            ];
+                        }),
+                        'payments' => $sale->payments
+                    ]) !!}
+                </script>
+            @endif
 
             <!-- Cart Customer & Header -->
+
             @include('pages.tenants.terminal.cart.cart_header')
 
             <!-- Scrollable Cart Items -->
@@ -41,7 +76,13 @@
             </div>
         </div>
 
+        <!-- Column 3: Live Thermal Receipt Preview (Zero-Waste Desktop Grid) -->
+        <div class="pos-receipt-pane d-flex flex-column h-100 bg-slate-50 border-start" id="posReceiptPreviewPane">
+            @include('pages.tenants.terminal.receipt_preview')
+        </div>
+
     </div>
+
 
     <div
         class="modal fade"
@@ -372,6 +413,41 @@
                 </div>
                 <div class="modal-body p-4 bg-light">
                     <div class="row g-3">
+                        {{-- Quick Discount Badges --}}
+                        <div class="col-12">
+                            <label class="form-label extra-small fw-bold text-muted text-uppercase mb-1.5">Quick Presets</label>
+                            <div class="d-flex flex-wrap gap-1.5">
+                                <button type="button" class="btn btn-sm btn-outline-success fw-bold rounded-pill px-3 py-1 btn-quick-discount" data-type="senior">
+                                    👵 Senior (20%)
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-success fw-bold rounded-pill px-3 py-1 btn-quick-discount" data-type="pwd">
+                                    ♿ PWD (20%)
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-primary fw-bold rounded-pill px-3 py-1 btn-quick-discount" data-type="student">
+                                    🎓 Student (5%)
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary fw-bold rounded-pill px-3 py-1 btn-quick-discount" data-type="clear">
+                                    ✖ Reset
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Promo Code Voucher Input --}}
+                        <div class="col-12">
+                            <div class="p-3 bg-white rounded-3 border">
+                                <label class="form-label extra-small fw-bold text-primary text-uppercase mb-1">
+                                    <i class="bi bi-ticket-perforated-fill me-1"></i>Have a Promo Code / Voucher?
+                                </label>
+                                <div class="input-group">
+                                    <input type="text" id="inpPromoVoucherCode" class="form-control font-mono text-uppercase fw-bold" placeholder="ENTER PROMO CODE...">
+                                    <button type="button" id="btnApplyPromoVoucher" class="btn btn-dark fw-bold font-mono px-3">
+                                        Apply
+                                    </button>
+                                </div>
+                                <div id="promoVoucherFeedback" class="extra-small mt-1.5" style="display:none;"></div>
+                            </div>
+                        </div>
+
                         <div class="col-12">
                             <label class="form-label extra-small fw-bold text-muted text-uppercase mb-1">Discount Program</label>
                             <select id="discountType" class="form-select font-mono">
@@ -380,6 +456,7 @@
                                 <option value="pwd">PWD (20%)</option>
                                 <option value="student">Student (5%)</option>
                                 <option value="employee">Employee Discount</option>
+                                <option value="promo">Promo Campaign / Voucher</option>
                                 <option value="manual">Manual Custom Discount</option>
                             </select>
                         </div>
@@ -402,7 +479,7 @@
 
                         <div class="col-12 d-none" id="discountIdNoSection">
                             <label class="form-label extra-small fw-bold text-muted text-uppercase mb-1">Senior / PWD / Student ID No.</label>
-                            <input type="text" id="discountIdNo" class="form-control font-mono" placeholder="ID Number">
+                            <input type="text" id="discountIdNo" class="form-control font-mono" placeholder="ID Number (e.g. OSCA-99824)">
                         </div>
 
                         <div class="col-12 mt-2">
@@ -616,6 +693,40 @@
 
                     <button type="button" id="btnConfirmQtyModal" class="btn btn-success w-100 py-2.5 fw-bold rounded-3 shadow-xs" style="background:#059669;border:none;">
                         <i class="bi bi-check2-circle me-1"></i> Apply Quantity
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Promotion Selector Modal (Single Promo Enforcement) --}}
+    <div class="modal fade" id="modalSelectPromo" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header bg-light border-bottom py-3 px-3.5">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-primary-subtle text-primary p-2 rounded-circle"><i class="bi bi-tags-fill fs-6"></i></span>
+                        <div>
+                            <h6 class="modal-title fw-black text-dark font-mono mb-0" id="txtPromoModalTitle">Select Promotion</h6>
+                            <small class="text-muted extra-small" id="txtPromoModalSubtitle">Choose 1 promotion to apply for this item</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-3.5">
+                    <div class="p-2.5 bg-warning-subtle border border-warning-subtle rounded-3 text-warning-emphasis extra-small mb-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-exclamation-triangle-fill fs-6 text-warning"></i>
+                        <span><strong>Policy:</strong> Only 1 promotion can be applied per item (no double-dipping / promo stacking).</span>
+                    </div>
+
+                    <input type="hidden" id="inpPromoModalCartKey" value="">
+
+                    <div id="promoOptionsList" class="d-flex flex-column gap-2 mb-3">
+                        <!-- Populated dynamically by JS -->
+                    </div>
+
+                    <button type="button" id="btnConfirmPromoModal" class="btn btn-primary w-100 py-2.5 fw-bold rounded-pill shadow-sm">
+                        <i class="bi bi-check2-circle me-1"></i> Apply Selected Promotion
                     </button>
                 </div>
             </div>

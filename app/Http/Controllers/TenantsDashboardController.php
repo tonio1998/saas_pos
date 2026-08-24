@@ -8,6 +8,7 @@ use App\Models\POS\POSCustomerLedger;
 use App\Models\POS\POSCustomers;
 use App\Models\POS\POSPayment;
 use App\Models\POS\POSProducts;
+use App\Models\POS\POSProductVariant;
 use App\Models\POS\POSSale;
 use App\Models\POS\POSSaleItem;
 use Carbon\Carbon;
@@ -74,15 +75,16 @@ class TenantsDashboardController extends Controller
             ? round((($monthSales - $lastMonthSales) / $lastMonthSales) * 100, 1)
             : ($monthSales > 0 ? 100 : 0);
 
-        // 2. Gross Profit Calculation (Today)
+        // 2. Gross Profit Calculation (Today) - includes variant cost prices
         $todaySaleIds = POSSale::where('tenant_id', $tenantId)
             ->whereDate('sale_date', $today)
             ->whereIn('sale_status', ['completed', 'refund'])
             ->pluck('id');
 
         $todayCostOfGoods = (float) POSSaleItem::whereIn('sale_id', $todaySaleIds)
-            ->join('pos_products', 'pos_sale_items.product_id', '=', 'pos_products.id')
-            ->selectRaw('SUM(pos_sale_items.qty * COALESCE(pos_products.cost_price, 0)) as total_cost')
+            ->leftJoin('pos_products', 'pos_sale_items.product_id', '=', 'pos_products.id')
+            ->leftJoin('pos_product_variants', 'pos_sale_items.variant_id', '=', 'pos_product_variants.id')
+            ->selectRaw('SUM(pos_sale_items.qty * COALESCE(NULLIF(pos_product_variants.cost_price, 0), pos_products.cost_price, 0)) as total_cost')
             ->value('total_cost') ?? 0;
 
         $todayGrossProfit = max(0, $todaySales - $todayCostOfGoods);
@@ -114,20 +116,62 @@ class TenantsDashboardController extends Controller
             ->get()
             ->count();
 
-        // 5. Inventory & Stock Health
-        $totalProducts = POSProducts::where('tenant_id', $tenantId)->count();
-        $totalInventoryCost = (float) POSProducts::where('tenant_id', $tenantId)
+        // 5. Inventory & Stock Health (incorporating Variants as separate SKUs)
+        $standaloneProductsCount = POSProducts::where('tenant_id', $tenantId)->doesntHave('variants')->count();
+        $variantsCount = POSProductVariant::whereHas('product', function ($q) use ($tenantId) {
+            $q->where('tenant_id', $tenantId);
+        })->where(function ($q) {
+            $q->whereNull('status')->orWhere('status', 'active');
+        })->count();
+        $totalProducts = $standaloneProductsCount + $variantsCount;
+
+        $standaloneInventoryCost = (float) POSProducts::where('tenant_id', $tenantId)
+            ->doesntHave('variants')
             ->selectRaw('SUM(COALESCE(stock_on_hand, 0) * COALESCE(cost_price, 0)) as total_val')
             ->value('total_val') ?? 0;
 
-        $lowStockCount = POSProducts::where('tenant_id', $tenantId)
+        $variantInventoryCost = (float) POSProductVariant::join('pos_products', 'pos_product_variants.product_id', '=', 'pos_products.id')
+            ->where('pos_products.tenant_id', $tenantId)
+            ->where(function ($q) {
+                $q->whereNull('pos_product_variants.status')->orWhere('pos_product_variants.status', 'active');
+            })
+            ->selectRaw('SUM(COALESCE(pos_product_variants.stock_on_hand, 0) * COALESCE(NULLIF(pos_product_variants.cost_price, 0), pos_products.cost_price, 0)) as total_val')
+            ->value('total_val') ?? 0;
+
+        $totalInventoryCost = $standaloneInventoryCost + $variantInventoryCost;
+
+        $lowStockProductsCount = POSProducts::where('tenant_id', $tenantId)
+            ->doesntHave('variants')
             ->where('stock_on_hand', '>', 0)
             ->whereColumn('stock_on_hand', '<=', 'reorder_level')
             ->count();
 
-        $outOfStockCount = POSProducts::where('tenant_id', $tenantId)
+        $outOfStockProductsCount = POSProducts::where('tenant_id', $tenantId)
+            ->doesntHave('variants')
             ->where('stock_on_hand', '<=', 0)
             ->count();
+
+        $lowStockVariantsCount = POSProductVariant::whereHas('product', function ($q) use ($tenantId) {
+                $q->where('tenant_id', $tenantId);
+            })
+            ->where(function ($q) {
+                $q->whereNull('status')->orWhere('status', 'active');
+            })
+            ->where('stock_on_hand', '>', 0)
+            ->whereColumn('stock_on_hand', '<=', 'reorder_level')
+            ->count();
+
+        $outOfStockVariantsCount = POSProductVariant::whereHas('product', function ($q) use ($tenantId) {
+                $q->where('tenant_id', $tenantId);
+            })
+            ->where(function ($q) {
+                $q->whereNull('status')->orWhere('status', 'active');
+            })
+            ->where('stock_on_hand', '<=', 0)
+            ->count();
+
+        $lowStockCount = $lowStockProductsCount + $lowStockVariantsCount;
+        $outOfStockCount = $outOfStockProductsCount + $outOfStockVariantsCount;
 
         return response()->json([
             'today_sales' => $todaySales,
@@ -161,6 +205,7 @@ class TenantsDashboardController extends Controller
             'out_of_stock_count' => $outOfStockCount,
         ]);
     }
+
 
     /**
      * 2. Successive Endpoint: Dynamic Sales Chart Trends & Payment Channels
@@ -280,24 +325,24 @@ class TenantsDashboardController extends Controller
     }
 
     /**
-     * 4. Successive Endpoint: Low Stock & Out-of-Stock Alerts
+     * 4. Successive Endpoint: Low Stock & Out-of-Stock Alerts (Standalone + Variants)
      */
     public function inventoryAlerts(): JsonResponse
     {
         $tenantId = auth()->user()->tenant_id;
 
-        $lowStockProducts = POSProducts::with('unit')
+        $lowStockProducts = POSProducts::with(['unit', 'category'])
             ->where('tenant_id', $tenantId)
+            ->doesntHave('variants')
             ->where(function ($q) {
                 $q->whereColumn('stock_on_hand', '<=', 'reorder_level')
                   ->orWhere('stock_on_hand', '<=', 0);
             })
-            ->orderBy('stock_on_hand')
-            ->limit(6)
             ->get()
             ->map(function ($prod) {
                 return [
                     'id' => $prod->id,
+                    'variant_id' => null,
                     'encrypted_id' => encrypt($prod->id),
                     'name' => $prod->name ?: 'Unnamed Product',
                     'barcode' => $prod->barcode ?: $prod->sku ?: 'No Code',
@@ -309,8 +354,41 @@ class TenantsDashboardController extends Controller
                 ];
             });
 
+        $lowStockVariants = POSProductVariant::with(['product.category', 'unit'])
+            ->whereHas('product', function ($q) use ($tenantId) {
+                $q->where('tenant_id', $tenantId);
+            })
+            ->where(function ($q) {
+                $q->whereNull('status')->orWhere('status', 'active');
+            })
+            ->where(function ($q) {
+                $q->whereColumn('stock_on_hand', '<=', 'reorder_level')
+                  ->orWhere('stock_on_hand', '<=', 0);
+            })
+            ->get()
+            ->map(function ($v) {
+                $productName = $v->product?->name ?? 'Product';
+                return [
+                    'id' => $v->product_id,
+                    'variant_id' => $v->id,
+                    'encrypted_id' => encrypt($v->product_id),
+                    'name' => $productName . ' (' . $v->variant_name . ')',
+                    'barcode' => $v->barcode ?: $v->sku ?: ($v->product?->barcode ?: 'No Code'),
+                    'category' => $v->product?->category?->name ?? 'General',
+                    'stock' => (float)$v->stock_on_hand,
+                    'unit' => $v->unit?->name ?: ($v->product?->unit?->name ?? 'pcs'),
+                    'is_out_of_stock' => $v->stock_on_hand <= 0,
+                    'restock_url' => route('products.stock.receive', encrypt($v->product_id)),
+                ];
+            });
+
+        $mergedAlerts = $lowStockProducts->concat($lowStockVariants)
+            ->sortBy('stock')
+            ->values()
+            ->take(6);
+
         return response()->json([
-            'products' => $lowStockProducts,
+            'products' => $mergedAlerts,
         ]);
     }
 
@@ -355,7 +433,7 @@ class TenantsDashboardController extends Controller
     }
 
     /**
-     * 6. Successive Endpoint: Fast-Moving Products (Top Velocity Sales)
+     * 6. Successive Endpoint: Fast-Moving Products (Top Velocity Sales - Includes Variants as Separate SKUs)
      */
     public function fastMoving(): JsonResponse
     {
@@ -364,22 +442,37 @@ class TenantsDashboardController extends Controller
         $fastMovingItems = POSSaleItem::whereHas('sale', function ($q) use ($tenantId) {
                 $q->where('tenant_id', $tenantId)->where('sale_status', 'completed');
             })
-            ->selectRaw('product_id, SUM(ABS(qty)) as total_sold_qty, SUM(ABS(line_total)) as total_revenue')
-            ->groupBy('product_id')
+            ->selectRaw('product_id, variant_id, SUM(ABS(qty)) as total_sold_qty, SUM(ABS(line_total)) as total_revenue')
+            ->groupBy('product_id', 'variant_id')
             ->orderByDesc('total_sold_qty')
             ->limit(6)
             ->get()
             ->map(function ($item) {
                 $product = POSProducts::with('category', 'unit')->find($item->product_id);
+                $variant = $item->variant_id ? POSProductVariant::with('unit')->find($item->variant_id) : null;
+
+                $itemName = $product ? ($product->name ?: 'Unnamed Product') : 'Deleted SKU';
+                if ($variant && !empty($variant->variant_name)) {
+                    $itemName .= ' (' . $variant->variant_name . ')';
+                }
+
+                $barcode = $variant?->barcode ?: ($variant?->sku ?: ($product?->barcode ?: ($product?->sku ?: 'No Code')));
+                $categoryName = $product && $product->category ? $product->category->name : 'General';
+                $unitName = $variant?->unit?->name ?: ($product?->unit?->name ?: 'pcs');
+                $stock = $variant ? (float)$variant->stock_on_hand : ($product ? (float)$product->stock_on_hand : 0);
+
                 return [
                     'id' => $item->product_id,
-                    'name' => $product ? ($product->name ?: 'Unnamed Product') : 'Deleted SKU',
-                    'barcode' => $product ? ($product->barcode ?: $product->sku ?: 'No Code') : 'N/A',
-                    'category' => $product && $product->category ? $product->category->name : 'General',
-                    'stock' => $product ? (float)$product->stock_on_hand : 0,
-                    'unit' => $product && $product->unit ? $product->unit->name : 'pcs',
+                    'variant_id' => $item->variant_id,
+                    'name' => $itemName,
+                    'is_variant' => !is_null($variant),
+                    'variant_name' => $variant?->variant_name,
+                    'barcode' => $barcode,
+                    'category' => $categoryName,
+                    'stock' => $stock,
+                    'unit' => $unitName,
                     'total_sold_qty' => (float)$item->total_sold_qty,
-                    'total_sold_formatted' => number_format($item->total_sold_qty) . ' ' . ($product && $product->unit ? $product->unit->name : 'pcs'),
+                    'total_sold_formatted' => number_format($item->total_sold_qty) . ' ' . $unitName,
                     'total_revenue' => (float)$item->total_revenue,
                     'total_revenue_formatted' => '₱' . number_format($item->total_revenue, 2),
                 ];
@@ -390,3 +483,4 @@ class TenantsDashboardController extends Controller
         ]);
     }
 }
+

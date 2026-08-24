@@ -111,39 +111,65 @@ $(function(){
         });
     });
 
-    $('.select2').each(function(){
-        let ajaxUrl = $(this).data('ajax')
+    window.initAppSelect2 = function(context) {
+        const root = context ? $(context) : $(document);
+        root.find('.select2').each(function(){
+            const $el = $(this);
+            const modalParent = $el.closest('.modal');
 
-        if(ajaxUrl){
-            $(this).select2({
-                theme:'bootstrap-5',
-                width:'100%',
-                placeholder:'Select option',
-                allowClear:true,
-                ajax:{
-                    url:ajaxUrl,
-                    dataType:'json',
-                    delay:250,
-                    data:function(params){
+            // If inside a hidden modal and context is not that modal, wait until shown.bs.modal
+            if (modalParent.length && !modalParent.hasClass('show') && !context) {
+                return;
+            }
+
+            if ($el.hasClass('select2-hidden-accessible')) {
+                $el.select2('destroy');
+            }
+
+            let ajaxUrl = $el.data('ajax');
+            let placeholder = $el.data('placeholder') || 'Select option';
+            let customParent = $el.data('dropdown-parent');
+            let dropdownParentTarget = customParent ? $(customParent) : (modalParent.length ? modalParent : null);
+
+            let config = {
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: placeholder,
+                allowClear: Boolean($el.data('allow-clear') ?? true),
+            };
+
+            if (dropdownParentTarget && dropdownParentTarget.length) {
+                config.dropdownParent = dropdownParentTarget;
+            }
+
+            if (ajaxUrl) {
+                config.ajax = {
+                    url: ajaxUrl,
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params){
                         return {
                             search: params.term
-                        }
+                        };
                     },
-                    processResults:function(data){
+                    processResults: function(data){
                         return {
-                            results:data
-                        }
+                            results: data
+                        };
                     }
-                }
-            })
-        }else{
-            $(this).select2({
-                theme:'bootstrap-5',
-                width:'100%',
-                placeholder:'Select option'
-            })
-        }
-    })
+                };
+            }
+
+            $el.select2(config);
+        });
+    };
+
+    window.initAppSelect2();
+
+    // Re-init on Bootstrap modals shown event so select2 calculates correct 100% width
+    $(document).on('shown.bs.modal', function(e){
+        window.initAppSelect2(e.target);
+    });
 })
 
 document.addEventListener('DOMContentLoaded', function(){
