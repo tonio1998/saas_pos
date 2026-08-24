@@ -193,6 +193,90 @@ class POSApiController extends Controller
         return $request->user();
     }
 
+    public function lookupGlobalProduct(Request $request)
+    {
+        $user = $this->getAuthenticatedUser($request);
+        $currentTenantId = (int) ($user?->tenant_id ?? $request->input('tenant_id', 1));
+        $barcode = trim($request->input('barcode', ''));
+        $name = trim($request->input('name', ''));
+
+        if (empty($barcode) && empty($name)) {
+            return response()->json(['success' => true, 'count' => 0, 'data' => []]);
+        }
+
+        $query = POSProducts::query()->where('status', '!=', 'deleted');
+
+        if (!empty($barcode)) {
+            $stripped = ltrim($barcode, '0');
+            $query->where(function ($q) use ($barcode, $stripped) {
+                $q->where('barcode', $barcode);
+                if (!empty($stripped)) {
+                    $q->orWhere('barcode', $stripped);
+                }
+                $q->orWhereHas('variants', function ($vq) use ($barcode, $stripped) {
+                    $vq->where('barcode', $barcode);
+                    if (!empty($stripped)) {
+                        $vq->orWhere('barcode', $stripped);
+                    }
+                });
+            });
+        } elseif (!empty($name)) {
+            $query->where('name', 'like', "%{$name}%");
+        }
+
+        $products = $query->with(['category', 'unit', 'variants', 'tenant'])->get();
+
+        $data = $products->map(function ($p) use ($currentTenantId) {
+            $imageUrl = null;
+            if ($p->image) {
+                if (str_starts_with($p->image, 'http')) {
+                    $imageUrl = $p->image;
+                } else {
+                    $imageUrl = asset('storage/' . ltrim($p->image, '/'));
+                }
+            }
+
+            return [
+                'id'               => $p->id,
+                'name'             => $p->name,
+                'barcode'          => $p->barcode,
+                'sku'              => $p->sku,
+                'description'      => $p->description,
+                'selling_price'    => (float) $p->selling_price,
+                'wholesale_price'  => (float) ($p->wholesale_price ?? $p->selling_price),
+                'cost_price'       => (float) ($p->cost_price ?? 0),
+                'stock_on_hand'    => (float) ($p->stock_on_hand ?? 0),
+                'reorder_level'    => (float) ($p->reorder_level ?? 5),
+                'category_id'      => $p->category_id,
+                'category_name'    => $p->category?->name,
+                'unit_id'          => $p->unit_id,
+                'unit_name'        => $p->unit?->name,
+                'image_url'        => $imageUrl,
+                'tenant_id'        => $p->tenant_id,
+                'store_name'       => $p->tenant?->business_name ?? 'LikhaPOS Store #' . $p->tenant_id,
+                'is_current_store' => ((int)$p->tenant_id === (int)$currentTenantId),
+                'variants'         => $p->variants->map(function($v) {
+                    return [
+                        'id' => $v->id,
+                        'name' => $v->name,
+                        'barcode' => $v->barcode,
+                        'cost_price' => (float) $v->cost_price,
+                        'selling_price' => (float) $v->selling_price,
+                        'wholesale_price' => (float) $v->wholesale_price,
+                        'stock_on_hand' => (float) $v->stock_on_hand,
+                        'qty_per_pack' => (float) ($v->qty_per_pack ?? 1),
+                    ];
+                }),
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'count'   => $data->count(),
+            'data'    => $data,
+        ]);
+    }
+
     public function products(Request $request)
     {
         $user = $this->getAuthenticatedUser($request);
