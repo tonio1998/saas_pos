@@ -160,8 +160,6 @@
                             <select name="promo_type" id="selectPromoType" class="form-select rounded-3" required>
                                 <option value="percentage">Percentage Discount (%)</option>
                                 <option value="fixed_amount">Fixed Amount Off (₱)</option>
-                                <option value="bulk_tier">Bulk / Wholesale Tier Price (₱)</option>
-                                <option value="buy_x_get_y">Buy X Get Y (Freebies)</option>
                             </select>
                         </div>
 
@@ -640,6 +638,34 @@
             });
         })();
 
+        // Date Range Validation (End date must not be before start date)
+        $('#inpStartDate').on('change input', function () {
+            const startVal = $(this).val();
+            if (startVal) {
+                $('#inpEndDate').attr('min', startVal);
+                if ($('#inpEndDate').val() && $('#inpEndDate').val() < startVal) {
+                    $('#inpEndDate').val(startVal);
+                }
+            }
+        });
+
+        $('#inpEndDate').on('change input', function () {
+            const startVal = $('#inpStartDate').val();
+            const endVal = $(this).val();
+            if (startVal && endVal && endVal < startVal) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Invalid Date Range',
+                        text: 'Schedule End Date cannot be earlier than Schedule Start Date.',
+                    });
+                } else {
+                    alert('Schedule End Date cannot be earlier than Schedule Start Date.');
+                }
+                $(this).val(startVal);
+            }
+        });
+
         // Reset Modal on Create New
         $('#btnOpenCreatePromo').on('click', function () {
             $('#inpPromoId').val('');
@@ -648,7 +674,9 @@
             $('#txtBtnSaveLabel').text('Save Promotion');
             $('#selectPromoType').val('percentage').trigger('change');
             $('#selectAppliesTo').val('all').trigger('change');
-            $('#inpStartDate').val('{{ date('Y-m-d') }}');
+            const today = '{{ date('Y-m-d') }}';
+            $('#inpStartDate').val(today);
+            $('#inpEndDate').attr('min', today);
         });
 
         // EDIT PROMO: Load & Populate Data
@@ -723,6 +751,21 @@
         $('#formAddPromo').on('submit', function (e) {
             e.preventDefault();
             e.stopPropagation();
+
+            const startVal = $('#inpStartDate').val();
+            const endVal = $('#inpEndDate').val();
+            if (startVal && endVal && endVal < startVal) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Invalid Schedule Dates',
+                        text: 'Schedule End Date cannot be earlier than Schedule Start Date.',
+                    });
+                } else {
+                    alert('Schedule End Date cannot be earlier than Schedule Start Date.');
+                }
+                return false;
+            }
 
             const promoId = $('#inpPromoId').val();
             const isEdit = !!promoId;

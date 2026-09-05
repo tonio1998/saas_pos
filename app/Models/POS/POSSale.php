@@ -94,6 +94,14 @@ class POSSale extends Model
         );
     }
 
+    public function tenant()
+    {
+        return $this->belongsTo(
+            POSTenant::class,
+            'tenant_id'
+        );
+    }
+
     public function scopeCompleted($query)
     {
         return $query->where('sale_status', 'completed');

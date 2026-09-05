@@ -30,6 +30,17 @@ class POSProductVariant extends Model
         'updated_by',
     ];
 
+    /**
+     * Expose 'name' as an alias for 'variant_name' so the
+     * frontend can use item.name without extra mapping.
+     */
+    protected $appends = ['name'];
+
+    public function getNameAttribute(): string
+    {
+        return $this->variant_name ?? '';
+    }
+
     public function product()
     {
         return $this->belongsTo(POSProducts::class, 'product_id');

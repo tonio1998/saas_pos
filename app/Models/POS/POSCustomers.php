@@ -21,11 +21,9 @@ class POSCustomers extends Model
         'company_name',
         'email',
         'mobile_number',
-        'address',
         'customer_type',
         'discount_percent',
         'credit_limit',
-        'current_balance',
         'remarks',
         'created_by',
         'updated_by',
@@ -36,7 +34,6 @@ class POSCustomers extends Model
     protected $casts = [
         'discount_percent' => 'decimal:2',
         'credit_limit' => 'decimal:2',
-        'current_balance' => 'decimal:2'
     ];
 
     public function createdBy()

@@ -60,6 +60,24 @@ class StoreSettingsController extends Controller
             'header_text'     => ['nullable', 'string', 'max:500'],
             'currency_symbol' => ['nullable', 'string', 'max:10'],
             'logo'            => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp,svg', 'max:2048'],
+            
+            // Theme Customizer Fields
+            'theme_preset'              => ['nullable', 'string', 'max:50'],
+            'primary_color'             => ['nullable', 'string', 'max:20'],
+            'topbar_color'              => ['nullable', 'string', 'max:20'],
+            'topbar_text_color'         => ['nullable', 'string', 'max:20'],
+            'sidebar_color'             => ['nullable', 'string', 'max:20'],
+            'sidebar_text_color'        => ['nullable', 'string', 'max:20'],
+            'sidebar_active_color'      => ['nullable', 'string', 'max:20'],
+            'sidebar_active_text_color' => ['nullable', 'string', 'max:20'],
+            'accent_color'              => ['nullable', 'string', 'max:20'],
+            'dark_mode'                 => ['nullable', 'boolean'],
+            
+            // CRM & Loyalty Settings
+            'points_per_peso'            => ['nullable', 'numeric', 'min:0'],
+            'default_credit_limit'       => ['nullable', 'numeric', 'min:0'],
+            'sms_receipt_enabled'        => ['nullable', 'boolean'],
+            'sms_utang_reminder_enabled' => ['nullable', 'boolean'],
         ]);
 
         if ($request->hasFile('logo')) {
@@ -78,8 +96,34 @@ class StoreSettingsController extends Controller
         $tenant->email           = $validated['email'] ?? null;
         $tenant->address         = $validated['address'] ?? null;
         $tenant->tin             = $validated['tin'] ?? null;
+        $tenant->currency_symbol = $validated['currency_symbol'] ?? '₱';
         $tenant->footer_text     = $validated['receipt_footer'] ?? null;
         $tenant->header_text     = $validated['header_text'] ?? null;
+
+        // Theme Settings Payload with explicit text & background colors
+        $tenant->theme_settings = [
+            'preset'                    => $validated['theme_preset'] ?? $request->input('theme_preset', 'emerald'),
+            'primary_color'             => $validated['primary_color'] ?? $request->input('primary_color', '#059669'),
+            'topbar_color'              => $validated['topbar_color'] ?? $request->input('topbar_color', '#064E3B'),
+            'topbar_text_color'         => $validated['topbar_text_color'] ?? $request->input('topbar_text_color', '#FFFFFF'),
+            'sidebar_color'             => $validated['sidebar_color'] ?? $request->input('sidebar_color', '#0F172A'),
+            'sidebar_text_color'        => $validated['sidebar_text_color'] ?? $request->input('sidebar_text_color', '#CBD5E1'),
+            'sidebar_active_color'      => $validated['sidebar_active_color'] ?? $request->input('sidebar_active_color', '#059669'),
+            'sidebar_active_text_color' => $validated['sidebar_active_text_color'] ?? $request->input('sidebar_active_text_color', '#FFFFFF'),
+            'accent_color'              => $validated['accent_color'] ?? $request->input('accent_color', '#10B981'),
+            'dark_mode'                 => (bool) ($validated['dark_mode'] ?? $request->input('dark_mode', false)),
+        ];
+
+        // CRM Settings Payload
+        $rawPoints = (float) $request->input('points_per_peso', 1);
+        $pointsPerPeso = $rawPoints > 0.5 ? ($rawPoints / 100) : $rawPoints;
+
+        $tenant->crm_settings = [
+            'points_per_peso'            => $pointsPerPeso,
+            'default_credit_limit'       => (float) $request->input('default_credit_limit', 5000),
+            'sms_receipt_enabled'        => (bool) $request->input('sms_receipt_enabled', true),
+            'sms_utang_reminder_enabled' => (bool) $request->input('sms_utang_reminder_enabled', true),
+        ];
 
         $tenant->save();
 
@@ -89,8 +133,10 @@ class StoreSettingsController extends Controller
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Store profile, branding logo, and receipt settings updated successfully!',
+                'message' => 'Store profile, POS branding, system theme, and CRM settings saved successfully!',
                 'logo_url' => $tenant->logo ? Storage::url($tenant->logo) : asset('images/no_image.jpg'),
+                'theme' => $tenant->theme_settings,
+                'crm' => $tenant->crm_settings,
             ]);
         }
 
@@ -98,4 +144,20 @@ class StoreSettingsController extends Controller
             ->route('settings.index')
             ->with('success', 'Store profile, branding logo, and receipt settings updated successfully!');
     }
+
+    /**
+     * Live 78mm / 58mm Thermal Receipt Preview
+     */
+    public function previewReceipt(Request $request)
+    {
+        $tenantId = auth()->user()->tenant_id;
+        $tenant = POSTenant::find($tenantId);
+
+        if (!$tenant) {
+            $tenant = POSTenant::first();
+        }
+
+        return view('pages.tenants.settings.receipt_preview', compact('tenant'));
+    }
 }
+

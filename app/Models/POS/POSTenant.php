@@ -28,6 +28,9 @@ class POSTenant extends Model
         'bir_sn',
         'header_text',
         'footer_text',
+        'currency_symbol',
+        'theme_settings',
+        'crm_settings',
         'logo',
         'subscription_start',
         'subscription_end',
@@ -42,6 +45,8 @@ class POSTenant extends Model
     ];
 
     protected $casts = [
+        'theme_settings' => 'array',
+        'crm_settings' => 'array',
         'subscription_start' => 'date',
         'subscription_end' => 'date',
         'trial_ends_at' => 'datetime',

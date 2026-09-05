@@ -17,6 +17,8 @@ use App\Models\POS\POSProductVariant;
 use App\Models\POS\POSCashShift;
 use App\Models\POS\POSCashDrawer;
 use App\Models\POS\POSPromotion;
+use App\Models\POS\POSPromotionItem;
+use App\Models\POS\POSCashTransaction;
 use Carbon\Carbon;
 
 
@@ -75,10 +77,25 @@ class POSApiController extends Controller
             'tenant' => $tenant ? [
                 'id' => $tenant->id,
                 'business_name' => $tenant->business_name,
+                'business_code' => $tenant->business_code,
+                'owner_name' => $tenant->owner_name,
+                'email' => $tenant->email,
+                'phone' => $tenant->phone,
+                'address' => $tenant->address,
+                'logo' => $tenant->logo,
                 'tin' => $tenant->tin,
                 'branch_code' => $tenant->branch_code,
+                'bir_acc_no' => $tenant->bir_acc_no,
+                'bir_acc_date' => $tenant->bir_acc_date,
+                'bir_min' => $tenant->bir_min,
+                'bir_sn' => $tenant->bir_sn,
+                'header_text' => $tenant->header_text,
+                'footer_text' => $tenant->footer_text,
+                'currency_symbol' => $tenant->currency_symbol ?? '₱',
                 'payment_status' => $tenant->payment_status,
                 'is_active' => method_exists($tenant, 'isActive') ? $tenant->isActive() : true,
+                'theme_settings' => $tenant->theme_settings,
+                'crm_settings' => $tenant->crm_settings,
             ] : null,
         ]);
     }
@@ -170,10 +187,25 @@ class POSApiController extends Controller
             'tenant' => $tenant ? [
                 'id' => $tenant->id,
                 'business_name' => $tenant->business_name,
+                'business_code' => $tenant->business_code,
+                'owner_name' => $tenant->owner_name,
+                'email' => $tenant->email,
+                'phone' => $tenant->phone,
+                'address' => $tenant->address,
+                'logo' => $tenant->logo,
                 'tin' => $tenant->tin,
                 'branch_code' => $tenant->branch_code,
+                'bir_acc_no' => $tenant->bir_acc_no,
+                'bir_acc_date' => $tenant->bir_acc_date,
+                'bir_min' => $tenant->bir_min,
+                'bir_sn' => $tenant->bir_sn,
+                'header_text' => $tenant->header_text,
+                'footer_text' => $tenant->footer_text,
+                'currency_symbol' => $tenant->currency_symbol ?? '₱',
                 'payment_status' => $tenant->payment_status,
                 'is_active' => method_exists($tenant, 'isActive') ? $tenant->isActive() : true,
+                'theme_settings' => $tenant->theme_settings,
+                'crm_settings' => $tenant->crm_settings,
             ] : null,
         ]);
     }
@@ -191,6 +223,21 @@ class POSApiController extends Controller
             }
         }
         return $request->user();
+    }
+
+    protected function getProductImageUrl(?string $image, Request $request): ?string
+    {
+        if (empty($image)) {
+            return null;
+        }
+        if (str_starts_with($image, 'http')) {
+            if (str_contains($image, 'pos.dev.com') || str_contains($image, 'localhost')) {
+                $parsed = parse_url($image, PHP_URL_PATH);
+                return $request->schemeAndHttpHost() . $parsed;
+            }
+            return $image;
+        }
+        return $request->schemeAndHttpHost() . '/storage/' . ltrim($image, '/');
     }
 
     public function lookupGlobalProduct(Request $request)
@@ -226,15 +273,8 @@ class POSApiController extends Controller
 
         $products = $query->with(['category', 'unit', 'variants', 'tenant'])->get();
 
-        $data = $products->map(function ($p) use ($currentTenantId) {
-            $imageUrl = null;
-            if ($p->image) {
-                if (str_starts_with($p->image, 'http')) {
-                    $imageUrl = $p->image;
-                } else {
-                    $imageUrl = asset('storage/' . ltrim($p->image, '/'));
-                }
-            }
+        $data = $products->map(function ($p) use ($currentTenantId, $request) {
+            $imageUrl = $this->getProductImageUrl($p->image, $request);
 
             return [
                 'id'               => $p->id,
@@ -257,14 +297,16 @@ class POSApiController extends Controller
                 'is_current_store' => ((int)$p->tenant_id === (int)$currentTenantId),
                 'variants'         => $p->variants->map(function($v) {
                     return [
-                        'id' => $v->id,
-                        'name' => $v->name,
-                        'barcode' => $v->barcode,
-                        'cost_price' => (float) $v->cost_price,
-                        'selling_price' => (float) $v->selling_price,
+                        'id'              => $v->id,
+                        'name'            => $v->variant_name,   // DB column is variant_name
+                        'variant_name'    => $v->variant_name,
+                        'barcode'         => $v->barcode,
+                        'sku'             => $v->sku,
+                        'cost_price'      => (float) $v->cost_price,
+                        'selling_price'   => (float) $v->selling_price,
                         'wholesale_price' => (float) $v->wholesale_price,
-                        'stock_on_hand' => (float) $v->stock_on_hand,
-                        'qty_per_pack' => (float) ($v->qty_per_pack ?? 1),
+                        'stock_on_hand'   => (float) $v->stock_on_hand,
+                        'qty_per_pack'    => (float) ($v->qty_per_pack ?? 1),
                     ];
                 }),
             ];
@@ -273,7 +315,7 @@ class POSApiController extends Controller
         return response()->json([
             'success' => true,
             'count'   => $data->count(),
-            'data'    => $data,
+            'data'    => $data->values()->all(),
         ]);
     }
 
@@ -334,16 +376,28 @@ class POSApiController extends Controller
                 ->get();
         }
 
-        $products->transform(function ($p) {
-            if ($p->image) {
-                if (str_starts_with($p->image, 'http')) {
-                    $p->image_url = $p->image;
-                } else {
-                    $p->image_url = asset('storage/' . ltrim($p->image, '/'));
-                }
-            } else {
-                $p->image_url = null;
+        $products->transform(function ($p) use ($request) {
+            $p->image_url = $this->getProductImageUrl($p->image, $request);
+
+            // Explicitly remap variants so name = variant_name regardless of accessor state
+            if ($p->relationLoaded('variants')) {
+                $p->setRelation('variants', $p->variants->map(function ($v) {
+                    $vName = $v->variant_name ?? $v->getAttributes()['name'] ?? '';
+                    return [
+                        'id'              => $v->id,
+                        'name'            => $vName,
+                        'variant_name'    => $vName,
+                        'barcode'         => $v->barcode,
+                        'sku'             => $v->sku,
+                        'cost_price'      => (float) $v->cost_price,
+                        'selling_price'   => (float) $v->selling_price,
+                        'wholesale_price' => (float) ($v->wholesale_price ?? 0),
+                        'stock_on_hand'   => (float) $v->stock_on_hand,
+                        'qty_per_pack'    => (float) ($v->qty_per_pack ?? 1),
+                    ];
+                })->values());
             }
+
             return $p;
         });
 
@@ -391,11 +445,13 @@ class POSApiController extends Controller
                 ->first();
 
             if ($existingBarcodeProduct) {
+                $existingBarcodeProduct->load(['category', 'unit', 'variants']);
+                $existingBarcodeProduct->image_url = $this->getProductImageUrl($existingBarcodeProduct->image, $request);
                 return response()->json([
                     'success' => false,
                     'is_duplicate' => true,
                     'message' => "Barcode \"{$barcode}\" is already registered to \"{$existingBarcodeProduct->name}\" in this store (Stock: {$existingBarcodeProduct->stock_on_hand}).",
-                    'existing_product' => $existingBarcodeProduct->load(['category', 'unit', 'variants']),
+                    'existing_product' => $existingBarcodeProduct,
                 ], 422);
             }
         }
@@ -407,11 +463,13 @@ class POSApiController extends Controller
             ->first();
 
         if ($existingNameProduct) {
+            $existingNameProduct->load(['category', 'unit', 'variants']);
+            $existingNameProduct->image_url = $this->getProductImageUrl($existingNameProduct->image, $request);
             return response()->json([
                 'success' => false,
                 'is_duplicate' => true,
                 'message' => "A product named \"{$existingNameProduct->name}\" already exists in this store (Barcode: {$existingNameProduct->barcode}).",
-                'existing_product' => $existingNameProduct->load(['category', 'unit', 'variants']),
+                'existing_product' => $existingNameProduct,
             ], 422);
         }
 
@@ -441,6 +499,121 @@ class POSApiController extends Controller
         $product->updated_by = $cashierId;
         $product->status = 'active';
 
+        // Image handling: Base64 Upload or Inherited Network Image
+        if (!empty($validated['image_base64'])) {
+            $imgData = $validated['image_base64'];
+            $ext = 'jpg';
+            if (preg_match('/^data:image\/(\w+);base64,/', $imgData, $type)) {
+                $imgData = substr($imgData, strpos($imgData, ',') + 1);
+                $ext = strtolower($type[1]) === 'jpeg' ? 'jpg' : strtolower($type[1]);
+            }
+            $decodedImg = base64_decode($imgData);
+            if ($decodedImg !== false) {
+                $filename = 'products/' . Str::random(40) . '.' . $ext;
+                \Illuminate\Support\Facades\Storage::disk('public')->put($filename, $decodedImg);
+                $product->image = $filename;
+            }
+        } elseif ($request->filled('image_url')) {
+            $rawImg = $request->input('image_url');
+            if (str_contains($rawImg, '/storage/')) {
+                $parts = explode('/storage/', $rawImg);
+                $product->image = end($parts);
+            }
+        }
+
+        $product->save();
+
+        // 3. Save Variants if provided
+        if ($request->has('variants') && is_array($request->input('variants'))) {
+            foreach ($request->input('variants') as $v) {
+                if (empty($v['name']) && empty($v['variant_name'])) continue;
+                $vName = $v['name'] ?? $v['variant_name'];
+                
+                POSProductVariant::create([
+                    'tenant_id'       => $tenantId,
+                    'product_id'      => $product->id,
+                    'variant_name'    => $vName,
+                    'barcode'         => !empty($v['barcode']) ? trim($v['barcode']) : null,
+                    'sku'             => 'SKU-' . strtoupper(Str::random(8)),
+                    'qty_per_pack'    => (float) ($v['qty_per_pack'] ?? 1),
+                    'cost_price'      => (float) ($v['cost_price'] ?? $product->cost_price),
+                    'selling_price'   => (float) ($v['selling_price'] ?? $product->selling_price),
+                    'wholesale_price' => (float) ($v['wholesale_price'] ?? $product->wholesale_price),
+                    'stock_on_hand'   => (float) ($v['stock_on_hand'] ?? 0),
+                    'status'          => 'active',
+                    'created_by'      => $cashierId,
+                    'updated_by'      => $cashierId,
+                ]);
+            }
+        }
+
+        $product->load(['category', 'unit', 'variants']);
+        $product->image_url = $this->getProductImageUrl($product->image, $request);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Product registered successfully.',
+            'product' => $product,
+        ]);
+    }
+
+    public function updateProduct(Request $request, $id)
+    {
+        $user = $this->getAuthenticatedUser($request);
+        $tenantId = (int) ($user?->tenant_id ?? $request->input('tenant_id', 1));
+        $cashierId = (int) ($user?->id ?? $request->input('cashier_id', 1));
+
+        $product = POSProducts::where('tenant_id', $tenantId)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'name'            => 'sometimes|required|string|max:255',
+            'barcode'         => 'nullable|string|max:100',
+            'selling_price'   => 'sometimes|required|numeric|min:0',
+            'wholesale_price' => 'nullable|numeric|min:0',
+            'cost_price'      => 'nullable|numeric|min:0',
+            'stock_on_hand'   => 'nullable|numeric|min:0',
+            'category_id'     => 'nullable|integer',
+            'unit_id'         => 'nullable|integer',
+            'reorder_level'   => 'nullable|numeric|min:0',
+            'description'     => 'nullable|string',
+            'image_base64'    => 'nullable|string',
+        ]);
+
+        if (array_key_exists('name', $validated)) {
+            $product->name = $validated['name'];
+        }
+        if (array_key_exists('barcode', $validated)) {
+            $product->barcode = !empty($validated['barcode']) ? trim($validated['barcode']) : null;
+        }
+        if (array_key_exists('selling_price', $validated)) {
+            $product->selling_price = $validated['selling_price'];
+        }
+        if (array_key_exists('wholesale_price', $validated)) {
+            $product->wholesale_price = $validated['wholesale_price'];
+        }
+        if (array_key_exists('cost_price', $validated)) {
+            $product->cost_price = $validated['cost_price'];
+        }
+        if (array_key_exists('stock_on_hand', $validated)) {
+            $product->stock_on_hand = $validated['stock_on_hand'];
+        }
+        if (array_key_exists('category_id', $validated) && !empty($validated['category_id'])) {
+            $product->category_id = $validated['category_id'];
+        }
+        if (array_key_exists('unit_id', $validated) && !empty($validated['unit_id'])) {
+            $product->unit_id = $validated['unit_id'];
+        }
+        if (array_key_exists('reorder_level', $validated)) {
+            $product->reorder_level = $validated['reorder_level'];
+        }
+        if (array_key_exists('description', $validated)) {
+            $product->description = $validated['description'];
+        }
+
+        $product->updated_by = $cashierId;
+
         // Image Base64 Upload
         if (!empty($validated['image_base64'])) {
             $imgData = $validated['image_base64'];
@@ -459,15 +632,57 @@ class POSApiController extends Controller
 
         $product->save();
 
-        $product->load(['category', 'unit', 'variants']);
-        if ($product->image) {
-            $product->image_url = asset('storage/' . ltrim($product->image, '/'));
+        // Sync / Update Variants
+        if ($request->has('variants') && is_array($request->input('variants'))) {
+            foreach ($request->input('variants') as $v) {
+                if (empty($v['name']) && empty($v['variant_name'])) continue;
+                $vName = $v['name'] ?? $v['variant_name'];
+
+                if (!empty($v['id'])) {
+                    $existingVariant = POSProductVariant::where('tenant_id', $tenantId)
+                        ->where('product_id', $product->id)
+                        ->where('id', $v['id'])
+                        ->first();
+
+                    if ($existingVariant) {
+                        $existingVariant->update([
+                            'variant_name'    => $vName,
+                            'barcode'         => !empty($v['barcode']) ? trim($v['barcode']) : null,
+                            'qty_per_pack'    => (float) ($v['qty_per_pack'] ?? $existingVariant->qty_per_pack),
+                            'cost_price'      => (float) ($v['cost_price'] ?? $existingVariant->cost_price),
+                            'selling_price'   => (float) ($v['selling_price'] ?? $existingVariant->selling_price),
+                            'wholesale_price' => (float) ($v['wholesale_price'] ?? $existingVariant->wholesale_price),
+                            'stock_on_hand'   => (float) ($v['stock_on_hand'] ?? $existingVariant->stock_on_hand),
+                            'updated_by'      => $cashierId,
+                        ]);
+                        continue;
+                    }
+                }
+
+                POSProductVariant::create([
+                    'tenant_id'       => $tenantId,
+                    'product_id'      => $product->id,
+                    'variant_name'    => $vName,
+                    'barcode'         => !empty($v['barcode']) ? trim($v['barcode']) : null,
+                    'sku'             => 'SKU-' . strtoupper(Str::random(8)),
+                    'qty_per_pack'    => (float) ($v['qty_per_pack'] ?? 1),
+                    'cost_price'      => (float) ($v['cost_price'] ?? $product->cost_price),
+                    'selling_price'   => (float) ($v['selling_price'] ?? $product->selling_price),
+                    'wholesale_price' => (float) ($v['wholesale_price'] ?? $product->wholesale_price),
+                    'stock_on_hand'   => (float) ($v['stock_on_hand'] ?? 0),
+                    'status'          => 'active',
+                    'created_by'      => $cashierId,
+                    'updated_by'      => $cashierId,
+                ]);
+            }
         }
 
+        $product->load(['category', 'unit', 'variants']);
+        $product->image_url = $this->getProductImageUrl($product->image, $request);
 
         return response()->json([
             'success' => true,
-            'message' => 'Product registered successfully.',
+            'message' => 'Product updated successfully.',
             'product' => $product,
         ]);
     }
@@ -478,92 +693,204 @@ class POSApiController extends Controller
         $cashierId = (int) ($user?->id ?? $request->input('cashier_id', 1));
 
         $validated = $request->validate([
-            'qty'   => 'required|numeric|min:0.01',
-            'notes' => 'nullable|string',
+            'qty'           => 'required|numeric|not_in:0',
+            'notes'         => 'nullable|string',
+            'variant_id'    => 'nullable|integer',
+            'movement_type' => 'nullable|string|in:purchase,adjustment,return,transfer',
         ]);
 
         $product = POSProducts::findOrFail($id);
-        $product->stock_on_hand = (float)($product->stock_on_hand ?? 0) + (float)$validated['qty'];
-        $product->save();
+        $variantId = $validated['variant_id'] ?? null;
+        $targetName = $product->name;
+        $qtyChange = (float) $validated['qty'];
+        $movType = $validated['movement_type'] ?? ($qtyChange > 0 ? 'purchase' : 'adjustment');
 
-        // Record Inventory Movement
+        if ($variantId) {
+            $variant = POSProductVariant::where('product_id', $id)->findOrFail($variantId);
+            $variant->stock_on_hand = max(0, (float)($variant->stock_on_hand ?? 0) + $qtyChange);
+            $variant->save();
+            $targetName = "{$product->name} ({$variant->name})";
+        } else {
+            $product->stock_on_hand = max(0, (float)($product->stock_on_hand ?? 0) + $qtyChange);
+            $product->save();
+        }
+
+        $formattedQty = $qtyChange > 0 ? "+{$qtyChange}" : "{$qtyChange}";
+        $defaultRemark = $movType === 'purchase'
+            ? "Restocked {$formattedQty} to {$targetName}"
+            : "Stock adjustment ({$formattedQty}) for {$targetName}";
+
+        // Record Inventory Movement (movement_type enum: 'purchase', 'sale', 'adjustment', 'return', 'transfer')
         $inv = new InventoryMovement();
         $inv->tenant_id = $product->tenant_id;
         $inv->product_id = $product->id;
-        $inv->movement_type = 'stock_in';
-        $inv->reference_type = 'quick_restock';
-        $inv->reference_id = $product->id;
-        $inv->qty = $validated['qty'];
+        $inv->variant_id = $variantId;
+        $inv->movement_type = $movType;
+        $inv->reference_type = $movType === 'purchase' ? 'quick_restock' : 'stock_adjustment';
+        $inv->reference_id = $variantId ?? $product->id;
+        $inv->qty = $qtyChange;
+        $inv->remarks = $validated['notes'] ?? $defaultRemark;
         $inv->created_by = $cashierId;
         $inv->updated_by = $cashierId;
         $inv->status = 'active';
         $inv->save();
 
         $product->load(['category', 'unit', 'variants']);
+        $product->image_url = $this->getProductImageUrl($product->image, $request);
 
+        $actionWord = $qtyChange > 0 ? 'added' : 'adjusted';
         return response()->json([
             'success' => true,
-            'message' => "Successfully added +{$validated['qty']} stock to {$product->name}.",
+            'message' => "Successfully {$actionWord} {$formattedQty} stock for {$targetName}.",
             'product' => $product,
         ]);
     }
 
-
-    public function lookupGlobalProduct(Request $request)
+    public function showProduct(Request $request, $id)
     {
-        $user = $this->getAuthenticatedUser($request);
-        $currentTenantId = (int) ($user?->tenant_id ?? $request->input('tenant_id', 1));
-
-        $barcode = trim($request->input('barcode', ''));
-        $name = trim($request->input('name', ''));
-
-        if (empty($barcode) && empty($name)) {
-            return response()->json(['success' => true, 'data' => []]);
+        $product = POSProducts::with(['category', 'unit', 'variants'])->find($id);
+        if (!$product) {
+            return response()->json(['success' => false, 'message' => 'Product not found.'], 404);
         }
 
-        $stripped = ltrim($barcode, '0');
-
-        $query = POSProducts::query()
-            ->with(['category', 'unit']);
-
-        if (!empty($barcode)) {
-            $query->where(function ($q) use ($barcode, $stripped) {
-                $q->where('barcode', $barcode)
-                  ->orWhere('barcode', 'like', "%{$barcode}%")
-                  ->orWhere('sku', $barcode);
-                if (!empty($stripped)) {
-                    $q->orWhere('barcode', 'like', "%{$stripped}%");
-                }
-            });
-        } elseif (!empty($name)) {
-            $query->where('name', 'like', "%{$name}%");
-        }
-
-        $matches = $query->take(6)->get();
+        $product->image_url = $this->getProductImageUrl($product->image, $request);
 
         return response()->json([
             'success' => true,
-            'count' => $matches->count(),
-            'data' => $matches->map(function ($p) use ($currentTenantId) {
-                $tenant = POSTenant::find($p->tenant_id);
+            'data' => $product,
+            'product' => $product,
+        ]);
+    }
+
+    public function productPerformance(Request $request, $id)
+    {
+        $product = POSProducts::with(['category', 'unit', 'variants'])->find($id);
+        if (!$product) {
+            return response()->json(['success' => false, 'message' => 'Product not found.'], 404);
+        }
+
+        $product->image_url = $this->getProductImageUrl($product->image, $request);
+
+        $stock = (float)($product->stock_on_hand ?? 0);
+        $cost = (float)($product->cost_price ?? 0);
+        $selling = (float)($product->selling_price ?? 0);
+        $wholesale = (float)($product->wholesale_price ?? 0);
+
+        // Fetch sales data
+        $saleItems = POSSaleItem::with(['sale.customer'])
+            ->where('product_id', $id)
+            ->latest('id')
+            ->get();
+
+        $totalUnitsSold = (float)$saleItems->sum('qty');
+        $totalRevenue = (float)$saleItems->sum('line_total');
+        $distinctOrdersCount = $saleItems->pluck('sale_id')->unique()->count();
+
+        // Profit calculations
+        $profitPerUnit = max(0, $selling - $cost);
+        $marginPercent = $selling > 0 ? round(($profitPerUnit / $selling) * 100, 1) : 0;
+        $estLifetimeProfit = $profitPerUnit * $totalUnitsSold;
+
+        // Stock valuation
+        $stockValueCost = $stock * $cost;
+        $stockValueRetail = $stock * $selling;
+
+        // Per-variant performance breakdown
+        $variantStats = $product->variants->map(function ($v) use ($saleItems) {
+            $vSales = $saleItems->where('variant_id', $v->id);
+            $vSoldQty = (float)$vSales->sum('qty');
+            $vRevenue = (float)$vSales->sum('line_total');
+            $vCost = (float)($v->cost_price ?? 0);
+            $vSelling = (float)($v->selling_price ?? 0);
+            $vStock = (float)($v->stock_on_hand ?? 0);
+            $vProfitPerUnit = max(0, $vSelling - $vCost);
+            $vMargin = $vSelling > 0 ? round(($vProfitPerUnit / $vSelling) * 100, 1) : 0;
+
+            return [
+                'id' => $v->id,
+                'name' => $v->name ?? $v->variant_name ?? 'Pack Variant',
+                'sku' => $v->sku,
+                'barcode' => $v->barcode,
+                'stock_on_hand' => $vStock,
+                'qty_per_pack' => (float)($v->qty_per_pack ?? 1),
+                'cost_price' => $vCost,
+                'selling_price' => $vSelling,
+                'wholesale_price' => (float)($v->wholesale_price ?? 0),
+                'total_units_sold' => $vSoldQty,
+                'total_revenue' => $vRevenue,
+                'profit_margin_percent' => $vMargin,
+                'stock_value_retail' => $vStock * $vSelling,
+                'is_low_stock' => $vStock <= 5,
+                'is_out_of_stock' => $vStock <= 0,
+            ];
+        })->values();
+
+        // Recent sales history formatted for CRM / Ledger (with variant_name)
+        $recentSales = $saleItems->take(40)->map(function ($item) use ($product) {
+            $sale = $item->sale;
+            $customerName = $sale?->customer?->CustomerName ?? $sale?->customer?->name ?? 'Walk-in Customer';
+            $variantName = null;
+            if ($item->variant_id) {
+                $matchedVar = $product->variants->firstWhere('id', $item->variant_id);
+                $variantName = $matchedVar?->name ?? $matchedVar?->variant_name ?? 'Pack Variant';
+            }
+
+            return [
+                'id' => $item->id,
+                'sale_id' => $item->sale_id,
+                'variant_id' => $item->variant_id,
+                'variant_name' => $variantName,
+                'invoice_no' => $sale?->invoice_no ?? ('#' . $item->sale_id),
+                'customer_name' => $customerName,
+                'qty' => (float)$item->qty,
+                'unit_price' => (float)$item->unit_price,
+                'discount' => (float)($item->discount_amount ?? 0),
+                'line_total' => (float)$item->line_total,
+                'payment_status' => $sale?->payment_status ?? 'paid',
+                'created_at' => $item->created_at ? $item->created_at->format('M d, Y h:i A') : '',
+                'created_at_raw' => $item->created_at ? $item->created_at->toIso8601String() : '',
+            ];
+        })->values();
+
+        // Recent stock movements
+        $movements = InventoryMovement::where('product_id', $id)
+            ->latest('id')
+            ->take(25)
+            ->get()
+            ->map(function ($m) {
                 return [
-                    'id' => $p->id,
-                    'name' => $p->name,
-                    'barcode' => $p->barcode,
-                    'sku' => $p->sku,
-                    'selling_price' => (float)$p->selling_price,
-                    'wholesale_price' => (float)$p->wholesale_price,
-                    'cost_price' => (float)$p->cost_price,
-                    'stock_on_hand' => (float)$p->stock_on_hand,
-                    'category_id' => $p->category_id,
-                    'category_name' => $p->category?->name,
-                    'unit_id' => $p->unit_id,
-                    'unit_name' => $p->unit?->name,
-                    'store_name' => $tenant?->business_name ?? 'SaaS Network Store',
-                    'tenant_id' => $p->tenant_id,
-                    'is_current_store' => ((int)$p->tenant_id === (int)$currentTenantId),
+                    'id' => $m->id,
+                    'variant_id' => $m->variant_id,
+                    'movement_type' => $m->movement_type ?? 'stock_in',
+                    'qty' => (float)$m->qty,
+                    'reference_type' => $m->reference_type,
+                    'remarks' => $m->remarks ?? ($m->movement_type === 'stock_in' ? 'Stock Added' : 'Stock Movement'),
+                    'created_at' => $m->created_at ? $m->created_at->format('M d, Y h:i A') : '',
                 ];
-            }),
+            });
+
+        return response()->json([
+            'success' => true,
+            'product' => $product,
+            'stats' => [
+                'stock_on_hand' => $stock,
+                'total_units_sold' => $totalUnitsSold,
+                'total_revenue' => $totalRevenue,
+                'total_orders' => $distinctOrdersCount,
+                'cost_price' => $cost,
+                'selling_price' => $selling,
+                'wholesale_price' => $wholesale,
+                'profit_per_unit' => $profitPerUnit,
+                'profit_margin_percent' => $marginPercent,
+                'est_lifetime_profit' => $estLifetimeProfit,
+                'stock_value_cost' => $stockValueCost,
+                'stock_value_retail' => $stockValueRetail,
+                'is_low_stock' => $stock <= 5,
+                'is_out_of_stock' => $stock <= 0,
+            ],
+            'variant_stats' => $variantStats,
+            'recent_sales' => $recentSales,
+            'stock_movements' => $movements,
         ]);
     }
 
@@ -620,7 +947,7 @@ class POSApiController extends Controller
         }
 
         $customers = $query->orderBy('CustomerName')->get()->map(function ($cust) {
-            $runningBalance = $cust->credit ? (float)$cust->credit->running_balance : (float)($cust->current_balance ?? 0);
+            $runningBalance = $cust->credit ? (float)$cust->credit->running_balance : 0;
             return [
                 'id' => $cust->id,
                 'tenant_id' => $cust->tenant_id,
@@ -662,7 +989,7 @@ class POSApiController extends Controller
         }
 
         $customer = $query->findOrFail($id);
-        $runningBalance = $customer->credit ? (float)$customer->credit->running_balance : (float)($customer->current_balance ?? 0);
+        $runningBalance = $customer->credit ? (float)$customer->credit->running_balance : 0;
 
         return response()->json([
             'success' => true,
@@ -725,7 +1052,6 @@ class POSApiController extends Controller
         $customer->customer_type = $customerType;
         $customer->discount_percent = $discountPercent;
         $customer->credit_limit = $creditLimit;
-        $customer->current_balance = 0;
         $customer->remarks = $validated['remarks'] ?? null;
         $customer->status = 'active';
         $customer->created_by = $request->user()?->id ?? 1;
@@ -857,9 +1183,9 @@ class POSApiController extends Controller
         $customerId = $validated['customer_id'];
         $customer = POSCustomers::findOrFail($customerId);
 
-        $lastBalance = POSCustomerLedger::where('customer_id', $customerId)
+        $lastBalance = (float)(POSCustomerLedger::where('customer_id', $customerId)
             ->latest('id')
-            ->value('running_balance') ?? (float)($customer->current_balance ?? 0);
+            ->value('running_balance') ?? 0);
 
         if ($validated['amount'] > $lastBalance) {
             return response()->json([
@@ -871,35 +1197,54 @@ class POSApiController extends Controller
         $runningBalance = max(0, $lastBalance - $validated['amount']);
 
         DB::transaction(function () use ($validated, $tenantId, $customerId, $customer, $runningBalance, $request) {
+            $paymentMethod = $validated['payment_method'] ?? 'cash';
+            $refNo = $validated['reference_no'] ?? ('COL-' . strtoupper(Str::random(6)));
+            $remarks = $validated['remarks'] ?? ('Utang collection payment via ' . strtoupper($paymentMethod));
+
             $payment = new POSPayment();
             $payment->customer_id = $customerId;
             $payment->tenant_id = $tenantId;
             $payment->payment_date = now();
-            $payment->payment_method = $validated['payment_method'] ?? 'cash';
+            $payment->payment_method = $paymentMethod;
             $payment->amount = $validated['amount'];
             $payment->tendered_amount = $validated['amount'];
             $payment->change_amount = 0;
-            $payment->reference_number = $validated['reference_no'] ?? ('COL-' . strtoupper(Str::random(6)));
-            $payment->notes = $validated['remarks'] ?? 'Suki Utang Collection Payment';
+            $payment->reference_number = $refNo;
+            $payment->notes = $remarks;
             $payment->save();
 
             $ledger = new POSCustomerLedger();
             $ledger->tenant_id = $tenantId;
             $ledger->customer_id = $customerId;
             $ledger->payment_id = $payment->id;
-            $ledger->reference_no = $payment->reference_number;
+            $ledger->reference_no = $refNo;
             $ledger->transaction_type = 'PAYMENT';
             $ledger->debit = 0;
             $ledger->credit = $validated['amount'];
             $ledger->running_balance = $runningBalance;
-            $ledger->remarks = $validated['remarks'] ?? 'Suki Debt Settlement Payment';
+            $ledger->remarks = $remarks;
             $ledger->created_by = $request->user()?->id ?? 1;
             $ledger->updated_by = $request->user()?->id ?? 1;
             $ledger->status = 'active';
             $ledger->save();
 
-            $customer->current_balance = $runningBalance;
-            $customer->save();
+            if (strtolower($paymentMethod) === 'cash') {
+                $cash = new POSCashTransaction();
+                $cash->tenant_id = $tenantId;
+                $cash->transaction_code = 'IN-' . strtoupper(Str::random(6));
+                $cash->cashier_id = $request->user()?->id ?? 1;
+                $cash->transaction_type = 'cash_in';
+                $cash->category = 'UTANG_COLLECTION';
+                $cash->amount = $validated['amount'];
+                $cash->reference_no = $refNo;
+                $cash->remarks = 'Utang collection payment from ' . $customer->CustomerName . ' [Completed]';
+                $cash->status = 'active';
+                $cash->archived = 0;
+                $cash->created_by = $request->user()?->id ?? 1;
+                $cash->updated_by = $request->user()?->id ?? 1;
+                $cash->created_at = now();
+                $cash->save();
+            }
         });
 
         return response()->json([
@@ -934,6 +1279,10 @@ class POSApiController extends Controller
             'items.*.variant_id' => 'nullable|integer',
             'items.*.qty'     => 'required|numeric|min:0.01',
             'items.*.price'   => 'required|numeric|min:0',
+            'items.*.discount_amount' => 'nullable|numeric',
+            'items.*.promo_id' => 'nullable|integer',
+            'items.*.promo_name' => 'nullable|string',
+            'items.*.line_total' => 'nullable|numeric',
         ]);
 
         $totalPaid = collect($validated['payments'])->sum('amount');
@@ -951,7 +1300,7 @@ class POSApiController extends Controller
             }
 
             $customer = POSCustomers::findOrFail($validated['customer_id']);
-            $currentDebt = POSCustomerLedger::where('customer_id', $customer->id)->latest('id')->value('running_balance') ?? (float)($customer->current_balance ?? 0);
+            $currentDebt = (float)(POSCustomerLedger::where('customer_id', $customer->id)->latest('id')->value('running_balance') ?? 0);
             $creditLimit = (float)($customer->credit_limit ?? 5000);
 
             if (($currentDebt + $validated['total']) > $creditLimit) {
@@ -1020,9 +1369,10 @@ class POSApiController extends Controller
                     $newSaleItem->product_name = $variant ? "{$product->name} ({$variant->variant_name})" : $product->name;
                     $newSaleItem->qty = $item['qty'];
                     $newSaleItem->unit_price = $item['price'];
-                    $newSaleItem->discount_amount = 0;
+                    $newSaleItem->discount_amount = isset($item['discount_amount']) ? (float)$item['discount_amount'] : 0;
+                    $newSaleItem->promo_id = !empty($item['promo_id']) ? (int)$item['promo_id'] : null;
                     $newSaleItem->tax_amount = 0;
-                    $newSaleItem->line_total = $item['qty'] * $item['price'];
+                    $newSaleItem->line_total = isset($item['line_total']) ? (float)$item['line_total'] : max(0, ($item['qty'] * $item['price']) - $newSaleItem->discount_amount);
                     $newSaleItem->created_by = $cashierId;
                     $newSaleItem->updated_by = $cashierId;
                     $newSaleItem->status = 'active';
@@ -1086,7 +1436,7 @@ class POSApiController extends Controller
 
                         // If charged to credit / utang, record to customer ledger
                         if ($isChargeToCredit) {
-                            $lastBalance = POSCustomerLedger::where('customer_id', $customerId)->latest('id')->value('running_balance') ?? (float)($customer->current_balance ?? 0);
+                            $lastBalance = (float)(POSCustomerLedger::where('customer_id', $customerId)->latest('id')->value('running_balance') ?? 0);
                             $newBalance = $lastBalance + $total;
 
                             $ledger = new POSCustomerLedger();
@@ -1103,15 +1453,12 @@ class POSApiController extends Controller
                             $ledger->updated_by = $cashierId;
                             $ledger->status = 'active';
                             $ledger->save();
-
-                            $customer->current_balance = $newBalance;
-                            $customer->save();
                         }
                     }
                 }
             });
 
-            $sale->load(['items', 'customer', 'payments']);
+            $sale->load(['items', 'customer', 'payments', 'tenant']);
 
             return response()->json([
                 'success' => true,
@@ -1131,7 +1478,7 @@ class POSApiController extends Controller
 
     public function saleDetails($id)
     {
-        $sale = POSSale::with(['items.product', 'customer', 'cashier', 'payments'])->findOrFail($id);
+        $sale = POSSale::with(['items.product', 'customer', 'cashier', 'payments', 'tenant'])->findOrFail($id);
 
         return response()->json([
             'success' => true,
@@ -1182,6 +1529,8 @@ class POSApiController extends Controller
         $today = Carbon::today();
         $yesterday = Carbon::yesterday();
         $thisMonthStart = Carbon::now()->startOfMonth();
+        $lastMonthStart = Carbon::now()->subMonth()->startOfMonth();
+        $lastMonthEnd = Carbon::now()->subMonth()->endOfMonth();
 
         // 1. Sales & Growth
         $todaySales = (float) POSSale::where('tenant_id', $tenantId)
@@ -1207,6 +1556,15 @@ class POSApiController extends Controller
             ->where('sale_date', '>=', $thisMonthStart)
             ->whereIn('sale_status', ['completed', 'refund'])
             ->sum('total_amount');
+
+        $lastMonthSales = (float) POSSale::where('tenant_id', $tenantId)
+            ->whereBetween('sale_date', [$lastMonthStart, $lastMonthEnd])
+            ->whereIn('sale_status', ['completed', 'refund'])
+            ->sum('total_amount');
+
+        $monthGrowth = $lastMonthSales > 0
+            ? round((($monthSales - $lastMonthSales) / $lastMonthSales) * 100, 1)
+            : ($monthSales > 0 ? 100 : 0);
 
         // 2. Gross Profit Calculation (Today) with Variant-aware costing
         $todaySaleIds = POSSale::where('tenant_id', $tenantId)
@@ -1242,14 +1600,31 @@ class POSApiController extends Controller
         $totalCredits = (float) POSCustomerLedger::where('tenant_id', $tenantId)->sum('credit');
         $totalUtangReceivables = max(0, $totalDebits - $totalCredits);
 
+        $customersWithUtangCount = POSCustomerLedger::where('tenant_id', $tenantId)
+            ->select('customer_id')
+            ->groupBy('customer_id')
+            ->havingRaw('(SUM(debit) - SUM(credit)) > 0')
+            ->get()
+            ->count();
+
         // 5. Stock Health & Valuations
+        $standaloneProductsCount = POSProducts::where('tenant_id', $tenantId)->where('status', '!=', 'deleted')->doesntHave('variants')->count();
+        $variantsCount = POSProductVariant::whereHas('product', function ($q) use ($tenantId) {
+            $q->where('tenant_id', $tenantId)->where('status', '!=', 'deleted');
+        })->where(function ($q) {
+            $q->whereNull('status')->orWhere('status', 'active');
+        })->count();
+        $totalProducts = $standaloneProductsCount + $variantsCount;
+
         $standaloneInventoryCost = (float) POSProducts::where('tenant_id', $tenantId)
+            ->where('status', '!=', 'deleted')
             ->doesntHave('variants')
             ->selectRaw('SUM(COALESCE(stock_on_hand, 0) * COALESCE(cost_price, 0)) as total_val')
             ->value('total_val') ?? 0;
 
         $variantInventoryCost = (float) POSProductVariant::join('pos_products', 'pos_product_variants.product_id', '=', 'pos_products.id')
             ->where('pos_products.tenant_id', $tenantId)
+            ->where('pos_products.status', '!=', 'deleted')
             ->where(function ($q) {
                 $q->whereNull('pos_product_variants.status')->orWhere('pos_product_variants.status', 'active');
             })
@@ -1258,27 +1633,55 @@ class POSApiController extends Controller
 
         $totalInventoryCost = $standaloneInventoryCost + $variantInventoryCost;
 
-        $lowStockProducts = POSProducts::where('tenant_id', $tenantId)
-            ->where(function ($q) {
-                $q->whereColumn('stock_on_hand', '<=', 'reorder_level')
-                  ->orWhere('stock_on_hand', '<=', 0);
-            })
+        $lowStockProductsCount = POSProducts::where('tenant_id', $tenantId)
+            ->where('status', '!=', 'deleted')
+            ->doesntHave('variants')
+            ->where('stock_on_hand', '>', 0)
+            ->whereColumn('stock_on_hand', '<=', 'reorder_level')
             ->count();
 
-        // 6. Recent Sales
+        $outOfStockProductsCount = POSProducts::where('tenant_id', $tenantId)
+            ->where('status', '!=', 'deleted')
+            ->doesntHave('variants')
+            ->where('stock_on_hand', '<=', 0)
+            ->count();
+
+        $lowStockVariantsCount = POSProductVariant::whereHas('product', function ($q) use ($tenantId) {
+                $q->where('tenant_id', $tenantId)->where('status', '!=', 'deleted');
+            })
+            ->where(function ($q) {
+                $q->whereNull('status')->orWhere('status', 'active');
+            })
+            ->where('stock_on_hand', '>', 0)
+            ->whereColumn('stock_on_hand', '<=', 'reorder_level')
+            ->count();
+
+        $outOfStockVariantsCount = POSProductVariant::whereHas('product', function ($q) use ($tenantId) {
+                $q->where('tenant_id', $tenantId)->where('status', '!=', 'deleted');
+            })
+            ->where(function ($q) {
+                $q->whereNull('status')->orWhere('status', 'active');
+            })
+            ->where('stock_on_hand', '<=', 0)
+            ->count();
+
+        $lowStockCount = $lowStockProductsCount + $lowStockVariantsCount;
+        $outOfStockCount = $outOfStockProductsCount + $outOfStockVariantsCount;
+
+        // 6. Recent Sales Feed
         $recentSales = POSSale::with('customer')
             ->where('tenant_id', $tenantId)
-            ->orderByDesc('sale_date')
+            ->orderByDesc('id')
             ->limit(6)
             ->get()
             ->map(function ($sale) {
                 return [
                     'id' => $sale->id,
-                    'invoice_no' => $sale->invoice_no ?: $sale->sale_code,
+                    'invoice_no' => $sale->invoice_no ?: ($sale->sale_code ?: ('#' . $sale->id)),
                     'customer_name' => $sale->customer?->CustomerName ?: ($sale->customer?->name ?? 'Walk-In Customer'),
                     'payment_method' => ucfirst(str_replace('_', ' ', $sale->payment_method ?: 'cash')),
                     'total_amount' => (float)$sale->total_amount,
-                    'total_amount_formatted' => '₱' . number_format($sale->total_amount, 2),
+                    'total_formatted' => '₱' . number_format($sale->total_amount, 2),
                     'time_formatted' => $sale->sale_date ? $sale->sale_date->format('M d, h:i A') : ($sale->created_at ? $sale->created_at->format('M d, h:i A') : '-'),
                 ];
             });
@@ -1297,11 +1700,100 @@ class POSApiController extends Controller
         for ($i = 6; $i >= 0; $i--) {
             $curr = Carbon::now()->subDays($i)->format('Y-m-d');
             $trend[] = [
-                'date' => Carbon::parse($curr)->format('M d'),
+                'date' => $curr,
+                'day' => Carbon::parse($curr)->format('D'),
+                'label' => Carbon::parse($curr)->format('M d'),
                 'revenue' => (float)($rawSales[$curr]->total_revenue ?? 0),
                 'orders' => (int)($rawSales[$curr]->total_orders ?? 0),
             ];
         }
+
+        // 8. Payment Breakdown
+        $paymentBreakdown = POSPayment::where('tenant_id', $tenantId)
+            ->where('payment_date', '>=', Carbon::now()->subDays(30))
+            ->select('payment_method', DB::raw('SUM(amount) as total_amount'))
+            ->groupBy('payment_method')
+            ->get()
+            ->keyBy('payment_method');
+
+        $paymentStats = [
+            'cash' => (float)($paymentBreakdown['cash']->total_amount ?? 0),
+            'gcash' => (float)($paymentBreakdown['gcash']->total_amount ?? 0),
+            'maya' => (float)($paymentBreakdown['maya']->total_amount ?? 0),
+            'credit' => (float)($paymentBreakdown['credit']->total_amount ?? 0),
+            'card' => (float)($paymentBreakdown['card']->total_amount ?? 0),
+        ];
+
+        // 9. Stock Alerts
+        $lowStockProductsList = POSProducts::with(['unit', 'category'])
+            ->where('tenant_id', $tenantId)
+            ->where('status', '!=', 'deleted')
+            ->doesntHave('variants')
+            ->where(function ($q) {
+                $q->whereColumn('stock_on_hand', '<=', 'reorder_level')
+                  ->orWhere('stock_on_hand', '<=', 0);
+            })
+            ->get()
+            ->map(function ($prod) {
+                return [
+                    'id' => $prod->id,
+                    'name' => $prod->name ?: 'Product',
+                    'barcode' => $prod->barcode ?: 'No Barcode',
+                    'category' => $prod->category?->name ?? 'General',
+                    'stock' => (float)$prod->stock_on_hand,
+                    'unit' => $prod->unit?->name ?? 'pcs',
+                    'is_out_of_stock' => $prod->stock_on_hand <= 0,
+                ];
+            });
+
+        $lowStockVariantsList = POSProductVariant::with(['product.category', 'unit'])
+            ->whereHas('product', function ($q) use ($tenantId) {
+                $q->where('tenant_id', $tenantId)->where('status', '!=', 'deleted');
+            })
+            ->where(function ($q) {
+                $q->whereNull('status')->orWhere('status', 'active');
+            })
+            ->where(function ($q) {
+                $q->whereColumn('stock_on_hand', '<=', 'reorder_level')
+                  ->orWhere('stock_on_hand', '<=', 0);
+            })
+            ->get()
+            ->map(function ($v) {
+                $productName = $v->product?->name ?? 'Product';
+                return [
+                    'id' => $v->product_id,
+                    'name' => $productName . ' (' . $v->variant_name . ')',
+                    'barcode' => $v->barcode ?: ($v->product?->barcode ?: 'No Barcode'),
+                    'category' => $v->product?->category?->name ?? 'General',
+                    'stock' => (float)$v->stock_on_hand,
+                    'unit' => $v->unit?->name ?: ($v->product?->unit?->name ?? 'pcs'),
+                    'is_out_of_stock' => $v->stock_on_hand <= 0,
+                ];
+            });
+
+        $mergedAlerts = $lowStockProductsList->concat($lowStockVariantsList)->sortBy('stock')->values()->take(6);
+
+        // 10. Top Suki Leaderboard (by TotalPoints & CRM engagement)
+        $topSuki = POSCustomers::where('tenant_id', $tenantId)
+            ->orderByDesc('TotalPoints')
+            ->limit(5)
+            ->get()
+            ->map(function ($c) use ($tenantId) {
+                $bal = (float) POSCustomerLedger::where('tenant_id', $tenantId)
+                    ->where('customer_id', $c->id)
+                    ->selectRaw('COALESCE(SUM(debit) - SUM(credit), 0) as bal')
+                    ->value('bal');
+
+                return [
+                    'id' => $c->id,
+                    'name' => $c->CustomerName ?: ($c->name ?? 'Customer'),
+                    'phone' => $c->mobile_number ?: ($c->phone ?? 'No Phone'),
+                    'points' => (int)($c->TotalPoints ?? 0),
+                    'loyalty_points' => (int)($c->TotalPoints ?? 0),
+                    'balance' => max(0, $bal),
+                    'total_spent_formatted' => number_format((int)($c->TotalPoints ?? 0)) . ' pts',
+                ];
+            });
 
         return response()->json([
             'success' => true,
@@ -1313,45 +1805,357 @@ class POSApiController extends Controller
                 'today_orders_count' => $todayOrdersCount,
                 'month_sales' => $monthSales,
                 'month_sales_formatted' => '₱' . number_format($monthSales, 2),
+                'month_growth' => $monthGrowth,
                 'today_gross_profit' => $todayGrossProfit,
                 'today_gross_profit_formatted' => '₱' . number_format($todayGrossProfit, 2),
                 'today_profit_margin' => $todayProfitMargin,
+                'drawer_starting_cash' => $drawerStartingCash,
+                'drawer_starting_cash_formatted' => '₱' . number_format($drawerStartingCash, 2),
                 'current_drawer_balance' => $currentDrawerBalance,
                 'current_drawer_balance_formatted' => '₱' . number_format($currentDrawerBalance, 2),
                 'total_utang_receivables' => $totalUtangReceivables,
                 'total_utang_receivables_formatted' => '₱' . number_format($totalUtangReceivables, 2),
+                'customers_with_utang_count' => $customersWithUtangCount,
                 'total_inventory_cost' => $totalInventoryCost,
                 'total_inventory_cost_formatted' => '₱' . number_format($totalInventoryCost, 2),
-                'low_stock_count' => $lowStockProducts,
-                'active_shift' => $activeShift ? [
-                    'id' => $activeShift->id,
-                    'shift_code' => $activeShift->shift_code ?: ('SHIFT-' . $activeShift->id),
-                    'cashier_name' => $activeShift->cashier?->name ?? 'Cashier',
-                    'opening_cash' => (float)$activeShift->opening_cash,
-                    'opened_at' => $activeShift->opened_at ? Carbon::parse($activeShift->opened_at)->format('M d, h:i A') : '-',
-                ] : null,
+                'total_products_count' => $totalProducts,
+                'low_stock_total' => $lowStockCount + $outOfStockCount,
+                'low_stock_count' => $lowStockCount,
+                'out_of_stock_count' => $outOfStockCount,
             ],
-            'recent_sales' => $recentSales,
+            'active_shift' => $activeShift ? [
+                'id' => $activeShift->id,
+                'shift_code' => $activeShift->shift_code ?: ('SHIFT-' . $activeShift->id),
+                'cashier_name' => $activeShift->cashier?->name ?? 'Cashier',
+                'opened_at' => $activeShift->opened_at ? Carbon::parse($activeShift->opened_at)->format('h:i A') : '-',
+            ] : null,
             'sales_trend' => $trend,
+            'payment_stats' => $paymentStats,
+            'recent_sales' => $recentSales,
+            'inventory_alerts' => $mergedAlerts,
+            'top_suki' => $topSuki,
         ]);
     }
 
     public function promotions(Request $request)
     {
         $user = $this->getAuthenticatedUser($request);
-        $tenantId = $user?->tenant_id ?? $request->input('tenant_id');
+        $tenantId = $user?->tenant_id ?? $request->input('tenant_id', 1);
 
-        $promos = POSPromotion::with(['items.product', 'items.variant'])
+        $promos = POSPromotion::with(['items.product', 'items.category', 'items.variant', 'product', 'category'])
             ->where('tenant_id', $tenantId)
-            ->where(function ($q) {
-                $q->whereNull('status')->orWhere('status', 'active');
-            })
             ->orderByDesc('id')
-            ->get();
+            ->get()
+            ->map(function ($promo) {
+                return [
+                    'id'             => $promo->id,
+                    'tenant_id'      => $promo->tenant_id,
+                    'title'          => $promo->title,
+                    'name'           => $promo->title,
+                    'promo_code'     => $promo->promo_code,
+                    'code'           => $promo->promo_code,
+                    'promo_type'     => $promo->promo_type,
+                    'discount_type'  => $promo->promo_type,
+                    'discount_value' => (float)$promo->discount_value,
+                    'min_spend'      => (float)($promo->min_spend ?? 0),
+                    'min_quantity'   => (int)($promo->min_quantity ?? 0),
+                    'get_quantity'   => (int)($promo->get_quantity ?? 0),
+                    'applies_to'     => $promo->applies_to,
+                    'target_id'      => $promo->target_id,
+                    'target_ids'     => $promo->target_ids ?? ($promo->items ? $promo->items->pluck('item_id')->all() : []),
+                    'start_date'     => $promo->start_date ? $promo->start_date->format('Y-m-d') : null,
+                    'end_date'       => $promo->end_date ? $promo->end_date->format('Y-m-d') : null,
+                    'is_active'      => (bool)$promo->is_active,
+                    'description'    => $promo->description,
+                    'items_count'    => $promo->items ? $promo->items->count() : 0,
+                    'items'          => $promo->items,
+                    'product'        => $promo->product,
+                    'category'       => $promo->category,
+                ];
+            });
 
         return response()->json([
             'success' => true,
             'data' => $promos,
+        ]);
+    }
+
+    public function storePromotion(Request $request)
+    {
+        $user = $this->getAuthenticatedUser($request);
+        $tenantId = $user?->tenant_id ?? $request->input('tenant_id', 1);
+
+        $validated = $request->validate([
+            'title'          => 'required|string|max:190',
+            'promo_code'     => 'nullable|string|max:50',
+            'promo_type'     => 'required|in:percentage,fixed_amount',
+            'discount_value' => 'required|numeric|min:0',
+            'min_spend'      => 'nullable|numeric|min:0',
+            'min_quantity'   => 'nullable|integer|min:1',
+            'get_quantity'   => 'nullable|integer|min:0',
+            'applies_to'     => 'required|in:all,category,product,variant',
+            'target_id'      => 'nullable|integer',
+            'target_ids'     => 'nullable|array',
+            'start_date'     => 'nullable|date',
+            'end_date'       => 'nullable|date|after_or_equal:start_date',
+            'usage_limit'    => 'nullable|integer|min:1',
+            'description'    => 'nullable|string|max:500',
+            'is_active'      => 'nullable|boolean',
+        ]);
+
+        $validated['tenant_id'] = $tenantId;
+        $validated['is_active'] = isset($validated['is_active']) ? (bool)$validated['is_active'] : true;
+        $validated['created_by'] = $user?->id ?? 1;
+
+        if (!empty($validated['promo_code'])) {
+            $validated['promo_code'] = strtoupper(trim($validated['promo_code']));
+        }
+
+        $validated['min_quantity'] = 1;
+        $validated['get_quantity'] = 0;
+
+        if ($request->filled('target_ids') && is_array($request->target_ids)) {
+            $validated['target_ids'] = array_values(array_filter(array_map('intval', $request->target_ids)));
+            if (empty($validated['target_id']) && count($validated['target_ids']) > 0) {
+                $validated['target_id'] = $validated['target_ids'][0];
+            }
+        }
+
+        $promo = POSPromotion::create($validated);
+
+        if ($promo->applies_to !== 'all' && !empty($validated['target_ids'])) {
+            foreach ($validated['target_ids'] as $tid) {
+                POSPromotionItem::create([
+                    'tenant_id'    => $tenantId,
+                    'promotion_id' => $promo->id,
+                    'item_type'    => $promo->applies_to === 'category' ? 'category' : 'product',
+                    'item_id'      => $tid,
+                ]);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Promotion campaign created successfully!',
+            'data'    => $promo->load(['product', 'category', 'items']),
+        ]);
+    }
+
+    public function updatePromotion(Request $request, $id)
+    {
+        $user = $this->getAuthenticatedUser($request);
+        $tenantId = $user?->tenant_id ?? $request->input('tenant_id', 1);
+
+        $promo = POSPromotion::where('tenant_id', $tenantId)->findOrFail($id);
+
+        $validated = $request->validate([
+            'title'          => 'required|string|max:190',
+            'promo_code'     => 'nullable|string|max:50',
+            'promo_type'     => 'required|in:percentage,fixed_amount',
+            'discount_value' => 'required|numeric|min:0',
+            'min_spend'      => 'nullable|numeric|min:0',
+            'min_quantity'   => 'nullable|integer|min:1',
+            'get_quantity'   => 'nullable|integer|min:0',
+            'applies_to'     => 'required|in:all,category,product,variant',
+            'target_id'      => 'nullable|integer',
+            'target_ids'     => 'nullable|array',
+            'start_date'     => 'nullable|date',
+            'end_date'       => 'nullable|date|after_or_equal:start_date',
+            'usage_limit'    => 'nullable|integer|min:1',
+            'description'    => 'nullable|string|max:500',
+            'is_active'      => 'nullable|boolean',
+        ]);
+
+        if (!empty($validated['promo_code'])) {
+            $validated['promo_code'] = strtoupper(trim($validated['promo_code']));
+        }
+
+        $validated['min_quantity'] = 1;
+        $validated['get_quantity'] = 0;
+
+        if ($request->filled('target_ids') && is_array($request->target_ids)) {
+            $validated['target_ids'] = array_values(array_filter(array_map('intval', $request->target_ids)));
+            if (empty($validated['target_id']) && count($validated['target_ids']) > 0) {
+                $validated['target_id'] = $validated['target_ids'][0];
+            }
+        }
+
+        $promo->update($validated);
+
+        POSPromotionItem::where('tenant_id', $tenantId)->where('promotion_id', $promo->id)->delete();
+        if ($promo->applies_to !== 'all' && !empty($validated['target_ids'])) {
+            foreach ($validated['target_ids'] as $tid) {
+                POSPromotionItem::create([
+                    'tenant_id'    => $tenantId,
+                    'promotion_id' => $promo->id,
+                    'item_type'    => $promo->applies_to === 'category' ? 'category' : 'product',
+                    'item_id'      => $tid,
+                ]);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Promotion updated successfully!',
+            'data'    => $promo->fresh(['product', 'category', 'items']),
+        ]);
+    }
+
+    public function togglePromotion(Request $request, $id)
+    {
+        $user = $this->getAuthenticatedUser($request);
+        $tenantId = $user?->tenant_id ?? $request->input('tenant_id', 1);
+
+        $promo = POSPromotion::where('tenant_id', $tenantId)->findOrFail($id);
+        $promo->is_active = !$promo->is_active;
+        $promo->save();
+
+        return response()->json([
+            'success'   => true,
+            'is_active' => (bool)$promo->is_active,
+            'message'   => $promo->is_active ? 'Promotion activated' : 'Promotion deactivated',
+        ]);
+    }
+
+    public function destroyPromotion(Request $request, $id)
+    {
+        $user = $this->getAuthenticatedUser($request);
+        $tenantId = $user?->tenant_id ?? $request->input('tenant_id', 1);
+
+        $promo = POSPromotion::where('tenant_id', $tenantId)->findOrFail($id);
+        $promo->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Promotion removed successfully!',
+        ]);
+    }
+
+    public function promoItems(Request $request, $id)
+    {
+        $user = $this->getAuthenticatedUser($request);
+        $tenantId = $user?->tenant_id ?? $request->input('tenant_id', 1);
+
+        $promo = POSPromotion::where('tenant_id', $tenantId)->findOrFail($id);
+
+        $items = POSPromotionItem::where('tenant_id', $tenantId)
+            ->where('promotion_id', $id)
+            ->with(['product.category', 'category', 'variant.product'])
+            ->latest('id')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'promo'   => $promo,
+            'data'    => $items,
+        ]);
+    }
+
+    public function addPromoItems(Request $request, $id)
+    {
+        $user = $this->getAuthenticatedUser($request);
+        $tenantId = $user?->tenant_id ?? $request->input('tenant_id', 1);
+
+        $promo = POSPromotion::where('tenant_id', $tenantId)->findOrFail($id);
+
+        $itemIds = $request->input('item_ids', []);
+        if (!is_array($itemIds) && $request->filled('item_id')) {
+            $itemIds = [(int)$request->input('item_id')];
+        }
+
+        $itemType = $request->input('item_type', $promo->applies_to === 'category' ? 'category' : 'product');
+
+        $addedCount = 0;
+        foreach ($itemIds as $itemId) {
+            $itemId = (int)$itemId;
+            $exists = POSPromotionItem::where('tenant_id', $tenantId)
+                ->where('promotion_id', $id)
+                ->where('item_type', $itemType)
+                ->where('item_id', $itemId)
+                ->exists();
+
+            if (!$exists) {
+                POSPromotionItem::create([
+                    'tenant_id'    => $tenantId,
+                    'promotion_id' => $id,
+                    'item_type'    => $itemType,
+                    'item_id'      => $itemId,
+                ]);
+                $addedCount++;
+            }
+        }
+
+        $allTids = POSPromotionItem::where('tenant_id', $tenantId)
+            ->where('promotion_id', $id)
+            ->pluck('item_id')
+            ->all();
+
+        $promo->target_ids = $allTids;
+        $promo->target_id = count($allTids) > 0 ? $allTids[0] : null;
+        if ($promo->applies_to === 'all') {
+            $promo->applies_to = $itemType;
+        }
+        $promo->save();
+
+        return response()->json([
+            'success'     => true,
+            'message'     => $addedCount . ' item(s) added to promotion successfully!',
+            'added_count' => $addedCount,
+            'total_items' => count($allTids),
+            'data'        => $promo->load(['items.product', 'items.category']),
+        ]);
+    }
+
+    public function removePromoItem(Request $request, $id, $itemId)
+    {
+        $user = $this->getAuthenticatedUser($request);
+        $tenantId = $user?->tenant_id ?? $request->input('tenant_id', 1);
+
+        $promo = POSPromotion::where('tenant_id', $tenantId)->findOrFail($id);
+
+        POSPromotionItem::where('tenant_id', $tenantId)
+            ->where('promotion_id', $id)
+            ->where(function ($q) use ($itemId) {
+                $q->where('id', $itemId)->orWhere('item_id', $itemId);
+            })
+            ->delete();
+
+        $allTids = POSPromotionItem::where('tenant_id', $tenantId)
+            ->where('promotion_id', $id)
+            ->pluck('item_id')
+            ->all();
+
+        $promo->target_ids = $allTids;
+        $promo->target_id = count($allTids) > 0 ? $allTids[0] : null;
+        $promo->save();
+
+        return response()->json([
+            'success'     => true,
+            'message'     => 'Item removed from promotion.',
+            'total_items' => count($allTids),
+            'data'        => $promo->load(['items.product', 'items.category']),
+        ]);
+    }
+
+    public function clearPromoItems(Request $request, $id)
+    {
+        $user = $this->getAuthenticatedUser($request);
+        $tenantId = $user?->tenant_id ?? $request->input('tenant_id', 1);
+
+        $promo = POSPromotion::where('tenant_id', $tenantId)->findOrFail($id);
+
+        POSPromotionItem::where('tenant_id', $tenantId)
+            ->where('promotion_id', $id)
+            ->delete();
+
+        $promo->target_ids = [];
+        $promo->target_id = null;
+        $promo->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'All items cleared from promotion.',
+            'data'    => $promo,
         ]);
     }
 
@@ -1500,5 +2304,80 @@ class POSApiController extends Controller
             'data' => $sales,
         ]);
     }
+
+    public function getSettings(Request $request)
+    {
+        $user = $this->getAuthenticatedUser($request);
+        $tenantId = $user?->tenant_id ?? $request->input('tenant_id');
+
+        $tenant = POSTenant::with('subscription')->find($tenantId);
+        if (!$tenant) {
+            $tenant = POSTenant::with('subscription')->first();
+        }
+
+        return response()->json([
+            'success' => true,
+            'tenant' => $tenant,
+            'theme' => $tenant?->theme_settings ?? [
+                'preset' => 'emerald',
+                'primary_color' => '#059669',
+                'topbar_color' => '#064E3B',
+                'topbar_text_color' => '#FFFFFF',
+                'sidebar_color' => '#0F172A',
+                'sidebar_text_color' => '#CBD5E1',
+                'sidebar_active_color' => '#059669',
+                'sidebar_active_text_color' => '#FFFFFF',
+                'accent_color' => '#10B981',
+                'dark_mode' => false,
+            ],
+            'crm' => $tenant?->crm_settings ?? [
+                'points_per_peso' => 0.01,
+                'default_credit_limit' => 5000,
+                'sms_receipt_enabled' => true,
+                'sms_utang_reminder_enabled' => true,
+            ],
+        ]);
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $user = $this->getAuthenticatedUser($request);
+        $tenantId = $user?->tenant_id ?? $request->input('tenant_id');
+
+        $tenant = POSTenant::where('id', $tenantId)->first();
+        if (!$tenant) {
+            return response()->json(['success' => false, 'message' => 'Tenant not found.'], 404);
+        }
+
+        if ($request->has('business_name')) $tenant->business_name = $request->input('business_name');
+        if ($request->has('owner_name')) $tenant->owner_name = $request->input('owner_name');
+        if ($request->has('phone')) $tenant->phone = $request->input('phone');
+        if ($request->has('email')) $tenant->email = $request->input('email');
+        if ($request->has('address')) $tenant->address = $request->input('address');
+        if ($request->has('tin')) $tenant->tin = $request->input('tin');
+        if ($request->has('header_text')) $tenant->header_text = $request->input('header_text');
+        if ($request->has('footer_text')) $tenant->footer_text = $request->input('footer_text');
+
+        if ($request->has('theme')) {
+            $tenant->theme_settings = array_merge($tenant->theme_settings ?? [], $request->input('theme', []));
+        }
+
+        if ($request->has('crm')) {
+            $tenant->crm_settings = array_merge($tenant->crm_settings ?? [], $request->input('crm', []));
+        }
+
+        $tenant->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Store settings, theme, and CRM configurations saved successfully.',
+            'tenant' => $tenant,
+            'theme' => $tenant->theme_settings,
+            'crm' => $tenant->crm_settings,
+        ]);
+    }
 }
+
+
+
 

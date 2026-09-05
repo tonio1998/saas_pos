@@ -82,4 +82,13 @@ class POSProducts extends Model
             'product_id'
         )->orderBy('qty_per_pack');
     }
+
+    public function tenant()
+    {
+        return $this->belongsTo(
+            POSTenant::class,
+            'tenant_id'
+        );
+    }
 }
+

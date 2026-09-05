@@ -29,7 +29,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="{{ asset('images/ic_launcher.png') }}">
     <link rel="icon" href="{{ asset('images/ic_launcher.png') }}">
-    <title>@yield('title', 'LikhaPOS Minimart') - Cloud POS & CRM</title>
+    <title>@hasSection('title')@yield('title') &mdash; {{ $appStoreConfig['business_name'] }}@else{{ $appStoreConfig['business_name'] }}@endif</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

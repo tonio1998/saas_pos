@@ -216,7 +216,7 @@ class PromotionController extends Controller
         $validated = $request->validate([
             'title'          => 'required|string|max:190',
             'promo_code'     => 'nullable|string|max:50',
-            'promo_type'     => 'required|in:percentage,fixed_amount,bulk_tier,buy_x_get_y',
+            'promo_type'     => 'required|in:percentage,fixed_amount',
             'discount_value' => 'required|numeric|min:0',
             'min_spend'      => 'nullable|numeric|min:0',
             'min_quantity'   => 'nullable|integer|min:1',
@@ -238,10 +238,8 @@ class PromotionController extends Controller
             $validated['promo_code'] = strtoupper(trim($validated['promo_code']));
         }
 
-        if (in_array($validated['promo_type'], ['percentage', 'fixed_amount'])) {
-            $validated['min_quantity'] = 1;
-            $validated['get_quantity'] = 0;
-        }
+        $validated['min_quantity'] = 1;
+        $validated['get_quantity'] = 0;
 
         if ($request->filled('target_ids') && is_array($request->target_ids)) {
             $validated['target_ids'] = array_values(array_filter(array_map('intval', $request->target_ids)));
@@ -278,7 +276,7 @@ class PromotionController extends Controller
         $validated = $request->validate([
             'title'          => 'required|string|max:190',
             'promo_code'     => 'nullable|string|max:50',
-            'promo_type'     => 'required|in:percentage,fixed_amount,bulk_tier,buy_x_get_y',
+            'promo_type'     => 'required|in:percentage,fixed_amount',
             'discount_value' => 'required|numeric|min:0',
             'min_spend'      => 'nullable|numeric|min:0',
             'min_quantity'   => 'nullable|integer|min:1',

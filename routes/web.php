@@ -221,6 +221,7 @@ Route::middleware('auth')->group(function(){
     Route::prefix('settings')->name('settings.')->group(function(){
         Route::get('', [StoreSettingsController::class, 'index'])->name('index');
         Route::post('/update', [StoreSettingsController::class, 'update'])->name('update');
+        Route::get('/receipt-preview', [StoreSettingsController::class, 'previewReceipt'])->name('receipt.preview');
     });
     Route::prefix('select2')->name('select2.')->group(function(){
         Route::get('roles/search',[RoleController::class,'search'])->name('roles');
@@ -329,6 +330,7 @@ Route::middleware('auth')->group(function(){
         Route::prefix('barcode-labels')->name('barcode-labels.')->group(function () {
             Route::get('/', [\App\Http\Controllers\POS\BarcodeLabelController::class, 'index'])->name('index');
             Route::post('/print', [\App\Http\Controllers\POS\BarcodeLabelController::class, 'printPreview'])->name('print');
+            Route::post('/update-price', [\App\Http\Controllers\POS\BarcodeLabelController::class, 'quickUpdatePrice'])->name('update-price');
         });
 
         Route::prefix('price-history')->name('price-history.')->group(function () {
