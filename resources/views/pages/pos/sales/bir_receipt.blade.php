@@ -58,47 +58,35 @@
 </div>
 
 <div class="text-center">
-    <div class="header-title">{{ $tenant->business_name ?? 'LIKHAPOS RETAIL STORE' }}</div>
-    @if(!empty($tenant->header_text))
-        <div style="font-size: 10px; font-style: italic; margin-bottom: 2px;">{{ $tenant->header_text }}</div>
+    @php
+        $receiptLogo = !empty($tenant->logo_square) ? $tenant->logo_square : (!empty($tenant->logo) ? $tenant->logo : null);
+    @endphp
+    @if($receiptLogo && \Illuminate\Support\Facades\Storage::disk('public')->exists($receiptLogo))
+        <img src="{{ \Illuminate\Support\Facades\Storage::url($receiptLogo) }}" alt="Logo" style="max-height: 52px; max-width: 140px; object-fit: contain; margin: 0 auto 5px auto; display: block;">
     @endif
+    <div class="header-title">{{ $tenant->business_name ?? 'MINIMART STORE' }}</div>
     @if(!empty($tenant->owner_name))
-        <div>PROP: {{ strtoupper($tenant->owner_name) }}</div>
+        <div>Prop: {{ $tenant->owner_name }}</div>
     @endif
     @if(!empty($tenant->address))
         <div>{{ $tenant->address }}</div>
     @endif
     @if(!empty($tenant->phone))
-        <div>TEL / MOBILE: {{ $tenant->phone }}</div>
-    @endif
-    @if(!empty($tenant->email))
-        <div>EMAIL: {{ $tenant->email }}</div>
+        <div>Tel: {{ $tenant->phone }}</div>
     @endif
     @if(!empty($tenant->tin))
-        <div>VAT REG TIN: {{ $tenant->tin }}</div>
-    @endif
-    @if(!empty($tenant->branch_code))
-        <div>BRANCH CODE: {{ $tenant->branch_code }}</div>
-    @endif
-    @if(!empty($tenant->bir_min))
-        <div>MIN: {{ $tenant->bir_min }}</div>
-    @endif
-    @if(!empty($tenant->bir_sn))
-        <div>SERIAL NO: {{ $tenant->bir_sn }}</div>
-    @endif
-    @if(!empty($tenant->bir_acc_no))
-        <div>BIR ACCR NO: {{ $tenant->bir_acc_no }}</div>
+        <div>TIN: {{ $tenant->tin }}</div>
     @endif
     <div class="divider"></div>
-    <div class="fw-bold">SALES INVOICE / OFFICIAL RECEIPT</div>
+    <div class="fw-bold">SALES RECEIPT / TRANSACTION SLIP</div>
+    <div>OR / SI #: <strong>{{ $sale->invoice_no }}</strong></div>
+    <div>Date: {{ $sale->sale_date ? $sale->sale_date->format('Y-m-d H:i:s') : date('Y-m-d H:i:s') }}</div>
+    <div>Cashier: {{ $sale->cashier?->name ?? 'Cashier' }}</div>
 </div>
 
-<div style="font-size: 10px; line-height: 14px; margin: 3px 0;">
-    <div>SI/OR NO  : <strong>{{ $sale->invoice_no }}</strong></div>
-    <div>DATE/TIME : {{ $sale->sale_date ? $sale->sale_date->format('Y-m-d H:i:s') : date('Y-m-d H:i:s') }}</div>
-    <div>CASHIER   : {{ $sale->cashier?->name ?? 'Cashier' }}</div>
-    <div>CUSTOMER  : {{ $sale->customer ? ($sale->customer->CustomerName ?? $sale->customer->name) : 'Walk-in Customer' }}</div>
-</div>
+<div class="divider"></div>
+
+<div>Customer: {{ $sale->customer ? ($sale->customer->CustomerName ?? $sale->customer->name) : 'Walk-in Customer' }}</div>
 
 <div class="divider"></div>
 
@@ -113,28 +101,30 @@
     $savingsPct = $rawGross > 0 && $totalSavings > 0 ? round(($totalSavings / $rawGross) * 100, 1) : 0;
 @endphp
 
-<table>
+<table style="width: 100%; border-collapse: collapse;">
     <thead>
-        <tr>
-            <th class="text-left" style="width: 50%;">QTY  DESCRIPTION</th>
-            <th class="text-right" style="width: 25%;">PRICE</th>
-            <th class="text-right" style="width: 25%;">AMOUNT</th>
+        <tr style="border-bottom: 1px dashed #000;">
+            <th class="text-left" style="padding-bottom: 2px;">ITEM</th>
+            <th class="text-right" style="padding-bottom: 2px;">TOTAL</th>
         </tr>
     </thead>
     <tbody>
         @foreach($sale->items as $item)
             @php
                 $itemQty = (float)$item->qty;
+                $qtyStr = (floor($itemQty) == $itemQty) ? number_format($itemQty, 0) : rtrim(rtrim(number_format($itemQty, 4), '0'), '.');
                 $unitPrice = (float)$item->unit_price;
-                $grossLineTotal = $itemQty * $unitPrice;
+                $grossLineTotal = (float)($item->line_total ?: ($itemQty * $unitPrice));
+                $unitStr = $item->product?->unit?->name ?? (is_string($item->product?->unit) ? $item->product->unit : '');
             @endphp
             <tr>
-                <td class="text-left">
-                    {{ number_format($itemQty, 0) }}x  {{ $item->product_name }}
-                    <span style="font-size:9px;">({{ $sale->vat_exempt_sales > 0 ? 'E' : 'V' }})</span>
+                <td class="text-left fw-bold" style="padding-top: 3px; font-size: 11px;">{{ $item->product_name }}</td>
+                <td class="text-right fw-bold" style="padding-top: 3px; font-size: 11px; white-space: nowrap;">₱{{ number_format($grossLineTotal, 2) }}</td>
+            </tr>
+            <tr>
+                <td colspan="2" class="text-left" style="padding-bottom: 3px; font-size: 10px; color: #333;">
+                    &nbsp;&nbsp;{{ $qtyStr }}{{ $unitStr ? ' ' . $unitStr : '' }} @ ₱{{ number_format($unitPrice, 2) }}
                 </td>
-                <td class="text-right">₱{{ number_format($unitPrice, 2) }}</td>
-                <td class="text-right">₱{{ number_format($grossLineTotal, 2) }}</td>
             </tr>
         @endforeach
     </tbody>

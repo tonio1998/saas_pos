@@ -3,15 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\POS\POSTenant;
+use App\Models\POS\POSBranch;
 use App\Models\School;
 use App\Models\User;
 use App\Services\SecurityService;
 use App\Traits\TCommonFunctions;
+use App\Mail\SendEmailOtpMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Spatie\Permission\Models\Role;
@@ -166,7 +169,8 @@ class AuthController extends Controller
             'password'        => ['required', 'string', 'min:6', 'confirmed'],
         ]);
 
-        $subId = $validated['subscription_id'] ?? 4; // Default to Free Trial Tier (5 Days)
+        $subId = 4; // Default to Free Trial Tier (5 Days) - users upgrade inside dashboard
+        $otp = str_pad((string) random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
 
         DB::beginTransaction();
         try {
@@ -179,6 +183,7 @@ class AuthController extends Controller
                 'phone'              => $validated['phone'] ?? null,
                 'address'            => $validated['address'] ?? null,
                 'tin'                => $validated['tin'] ?? null,
+                'branch_code'        => 'MAIN',
                 'status'             => 'active',
                 'payment_status'     => 'trial',
                 'subscription_start' => now()->toDateString(),
@@ -187,12 +192,14 @@ class AuthController extends Controller
             ]);
 
             $user = User::create([
-                'tenant_id' => $tenant->id,
-                'name'      => trim($validated['name']),
-                'username'  => strtolower(trim($validated['email'])),
-                'email'     => strtolower(trim($validated['email'])),
-                'password'  => Hash::make($validated['password']),
-                'verified'  => 1,
+                'tenant_id'      => $tenant->id,
+                'name'           => trim($validated['name']),
+                'username'       => strtolower(trim($validated['email'])),
+                'email'          => strtolower(trim($validated['email'])),
+                'password'       => Hash::make($validated['password']),
+                'verified'       => 0,
+                'otp_code'       => $otp,
+                'otp_expires_at' => now()->addMinutes(10),
             ]);
 
             $role = Role::firstOrCreate(['name' => 'tenant']);
@@ -200,24 +207,223 @@ class AuthController extends Controller
 
             DB::commit();
 
-            Auth::login($user);
-            $request->session()->regenerate();
+            // Send Email OTP
+            try {
+                Mail::to($user->email)->send(new SendEmailOtpMail($otp, $user->name));
+            } catch (\Throwable $mailErr) {
+                Log::warning('Registration OTP Email Error: ' . $mailErr->getMessage());
+            }
 
+            // Save pending verification session
             session([
-                'just_authenticated' => true,
-                'tenant_id'   => $tenant->id,
-                'tenant_name' => $tenant->business_name,
+                'pending_verify_user_id' => $user->id,
+                'dev_otp'                => $otp,
             ]);
 
-            app(SecurityService::class)->logLogin($request, $user, 'success');
-
-            return redirect()->route('dashboard.index')->with('success', 'Registration successful! Welcome to LikhaPOS. Your 5-Day Free Trial is now ACTIVE.');
+            return redirect()->route('verification.notice')->with('success', 'We sent a verification code to your email.');
 
         } catch (\Throwable $e) {
             DB::rollBack();
             Log::error('Registration Error', ['error' => $e->getMessage()]);
             return back()->withErrors(['email' => 'Registration failed: ' . $e->getMessage()])->withInput();
         }
+    }
+
+    public function showVerifyEmail(Request $request)
+    {
+        $userId = session('pending_verify_user_id') ?? Auth::id();
+        if (!$userId) {
+            return redirect()->route('register');
+        }
+
+        $user = User::find($userId);
+        if (!$user) {
+            return redirect()->route('register');
+        }
+
+        // If already verified and logged in, check branch setup
+        if ($user->verified && Auth::check()) {
+            $hasMainBranch = POSBranch::where('tenant_id', $user->tenant_id)->where('is_main_branch', true)->exists();
+            if ($hasMainBranch) {
+                return redirect()->route('dashboard.index');
+            }
+            return redirect()->route('onboarding.branch');
+        }
+
+        // Mask email: e.g. dyt*****@gmail.com
+        $email = $user->email;
+        $parts = explode('@', $email);
+        $namePart = $parts[0];
+        $domain = $parts[1] ?? 'gmail.com';
+        if (strlen($namePart) <= 3) {
+            $maskedName = substr($namePart, 0, 1) . str_repeat('*', 5);
+        } else {
+            $maskedName = substr($namePart, 0, 3) . str_repeat('*', 5);
+        }
+        $maskedEmail = $maskedName . '@' . $domain;
+
+        return view('auth.verify_otp', compact('user', 'maskedEmail'));
+    }
+
+    public function verifyEmailOtp(Request $request)
+    {
+        $request->validate([
+            'otp' => ['required', 'string', 'size:6'],
+        ]);
+
+        $userId = session('pending_verify_user_id') ?? Auth::id();
+        if (!$userId) {
+            return redirect()->route('register')->withErrors(['email' => 'Session expired. Mangyaring mag-register muli.']);
+        }
+
+        $user = User::find($userId);
+        if (!$user) {
+            return redirect()->route('register')->withErrors(['email' => 'User not found.']);
+        }
+
+        $inputOtp = trim($request->otp);
+
+        // Check if OTP matches
+        if ($user->otp_code !== $inputOtp) {
+            return back()->withErrors(['otp' => 'Mali ang 6-digit code na inilagay. Pakisuri muli.']);
+        }
+
+        // Check expiration
+        if ($user->otp_expires_at && now()->greaterThan($user->otp_expires_at)) {
+            return back()->withErrors(['otp' => 'Nag-expire na ang verification code. Pindutin ang "Resend Code" para sa bago.']);
+        }
+
+        // Mark as verified
+        $user->update([
+            'verified'          => 1,
+            'email_verified_at' => now(),
+            'otp_code'          => null,
+            'otp_expires_at'    => null,
+        ]);
+
+        // Log in user
+        Auth::login($user);
+        if ($request->hasSession()) {
+            $request->session()->regenerate();
+        }
+
+        $tenant = POSTenant::find($user->tenant_id);
+
+        session([
+            'just_authenticated' => true,
+            'tenant_id'          => $tenant?->id,
+            'tenant_name'        => $tenant?->business_name,
+        ]);
+
+        session()->forget(['pending_verify_user_id', 'dev_otp']);
+
+        app(SecurityService::class)->logLogin($request, $user, 'success');
+
+        // Check if tenant already has main branch
+        $hasMainBranch = POSBranch::where('tenant_id', $user->tenant_id)->where('is_main_branch', true)->exists();
+        if (!$hasMainBranch) {
+            return redirect()->route('onboarding.branch')->with('success', 'Email verified successfully! Ngayon, i-setup ang inyong Main Branch.');
+        }
+
+        return redirect()->route('dashboard.index')->with('success', 'Email verified successfully! Welcome to LikhaPOS.');
+    }
+
+    public function resendOtp(Request $request)
+    {
+        $userId = session('pending_verify_user_id') ?? Auth::id();
+        if (!$userId) {
+            return redirect()->route('register');
+        }
+
+        $user = User::find($userId);
+        if (!$user) {
+            return redirect()->route('register');
+        }
+
+        $newOtp = str_pad((string) random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
+        $user->update([
+            'otp_code'       => $newOtp,
+            'otp_expires_at' => now()->addMinutes(10),
+        ]);
+
+        try {
+            Mail::to($user->email)->send(new SendEmailOtpMail($newOtp, $user->name));
+        } catch (\Throwable $mailErr) {
+            Log::warning('Resend OTP Email Error: ' . $mailErr->getMessage());
+        }
+
+        session([
+            'dev_otp'     => $newOtp,
+            'just_resent' => true,
+        ]);
+
+        return back()->with('success', 'Nagpadala kami ng bagong 6-digit verification code sa iyong email.');
+    }
+
+    public function showBranchSetup()
+    {
+        $user = Auth::user();
+        if (!$user || !$user->tenant_id) {
+            return redirect()->route('login');
+        }
+
+        $tenant = POSTenant::find($user->tenant_id);
+        if (!$tenant) {
+            return redirect()->route('login');
+        }
+
+        // If already has a main branch, redirect to dashboard
+        $existingMain = POSBranch::where('tenant_id', $tenant->id)->where('is_main_branch', true)->first();
+        if ($existingMain) {
+            return redirect()->route('dashboard.index');
+        }
+
+        return view('auth.setup_branch', compact('tenant', 'user'));
+    }
+
+    public function storeBranchSetup(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user || !$user->tenant_id) {
+            return redirect()->route('login');
+        }
+
+        $validated = $request->validate([
+            'branch_name'  => ['required', 'string', 'max:150'],
+            'branch_code'  => ['required', 'string', 'max:50'],
+            'address'      => ['required', 'string', 'max:500'],
+            'phone'        => ['required', 'string', 'max:50'],
+            'manager_name' => ['nullable', 'string', 'max:150'],
+        ]);
+
+        $tenant = POSTenant::find($user->tenant_id);
+
+        $branch = POSBranch::create([
+            'tenant_id'      => $user->tenant_id,
+            'branch_name'    => trim($validated['branch_name']),
+            'branch_code'    => strtoupper(trim($validated['branch_code'])),
+            'address'        => trim($validated['address']),
+            'phone'          => trim($validated['phone']),
+            'is_main_branch' => true,
+            'status'         => 'active',
+            'created_by'     => $user->id,
+        ]);
+
+        if ($tenant) {
+            $tenant->update([
+                'branch_code' => $branch->branch_code,
+                'address'     => $branch->address,
+                'phone'       => $branch->phone,
+            ]);
+        }
+
+        session([
+            'active_branch_id'   => $branch->id,
+            'active_branch_name' => $branch->branch_name,
+            'active_branch_code' => $branch->branch_code,
+        ]);
+
+        return redirect()->route('dashboard.index')->with('success', 'Matagumpay na nai-setup ang inyong Main Branch! Handa na ang inyong LikhaPOS Store.');
     }
 
     public function completeStoreProfile(Request $request)
@@ -368,6 +574,25 @@ class AuthController extends Controller
                 );
         }
 
+        // Check if unverified tenant user
+        if ($user->tenant_id && !$user->verified) {
+            $otp = str_pad((string) random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
+            $user->update([
+                'otp_code'       => $otp,
+                'otp_expires_at' => now()->addMinutes(10),
+            ]);
+            try {
+                Mail::to($user->email)->send(new SendEmailOtpMail($otp, $user->name));
+            } catch (\Throwable $e) {}
+
+            session([
+                'pending_verify_user_id' => $user->id,
+                'dev_otp'                => $otp,
+            ]);
+
+            return redirect()->route('verification.notice')->with('success', 'Kailangan munang i-verify ang inyong email bago makapag-login. Nagpadala kami ng 6-digit code.');
+        }
+
         Auth::login(
             $user,
             $remember
@@ -447,6 +672,13 @@ class AuthController extends Controller
             return redirect()->intended(
                 route('sa.dashboard.index')
             );
+        }
+
+        if ($user->tenant_id && !$user->hasRole('SA')) {
+            $hasMainBranch = POSBranch::where('tenant_id', $user->tenant_id)->where('is_main_branch', true)->exists();
+            if (!$hasMainBranch) {
+                return redirect()->route('onboarding.branch');
+            }
         }
 
         return redirect()->intended(

@@ -3,12 +3,13 @@
 namespace App\Models\POS;
 
 use App\Models\User;
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class POSSale extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToTenant;
 
     protected $table = 'pos_sales';
 
@@ -60,6 +61,9 @@ class POSSale extends Model
     {
         static::creating(function ($sale) {
             $sale->sale_code = generateSalesCode($sale->tenant_id);
+            if (empty($sale->sale_status)) {
+                $sale->sale_status = 'pending';
+            }
         });
     }
 
@@ -145,5 +149,52 @@ class POSSale extends Model
         );
     }
 
+    public function getRefundSales()
+    {
+        $ref1 = $this->invoice_no;
+        $ref2 = $this->sale_code;
 
+        if (!$ref1 && !$ref2) {
+            return collect();
+        }
+
+        return static::where('tenant_id', $this->tenant_id)
+            ->where('sale_status', 'refund')
+            ->where(function ($q) use ($ref1, $ref2) {
+                if ($ref1) {
+                    $q->where('reference_number', $ref1)
+                      ->orWhere('notes', 'LIKE', '%[Ref: ' . $ref1 . ']%');
+                }
+                if ($ref2) {
+                    $q->orWhere('reference_number', $ref2)
+                      ->orWhere('notes', 'LIKE', '%[Ref: ' . $ref2 . ']%');
+                }
+            })
+            ->with(['items'])
+            ->get();
+    }
+
+    public function getRefundSummary(): array
+    {
+        $refundSales = $this->getRefundSales();
+        $refundedAmount = abs((float) $refundSales->sum('total_amount'));
+        $refundedQty = 0;
+        $returnedMap = [];
+
+        foreach ($refundSales as $rs) {
+            foreach ($rs->items as $item) {
+                $qty = abs((float) $item->qty);
+                $refundedQty += $qty;
+                $key = ($item->product_id ?? 0) . '_' . ($item->variant_id ?? 0);
+                $returnedMap[$key] = ($returnedMap[$key] ?? 0) + $qty;
+            }
+        }
+
+        return [
+            'refund_sales'    => $refundSales,
+            'refunded_amount' => $refundedAmount,
+            'refunded_qty'    => $refundedQty,
+            'returned_map'    => $returnedMap,
+        ];
+    }
 }

@@ -19,7 +19,15 @@
 
         <div class="pos-right d-flex flex-column h-100 bg-white border-start">
             @php
-                $isSalePaid = strtolower($sale->sale_status ?? '') === 'completed' || ($sale->items && $sale->items->isNotEmpty());
+                $status = strtolower($sale->sale_status ?? 'pending');
+                $isRefunded = in_array($status, ['refunded', 'refund']);
+                $isPartial = $status === 'partial_refund';
+                $isSalePaid = in_array($status, ['completed', 'refunded', 'refund', 'partial_refund']);
+                $refundSummary = $sale->getRefundSummary();
+                $returnedMap = $refundSummary['returned_map'] ?? [];
+                $refundedAmount = (float)($refundSummary['refunded_amount'] ?? 0);
+                $refundedQty = (float)($refundSummary['refunded_qty'] ?? 0);
+                $retainedTotal = max(0, (float)$sale->total_amount - $refundedAmount);
             @endphp
             <input type="hidden" id="saleId" value="{{ encryptId($sale->id) }}">
             <input type="hidden" id="isSalePaid" value="{{ $isSalePaid ? '1' : '0' }}">
@@ -30,20 +38,49 @@
                     {!! json_encode([
                         'id' => encryptId($sale->id),
                         'sale_code' => $sale->sale_code,
+                        'invoice_no' => $sale->sale_code,
+                        'sale_status' => $status,
                         'is_paid' => true,
+                        'is_refunded' => $isRefunded,
+                        'is_partial' => $isPartial,
+                        'refunded_amount' => $refundedAmount,
+                        'refunded_qty' => $refundedQty,
+                        'retained_total' => $retainedTotal,
                         'customer_name' => $sale->customer?->CustomerName ?? 'Walk-in Customer',
                         'subtotal' => (float)$sale->subtotal,
                         'discount' => (float)$sale->discount_amount,
+                        'discount_amount' => (float)$sale->discount_amount,
                         'total' => (float)$sale->total_amount,
-                        'items' => $sale->items->map(function($it) {
+                        'total_amount' => (float)$sale->total_amount,
+                        'tendered_amount' => (float)($sale->tendered_amount > 0 ? $sale->tendered_amount : ($sale->payments->sum('amount') ?: $sale->total_amount)),
+                        'change_amount' => (float)($sale->change_amount ?? 0),
+                        'items' => $sale->items->map(function($it) use ($returnedMap, $isRefunded) {
+                            $itemKey = $it->product_id . '_' . ($it->variant_id ?? 0);
+                            $origQty = (float)$it->qty;
+                            $returnedQty = $isRefunded ? $origQty : min($origQty, (float)($returnedMap[$itemKey] ?? 0));
+                            $retainedQty = max(0, $origQty - $returnedQty);
+                            $isItemRefunded = $isRefunded || ($origQty > 0 && $returnedQty >= $origQty);
+                            $isItemPartial = !$isItemRefunded && ($returnedQty > 0);
+                            $unitPrice = (float)$it->unit_price;
+                            $origSubtotal = (float)$it->line_total;
+                            $retainedSubtotal = $isItemRefunded ? 0 : ($origQty > 0 ? ($origSubtotal * ($retainedQty / $origQty)) : 0);
+
                             return [
                                 'id' => $it->product_id,
                                 'variant_id' => $it->variant_id,
-                                'cartKey' => $it->product_id . '_' . ($it->variant_id ?? 0),
+                                'cartKey' => $itemKey,
                                 'name' => $it->product_name,
-                                'price' => (float)$it->unit_price,
-                                'qty' => (float)$it->qty,
-                                'subtotal' => (float)$it->line_total,
+                                'price' => $unitPrice,
+                                'original_price' => $unitPrice,
+                                'qty' => $origQty,
+                                'original_qty' => $origQty,
+                                'returned_qty' => $returnedQty,
+                                'retained_qty' => $retainedQty,
+                                'is_item_refunded' => $isItemRefunded,
+                                'is_item_partial' => $isItemPartial,
+                                'subtotal' => $origSubtotal,
+                                'original_subtotal' => $origSubtotal,
+                                'retained_subtotal' => $retainedSubtotal,
                                 'discount' => (float)$it->discount_amount,
                                 'unit' => $it->product?->unit?->name ?? (is_string($it->product?->unit) ? $it->product->unit : ''),
                                 'allow_decimal_qty' => (bool)($it->product?->allow_decimal_qty ?? false),
@@ -265,6 +302,11 @@
                                             <strong id="summaryDiscountModal" class="font-mono text-warning fw-black small">₱0.00</strong>
                                         </div>
 
+                                        <div class="d-flex justify-content-between align-items-center py-0.5" id="paymentModalProfitRow">
+                                            <span class="text-muted extra-small">Est. Net Profit (Margin):</span>
+                                            <strong id="summaryProfitModal" class="font-mono text-success fw-black small">+₱0.00 (+0.0%)</strong>
+                                        </div>
+
                                         <div class="d-flex justify-content-between align-items-center pt-2 border-top">
                                             <span class="text-dark fw-extrabold small">Total Payable:</span>
                                             <strong class="font-mono text-success fw-black fs-5" id="summaryTotalModal">₱0.00</strong>
@@ -482,6 +524,47 @@
                             <input type="text" id="discountIdNo" class="form-control font-mono" placeholder="ID Number (e.g. OSCA-99824)">
                         </div>
 
+                        {{-- Live Profit & Margin Impact Card --}}
+                        <div class="col-12 mt-2" id="discountProfitCardSection">
+                            <div class="card border rounded-3 p-3 shadow-xs" id="discountProfitCard" style="background: #f8fafc; border-color: #cbd5e1 !important;">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="extra-small fw-extrabold text-uppercase text-muted" style="letter-spacing:0.5px; font-size:0.72rem;">
+                                        <i class="bi bi-graph-up-arrow me-1 text-primary"></i>Live Profit & Margin Preview
+                                    </span>
+                                    <span id="discountProfitMarginBadge" class="badge bg-success-subtle text-success border border-success-subtle extra-small fw-bold px-2.5 py-1 rounded-pill" style="font-size:0.75rem;">
+                                        Margin: +0.0%
+                                    </span>
+                                </div>
+
+                                <div class="row g-2 text-center">
+                                    <div class="col-4">
+                                        <div class="p-2 bg-white rounded-2 border">
+                                            <small class="text-muted extra-small d-block text-truncate fw-semibold" style="font-size:0.68rem;">Total Cost (Puhunan)</small>
+                                            <span id="previewCartCost" class="font-mono fw-bold text-dark small">₱0.00</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="p-2 bg-white rounded-2 border">
+                                            <small class="text-muted extra-small d-block text-truncate fw-semibold" style="font-size:0.68rem;">Discounted Due</small>
+                                            <span id="previewDiscountedDue" class="font-mono fw-bold text-primary small">₱0.00</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="p-2 bg-white rounded-2 border">
+                                            <small class="text-muted extra-small d-block text-truncate fw-semibold" style="font-size:0.68rem;">Est. Profit (Kita)</small>
+                                            <span id="previewNetProfit" class="font-mono fw-black text-success small">₱0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Dynamic Profit / Loss Status Warning Banner --}}
+                                <div id="discountProfitAlert" class="mt-2.5 p-2 rounded-2 extra-small fw-bold d-flex align-items-center gap-2" style="background:#dcfce7; color:#166534; border:1px solid #bbf7d0;">
+                                    <i class="bi bi-check-circle-fill fs-6" id="discountProfitAlertIcon"></i>
+                                    <span id="discountProfitAlertText" class="lh-sm">Profitable: Safe to apply this discount.</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="col-12 mt-2">
                             <label class="form-label extra-small fw-bold text-muted text-uppercase mb-1">Sale Notes / Customer Remarks</label>
                             <textarea id="paymentNotes" class="form-control" rows="2" placeholder="Add optional transaction notes or delivery instructions..."></textarea>
@@ -618,6 +701,130 @@
         </div>
     </div>
 
+    <!-- Quick Insert Service / Custom Fee / Damage Charge Modal -->
+    <div class="modal fade" id="customItemModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header border-bottom py-3 px-4" style="background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff;">
+                    <div class="d-flex align-items-center gap-2.5">
+                        <div class="rounded-3 p-2 bg-white bg-opacity-25 text-white d-flex align-items-center justify-content-center" style="width:38px;height:38px;">
+                            <i class="bi bi-plus-square-dotted fs-5"></i>
+                        </div>
+                        <div>
+                            <h6 class="modal-title fw-bold mb-0 text-white font-mono">Quick Charge / Service</h6>
+                            <small class="text-white text-opacity-75" style="font-size:0.75rem;">Add non-inventory fee, tote bag, damaged item, or service</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- Quick Preset Badges (1-Click Insertion) -->
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center justify-content-between mb-1.5">
+                            <span class="extra-small text-uppercase fw-bold text-muted" style="letter-spacing: 0.5px;">Quick Presets (1-Tap Select)</span>
+                            <small class="text-muted extra-small">Click to fill</small>
+                        </div>
+                        <div class="d-flex flex-wrap gap-1.5" id="customItemPresetsList">
+                            <button type="button" class="btn btn-sm btn-light border rounded-pill px-2.5 py-1 extra-small fw-bold btn-custom-preset hover-lift" data-name="Tote Bag (Canvas)" data-price="30" data-unit="pc">
+                                🛍️ Tote Bag ₱30
+                            </button>
+                            <button type="button" class="btn btn-sm btn-light border rounded-pill px-2.5 py-1 extra-small fw-bold btn-custom-preset hover-lift" data-name="Eco Bag (Large)" data-price="10" data-unit="pc">
+                                🛍️ Eco Bag L ₱10
+                            </button>
+                            <button type="button" class="btn btn-sm btn-light border rounded-pill px-2.5 py-1 extra-small fw-bold btn-custom-preset hover-lift" data-name="Eco Bag (Small)" data-price="5" data-unit="pc">
+                                🛍️ Eco Bag S ₱5
+                            </button>
+                            <button type="button" class="btn btn-sm btn-light border rounded-pill px-2.5 py-1 extra-small fw-bold btn-custom-preset hover-lift" data-name="Box / Packaging Fee" data-price="20" data-unit="pc">
+                                📦 Packaging Box ₱20
+                            </button>
+                            <button type="button" class="btn btn-sm btn-light border rounded-pill px-2.5 py-1 extra-small fw-bold btn-custom-preset hover-lift" data-name="Nabasag na Baso (Glass)" data-price="50" data-unit="pc" style="border-color:#fecaca !important;background:#fef2f2;color:#991b1b;">
+                                🍷 Nabasag na Baso ₱50
+                            </button>
+                            <button type="button" class="btn btn-sm btn-light border rounded-pill px-2.5 py-1 extra-small fw-bold btn-custom-preset hover-lift" data-name="Nabasag na Plato/Mug" data-price="60" data-unit="pc" style="border-color:#fecaca !important;background:#fef2f2;color:#991b1b;">
+                                🍽️ Nabasag na Plato ₱60
+                            </button>
+                            <button type="button" class="btn btn-sm btn-light border rounded-pill px-2.5 py-1 extra-small fw-bold btn-custom-preset hover-lift" data-name="Delivery / Hatid Fee" data-price="50" data-unit="service">
+                                🚚 Delivery Fee ₱50
+                            </button>
+                            <button type="button" class="btn btn-sm btn-light border rounded-pill px-2.5 py-1 extra-small fw-bold btn-custom-preset hover-lift" data-name="Ice / Chilling Fee" data-price="15" data-unit="pack">
+                                ❄️ Ice / Chilling ₱15
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Service / Item Name Input -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark mb-1">Charge / Service Name <span class="text-danger">*</span></label>
+                        <div class="input-group shadow-2xs">
+                            <span class="input-group-text bg-light text-muted"><i class="bi bi-tag"></i></span>
+                            <input
+                                type="text"
+                                id="customItemName"
+                                class="form-control"
+                                placeholder="e.g. Additional charge sa Tote Bag, Nabasag na Baso..."
+                                autocomplete="off"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Price & Qty Row -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-7">
+                            <label class="form-label small fw-bold text-dark mb-1">Amount / Price (₱) <span class="text-danger">*</span></label>
+                            <div class="input-group shadow-2xs">
+                                <span class="input-group-text bg-light fw-bold font-mono">₱</span>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    id="customItemPrice"
+                                    class="form-control font-mono fw-bold fs-6 text-dark"
+                                    placeholder="0.00"
+                                    autocomplete="off"
+                                >
+                            </div>
+                        </div>
+                        <div class="col-5">
+                            <label class="form-label small fw-bold text-dark mb-1">Quantity</label>
+                            <input
+                                type="number"
+                                step="1"
+                                min="1"
+                                id="customItemQty"
+                                class="form-control font-mono fw-bold text-center"
+                                value="1"
+                                autocomplete="off"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Quick Amount Preset Buttons -->
+                    <div class="mb-3">
+                        <div class="extra-small text-uppercase fw-bold text-muted mb-1.5" style="letter-spacing: 0.5px;">Quick Amount</div>
+                        <div class="d-flex gap-1.5 flex-wrap">
+                            <button type="button" class="btn btn-sm btn-light border rounded-2 px-2 py-0.5 extra-small font-mono fw-bold btn-custom-price-add" data-add="5">+₱5</button>
+                            <button type="button" class="btn btn-sm btn-light border rounded-2 px-2 py-0.5 extra-small font-mono fw-bold btn-custom-price-add" data-add="10">+₱10</button>
+                            <button type="button" class="btn btn-sm btn-light border rounded-2 px-2 py-0.5 extra-small font-mono fw-bold btn-custom-price-add" data-add="20">+₱20</button>
+                            <button type="button" class="btn btn-sm btn-light border rounded-2 px-2 py-0.5 extra-small font-mono fw-bold btn-custom-price-add" data-add="50">+₱50</button>
+                            <button type="button" class="btn btn-sm btn-light border rounded-2 px-2 py-0.5 extra-small font-mono fw-bold btn-custom-price-add" data-add="100">+₱100</button>
+                            <button type="button" class="btn btn-sm btn-light border rounded-2 px-2 py-0.5 extra-small font-mono fw-bold btn-custom-price-clear text-danger">Clear</button>
+                        </div>
+                    </div>
+
+                    <!-- Total Line Preview -->
+                    <div class="p-2.5 rounded-3 bg-light border d-flex align-items-center justify-content-between mb-3">
+                        <span class="small text-muted fw-bold">Estimated Charge Total:</span>
+                        <strong class="font-mono fs-5 fw-black text-purple" id="customItemTotalPreview" style="color: #7c3aed;">₱0.00</strong>
+                    </div>
+
+                    <button type="button" id="btnConfirmCustomItem" class="btn w-100 py-2.5 fw-bold text-white rounded-3 shadow-xs d-flex align-items-center justify-content-center gap-1.5" style="background: linear-gradient(135deg, #7c3aed, #6d28d9); border: none;">
+                        <i class="bi bi-cart-plus-fill fs-5"></i>
+                        <span>Add Charge to Receipt</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Quantity / Weighed Item Modal -->
     <div class="modal fade" id="quantityModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
@@ -732,6 +939,9 @@
             </div>
         </div>
     </div>
+
+    {{-- Quick Refund & Return Modal --}}
+    @include('pages.tenants.terminal.quick_refund_modal')
 
     {{-- Cashier Orders & Quick Switcher Modal --}}
     <div class="modal fade" id="cashierOrdersModal" tabindex="-1" aria-hidden="true">
@@ -946,9 +1156,15 @@
                                 <span class="fw-black font-mono fs-6 text-dark">${tx.total_formatted}</span>
                             </td>
                             <td class="py-2.5 text-center">
-                                ${isCompleted 
-                                    ? `<span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 extra-small fw-bold"><i class="bi bi-check2 me-0.5"></i> Paid</span>`
-                                    : `<span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2.5 py-1 extra-small fw-bold"><i class="bi bi-hourglass-split me-0.5"></i> Open</span>`
+                                ${tx.raw_status === 'refunded'
+                                    ? `<span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2.5 py-1 extra-small fw-bold"><i class="bi bi-arrow-counterclockwise me-0.5"></i> Refunded</span>`
+                                    : (tx.raw_status === 'partial_refund'
+                                        ? `<span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2.5 py-1 extra-small fw-bold"><i class="bi bi-percent me-0.5"></i> Partial Return</span>`
+                                        : (isCompleted
+                                            ? `<span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 extra-small fw-bold"><i class="bi bi-check2 me-0.5"></i> Paid</span>`
+                                            : `<span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2.5 py-1 extra-small fw-bold"><i class="bi bi-hourglass-split me-0.5"></i> Open</span>`
+                                        )
+                                    )
                                 }
                             </td>
                             <td class="py-2.5 text-center">

@@ -182,9 +182,9 @@
                                 <table class="table table-hover align-middle mb-0">
                                     <thead class="table-light">
                                         <tr>
-                                            <th style="width:40px;"><input type="checkbox" id="selectAllInvoiceItems"></th>
+                                            <th style="width:40px;"><input type="checkbox" id="selectAllInvoiceItems" checked></th>
                                             <th>Product Item</th>
-                                            <th class="text-center">Purchased Qty</th>
+                                            <th class="text-center">Returnable Qty</th>
                                             <th class="text-end" style="width:140px;">Return Qty</th>
                                         </tr>
                                     </thead>
@@ -294,22 +294,26 @@
         $('#btnSearchInvoice').on('click', function () {
             const invNo = $('#invoiceSearchInput').val().trim();
             if (!invNo) {
-                appAlert({ title: 'Invoice Required', text: 'Please enter an invoice number.', type: 'warning' });
+                appAlert({ title: 'Invoice Required', text: 'Please enter a Sales Invoice or Receipt Number.', type: 'warning' });
                 return;
             }
 
+            const $btn = $(this);
+            $btn.prop('disabled', true).html('<i class="bi bi-hourglass-split me-1"></i> Searching...');
+
             $.getJSON("{{ route('returns.search-invoice') }}", { invoice_no: invNo }, function (res) {
+                $btn.prop('disabled', false).html('<i class="bi bi-search me-1"></i> Search Invoice');
+
                 if (res.success && res.sale) {
                     const sale = res.sale;
                     const invRef = sale.invoice_no || sale.sale_code || sale.invoice_number || 'INV';
                     $('#foundInvoiceNo').text(invRef);
                     $('#hiddenInvoiceNo').val(invRef);
-                    $('#foundInvoiceCustomer').text(sale.customer ? sale.customer.name : 'Walk-in Customer');
-                    $('#foundInvoiceMeta').text(`Cashier: ${sale.cashier ? sale.cashier.name : '-'} | Total: ₱${parseFloat(sale.total_amount || 0).toFixed(2)}`);
+                    $('#foundInvoiceCustomer').text(sale.customer ? (sale.customer.CustomerName || sale.customer.name) : 'Walk-in Customer');
+                    $('#foundInvoiceMeta').text(`Cashier: ${sale.cashier ? sale.cashier.name : '-'} | Total Sale: ₱${parseFloat(sale.total_amount || 0).toFixed(2)}`);
 
                     let rows = '';
                     (sale.items || []).forEach((item, idx) => {
-                        // item_name = stored product_name e.g. "Princess Bea (1kl Pack)"
                         const displayName = item.item_name || (item.product ? item.product.name : 'Product');
                         const vName       = item.variant_name || null;
                         const barcode     = item.variant ? (item.variant.barcode || item.variant.sku || '')
@@ -319,46 +323,81 @@
                         const varBadge = vName
                             ? `<span class="badge fw-bold d-inline-flex align-items-center gap-1" style="background:#f3e8ff;color:#7e22ce;border:1px solid #e9d5ff;font-size:0.72rem;"><i class="bi bi-tag-fill"></i>${vName}</span>`
                             : '';
+                        const prevReturned = parseFloat(item.already_returned_qty || 0);
+                        const prevBadge = prevReturned > 0
+                            ? `<span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill extra-small px-2 py-0.5"><i class="bi bi-clock-history me-1"></i>${prevReturned.toFixed(2)} prev returned</span>`
+                            : '';
+
+                        const returnableQty = parseFloat(item.remaining_qty || item.qty || 0);
 
                         rows += `
-                            <tr>
+                            <tr class="item-row" data-idx="${idx}">
                                 <td><input type="checkbox" class="item-chk" data-idx="${idx}" checked></td>
                                 <td>
                                     <div class="fw-bold text-dark">${displayName}</div>
                                     <div class="d-flex align-items-center flex-wrap gap-1 mt-0.5">
-                                        ${skuLine}${varBadge}
+                                        ${skuLine}${varBadge}${prevBadge}
                                     </div>
-                                    <input type="hidden" name="items[${idx}][product_id]" value="${item.product_id}">
-                                    ${item.variant_id ? `<input type="hidden" name="items[${idx}][variant_id]" value="${item.variant_id}">` : ''}
+                                    <input type="hidden" class="row-input" name="items[${idx}][product_id]" value="${item.product_id}">
+                                    ${item.variant_id ? `<input type="hidden" class="row-input" name="items[${idx}][variant_id]" value="${item.variant_id}">` : ''}
                                 </td>
-                                <td class="text-center font-mono fw-bold">${item.qty}</td>
+                                <td class="text-center font-mono fw-bold">
+                                    <span class="text-success">${returnableQty.toFixed(2)}</span>
+                                    ${prevReturned > 0 ? `<div class="extra-small text-muted font-normal">of ${parseFloat(item.purchased_qty || returnableQty).toFixed(2)}</div>` : ''}
+                                </td>
                                 <td>
-                                    <input type="number" step="0.01" max="${item.qty}" name="items[${idx}][qty]" value="${item.qty}" class="form-control form-control-sm font-mono text-end item-qty" required>
+                                    <input type="number" step="0.01" min="0.01" max="${returnableQty}" name="items[${idx}][qty]" value="${returnableQty}" class="form-control form-control-sm font-mono text-end item-qty row-input" required>
                                 </td>
                             </tr>
                         `;
                     });
 
-
+                    $('#selectAllInvoiceItems').prop('checked', true);
                     $('#invoiceItemsTableBody').html(rows);
                     $('#invoiceSearchResultContainer').removeClass('d-none');
                 } else {
                     $('#invoiceSearchResultContainer').addClass('d-none');
-                    appAlert({ title: 'Not Found', text: res.message || 'Invoice not found.', type: 'danger' });
+                    appAlert({ title: 'Search Result', text: res.message || 'Invoice not found or cannot be returned.', type: 'danger' });
                 }
             }).fail(function () {
+                $btn.prop('disabled', false).html('<i class="bi bi-search me-1"></i> Search Invoice');
                 appAlert({ title: 'Error', text: 'Failed to search invoice.', type: 'danger' });
             });
+        });
+
+        // Select All Items toggle
+        $(document).on('change', '#selectAllInvoiceItems', function () {
+            const isChecked = $(this).is(':checked');
+            $('.item-chk').prop('checked', isChecked).trigger('change');
+        });
+
+        // Individual item checkbox toggle
+        $(document).on('change', '.item-chk', function () {
+            const $chk = $(this);
+            const $row = $chk.closest('tr');
+            const isChecked = $chk.is(':checked');
+
+            $row.find('.row-input').prop('disabled', !isChecked);
+            $row.toggleClass('table-light opacity-50', !isChecked);
+
+            const allChecked = $('.item-chk:checked').length === $('.item-chk').length;
+            $('#selectAllInvoiceItems').prop('checked', allChecked);
         });
 
         // Batch Form Submit
         $('#formBatchReturn').on('submit', function (e) {
             e.preventDefault();
+
+            if ($('.item-chk:checked').length === 0) {
+                appAlert({ title: 'No Items Selected', text: 'Please select at least one item to return.', type: 'warning' });
+                return;
+            }
+
             const formData = $(this).serialize();
 
             $.post("{{ route('returns.store-batch') }}", formData, async function (res) {
                 if (res.success) {
-                    await appAlert({ title: 'Success!', text: res.message, type: 'success', confirmText: 'Done' });
+                    await appAlert({ title: 'Return Completed!', text: res.message, type: 'success', confirmText: 'Done' });
                     bootstrap.Modal.getInstance(document.getElementById('newReturnModal'))?.hide();
                     if (window.$ && $.fn.DataTable.isDataTable('#returnsTable')) {
                         $('#returnsTable').DataTable().ajax.reload(null, false);
@@ -379,7 +418,7 @@
 
             $.post("{{ route('returns.store') }}", formData, async function (res) {
                 if (res.success) {
-                    await appAlert({ title: 'Success!', text: res.message, type: 'success', confirmText: 'Done' });
+                    await appAlert({ title: 'Return Completed!', text: res.message, type: 'success', confirmText: 'Done' });
                     bootstrap.Modal.getInstance(document.getElementById('newReturnModal'))?.hide();
                     if (window.$ && $.fn.DataTable.isDataTable('#returnsTable')) {
                         $('#returnsTable').DataTable().ajax.reload(null, false);

@@ -72,14 +72,13 @@
             <table class="w-100 mb-1" style="font-size: 11px; border-collapse: collapse;">
                 <thead>
                     <tr style="border-bottom: 1px dashed #000;">
-                        <th class="text-start pb-1">Qty Item</th>
-                        <th class="text-end pb-1">Price</th>
-                        <th class="text-end pb-1">Total</th>
+                        <th class="text-start pb-1">ITEM</th>
+                        <th class="text-end pb-1">TOTAL</th>
                     </tr>
                 </thead>
                 <tbody id="receiptItemsContainer">
                     <tr>
-                        <td colspan="3" class="text-center py-4 text-muted" style="font-size: 10.5px;">
+                        <td colspan="2" class="text-center py-4 text-muted" style="font-size: 10.5px;">
                             (Receipt is empty)<br>
                             <small>Scan or add items</small>
                         </td>

@@ -145,95 +145,132 @@ class SalesController extends Controller
             'items.variant',
         ]);
 
-        $totalCost = $sale->items->sum(function ($item) {
-            $cost = (float) ($item->variant?->cost_price ?: ($item->product?->cost_price ?? 0));
-            return $cost * (float) ($item->qty ?? 1);
-        });
+        $refundSummary = $sale->getRefundSummary();
+        $refundedAmount = $refundSummary['refunded_amount'];
+        $refundedQty    = $refundSummary['refunded_qty'];
+        $returnedMap    = $refundSummary['returned_map'];
 
-        $netRevenue = (float) ($sale->total_amount ?? 0);
-        $netProfit  = $netRevenue - $totalCost;
+        $isRefunded = in_array($sale->sale_status, ['refunded', 'refund']);
+        $isPartial  = $sale->sale_status === 'partial_refund' || ($refundedAmount > 0.001 && !$isRefunded);
+
+        $originalRevenue = (float) ($sale->total_amount ?? 0);
+        $retainedRevenue = $isRefunded ? 0 : max(0, $originalRevenue - $refundedAmount);
+
+        $originalTotalCost = 0;
+        $retainedTotalCost = 0;
+
+        $items = $sale->items->map(function ($item) use ($isRefunded, $returnedMap, &$originalTotalCost, &$retainedTotalCost) {
+            $costPrice        = (float) ($item->variant?->cost_price ?: ($item->product?->cost_price ?? 0));
+            $unitPrice        = (float) ($item->unit_price ?? 0);
+            $discountAmt      = (float) ($item->discount_amount ?? 0);
+            $origQty          = (float) ($item->qty ?? 1);
+            $origLineTotal    = (float) ($item->line_total ?? ($unitPrice * $origQty - $discountAmt));
+            $effectiveUnit    = $origQty > 0 ? ($origLineTotal / $origQty) : $unitPrice;
+            $origLineCost     = $costPrice * $origQty;
+            $origGrossProfit  = ($unitPrice - $costPrice) * $origQty;
+            $origNetProfit    = $origLineTotal - $origLineCost;
+            $hasDiscount      = $discountAmt > 0.001;
+
+            $key = ($item->product_id ?? 0) . '_' . ($item->variant_id ?? 0);
+            $returnedQty = $isRefunded ? $origQty : min($origQty, (float)($returnedMap[$key] ?? 0));
+            $retainedQty = max(0, $origQty - $returnedQty);
+
+            $retainedLineTotal = $effectiveUnit * $retainedQty;
+            $retainedLineCost  = $costPrice * $retainedQty;
+            $retainedNetProfit = $retainedLineTotal - $retainedLineCost;
+
+            $originalTotalCost += $origLineCost;
+            $retainedTotalCost += $retainedLineCost;
+
+            $productName = $item->product_name;
+            if (!$productName) {
+                if ($item->variant) {
+                    $productName = ($item->product?->name ?? 'Product') . ' (' . $item->variant->variant_name . ')';
+                } else {
+                    $productName = $item->product?->name ?? '-';
+                }
+            }
+
+            return [
+                'barcode'             => $item->barcode ?: ($item->variant?->barcode ?: ($item->product?->barcode ?: '-')),
+                'product'             => $productName,
+                'quantity'            => $origQty,
+                'returned_qty'        => $returnedQty,
+                'retained_qty'        => $retainedQty,
+                'is_item_refunded'    => $returnedQty >= $origQty - 0.0001,
+                'is_item_partial'     => $returnedQty > 0.0001 && $returnedQty < $origQty - 0.0001,
+                'cost_price'          => '₱' . number_format($costPrice, 2),
+                'original_price'      => '₱' . number_format($unitPrice, 2),
+                'effective_price'     => '₱' . number_format($effectiveUnit, 2),
+                'price'               => '₱' . number_format($effectiveUnit, 2),
+                'discount_amount'     => '₱' . number_format($discountAmt, 2),
+                'has_discount'        => $hasDiscount,
+                'promo_id'            => $item->promo_id,
+                'original_line_total' => '₱' . number_format($origLineTotal, 2),
+                'line_total'          => '₱' . number_format($retainedLineTotal, 2),
+                'total'               => '₱' . number_format($retainedLineTotal, 2),
+                'cost_total'          => '₱' . number_format($retainedLineCost, 2),
+                'gross_profit'        => '₱' . number_format($retainedLineTotal - $retainedLineCost, 2),
+                'net_profit'          => '₱' . number_format($retainedNetProfit, 2),
+                'original_net_profit' => '₱' . number_format($origNetProfit, 2),
+                'net_profit_raw'      => round($retainedNetProfit, 2),
+                'profit_margin_pct'   => $retainedLineTotal > 0 ? round(($retainedNetProfit / $retainedLineTotal) * 100, 1) : 0,
+            ];
+        })->values();
+
+        $originalNetProfit = $originalRevenue - $originalTotalCost;
+        $retainedNetProfit = $isRefunded ? 0 : ($retainedRevenue - $retainedTotalCost);
+        $marginPct = ($isRefunded || $retainedRevenue <= 0) ? 0 : round(($retainedNetProfit / $retainedRevenue) * 100, 1);
 
         return response()->json([
+            'id'                  => $sale->id,
+            'invoice_no'          => $sale->sale_code ?? $sale->invoice_no,
+            'sale_date'           => $sale->sale_date ? format_date($sale->sale_date) : '-',
+            'customer'            => $sale->customer?->CustomerName ?: ($sale->customer?->name ?? 'Walk-in Customer'),
+            'cashier'             => $sale->cashier?->name ?? 'System',
+            'status'              => ucfirst(str_replace('_', ' ', $sale->sale_status ?? 'completed')),
+            'is_refunded'         => $isRefunded,
+            'is_partial'          => $isPartial,
+            'refunded_amount'     => '₱' . number_format($refundedAmount, 2),
+            'refunded_amount_raw' => $refundedAmount,
+            'refunded_qty'        => $refundedQty,
+            'retained_total'      => '₱' . number_format($retainedRevenue, 2),
+            'payment_method'      => $sale->payment_method ?? '-',
+            'promo_id'            => $sale->promo_id,
+            'discount_type'       => $sale->discount_type,
+            'discount_holder'     => $sale->discount_holder ?: null,
+            'notes'               => $sale->notes ?: '-',
 
-            'id'             => $sale->id,
-            'invoice_no'     => $sale->sale_code ?? $sale->invoice_no,
-            'sale_date'      => $sale->sale_date ? format_date($sale->sale_date) : '-',
-            'customer'       => $sale->customer?->CustomerName ?: ($sale->customer?->name ?? 'Walk-in Customer'),
-            'cashier'        => $sale->cashier?->name ?? 'System',
-            'status'         => ucfirst($sale->sale_status ?? 'completed'),
-            'payment_method' => $sale->payment_method ?? '-',
-            'promo_id'       => $sale->promo_id,
-            'discount_type'  => $sale->discount_type,
-            'discount_holder'=> $sale->discount_holder ?: null,
-            'notes'          => $sale->notes ?: '-',
-
-            // Financial summary (raw + formatted)
-            'subtotal'       => '₱' . number_format($sale->subtotal ?? 0, 2),
-            'discount'       => '₱' . number_format($sale->discount_amount ?? 0, 2),
-            'total'          => '₱' . number_format($sale->total_amount ?? 0, 2),
-            'tendered'       => '₱' . number_format($sale->tendered_amount ?? 0, 2),
-            'change'         => '₱' . number_format($sale->change_amount ?? 0, 2),
+            // Financial summary
+            'subtotal'            => '₱' . number_format($sale->subtotal ?? 0, 2),
+            'discount'            => '₱' . number_format($sale->discount_amount ?? 0, 2),
+            'original_total'      => '₱' . number_format($originalRevenue, 2),
+            'total'               => '₱' . number_format($retainedRevenue, 2),
+            'tendered'            => '₱' . number_format($sale->tendered_amount ?? 0, 2),
+            'change'              => '₱' . number_format($sale->change_amount ?? 0, 2),
 
             // Profit summary
-            'total_cost'     => '₱' . number_format($totalCost, 2),
-            'net_profit'     => '₱' . number_format($netProfit, 2),
-            'net_profit_raw' => round($netProfit, 2),
-            'total_raw'      => $netRevenue,
-            'profit_margin_pct' => $netRevenue > 0 ? round(($netProfit / $netRevenue) * 100, 1) : 0,
+            'total_cost'          => '₱' . number_format($retainedTotalCost, 2),
+            'original_cost'       => '₱' . number_format($originalTotalCost, 2),
+            'net_profit'          => '₱' . number_format($retainedNetProfit, 2),
+            'original_profit'     => '₱' . number_format($originalNetProfit, 2),
+            'net_profit_raw'      => round($retainedNetProfit, 2),
+            'total_raw'           => $retainedRevenue,
+            'profit_margin_pct'   => $marginPct,
 
-            'payments' => $sale->payments->map(function ($payment) {
+            'payments'            => $sale->payments->map(function ($payment) {
                 return [
-                    'method'         => ucfirst(str_replace('_', ' ', $payment->payment_method)),
-                    'reference'      => $payment->reference_number ?: '-',
-                    'amount'         => '₱' . number_format($payment->amount ?? 0, 2),
-                    'tendered_amount'=> '₱' . number_format($payment->tendered_amount ?? 0, 2),
-                    'change_amount'  => '₱' . number_format($payment->change_amount ?? 0, 2),
-                    'payment_date'   => $payment->payment_date ? format_date($payment->payment_date) : '-',
-                    'notes'          => $payment->notes ?: '-',
+                    'method'          => ucfirst(str_replace('_', ' ', $payment->payment_method)),
+                    'reference'       => $payment->reference_number ?: '-',
+                    'amount'          => '₱' . number_format($payment->amount ?? 0, 2),
+                    'tendered_amount' => '₱' . number_format($payment->tendered_amount ?? 0, 2),
+                    'change_amount'   => '₱' . number_format($payment->change_amount ?? 0, 2),
+                    'payment_date'    => $payment->payment_date ? format_date($payment->payment_date) : '-',
+                    'notes'           => $payment->notes ?: '-',
                 ];
             })->values(),
 
-            'items' => $sale->items->map(function ($item) {
-                $costPrice        = (float) ($item->variant?->cost_price ?: ($item->product?->cost_price ?? 0));
-                $unitPrice        = (float) ($item->unit_price ?? 0);
-                $discountAmt      = (float) ($item->discount_amount ?? 0);
-                $qty              = (float) ($item->qty ?? 1);
-                $lineTotal        = (float) ($item->line_total ?? ($unitPrice * $qty - $discountAmt));
-                $effectiveUnit    = $qty > 0 ? ($lineTotal / $qty) : $unitPrice;
-                $lineCost         = $costPrice * $qty;
-                $grossProfit      = ($unitPrice - $costPrice) * $qty;
-                $netProfit        = $lineTotal - $lineCost;
-                $hasDiscount      = $discountAmt > 0.001;
-
-                $productName = $item->product_name;
-                if (!$productName) {
-                    if ($item->variant) {
-                        $productName = ($item->product?->name ?? 'Product') . ' (' . $item->variant->variant_name . ')';
-                    } else {
-                        $productName = $item->product?->name ?? '-';
-                    }
-                }
-
-                return [
-                    'barcode'           => $item->barcode ?: ($item->variant?->barcode ?: ($item->product?->barcode ?: '-')),
-                    'product'           => $productName,
-                    'quantity'          => $qty,
-                    'cost_price'        => '₱' . number_format($costPrice, 2),
-                    'original_price'    => '₱' . number_format($unitPrice, 2),
-                    'effective_price'   => '₱' . number_format($effectiveUnit, 2),
-                    'price'             => '₱' . number_format($effectiveUnit, 2), // alias for compatibility
-                    'discount_amount'   => '₱' . number_format($discountAmt, 2),
-                    'has_discount'      => $hasDiscount,
-                    'promo_id'          => $item->promo_id,
-                    'line_total'        => '₱' . number_format($lineTotal, 2),
-                    'total'             => '₱' . number_format($lineTotal, 2), // alias
-                    'cost_total'        => '₱' . number_format($lineCost, 2),
-                    'gross_profit'      => '₱' . number_format($grossProfit, 2),
-                    'net_profit'        => '₱' . number_format($netProfit, 2),
-                    'net_profit_raw'    => round($netProfit, 2),
-                    'profit_margin_pct' => $lineTotal > 0 ? round(($netProfit / $lineTotal) * 100, 1) : 0,
-                ];
-            })->values(),
+            'items'               => $items,
         ]);
     }
 
@@ -244,7 +281,7 @@ class SalesController extends Controller
         $tenantId = auth()->user()->tenant_id;
         $query = POSSale::with(['customer', 'cashier', 'payments', 'items.product', 'items.variant'])
             ->where('tenant_id', $tenantId)
-            ->where('sale_status', 'completed');
+            ->whereIn('sale_status', ['completed', 'refunded', 'partial_refund']);
 
         if ($request->filled('payment_method')) {
             $query->where('payment_method', $request->payment_method);
@@ -291,11 +328,18 @@ class SalesController extends Controller
             })
             ->addColumn('invoice_number', function ($sale) {
                 $code = $sale->sale_code ?: $sale->invoice_no ?: ('#SALE-' . str_pad($sale->id, 5, '0', STR_PAD_LEFT));
+                $badge = '';
+                if ($sale->sale_status === 'refunded') {
+                    $badge = '<span class="badge rounded-pill bg-danger bg-opacity-10 text-danger border border-danger-subtle extra-small fw-bold px-2 py-0.5" style="font-size:0.68rem;"><i class="bi bi-arrow-counterclockwise me-1"></i>Refunded</span>';
+                } elseif ($sale->sale_status === 'partial_refund') {
+                    $badge = '<span class="badge rounded-pill bg-warning bg-opacity-10 text-warning-emphasis border border-warning-subtle extra-small fw-bold px-2 py-0.5" style="font-size:0.68rem;"><i class="bi bi-percent me-1"></i>Partial Return</span>';
+                }
                 return '
-                    <div>
+                    <div class="d-flex align-items-center flex-wrap gap-1.5">
                         <a href="javascript:void(0)" class="btn-view-sale font-mono fw-black text-primary text-decoration-none d-inline-flex align-items-center gap-1" data-id="' . $sale->id . '">
                             <i class="bi bi-receipt extra-small"></i> ' . e($code) . '
                         </a>
+                        ' . $badge . '
                     </div>
                 ';
             })
@@ -326,6 +370,21 @@ class SalesController extends Controller
             ->addColumn('total_items', function ($sale) {
                 $totalQty = (float) $sale->items->sum('qty');
                 $count = $sale->items->count();
+
+                if ($sale->sale_status === 'partial_refund') {
+                    $refSummary = $sale->getRefundSummary();
+                    $returnedQty = $refSummary['refunded_qty'];
+                    $retainedQty = max(0, $totalQty - $returnedQty);
+                    $retFormatted = fmod($retainedQty, 1) === 0.0 ? (int)$retainedQty : number_format($retainedQty, 1);
+                    $retTotalFormatted = fmod($returnedQty, 1) === 0.0 ? (int)$returnedQty : number_format($returnedQty, 1);
+
+                    return '
+                        <span class="badge rounded-pill px-2.5 py-1 fw-bold font-mono" style="background:#fef3c7;color:#92400e;font-size:0.75rem;">
+                            ' . $count . ' item' . ($count > 1 ? 's' : '') . ' <span class="fw-normal text-muted">(' . $retFormatted . ' pcs, -' . $retTotalFormatted . ' ret)</span>
+                        </span>
+                    ';
+                }
+
                 $qtyFormatted = fmod($totalQty, 1) === 0.0 ? (int)$totalQty : number_format($totalQty, 1);
                 return '
                     <span class="badge rounded-pill px-2.5 py-1 fw-bold font-mono" style="background:#f1f5f9;color:#334155;font-size:0.75rem;">
@@ -352,6 +411,40 @@ class SalesController extends Controller
                 return '<span class="text-muted extra-small font-mono">—</span>';
             })
             ->addColumn('total', function ($sale) {
+                if ($sale->sale_status === 'refunded') {
+                    return '
+                        <div>
+                            <span class="text-decoration-line-through text-muted small font-mono d-block" style="font-size:0.75rem;">
+                                ₱' . number_format($sale->total_amount ?? 0, 2) . '
+                            </span>
+                            <span class="fw-black text-danger font-mono fs-6">
+                                ₱0.00
+                            </span>
+                        </div>
+                    ';
+                }
+
+                if ($sale->sale_status === 'partial_refund') {
+                    $refSummary = $sale->getRefundSummary();
+                    $refundedAmount = $refSummary['refunded_amount'];
+                    $originalAmount = (float) ($sale->total_amount ?? 0);
+                    $retainedAmount = max(0, $originalAmount - $refundedAmount);
+
+                    return '
+                        <div>
+                            <span class="text-decoration-line-through text-muted extra-small font-mono d-block" style="font-size:0.72rem;">
+                                ₱' . number_format($originalAmount, 2) . '
+                            </span>
+                            <span class="fw-black text-dark font-mono fs-6">
+                                ₱' . number_format($retainedAmount, 2) . '
+                            </span>
+                            <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis extra-small py-0 px-1 font-mono d-block mt-0.5" style="font-size:0.62rem;width:fit-content;">
+                                -₱' . number_format($refundedAmount, 2) . ' ret
+                            </span>
+                        </div>
+                    ';
+                }
+
                 return '
                     <span class="fw-black text-dark font-mono fs-6">
                         ₱' . number_format($sale->total_amount ?? 0, 2) . '
@@ -359,13 +452,79 @@ class SalesController extends Controller
                 ';
             })
             ->addColumn('profit', function ($sale) {
+                $origRevenue = (float) ($sale->total_amount ?? 0);
+
+                if ($sale->sale_status === 'refunded') {
+                    $costTotal = $sale->items->sum(function ($item) {
+                        $cost = (float) ($item->variant?->cost_price ?: ($item->product?->cost_price ?? 0));
+                        return $cost * (float) ($item->qty ?? 1);
+                    });
+                    $netProfit = $origRevenue - $costTotal;
+                    return '
+                        <div>
+                            <span class="text-decoration-line-through text-muted extra-small font-mono d-block" style="font-size:0.7rem;">
+                                ₱' . number_format($netProfit, 2) . '
+                            </span>
+                            <div class="fw-black font-mono small text-muted">
+                                ₱0.00
+                            </div>
+                            <span class="badge rounded-1 px-1.5 py-0.5 fw-bold font-mono text-muted border" style="font-size:0.65rem;background:#f8fafc;">
+                                0.0%
+                            </span>
+                        </div>
+                    ';
+                }
+
+                if ($sale->sale_status === 'partial_refund') {
+                    $refSummary = $sale->getRefundSummary();
+                    $returnedMap = $refSummary['returned_map'];
+                    $refundedAmount = $refSummary['refunded_amount'];
+                    $retainedRevenue = max(0, $origRevenue - $refundedAmount);
+
+                    $retainedCost = $sale->items->sum(function ($item) use ($returnedMap) {
+                        $cost = (float) ($item->variant?->cost_price ?: ($item->product?->cost_price ?? 0));
+                        $key = ($item->product_id ?? 0) . '_' . ($item->variant_id ?? 0);
+                        $retQty = min((float)$item->qty, (float)($returnedMap[$key] ?? 0));
+                        $remQty = max(0, (float)$item->qty - $retQty);
+                        return $cost * $remQty;
+                    });
+
+                    $origCost = $sale->items->sum(function ($item) {
+                        $cost = (float) ($item->variant?->cost_price ?: ($item->product?->cost_price ?? 0));
+                        return $cost * (float) ($item->qty ?? 1);
+                    });
+                    $origNetProfit = $origRevenue - $origCost;
+
+                    $retainedNetProfit = $retainedRevenue - $retainedCost;
+                    $margin = $retainedRevenue > 0 ? round(($retainedNetProfit / $retainedRevenue) * 100, 1) : 0;
+
+                    $isProfitable = $retainedNetProfit >= 0;
+                    $profitColor = $isProfitable ? '#16a34a' : '#dc2626';
+                    $marginBadgeBg = $margin >= 20 ? '#dcfce7' : ($margin >= 5 ? '#fef9c3' : '#fee2e2');
+                    $marginBadgeClr = $margin >= 20 ? '#166534' : ($margin >= 5 ? '#854d0e' : '#991b1b');
+                    $icon = $isProfitable ? '▲' : '▼';
+
+                    return '
+                        <div>
+                            <span class="text-decoration-line-through text-muted extra-small font-mono d-block" style="font-size:0.7rem;">
+                                ₱' . number_format($origNetProfit, 2) . '
+                            </span>
+                            <div class="fw-black font-mono small" style="color:' . $profitColor . ';">
+                                ₱' . number_format($retainedNetProfit, 2) . '
+                            </div>
+                            <span class="badge rounded-1 px-1.5 py-0.5 fw-bold font-mono" style="font-size:0.65rem;background:' . $marginBadgeBg . ';color:' . $marginBadgeClr . ';">
+                                ' . $icon . ' ' . number_format($margin, 1) . '%
+                            </span>
+                        </div>
+                    ';
+                }
+
                 $costTotal = $sale->items->sum(function ($item) {
                     $cost = (float) ($item->variant?->cost_price ?: ($item->product?->cost_price ?? 0));
                     return $cost * (float) ($item->qty ?? 1);
                 });
-                $netRevenue = (float) ($sale->total_amount ?? 0);
-                $netProfit = $netRevenue - $costTotal;
-                $margin = $netRevenue > 0 ? round(($netProfit / $netRevenue) * 100, 1) : 0;
+                $netProfit = $origRevenue - $costTotal;
+                $margin = $origRevenue > 0 ? round(($netProfit / $origRevenue) * 100, 1) : 0;
 
                 $isProfitable = $netProfit >= 0;
                 $profitColor = $isProfitable ? '#16a34a' : '#dc2626';
@@ -514,10 +673,18 @@ class SalesController extends Controller
             'payments.*.amount' => ['required', 'numeric', 'min:0.01'],
             'payments.*.reference_number' => ['nullable', 'string', 'max:255'],
             'items' => ['required', 'array', 'min:1'],
-            'items.*.product_id' => ['required', 'integer'],
+            'items.*.product_id' => ['nullable'],
             'items.*.variant_id' => ['nullable'],
+            'items.*.name' => ['nullable', 'string'],
+            'items.*.product_name' => ['nullable', 'string'],
+            'items.*.is_custom' => ['nullable'],
             'items.*.qty' => ['required', 'numeric', 'min:0.0001'],
             'items.*.price' => ['required', 'numeric', 'min:0'],
+            'items.*.original_price' => ['nullable', 'numeric'],
+            'items.*.effective_price' => ['nullable', 'numeric'],
+            'items.*.discount_amount' => ['nullable', 'numeric'],
+            'items.*.promo_id' => ['nullable'],
+            'items.*.subtotal' => ['nullable', 'numeric'],
         ]);
 
         $saleID = decryptId($request->sale_id);
@@ -618,6 +785,27 @@ class SalesController extends Controller
             }
 
             foreach ($data['items'] as $item) {
+                // Check if this is a custom non-inventory item / fee / service
+                $isCustom = !empty($item['is_custom']) || empty($item['product_id']) || !is_numeric($item['product_id']);
+                if ($isCustom) {
+                    $newSaleItem = new POSSaleItem();
+                    $newSaleItem->sale_id = $saleID;
+                    $newSaleItem->product_id = null;
+                    $newSaleItem->variant_id = null;
+                    $newSaleItem->barcode = null;
+                    $newSaleItem->sku = null;
+                    $newSaleItem->product_name = $item['name'] ?? $item['product_name'] ?? 'Custom Service / Fee';
+                    $newSaleItem->qty = $item['qty'] ?? 1;
+                    $newSaleItem->unit_price = $item['original_price'] ?? $item['price'];
+                    $newSaleItem->discount_amount = $item['discount_amount'] ?? 0;
+                    $newSaleItem->promo_id = null;
+                    $newSaleItem->tax_amount = 0;
+                    $newSaleItem->line_total = $item['subtotal'] ?? ($item['qty'] * $item['price']);
+                    $this->setCommonFields($newSaleItem);
+                    $newSaleItem->save();
+                    continue;
+                }
+
                 $product = POSProducts::findOrFail($item['product_id']);
                 $variant = !empty($item['variant_id']) ? POSProductVariant::find($item['variant_id']) : null;
 
@@ -787,10 +975,18 @@ class SalesController extends Controller
             'payments.*.amount' => ['required', 'numeric', 'min:0.01'],
             'payments.*.reference_number' => ['nullable', 'string', 'max:255'],
             'items' => ['required', 'array', 'min:1'],
-            'items.*.product_id' => ['required', 'integer'],
+            'items.*.product_id' => ['nullable'],
             'items.*.variant_id' => ['nullable'],
+            'items.*.name' => ['nullable', 'string'],
+            'items.*.product_name' => ['nullable', 'string'],
+            'items.*.is_custom' => ['nullable'],
             'items.*.qty' => ['required', 'numeric', 'min:0.0001'],
             'items.*.price' => ['required', 'numeric', 'min:0'],
+            'items.*.original_price' => ['nullable', 'numeric'],
+            'items.*.effective_price' => ['nullable', 'numeric'],
+            'items.*.discount_amount' => ['nullable', 'numeric'],
+            'items.*.promo_id' => ['nullable'],
+            'items.*.subtotal' => ['nullable', 'numeric'],
         ]);
 
         $totalPaid = collect($data['payments'])->sum('amount');
@@ -874,6 +1070,26 @@ class SalesController extends Controller
             $sale->save();
 
             foreach ($data['items'] as $item) {
+                // Check if this is a custom non-inventory item / fee / service
+                $isCustom = !empty($item['is_custom']) || empty($item['product_id']) || !is_numeric($item['product_id']);
+                if ($isCustom) {
+                    $newSaleItem = new POSSaleItem();
+                    $newSaleItem->sale_id = $sale->id;
+                    $newSaleItem->product_id = null;
+                    $newSaleItem->variant_id = null;
+                    $newSaleItem->barcode = null;
+                    $newSaleItem->sku = null;
+                    $newSaleItem->product_name = $item['name'] ?? $item['product_name'] ?? 'Custom Service / Fee';
+                    $newSaleItem->qty = $item['qty'] ?? 1;
+                    $newSaleItem->unit_price = $item['price'] ?? 0;
+                    $newSaleItem->discount_amount = 0;
+                    $newSaleItem->tax_amount = 0;
+                    $newSaleItem->line_total = $item['qty'] * $item['price'];
+                    $this->setCommonFields($newSaleItem);
+                    $newSaleItem->save();
+                    continue;
+                }
+
                 $product = POSProducts::findOrFail($item['product_id']);
                 $variant = !empty($item['variant_id']) ? POSProductVariant::find($item['variant_id']) : null;
 
@@ -978,22 +1194,46 @@ class SalesController extends Controller
         $todaySalesQuery = POSSale::query()
             ->with(['items.product', 'items.variant'])
             ->where('tenant_id', $tenantId)
-            ->where('sale_status', 'completed')
             ->where('sale_date', '>=', $startOfDay)
             ->where('sale_date', '<=', $endOfDay);
 
         $todaySales = $todaySalesQuery->get();
 
-        $salesToday = (float) $todaySales->sum('total_amount');
-        $transactionsToday = $todaySales->count();
+        $validSalesToday = $todaySales->whereIn('sale_status', ['completed', 'partial_refund']);
+        $transactionsToday = $validSalesToday->count();
+
+        $salesToday = (float) $validSalesToday->sum(function ($sale) {
+            $orig = (float) ($sale->total_amount ?? 0);
+            if ($sale->sale_status === 'partial_refund') {
+                $refSummary = $sale->getRefundSummary();
+                return max(0, $orig - $refSummary['refunded_amount']);
+            }
+            return $orig;
+        });
+
         $averageSale = $transactionsToday > 0 ? ($salesToday / $transactionsToday) : 0;
 
-        $profitToday = (float) $todaySales->sum(function ($sale) {
+        $profitToday = (float) $validSalesToday->sum(function ($sale) {
+            $origRevenue = (float) ($sale->total_amount ?? 0);
+            if ($sale->sale_status === 'partial_refund') {
+                $refSummary = $sale->getRefundSummary();
+                $returnedMap = $refSummary['returned_map'];
+                $retainedRevenue = max(0, $origRevenue - $refSummary['refunded_amount']);
+                $retainedCost = $sale->items->sum(function ($item) use ($returnedMap) {
+                    $cost = (float) ($item->variant?->cost_price ?: ($item->product?->cost_price ?? 0));
+                    $key = ($item->product_id ?? 0) . '_' . ($item->variant_id ?? 0);
+                    $retQty = min((float)$item->qty, (float)($returnedMap[$key] ?? 0));
+                    $remQty = max(0, (float)$item->qty - $retQty);
+                    return $cost * $remQty;
+                });
+                return $retainedRevenue - $retainedCost;
+            }
+
             $cost = $sale->items->sum(function ($item) {
                 $c = (float) ($item->variant?->cost_price ?: ($item->product?->cost_price ?? 0));
                 return $c * (float) ($item->qty ?? 1);
             });
-            return (float) ($sale->total_amount ?? 0) - $cost;
+            return $origRevenue - $cost;
         });
 
         $profitMarginToday = $salesToday > 0 ? round(($profitToday / $salesToday) * 100, 1) : 0;
@@ -1036,6 +1276,7 @@ class SalesController extends Controller
         $sale->terminal_id = $terminalId;
         $sale->drawer_id = $drawerId;
         $sale->cash_shift_id = $cashShiftId;
+        $sale->sale_status = 'pending';
         $this->setCommonFields($sale);
         $sale->save();
 
@@ -1073,6 +1314,7 @@ class SalesController extends Controller
             'cashier'
         ])
             ->where('tenant_id', $tenantId)
+            ->whereNotIn('sale_status', ['refund', 'voided'])
             ->where(function ($q) {
                 $q->where('cashier_id', auth()->id())
                   ->orWhere('created_by', auth()->id())
@@ -1084,15 +1326,15 @@ class SalesController extends Controller
 
         $sales = $query->get();
 
-        $todaySalesTotal = (float) $sales->where('sale_status', 'completed')->sum('total_amount');
-        $completedCount  = $sales->where('sale_status', 'completed')->count();
-        $pendingCount    = $sales->where('sale_status', '!=', 'completed')->count();
+        $todaySalesTotal = (float) $sales->whereIn('sale_status', ['completed', 'partial_refund'])->sum('total_amount');
+        $completedCount  = $sales->whereIn('sale_status', ['completed', 'refunded', 'partial_refund'])->count();
+        $pendingCount    = $sales->whereNotIn('sale_status', ['completed', 'refunded', 'partial_refund'])->count();
 
         $list = $sales->map(function ($sale) use ($currentSaleId) {
-            $isCompleted = strtolower($sale->sale_status ?? '') === 'completed';
+            $rawStatus    = strtolower($sale->sale_status ?? 'pending');
             $customerName = $sale->customer?->CustomerName ?: ($sale->customer?->name ?? 'Walk-in Customer');
-            $totalQty = (float) $sale->items->sum('qty');
-            $itemsCount = $sale->items->count();
+            $totalQty     = (float) $sale->items->sum('qty');
+            $itemsCount   = $sale->items->count();
 
             $itemNames = $sale->items->take(2)->map(function ($it) {
                 return $it->product_name ?: ($it->product?->name ?? 'Item');
@@ -1101,18 +1343,46 @@ class SalesController extends Controller
                 $itemNames .= ' +' . ($itemsCount - 2) . ' more';
             }
 
+            $totalAmount       = (float) ($sale->total_amount ?? 0);
+            $totalFormatted    = '₱' . number_format($totalAmount, 2);
+            $totalQtyFormatted = fmod($totalQty, 1) === 0.0 ? (int)$totalQty : number_format($totalQty, 1);
+
+            if ($rawStatus === 'refunded') {
+                $totalFormatted    = '₱0.00';
+                $statusCategory    = 'completed';
+                $statusLabel       = 'Refunded';
+            } elseif ($rawStatus === 'partial_refund') {
+                $refSummary        = $sale->getRefundSummary();
+                $refundedAmount    = $refSummary['refunded_amount'];
+                $returnedQty       = $refSummary['refunded_qty'];
+                $retainedQty       = max(0, $totalQty - $returnedQty);
+                $retainedAmount    = max(0, $totalAmount - $refundedAmount);
+                $totalFormatted    = '₱' . number_format($retainedAmount, 2);
+                $retQtyFmt         = fmod($retainedQty, 1) === 0.0 ? (int)$retainedQty : number_format($retainedQty, 1);
+                $totalQtyFormatted = $retQtyFmt . ' (rem)';
+                $statusCategory    = 'completed';
+                $statusLabel       = 'Partial Return';
+            } elseif ($rawStatus === 'completed') {
+                $statusCategory    = 'completed';
+                $statusLabel       = 'Paid';
+            } else {
+                $statusCategory    = 'pending';
+                $statusLabel       = 'Open';
+            }
+
             return [
                 'id'              => encryptId($sale->id),
                 'sale_id_raw'     => $sale->id,
                 'sale_code'       => $sale->sale_code ?: ('#' . $sale->id),
                 'invoice_no'      => $sale->invoice_no ?: $sale->sale_code,
                 'customer_name'   => $customerName,
-                'status'          => $isCompleted ? 'completed' : 'pending',
-                'status_label'    => $isCompleted ? 'Completed (Paid)' : 'Open / In-Progress',
-                'total_amount'    => (float) ($sale->total_amount ?? 0),
-                'total_formatted' => '₱' . number_format($sale->total_amount ?? 0, 2),
+                'status'          => $statusCategory,
+                'raw_status'      => $rawStatus,
+                'status_label'    => $statusLabel,
+                'total_amount'    => $totalAmount,
+                'total_formatted' => $totalFormatted,
                 'items_count'     => $itemsCount,
-                'total_qty'       => $totalQty,
+                'total_qty'       => $totalQtyFormatted,
                 'items_preview'   => $itemNames ?: 'No items yet',
                 'payment_method'  => ucfirst(str_replace('_', ' ', $sale->payment_method ?? 'cash')),
                 'time_formatted'  => $sale->sale_date ? $sale->sale_date->format('h:i A') : ($sale->created_at ? $sale->created_at->format('h:i A') : '-'),
@@ -1168,14 +1438,14 @@ class SalesController extends Controller
 
         $previousSale = POSSale::query()
             ->where('tenant_id', auth()->user()->tenant_id)
-            ->where('sale_status', 'completed')
+            ->whereIn('sale_status', ['completed', 'refunded', 'refund', 'partial_refund'])
             ->where('id', '<', $sale->id)
             ->orderByDesc('id')
             ->first();
 
         $nextSale = POSSale::query()
             ->where('tenant_id', auth()->user()->tenant_id)
-            ->where('sale_status', 'completed')
+            ->whereIn('sale_status', ['completed', 'refunded', 'refund', 'partial_refund'])
             ->where('id', '>', $sale->id)
             ->orderBy('id')
             ->first();
@@ -1216,6 +1486,7 @@ class SalesController extends Controller
         $sale->drawer_id = $terminal->drawer_id;
         $sale->cash_shift_id = $shift->id;
         $sale->cashier_id = auth()->id();
+        $sale->sale_status = 'pending';
         $this->setCommonFields($sale);
         $sale->save();
 

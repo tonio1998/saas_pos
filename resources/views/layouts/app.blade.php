@@ -4,6 +4,7 @@
         $tenant = \App\Models\POS\POSTenant::first();
     }
     $hasLogo = $tenant && $tenant->logo && \Illuminate\Support\Facades\Storage::disk('public')->exists($tenant->logo);
+    $hasSquareLogo = $tenant && $tenant->logo_square && \Illuminate\Support\Facades\Storage::disk('public')->exists($tenant->logo_square);
     $appStoreConfig = [
         'business_name'   => $tenant?->business_name ?? 'MINIMART POS STORE',
         'business_code'   => $tenant?->business_code ?? 'MINI-001',
@@ -13,7 +14,8 @@
         'tin'             => $tenant?->tin ?? '',
         'header_text'     => $tenant?->header_text ?? '',
         'footer_text'     => $tenant?->footer_text ?? "THANK YOU FOR YOUR PURCHASE!\nPLEASE COME AGAIN",
-        'logo'            => $hasLogo ? \Illuminate\Support\Facades\Storage::url($tenant->logo) : null,
+        'logo'            => $hasLogo ? \Illuminate\Support\Facades\Storage::url($tenant->logo) : ($hasSquareLogo ? \Illuminate\Support\Facades\Storage::url($tenant->logo_square) : null),
+        'logo_square'     => $hasSquareLogo ? \Illuminate\Support\Facades\Storage::url($tenant->logo_square) : ($hasLogo ? \Illuminate\Support\Facades\Storage::url($tenant->logo) : null),
         'currency_symbol' => $tenant?->currency_symbol ?? '₱',
         'cashier_name'    => auth()->user()?->name ?? auth()->user()?->username ?? 'Cashier',
     ];

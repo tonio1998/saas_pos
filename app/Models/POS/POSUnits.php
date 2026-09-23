@@ -3,10 +3,13 @@
 namespace App\Models\POS;
 
 use App\Models\User;
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 
 class POSUnits extends Model
 {
+    use BelongsToTenant;
+
     protected $table = 'pos_units';
 
     protected $fillable = [

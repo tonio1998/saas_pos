@@ -3,10 +3,12 @@
 namespace App\Models\POS;
 
 use App\Models\User;
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 
 class POSProducts extends Model
 {
+    use BelongsToTenant;
 
     protected $table = 'pos_products';
 

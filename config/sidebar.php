@@ -59,27 +59,27 @@ return [
         ],
     ],
     [
-        'title' => 'POS Devices',
+        'title' => 'POS Terminals',
         'items' => [
 
             [
                 'type'   => 'collapse',
                 'id'     => 'terminalMenu',
-                'label'  => 'POS Devices',
-                'icon'   => 'bi bi-tablet-landscape',
+                'label'  => 'POS Terminals',
+                'icon'   => 'bi bi-calculator-fill',
                 'active' => [
                     'terminal.*',
                 ],
                 'children' => [
 
                     [
-                        'label'  => 'Open POS Device',
+                        'label'  => 'Open POS Terminal',
                         'route'  => 'terminal.index',
                         'icon'   => 'bi bi-play-circle-fill',
                         'active' => 'terminal.index',
                     ],
                     [
-                        'label'  => 'Add POS Device',
+                        'label'  => 'Add POS Terminal',
                         'route'  => 'terminal.create',
                         'icon'   => 'bi bi-plus-circle-fill',
                         'active' => 'terminal.create',

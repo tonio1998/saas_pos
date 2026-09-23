@@ -3,12 +3,13 @@
 namespace App\Models\POS;
 
 use App\Models\User;
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class POSCashDrawer extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToTenant;
 
     protected $table = 'pos_cash_drawers';
     protected $fillable = [

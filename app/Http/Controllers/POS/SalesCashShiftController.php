@@ -231,10 +231,24 @@ class SalesCashShiftController extends Controller
         $drawerId = decryptId($drawerId);
         $drawer = $this->findDrawer($drawerId);
 
-        if ($drawer->activeShift()->exists()) {
+        // Check if current user already has an active open shift anywhere
+        $userActiveShift = POSCashShift::where('tenant_id', auth()->user()->tenant_id)
+            ->where('cashier_id', auth()->id())
+            ->where('status', 'open')
+            ->whereNull('closed_at')
+            ->first();
+
+        if ($userActiveShift) {
             return redirect()
-                ->route('cashiering.cash-shifts.index')
-                ->with('error', 'This cash drawer already has an active shift.');
+                ->route('terminal.index')
+                ->with('error', 'Mayroon ka pang aktibong bukas na shift sa ' . ($userActiveShift->drawer?->drawer_name ?? 'ibang kaha') . '. Kailangan mo munang i-close ang iyong kasalukuyang shift bago magbukas ng panibago.');
+        }
+
+        if ($drawer->activeShift()->exists()) {
+            $shift = $drawer->activeShift;
+            return redirect()
+                ->route('terminal.index', ['change' => 1])
+                ->with('error', 'Ang kahang ito ay kasalukuyang may bukas na shift ni ' . ($shift->cashier?->name ?? 'ibang cashier') . '.');
         }
 
         $terminal = null;
@@ -375,15 +389,29 @@ class SalesCashShiftController extends Controller
             'terminal_id' => ['nullable']
         ]);
 
+        // Check if current user already has an active open shift anywhere
+        $userActiveShift = POSCashShift::where('tenant_id', auth()->user()->tenant_id)
+            ->where('cashier_id', auth()->id())
+            ->where('status', 'open')
+            ->whereNull('closed_at')
+            ->first();
+
+        if ($userActiveShift) {
+            return redirect()
+                ->route('terminal.index')
+                ->with('error', 'Mayroon ka pang aktibong bukas na shift. Bawal magbukas ng dalawang kaha nang sabay.');
+        }
+
         if (
             POSCashShift::where('tenant_id', auth()->user()->tenant_id)
                 ->where('drawer_id', $data['drawer_id'])
                 ->where('status', 'open')
+                ->whereNull('closed_at')
                 ->exists()
         ) {
             return back()
                 ->withInput()
-                ->with('error', 'This cash drawer already has an active shift.');
+                ->with('error', 'Ang cash drawer na ito ay kasalukuyang may bukas na shift na.');
         }
 
         $shift = new POSCashShift();
@@ -431,9 +459,9 @@ class SalesCashShiftController extends Controller
             ]);
 
             return redirect()->route(
-                'sales.new',
+                'sales.create',
                 [
-                    encryptId($sale->id)
+                    'sale' => encryptId($sale->id)
                 ]
             )->with('success', 'Cash shift opened successfully! Ready for transactions.');
         }

@@ -3,13 +3,14 @@
 namespace App\Models\POS;
 
 use App\Models\User;
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class POSPromotion extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, BelongsToTenant;
 
     protected $table = 'pos_promotions';
 
@@ -54,7 +55,6 @@ class POSPromotion extends Model
             'percentage'   => 'Percentage Discount (%)',
             'fixed_amount' => 'Fixed Amount Discount (₱)',
             'bulk_tier'    => 'Bulk / Wholesale Special Price (₱)',
-            'buy_x_get_y'  => 'Buy X Get Y (Freebies)',
         ];
     }
 

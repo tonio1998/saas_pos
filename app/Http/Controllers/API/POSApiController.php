@@ -1275,7 +1275,7 @@ class POSApiController extends Controller
             'payments.*.reference_no' => 'nullable|string',
             'payments.*.reference_number' => 'nullable|string',
             'items'           => 'required|array|min:1',
-            'items.*.product_id' => 'required|integer',
+            'items.*.product_id' => 'nullable',
             'items.*.variant_id' => 'nullable|integer',
             'items.*.qty'     => 'required|numeric|min:0.01',
             'items.*.price'   => 'required|numeric|min:0',
@@ -1283,6 +1283,8 @@ class POSApiController extends Controller
             'items.*.promo_id' => 'nullable|integer',
             'items.*.promo_name' => 'nullable|string',
             'items.*.line_total' => 'nullable|numeric',
+            'items.*.name'    => 'nullable|string',
+            'items.*.is_custom' => 'nullable|boolean',
         ]);
 
         $totalPaid = collect($validated['payments'])->sum('amount');
@@ -1356,6 +1358,29 @@ class POSApiController extends Controller
                 $sale->save();
 
                 foreach ($validated['items'] as $item) {
+                    $isCustom = !empty($item['is_custom']) || empty($item['product_id']) || !is_numeric($item['product_id']);
+
+                    if ($isCustom) {
+                        $newSaleItem = new POSSaleItem();
+                        $newSaleItem->sale_id = $sale->id;
+                        $newSaleItem->product_id = null;
+                        $newSaleItem->variant_id = null;
+                        $newSaleItem->barcode = null;
+                        $newSaleItem->sku = null;
+                        $newSaleItem->product_name = $item['name'] ?? $item['product_name'] ?? 'Custom Service / Fee';
+                        $newSaleItem->qty = $item['qty'];
+                        $newSaleItem->unit_price = $item['price'];
+                        $newSaleItem->discount_amount = isset($item['discount_amount']) ? (float)$item['discount_amount'] : 0;
+                        $newSaleItem->promo_id = null;
+                        $newSaleItem->tax_amount = 0;
+                        $newSaleItem->line_total = isset($item['line_total']) ? (float)$item['line_total'] : max(0, ($item['qty'] * $item['price']) - $newSaleItem->discount_amount);
+                        $newSaleItem->created_by = $cashierId;
+                        $newSaleItem->updated_by = $cashierId;
+                        $newSaleItem->status = 'active';
+                        $newSaleItem->save();
+                        continue;
+                    }
+
                     $product = POSProducts::findOrFail($item['product_id']);
                     $variantId = !empty($item['variant_id']) ? $item['variant_id'] : null;
                     $variant = $variantId ? \App\Models\POS\POSProductVariant::find($variantId) : null;

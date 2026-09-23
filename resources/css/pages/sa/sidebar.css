@@ -118,7 +118,7 @@
 .sidebar-dropdown {
     padding-left: 8px !important;
     margin-left: 14px !important;
-    border-left: 2px solid #1e293b !important;
+    border-left: none !important;
 }
 
 .sidebar-sublink {

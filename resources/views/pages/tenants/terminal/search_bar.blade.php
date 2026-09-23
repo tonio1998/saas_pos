@@ -60,6 +60,9 @@
                 </button>
             @endif
 
+            @php
+                $orderStatus = strtolower($sale->sale_status ?? '');
+            @endphp
             <button type="button" 
                 class="btn btn-sm btn-white border border-slate-200 rounded-2 px-2.5 py-0.5 text-center d-flex align-items-center gap-1.5 shadow-2xs hover-lift" 
                 id="btnOpenCashierOrdersModal" 
@@ -70,6 +73,11 @@
                     <small class="text-muted text-uppercase d-block fw-bold" style="font-size:0.58rem;letter-spacing:0.5px;line-height:1;">Order</small>
                     <strong class="text-dark font-mono d-flex align-items-center gap-1" style="font-size:0.84rem;">
                         #{{ $sale->sale_code }}
+                        @if(in_array($orderStatus, ['refunded', 'refund']))
+                            <span class="badge bg-danger text-white extra-small px-1.5 py-0.5 rounded-pill font-sans fw-bold" style="font-size:0.6rem;">Refunded</span>
+                        @elseif($orderStatus === 'partial_refund')
+                            <span class="badge bg-warning text-dark extra-small px-1.5 py-0.5 rounded-pill font-sans fw-bold" style="font-size:0.6rem;">Partial Return</span>
+                        @endif
                         <i class="bi bi-chevron-expand extra-small text-muted ms-0.5" style="font-size:0.65rem;"></i>
                     </strong>
                 </div>
@@ -85,6 +93,17 @@
                 </a>
             @endif
         </div>
+
+        <!-- Quick Refund Button -->
+        <button type="button" 
+            class="btn btn-sm btn-white border border-danger-subtle text-danger rounded-3 px-2.5 py-1.5 d-flex align-items-center gap-1.5 shadow-2xs hover-lift" 
+            id="btnTopQuickRefund" 
+            data-bs-toggle="modal" 
+            data-bs-target="#quickRefundModal" 
+            title="Quick Customer Return / Refund [F7]">
+            <i class="bi bi-arrow-return-left text-danger"></i>
+            <span class="d-none d-lg-inline extra-small fw-bold">Quick Refund</span>
+        </button>
 
         <!-- Shift & Device Info Pill -->
         @if($sale->cashShift)

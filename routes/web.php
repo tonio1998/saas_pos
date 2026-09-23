@@ -88,6 +88,15 @@ Route::post('/register',[AuthController::class,'register']);
 Route::post('/store/complete-profile', [AuthController::class, 'completeStoreProfile'])->name('store.complete-profile');
 Route::post('/logout',[AuthController::class,'logout'])->name('logout');
 
+// Email OTP Verification
+Route::get('/verify-email', [AuthController::class, 'showVerifyEmail'])->name('verification.notice');
+Route::post('/verify-email', [AuthController::class, 'verifyEmailOtp'])->name('verification.verify');
+Route::post('/verify-email/resend', [AuthController::class, 'resendOtp'])->name('verification.resend');
+
+// Store Onboarding: Main Branch Setup
+Route::get('/onboarding/branch-setup', [AuthController::class, 'showBranchSetup'])->name('onboarding.branch')->middleware('auth');
+Route::post('/onboarding/branch-setup', [AuthController::class, 'storeBranchSetup'])->name('onboarding.branch.store')->middleware('auth');
+
 
 Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('google.redirect');
 Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
@@ -251,6 +260,7 @@ Route::middleware('auth')->group(function(){
     Route::prefix('sales')->name('sales.')->group(function () {
         Route::get('/', [SalesController::class, 'index'])->name('index');
         Route::get('/terminal/{sale}/sale', [SalesController::class, 'create'])->name('create');
+        Route::get('/terminal/{sale}/new', [SalesController::class, 'create'])->name('new');
         Route::get('/new', [SalesController::class, 'create1'])->name('create1');
         Route::post('/create', [SalesController::class, 'store'])->name('store');
         Route::get('/edit/{id}', [SalesController::class, 'edit'])->name('edit');

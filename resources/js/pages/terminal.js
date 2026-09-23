@@ -17,19 +17,47 @@ window.buildBIRThermalReceiptHTML = function (sale, storeConfig = null, state = 
         currency_symbol: '₱'
     };
 
-    const cartItems = sale?.items || state?.cart || [];
+    const cartItems = (sale?.items && sale.items.length > 0) ? sale.items : (state?.cart || []);
     const payments = sale?.payments || [];
-    const totalAmount = Number(sale?.total_amount || state?.total || 0);
-    const subtotalAmount = Number(sale?.subtotal || state?.subtotal || totalAmount);
-    const discountAmount = Number(sale?.discount_amount || state?.discount || 0);
-    const tenderedAmount = Number(sale?.tendered_amount || payments.reduce((s, p) => s + Number(p.amount || 0), 0));
-    const changeAmount = Number(sale?.change_amount || state?.change || Math.max(0, tenderedAmount - totalAmount));
 
-    const vatableSales = (totalAmount / 1.12).toFixed(2);
-    const vatAmount = (totalAmount - Number(vatableSales)).toFixed(2);
+    // 1. Resolve Subtotal (Gross)
+    let subtotalAmount = Number(sale?.subtotal ?? (state?.subtotal !== undefined ? state.subtotal : 0));
+    if (subtotalAmount <= 0 && cartItems.length > 0) {
+        subtotalAmount = cartItems.reduce((s, it) => s + Number(it.subtotal || it.line_total || ((it.qty || 1) * (it.price || it.unit_price || 0))), 0);
+    }
+
+    // 2. Resolve Discount
+    let discountAmount = Number(sale?.discount_amount ?? sale?.discount ?? (state?.discount !== undefined ? state.discount : 0));
+
+    // 3. Resolve Total Amount Due
+    let totalAmount = Number(sale?.total_amount ?? sale?.total ?? (state?.total !== undefined ? state.total : 0));
+    if (totalAmount <= 0 && subtotalAmount > 0) {
+        totalAmount = Math.max(0, subtotalAmount - discountAmount);
+    }
+
+    // 4. Resolve Tendered / Payment Amount
+    let tenderedAmount = Number(
+        sale?.tendered_amount ?? 
+        sale?.paid ?? 
+        (payments.length > 0 ? payments.reduce((s, p) => s + Number(p.amount || 0), 0) : null) ?? 
+        (state?.paid !== undefined && state.paid > 0 ? state.paid : null) ?? 
+        (state?.tendered !== undefined && state.tendered > 0 ? state.tendered : null) ?? 
+        0
+    );
+
+    // 5. Resolve Change
+    let changeAmount = Number(
+        sale?.change_amount ?? 
+        sale?.change ?? 
+        (state?.change !== undefined ? state.change : Math.max(0, tenderedAmount - totalAmount))
+    );
+
+    const vatableSales = (totalAmount / 1.12).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const vatAmount = (totalAmount - (totalAmount / 1.12)).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const invoiceNo = sale?.sale_code || sale?.invoice_no || 'SI-' + Math.floor(100000 + Math.random() * 900000);
     const cashierName = sale?.cashier_name || sale?.cashier?.name || sale?.user?.name || store.cashier_name || 'Cashier';
     const currSym = store.currency_symbol || '₱';
+    const customerName = sale?.customer_name || sale?.customer?.CustomerName || sale?.customer?.name || (typeof sale?.customer === 'string' ? sale.customer : state?.customer_name || 'Walk-in Customer');
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -103,77 +131,85 @@ th, td {
 
 <div class="divider"></div>
 
-<div>Customer: ${sale?.customer?.name || 'Walk-in Customer'}</div>
+<div>Customer: ${customerName}</div>
 
 <div class="divider"></div>
 
-<table>
+<table style="width: 100%; border-collapse: collapse;">
     <thead>
-        <tr>
-            <th class="text-left">Qty Item</th>
-            <th class="text-right">Price</th>
-            <th class="text-right">Total</th>
+        <tr style="border-bottom: 1px dashed #000;">
+            <th class="text-left" style="padding-bottom: 2px;">ITEM</th>
+            <th class="text-right" style="padding-bottom: 2px;">TOTAL</th>
         </tr>
     </thead>
     <tbody>
-        ${cartItems.map(item => `
+        ${cartItems.map(item => {
+        const qty = Number(item.qty || 1);
+        const qtyStr = (Math.floor(qty) === qty) ? qty.toFixed(0) : qty.toString();
+        const unitPrice = Number(item.price || item.unit_price || 0);
+        const lineTotal = Number(item.subtotal || item.line_total || (qty * unitPrice));
+        const name = item.name || item.product_name || 'Item';
+        const unit = item.unit ? ` ${item.unit}` : '';
+        return `
             <tr>
-                <td class="text-left">
-                    ${Number(item.qty || 1).toFixed(0)} x ${item.name || item.product_name}
-                    <span style="font-size:9px;">(V)</span>
-                </td>
-                <td class="text-right">${currSym}${Number(item.price || item.unit_price || 0).toFixed(2)}</td>
-                <td class="text-right">${currSym}${Number(item.subtotal || item.line_total || ((item.qty || 1) * (item.price || 0))).toFixed(2)}</td>
+                <td class="text-left fw-bold" style="padding-top: 3px; font-size: 11px;">${name}</td>
+                <td class="text-right fw-bold" style="padding-top: 3px; font-size: 11px; white-space: nowrap;">${currSym}${lineTotal.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             </tr>
-        `).join('')}
+            <tr>
+                <td colspan="2" class="text-left" style="padding-bottom: 3px; font-size: 10px; color: #333;">
+                    &nbsp;&nbsp;${qtyStr}${unit} @ ${currSym}${unitPrice.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </td>
+            </tr>
+            `;
+    }).join('')}
     </tbody>
 </table>
 
 <div class="divider"></div>
 
-<table>
+<table style="width: 100%; border-collapse: collapse;">
     <tr>
-        <td>Subtotal (Gross):</td>
-        <td class="text-right">${currSym}${subtotalAmount.toFixed(2)}</td>
+        <td class="text-left">Subtotal (Gross):</td>
+        <td class="text-right">${currSym}${subtotalAmount.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
     </tr>
     ${discountAmount > 0 ? `
     <tr>
-        <td>Discount:</td>
-        <td class="text-right">-${currSym}${discountAmount.toFixed(2)}</td>
+        <td class="text-left" style="color: #dc2626;">Discount:</td>
+        <td class="text-right" style="color: #dc2626;">-${currSym}${discountAmount.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
     </tr>
     ` : ''}
-    <tr class="fw-bold">
-        <td>TOTAL AMOUNT DUE:</td>
-        <td class="text-right">${currSym}${totalAmount.toFixed(2)}</td>
+    <tr class="fw-bold" style="font-size: 12px;">
+        <td class="text-left" style="padding-top: 2px;">TOTAL AMOUNT DUE:</td>
+        <td class="text-right" style="padding-top: 2px;">${currSym}${totalAmount.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
     </tr>
     <tr>
-        <td>Payment:</td>
-        <td class="text-right">${currSym}${tenderedAmount > 0 ? tenderedAmount.toFixed(2) : totalAmount.toFixed(2)}</td>
+        <td class="text-left">Payment:</td>
+        <td class="text-right">${currSym}${tenderedAmount.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
     </tr>
     <tr>
-        <td>Change:</td>
-        <td class="text-right">${currSym}${changeAmount.toFixed(2)}</td>
+        <td class="text-left">Change:</td>
+        <td class="text-right">${currSym}${changeAmount.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
     </tr>
 </table>
 
 <div class="divider"></div>
 
 <div class="fw-bold text-center">TAX BREAKDOWN (12% VAT)</div>
-<table>
+<table style="width: 100%; border-collapse: collapse;">
     <tr>
-        <td>VATable Sales (12%):</td>
+        <td class="text-left">VATable Sales (12%):</td>
         <td class="text-right">${currSym}${vatableSales}</td>
     </tr>
     <tr>
-        <td>VAT Amount (12%):</td>
+        <td class="text-left">VAT Amount (12%):</td>
         <td class="text-right">${currSym}${vatAmount}</td>
     </tr>
     <tr>
-        <td>VAT Exempt Sales:</td>
+        <td class="text-left">VAT Exempt Sales:</td>
         <td class="text-right">${currSym}0.00</td>
     </tr>
     <tr>
-        <td>Zero Rated Sales:</td>
+        <td class="text-left">Zero Rated Sales:</td>
         <td class="text-right">${currSym}0.00</td>
     </tr>
 </table>
@@ -438,6 +474,7 @@ const POS = {
         this.bindCheckout();
         this.bindSplitPayments();
         this.bindCustomerModalTransitions();
+        this.bindCustomItemModal();
         this.bindViewMode();
         this.bindForceRefresh();
 
@@ -889,6 +926,7 @@ const POS = {
                     unit: product?.unit?.name || '',
                     allow_decimal_qty: product?.allow_decimal_qty ?? false,
                     retail_price: retail, wholesale_price: wholesale, price: active,
+                    cost_price: Number(product?.cost_price || 0),
                     stock: Number(row.dataset.stock || 0),
                 });
             });
@@ -901,6 +939,7 @@ const POS = {
                 const productId = Number(row.dataset.id);
                 const variantId = Number(row.dataset.variantId);
                 const product = this.products?.find(p => p.id === productId);
+                const variant = product?.variants?.find(v => v.id === variantId);
                 const retail = Number(row.dataset.retailPrice || row.dataset.price);
                 const wholesale = Number(row.dataset.wholesalePrice || 0);
                 const active = (this.state.priceMode === 'wholesale' && wholesale > 0) ? wholesale : retail;
@@ -910,6 +949,7 @@ const POS = {
                     unit: row.dataset.unit || product?.unit?.name || '',
                     allow_decimal_qty: product?.allow_decimal_qty ?? false,
                     retail_price: retail, wholesale_price: wholesale, price: active,
+                    cost_price: Number(variant?.cost_price ?? product?.cost_price ?? 0),
                     stock: Number(row.dataset.stock || 0),
                 });
             });
@@ -933,6 +973,7 @@ const POS = {
                 const productId = Number(chip.dataset.id);
                 const variantId = Number(chip.dataset.variantId);
                 const product = this.products?.find(p => p.id === productId);
+                const variant = product?.variants?.find(v => v.id === variantId);
                 const retail = Number(chip.dataset.retailPrice || chip.dataset.price);
                 const wholesale = Number(chip.dataset.wholesalePrice || 0);
                 const active = (this.state.priceMode === 'wholesale' && wholesale > 0) ? wholesale : retail;
@@ -942,6 +983,7 @@ const POS = {
                     unit: chip.dataset.unit || '',
                     allow_decimal_qty: product?.allow_decimal_qty ?? false,
                     retail_price: retail, wholesale_price: wholesale, price: active,
+                    cost_price: Number(variant?.cost_price ?? product?.cost_price ?? 0),
                     stock: Number(chip.dataset.stock || 0),
                 });
             });
@@ -961,6 +1003,7 @@ const POS = {
                     unit: product?.unit?.name || '',
                     allow_decimal_qty: product?.allow_decimal_qty ?? false,
                     retail_price: retail, wholesale_price: wholesale, price: active,
+                    cost_price: Number(product?.cost_price || 0),
                     stock: Number(card.dataset.stock || 0),
                 });
             });
@@ -1084,9 +1127,11 @@ const POS = {
         container.querySelectorAll('.variant-select-item').forEach(itemEl => {
             itemEl.addEventListener('click', () => {
                 modal.hide();
+                const variantId = itemEl.dataset.variantId ? Number(itemEl.dataset.variantId) : null;
+                const variant = product?.variants?.find(v => v.id === variantId);
                 this.addToCart({
                     id: Number(itemEl.dataset.productId),
-                    variant_id: itemEl.dataset.variantId ? Number(itemEl.dataset.variantId) : null,
+                    variant_id: variantId,
                     name: itemEl.dataset.name,
                     unit: itemEl.dataset.unit || '',
                     barcode: itemEl.dataset.barcode,
@@ -1094,6 +1139,7 @@ const POS = {
                     retail_price: Number(itemEl.dataset.retailPrice),
                     wholesale_price: Number(itemEl.dataset.wholesalePrice),
                     price: Number(itemEl.dataset.price),
+                    cost_price: Number(variant?.cost_price ?? product?.cost_price ?? 0),
                     stock: Number(itemEl.dataset.stock || 0),
                 });
             });
@@ -1408,7 +1454,184 @@ const POS = {
         this.bindSplitPayments();
         this.bindForceRefresh();
         this.bindCustomerModalTransitions();
+        this.bindCustomItemModal();
         this.bindViewMode();
+    },
+    bindCustomItemModal() {
+        const modalEl = document.getElementById('customItemModal');
+        if (!modalEl) return;
+
+        const nameInput = document.getElementById('customItemName');
+        const priceInput = document.getElementById('customItemPrice');
+        const qtyInput = document.getElementById('customItemQty');
+        const totalPreview = document.getElementById('customItemTotalPreview');
+        const btnConfirm = document.getElementById('btnConfirmCustomItem');
+
+        const updatePreview = () => {
+            const price = parseFloat(priceInput?.value || 0);
+            const qty = parseFloat(qtyInput?.value || 1);
+            const total = Math.max(0, price * qty);
+            if (totalPreview) {
+                totalPreview.textContent = this.formatCurrency(total);
+            }
+        };
+
+        if (priceInput) priceInput.addEventListener('input', updatePreview);
+        if (qtyInput) qtyInput.addEventListener('input', updatePreview);
+
+        // Presets buttons
+        modalEl.querySelectorAll('.btn-custom-preset').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const name = btn.dataset.name;
+                const price = btn.dataset.price;
+                const unit = btn.dataset.unit || 'pc';
+
+                if (nameInput) nameInput.value = name;
+                if (priceInput) priceInput.value = price;
+                if (qtyInput) qtyInput.value = '1';
+                modalEl.dataset.customUnit = unit;
+
+                updatePreview();
+                if (priceInput) priceInput.focus();
+            });
+        });
+
+        // Quick price addition
+        modalEl.querySelectorAll('.btn-custom-price-add').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const addVal = parseFloat(btn.dataset.add || 0);
+                const curVal = parseFloat(priceInput?.value || 0);
+                if (priceInput) {
+                    priceInput.value = (curVal + addVal).toFixed(2);
+                    updatePreview();
+                }
+            });
+        });
+
+        modalEl.querySelector('.btn-custom-price-clear')?.addEventListener('click', () => {
+            if (priceInput) {
+                priceInput.value = '';
+                updatePreview();
+            }
+        });
+
+        // Focus when modal is shown
+        modalEl.addEventListener('shown.bs.modal', () => {
+            updatePreview();
+            if (nameInput && !nameInput.value) {
+                nameInput.focus();
+            } else if (priceInput) {
+                priceInput.focus();
+                priceInput.select();
+            }
+        });
+
+        // Submit action
+        if (btnConfirm) {
+            btnConfirm.addEventListener('click', () => {
+                const name = (nameInput?.value || '').trim();
+                const price = parseFloat(priceInput?.value || 0);
+                const qty = parseFloat(qtyInput?.value || 1);
+                const unit = modalEl.dataset.customUnit || 'pc';
+
+                if (!name) {
+                    alert('Please enter a charge or service name.');
+                    nameInput?.focus();
+                    return;
+                }
+
+                if (isNaN(price) || price < 0) {
+                    alert('Please enter a valid price / charge amount.');
+                    priceInput?.focus();
+                    return;
+                }
+
+                this.addCustomFeeItem({
+                    name: name,
+                    price: price,
+                    qty: qty > 0 ? qty : 1,
+                    unit: unit,
+                    cost_price: 0,
+                    category: 'Service / Fee'
+                });
+
+                // Clear input and close modal
+                if (nameInput) nameInput.value = '';
+                if (priceInput) priceInput.value = '';
+                if (qtyInput) qtyInput.value = '1';
+                delete modalEl.dataset.customUnit;
+
+                try {
+                    const bsModal = Modal.getOrCreateInstance(modalEl);
+                    if (bsModal) bsModal.hide();
+                } catch (err) {
+                    if (typeof $ !== 'undefined') $(modalEl).modal('hide');
+                }
+            });
+        }
+
+        // Enter key submission in form
+        [nameInput, priceInput, qtyInput].forEach(inp => {
+            inp?.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    btnConfirm?.click();
+                }
+            });
+        });
+    },
+
+    addCustomFeeItem(customData) {
+        const name = (customData.name || '').trim();
+        if (!name) return;
+
+        const price = Math.max(0, parseFloat(customData.price || 0));
+        const qty = Math.max(0.001, parseFloat(customData.qty || 1));
+        const cost = Math.max(0, parseFloat(customData.cost_price || 0));
+        const unit = (customData.unit || 'pc').trim();
+        const category = customData.category || 'Service / Fee';
+
+        const customKey = 'custom_' + Date.now();
+
+        this.state.cart.push({
+            cartKey: customKey,
+            id: null,
+            product_id: null,
+            variant_id: null,
+            barcode: null,
+            name: name,
+            unit: unit,
+            allow_decimal_qty: false,
+            retail_price: price,
+            wholesale_price: price,
+            cost_price: cost,
+            price: price,
+            stock: 999999,
+            qty: qty,
+            subtotal: qty * price,
+            is_custom: true,
+            is_service: true,
+            category: category
+        });
+
+        this.calculateTotals();
+        this.renderCart();
+        this.renderLiveReceiptPreview();
+        this.setStatus(`Added: ${name} (₱${price.toFixed(2)})`, 'ready');
+
+        if (typeof Swal !== 'undefined') {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+            Toast.fire({
+                icon: 'success',
+                title: `Added "${name}" (₱${price.toFixed(2)})`
+            });
+        }
     },
     bindViewMode() {
         const btnViewTable = document.getElementById('btnViewTable');
@@ -2175,6 +2398,7 @@ const POS = {
         if (paymentModalEl) {
             paymentModalEl.addEventListener('shown.bs.modal', () => {
                 this.updateCheckoutReceiptPreview();
+                this.updateDiscountProfitPreview();
             });
         }
 
@@ -2191,6 +2415,9 @@ const POS = {
 
         const discountSubModal = document.getElementById('checkoutDiscountModal');
         if (discountSubModal) {
+            discountSubModal.addEventListener('shown.bs.modal', () => {
+                this.updateDiscountProfitPreview();
+            });
             discountSubModal.addEventListener('hidden.bs.modal', () => {
                 const mainModalEl = document.getElementById('paymentModal');
                 if (mainModalEl) {
@@ -2609,8 +2836,11 @@ const POS = {
                 const lineTotal = Math.max(0, (item.subtotal || (item.qty * item.price)) - itemDiscount);
 
                 return {
-                    product_id: item.id,
+                    product_id: item.id || null,
                     variant_id: item.variant_id || null,
+                    name: item.name,
+                    product_name: item.name,
+                    is_custom: !!item.is_custom,
                     qty: item.qty,
                     price: item.price,
                     original_price: item.price,
@@ -3201,6 +3431,19 @@ const POS = {
         const wholesalePrice = Number(product.wholesale_price ?? 0);
         const activePrice = (this.state.priceMode === 'wholesale' && wholesalePrice > 0) ? wholesalePrice : retailPrice;
 
+        let costPrice = Number(product.cost_price || 0);
+        if (!costPrice && this.products && Array.isArray(this.products)) {
+            const prod = this.products.find(p => p.id === product.id);
+            if (prod) {
+                if (product.variant_id && prod.variants) {
+                    const v = prod.variants.find(varItem => varItem.id === product.variant_id);
+                    costPrice = Number(v?.cost_price ?? prod.cost_price ?? 0);
+                } else {
+                    costPrice = Number(prod.cost_price ?? 0);
+                }
+            }
+        }
+
         if (existing) {
 
             if (
@@ -3220,6 +3463,10 @@ const POS = {
             existing.qty = Math.round((existing.qty + 1) * 1000) / 1000;
 
             existing.price = activePrice;
+
+            if (!existing.cost_price && costPrice) {
+                existing.cost_price = costPrice;
+            }
 
             existing.subtotal =
                 existing.qty *
@@ -3246,6 +3493,8 @@ const POS = {
                 retail_price: retailPrice,
 
                 wholesale_price: wholesalePrice,
+
+                cost_price: costPrice,
 
                 price: activePrice,
 
@@ -3377,6 +3626,122 @@ const POS = {
 
         this.renderCart();
 
+    },
+
+    getCartCostTotal() {
+        if (!this.state.cart || !this.state.cart.length) return 0;
+        return this.state.cart.reduce((totalCost, item) => {
+            let unitCost = Number(item.cost_price || 0);
+            if (!unitCost && this.products && Array.isArray(this.products)) {
+                const prod = this.products.find(p => p.id === item.id);
+                if (prod) {
+                    if (item.variant_id && prod.variants) {
+                        const v = prod.variants.find(varItem => varItem.id === item.variant_id);
+                        unitCost = Number(v?.cost_price ?? prod.cost_price ?? 0);
+                    } else {
+                        unitCost = Number(prod.cost_price ?? 0);
+                    }
+                }
+            }
+            return totalCost + (unitCost * Number(item.qty || 0));
+        }, 0);
+    },
+
+    calculateDiscountProfitPreview(previewDiscount = null) {
+        const subtotal = Number(this.state.subtotal || 0);
+        let discount = previewDiscount !== null ? Number(previewDiscount) : Number(this.state.discount || 0);
+        discount = Math.min(discount, subtotal);
+        const netTotal = Math.max(0, subtotal - discount);
+        const totalCost = this.getCartCostTotal();
+        const profit = netTotal - totalCost;
+        const marginPercent = (netTotal > 0) ? (profit / netTotal) * 100 : (subtotal > 0 && totalCost > 0 ? ((subtotal - totalCost) / subtotal) * 100 : 0);
+
+        return {
+            subtotal,
+            discount,
+            netTotal,
+            totalCost,
+            profit,
+            marginPercent,
+            isLoss: (profit < -0.01 && this.state.cart.length > 0),
+            isLowMargin: (profit >= -0.01 && marginPercent < 10 && this.state.cart.length > 0),
+            isHealthy: (marginPercent >= 10 && this.state.cart.length > 0)
+        };
+    },
+
+    updateDiscountProfitPreview() {
+        const preview = this.calculateDiscountProfitPreview();
+
+        const costEl = document.getElementById('previewCartCost');
+        const dueEl = document.getElementById('previewDiscountedDue');
+        const profitEl = document.getElementById('previewNetProfit');
+        const marginBadge = document.getElementById('discountProfitMarginBadge');
+        const alertEl = document.getElementById('discountProfitAlert');
+        const alertIcon = document.getElementById('discountProfitAlertIcon');
+        const alertText = document.getElementById('discountProfitAlertText');
+        const cartProfitEl = document.getElementById('summaryCartProfit');
+        const modalProfitEl = document.getElementById('summaryProfitModal');
+
+        const formattedCost = this.formatCurrency(preview.totalCost);
+        const formattedDue = this.formatCurrency(preview.netTotal);
+        const formattedProfit = (preview.profit < 0 ? '-' : '+') + this.formatCurrency(Math.abs(preview.profit));
+        const marginStr = (preview.marginPercent >= 0 ? '+' : '') + preview.marginPercent.toFixed(1) + '%';
+
+        if (costEl) costEl.textContent = formattedCost;
+        if (dueEl) dueEl.textContent = formattedDue;
+        if (profitEl) {
+            profitEl.textContent = formattedProfit;
+            profitEl.className = `font-mono fw-black small ${preview.isLoss ? 'text-danger' : (preview.isLowMargin ? 'text-warning' : 'text-success')}`;
+        }
+
+        if (marginBadge) {
+            marginBadge.textContent = `Margin: ${marginStr}`;
+            if (preview.isLoss) {
+                marginBadge.className = 'badge bg-danger text-white extra-small fw-bold px-2.5 py-1 rounded-pill animate-pulse';
+            } else if (preview.isLowMargin) {
+                marginBadge.className = 'badge bg-warning text-dark border border-warning extra-small fw-bold px-2.5 py-1 rounded-pill';
+            } else {
+                marginBadge.className = 'badge bg-success-subtle text-success border border-success-subtle extra-small fw-bold px-2.5 py-1 rounded-pill';
+            }
+        }
+
+        if (alertEl && alertIcon && alertText) {
+            if (!this.state.cart || this.state.cart.length === 0) {
+                alertEl.style.background = '#f1f5f9';
+                alertEl.style.color = '#475569';
+                alertEl.style.borderColor = '#cbd5e1';
+                alertIcon.className = 'bi bi-info-circle-fill fs-6 text-secondary';
+                alertText.innerHTML = 'Walang laman ang cart. Magdagdag ng items upang makita ang profit analysis.';
+            } else if (preview.isLoss) {
+                alertEl.style.background = '#fef2f2';
+                alertEl.style.color = '#991b1b';
+                alertEl.style.borderColor = '#fecaca';
+                alertIcon.className = 'bi bi-exclamation-triangle-fill fs-5 text-danger';
+                alertText.innerHTML = `<strong>🚨 BABALA: MALULUGI ANG STORE!</strong> Lugi ng <strong>${this.formatCurrency(Math.abs(preview.profit))}</strong> (${marginStr}). Mas mababa ang singil kaysa sa puhunan (Cost: ${formattedCost})!`;
+            } else if (preview.isLowMargin) {
+                alertEl.style.background = '#fffbeb';
+                alertEl.style.color = '#92400e';
+                alertEl.style.borderColor = '#fde68a';
+                alertIcon.className = 'bi bi-exclamation-circle-fill fs-6 text-warning';
+                alertText.innerHTML = `<strong>⚠️ MABABANG MARGIN:</strong> Kumikita lamang ng <strong>${formattedProfit}</strong> (${marginStr}). Maliit ang tubo ng tindahan sa discount na ito.`;
+            } else {
+                alertEl.style.background = '#dcfce7';
+                alertEl.style.color = '#166534';
+                alertEl.style.borderColor = '#bbf7d0';
+                alertIcon.className = 'bi bi-check-circle-fill fs-6 text-success';
+                alertText.innerHTML = `<strong>✅ HEALTHY PROFIT MARGIN:</strong> Kikita ang store ng <strong>${formattedProfit}</strong> (${marginStr}) matapos ang discount.`;
+            }
+        }
+
+        if (cartProfitEl) {
+            cartProfitEl.textContent = `${formattedProfit} (${marginStr})`;
+            cartProfitEl.className = `fw-black font-mono extra-small ${preview.isLoss ? 'text-danger' : (preview.isLowMargin ? 'text-warning' : 'text-success')}`;
+        }
+
+        if (modalProfitEl) {
+            modalProfitEl.textContent = `${formattedProfit} (${marginStr})`;
+            modalProfitEl.className = `font-mono fw-black small ${preview.isLoss ? 'text-danger' : (preview.isLowMargin ? 'text-warning' : 'text-success')}`;
+        }
     },
 
     calculateTotals() {
@@ -3548,6 +3913,8 @@ const POS = {
 
         }
 
+        this.updateDiscountProfitPreview();
+
     },
 
     renderCart() {
@@ -3574,12 +3941,19 @@ const POS = {
             const saleSubtotal = Number(this.state.subtotal || 0);
             const saleDiscount = Number(this.state.discount || 0);
             const overallDiscountRate = (saleSubtotal > 0 && saleDiscount > 0) ? (saleDiscount / saleSubtotal) : 0;
+            const isSaleRefunded = Boolean(this.state.lastPaidSale?.is_refunded);
+            const isSalePartial = Boolean(this.state.lastPaidSale?.is_partial);
 
             this.cartItemsList.innerHTML = this.state.cart.map(item => {
                 const unitStr = typeof item.unit === 'object' && item.unit !== null ? (item.unit.name || '') : (item.unit || '');
-                const qty = Number(item.qty || 1);
+                const origQty = Number(item.original_qty ?? item.qty ?? 1);
+                const returnedQty = Number(item.returned_qty ?? (isSaleRefunded ? origQty : 0));
+                const retainedQty = Number(item.retained_qty ?? (isSaleRefunded ? 0 : Math.max(0, origQty - returnedQty)));
+                const isItemRefunded = Boolean(item.is_item_refunded || isSaleRefunded || (origQty > 0 && returnedQty >= origQty));
+                const isItemPartial = Boolean(!isItemRefunded && (item.is_item_partial || returnedQty > 0));
+
                 const originalUnitPrice = Number(item.original_price || item.price || 0);
-                const grossLineTotal = qty * originalUnitPrice;
+                const grossLineTotal = origQty * originalUnitPrice;
 
                 let lineDiscount = Number(item.discount || item.discount_amount || 0);
                 if (lineDiscount === 0 && overallDiscountRate > 0) {
@@ -3587,8 +3961,63 @@ const POS = {
                 }
 
                 const effectiveSubtotal = lineDiscount > 0 ? Math.max(0, grossLineTotal - lineDiscount) : (Number(item.subtotal) || grossLineTotal);
-                const effectiveUnitPrice = qty > 0 ? (effectiveSubtotal / qty) : originalUnitPrice;
+                const effectiveUnitPrice = origQty > 0 ? (effectiveSubtotal / origQty) : originalUnitPrice;
                 const hasDiscount = lineDiscount > 0 || (effectiveUnitPrice < (originalUnitPrice - 0.001) && effectiveUnitPrice > 0);
+
+                const retainedSubtotal = isItemRefunded ? 0 : (effectiveUnitPrice * retainedQty);
+
+                if (isItemRefunded) {
+                    return `
+                        <div class="card border border-danger-subtle rounded-3 p-2.5 mb-2 shadow-xs" style="background: #fef2f2;">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <div class="fw-bold text-dark font-mono small text-decoration-line-through text-muted">${item.name}</div>
+                                <span class="badge bg-danger text-white font-mono extra-small fw-bold px-2 py-0.5 rounded-pill">
+                                    <i class="bi bi-arrow-counterclockwise me-1"></i>Refunded
+                                </span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between text-muted extra-small font-mono">
+                                <div>
+                                    <span class="text-danger fw-bold">${origQty} ${unitStr ? unitStr : 'unit(s)'} (Returned)</span> × ₱${originalUnitPrice.toFixed(2)}
+                                </div>
+                                <div class="text-end font-mono">
+                                    <div class="fw-black text-danger fs-6">₱0.00</div>
+                                    <small class="text-muted extra-small text-decoration-line-through">₱${grossLineTotal.toFixed(2)}</small>
+                                </div>
+                            </div>
+                            <div class="mt-1 pt-1 border-top border-danger-subtle d-flex align-items-center justify-content-between extra-small text-danger font-mono">
+                                <span><i class="bi bi-check2-all me-1"></i>100% Restocked</span>
+                                <span class="fw-bold">-₱${grossLineTotal.toFixed(2)} Payout</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (isItemPartial) {
+                    const itemRefundedPayout = effectiveUnitPrice * returnedQty;
+                    return `
+                        <div class="card border border-warning-subtle rounded-3 p-2.5 mb-2 shadow-xs" style="background: #fffbeb;">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <div class="fw-bold text-dark font-mono small">${item.name}</div>
+                                <span class="badge bg-warning text-dark font-mono extra-small fw-bold px-2 py-0.5 rounded-pill">
+                                    <i class="bi bi-arrow-return-left me-1"></i>${returnedQty} Returned
+                                </span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between text-muted extra-small font-mono">
+                                <div>
+                                    <span class="text-success fw-bold">${retainedQty} retained</span> <span class="text-muted">(${origQty} orig)</span> × ₱${effectiveUnitPrice.toFixed(2)}
+                                </div>
+                                <div class="text-end font-mono">
+                                    <div class="fw-black text-dark fs-6">₱${retainedSubtotal.toFixed(2)}</div>
+                                    <small class="text-muted extra-small text-decoration-line-through">₱${grossLineTotal.toFixed(2)}</small>
+                                </div>
+                            </div>
+                            <div class="mt-1 pt-1 border-top border-warning-subtle d-flex align-items-center justify-content-between extra-small text-warning-emphasis font-mono">
+                                <span><i class="bi bi-arrow-return-left me-1"></i>${returnedQty} returned & restocked</span>
+                                <span class="fw-bold text-danger">-₱${itemRefundedPayout.toFixed(2)} Refunded</span>
+                            </div>
+                        </div>
+                    `;
+                }
 
                 return `
                     <div class="card border rounded-3 p-2.5 mb-2 bg-light shadow-xs">
@@ -3598,7 +4027,7 @@ const POS = {
                         </div>
                         <div class="d-flex align-items-center justify-content-between text-muted extra-small font-mono">
                             <div>
-                                ${qty} ${unitStr ? unitStr : 'unit(s)'} × 
+                                ${origQty} ${unitStr ? unitStr : 'unit(s)'} × 
                                 ${hasDiscount ? `
                                     <span class="text-danger fw-bold font-mono">₱${effectiveUnitPrice.toFixed(2)}</span>
                                     <span class="text-decoration-line-through text-muted extra-small font-mono">₱${originalUnitPrice.toFixed(2)}</span>
@@ -3624,7 +4053,9 @@ const POS = {
                 .map(item => {
 
                     const isWholesaleItem = this.state.priceMode === 'wholesale' && item.wholesale_price > 0 && item.price === item.wholesale_price;
-                    const badgeHtml = isWholesaleItem ? '<span class="badge bg-primary-subtle text-primary border border-primary-subtle extra-small ms-1.5" style="font-size:0.65rem;">Wholesale</span>' : '';
+                    const badgeHtml = item.is_custom 
+                        ? '<span class="badge border extra-small ms-1.5" style="background:#f5f3ff;color:#7c3aed;border-color:#ddd6fe;font-size:0.65rem;">Fee / Service</span>' 
+                        : (isWholesaleItem ? '<span class="badge bg-primary-subtle text-primary border border-primary-subtle extra-small ms-1.5" style="font-size:0.65rem;">Wholesale</span>' : '');
                     const itemKey = item.cartKey || (item.id + '_' + (item.variant_id || 0));
 
                     // Promotions for this item
@@ -4000,20 +4431,41 @@ const POS = {
             return;
         }
 
-        this.summarySubtotal.textContent =
-            this.formatCurrency(
-                this.state.subtotal
-            );
+        const lastPaid = this.state.lastPaidSale;
+        const isSaleRefunded = Boolean(lastPaid?.is_refunded);
+        const isSalePartial = Boolean(lastPaid?.is_partial);
+        const refundRow = document.getElementById('cartRefundRow');
+        const refundPayoutEl = document.getElementById('summaryRefundPayout');
 
-        this.summaryDiscount.textContent =
-            this.formatCurrency(
-                this.state.discount
-            );
-
-        this.summaryTotal.textContent =
-            this.formatCurrency(
-                this.state.total
-            );
+        if (isSaleRefunded) {
+            this.summarySubtotal.innerHTML = `<span class="text-decoration-line-through text-muted extra-small me-1">${this.formatCurrency(this.state.subtotal)}</span> <span class="text-danger fw-black">₱0.00</span>`;
+            this.summaryDiscount.textContent = '-₱0.00';
+            this.summaryTotal.innerHTML = `<del class="extra-small text-secondary font-mono d-block" style="font-size:0.85rem;line-height:1.2;">${this.formatCurrency(this.state.total)}</del><span class="text-danger fw-extrabold" style="font-size:1.45rem;">₱0.00 <span class="badge bg-danger text-white extra-small" style="font-size:0.65rem;vertical-align:middle;">REFUNDED</span></span>`;
+            if (refundRow && refundPayoutEl) {
+                refundRow.classList.remove('d-none');
+                refundPayoutEl.textContent = '-' + this.formatCurrency(this.state.total);
+            }
+            const profitEl = document.getElementById('summaryCartProfit');
+            if (profitEl) {
+                profitEl.innerHTML = `<span class="text-muted text-decoration-line-through me-1">₱0.00</span> <span class="text-danger fw-bold">₱0.00 (Refunded)</span>`;
+            }
+        } else if (isSalePartial) {
+            const refundedAmount = Number(lastPaid.refunded_amount || 0);
+            const retainedTotal = Number(lastPaid.retained_total || Math.max(0, this.state.total - refundedAmount));
+            this.summarySubtotal.innerHTML = `<span class="text-decoration-line-through text-muted extra-small me-1">${this.formatCurrency(this.state.subtotal)}</span> <span class="text-dark fw-black">${this.formatCurrency(retainedTotal)}</span>`;
+            this.summaryTotal.innerHTML = `<del class="extra-small text-secondary font-mono d-block" style="font-size:0.85rem;line-height:1.2;">${this.formatCurrency(this.state.total)}</del><span class="text-white fw-extrabold" style="font-size:1.45rem;">${this.formatCurrency(retainedTotal)} <span class="badge bg-warning text-dark extra-small" style="font-size:0.65rem;vertical-align:middle;">RETAINED</span></span>`;
+            if (refundRow && refundPayoutEl) {
+                refundRow.classList.remove('d-none');
+                refundPayoutEl.textContent = '-' + this.formatCurrency(refundedAmount);
+            }
+        } else {
+            if (refundRow) {
+                refundRow.classList.add('d-none');
+            }
+            this.summarySubtotal.textContent = this.formatCurrency(this.state.subtotal);
+            this.summaryDiscount.textContent = this.formatCurrency(this.state.discount);
+            this.summaryTotal.textContent = this.formatCurrency(this.state.total);
+        }
 
         if (
             this.summarySubtotalModal
@@ -4062,6 +4514,8 @@ const POS = {
 
         }
 
+        this.updateDiscountProfitPreview();
+
         this.renderLiveReceiptPreview();
 
     },
@@ -4076,24 +4530,68 @@ const POS = {
         const vatAmountEl = document.getElementById('receiptVatAmount');
         const customerNameEl = document.getElementById('receiptCustomerName');
         const printBtn = document.getElementById('btnPrintLiveReceipt');
+        const receiptBadge = document.getElementById('receiptLiveBadge');
 
-        if (customerNameEl) {
-            customerNameEl.textContent = (this.state.customer && this.state.customer.name) ? this.state.customer.name : 'Walk-in Customer';
+        const lastPaid = this.state.lastPaidSale;
+        const isRefunded = Boolean(lastPaid?.is_refunded);
+        const isPartial = Boolean(lastPaid?.is_partial);
+        const refundedAmount = Number(lastPaid?.refunded_amount || 0);
+
+        if (receiptBadge) {
+            if (isRefunded) {
+                receiptBadge.className = 'badge bg-danger-subtle text-danger border border-danger-subtle extra-small fw-bold px-2 py-0.5';
+                receiptBadge.innerHTML = '<i class="bi bi-arrow-counterclockwise me-1"></i>REFUNDED';
+            } else if (isPartial) {
+                receiptBadge.className = 'badge bg-warning-subtle text-warning-emphasis border border-warning-subtle extra-small fw-bold px-2 py-0.5';
+                receiptBadge.innerHTML = '<i class="bi bi-arrow-return-left me-1"></i>PARTIAL RETURN';
+            } else if (this.state.isPaid || this._isSaleAlreadyPaid) {
+                receiptBadge.className = 'badge bg-success-subtle text-success border border-success-subtle extra-small fw-bold px-2 py-0.5';
+                receiptBadge.innerHTML = '<i class="bi bi-check-circle me-1"></i>PAID';
+            } else {
+                receiptBadge.className = 'badge bg-success-subtle text-success border border-success-subtle extra-small fw-bold px-2 py-0.5';
+                receiptBadge.innerHTML = '<span class="spinner-grow spinner-grow-sm me-1" style="width: 6px; height: 6px;" role="status"></span>Live';
+            }
         }
 
-        const total = this.state.total || 0;
-        const subtotal = this.state.subtotal || total;
-        const discount = this.state.discount || 0;
-        const vatableSales = (total / 1.12).toFixed(2);
-        const vatAmount = (total - Number(vatableSales)).toFixed(2);
+        if (customerNameEl) {
+            customerNameEl.textContent = (this.state.customer && this.state.customer.name) ? this.state.customer.name : (this.state.customer_name || 'Walk-in Customer');
+        }
 
-        if (subtotalEl) subtotalEl.textContent = this.formatCurrency(subtotal);
-        if (totalEl) totalEl.textContent = this.formatCurrency(total);
+        const origTotal = Number(this.state.total || 0);
+        const origSubtotal = Number(this.state.subtotal || origTotal);
+        const discount = Number(this.state.discount || 0);
+
+        const retainedTotal = isRefunded ? 0 : (isPartial ? Number(lastPaid?.retained_total || Math.max(0, origTotal - refundedAmount)) : origTotal);
+        const displaySubtotal = isRefunded ? 0 : (isPartial ? retainedTotal : origSubtotal);
+
+        const vatableSales = (retainedTotal / 1.12).toFixed(2);
+        const vatAmount = (retainedTotal - Number(vatableSales)).toFixed(2);
+
+        if (subtotalEl) {
+            if (isRefunded) {
+                subtotalEl.innerHTML = `<del class="text-muted extra-small me-1">${this.formatCurrency(origSubtotal)}</del><span class="text-danger fw-bold">₱0.00</span>`;
+            } else if (isPartial) {
+                subtotalEl.innerHTML = `<del class="text-muted extra-small me-1">${this.formatCurrency(origSubtotal)}</del><span>${this.formatCurrency(displaySubtotal)}</span>`;
+            } else {
+                subtotalEl.textContent = this.formatCurrency(origSubtotal);
+            }
+        }
+
+        if (totalEl) {
+            if (isRefunded) {
+                totalEl.innerHTML = `<del class="text-muted extra-small me-1 font-normal">${this.formatCurrency(origTotal)}</del><span class="text-danger fw-bold">₱0.00 (REFUNDED)</span>`;
+            } else if (isPartial) {
+                totalEl.innerHTML = `<del class="text-muted extra-small me-1 font-normal">${this.formatCurrency(origTotal)}</del><span class="text-dark fw-bold">${this.formatCurrency(retainedTotal)} (RETAINED)</span>`;
+            } else {
+                totalEl.textContent = this.formatCurrency(origTotal);
+            }
+        }
+
         if (vatableEl) vatableEl.textContent = this.formatCurrency(Number(vatableSales));
         if (vatAmountEl) vatAmountEl.textContent = this.formatCurrency(Number(vatAmount));
 
         if (discountRow && discountEl) {
-            if (discount > 0) {
+            if (discount > 0 && !isRefunded) {
                 discountRow.classList.remove('d-none');
                 discountEl.textContent = '-' + this.formatCurrency(discount);
             } else {
@@ -4105,28 +4603,98 @@ const POS = {
             if (!this.state.cart || this.state.cart.length === 0) {
                 container.innerHTML = `
                     <tr>
-                        <td colspan="3" class="text-center py-4 text-muted" style="font-size: 10.5px;">
+                        <td colspan="2" class="text-center py-4 text-muted" style="font-size: 10.5px;">
                             (Receipt is empty)<br>
                             <small>Scan or add items</small>
                         </td>
                     </tr>
                 `;
             } else {
-                container.innerHTML = this.state.cart.map(item => `
+                let bannerHtml = '';
+                if (isRefunded) {
+                    bannerHtml = `
+                        <tr>
+                            <td colspan="2" class="text-center py-1" style="background:#fee2e2;border:1px dashed #ef4444;color:#b91c1c;font-weight:bold;font-size:11px;letter-spacing:0.5px;">
+                                *** FULLY REFUNDED SALE ***
+                            </td>
+                        </tr>
+                    `;
+                } else if (isPartial) {
+                    bannerHtml = `
+                        <tr>
+                            <td colspan="2" class="text-center py-1" style="background:#fef3c7;border:1px dashed #f59e0b;color:#92400e;font-weight:bold;font-size:11px;letter-spacing:0.5px;">
+                                *** PARTIAL RETURN SALE ***
+                            </td>
+                        </tr>
+                    `;
+                }
+
+                const itemsRows = this.state.cart.map(item => {
+                    const origQty = Number(item.original_qty ?? item.qty ?? 1);
+                    const returnedQty = Number(item.returned_qty ?? (isRefunded ? origQty : 0));
+                    const retainedQty = Number(item.retained_qty ?? (isRefunded ? 0 : Math.max(0, origQty - returnedQty)));
+                    const isItemRefunded = Boolean(item.is_item_refunded || isRefunded || (origQty > 0 && returnedQty >= origQty));
+                    const isItemPartial = Boolean(!isItemRefunded && (item.is_item_partial || returnedQty > 0));
+
+                    const qtyStr = (Math.floor(origQty) === origQty) ? origQty.toFixed(0) : origQty.toString();
+                    const unitPrice = Number(item.price || item.unit_price || 0);
+                    const lineTotal = Number(item.subtotal || item.line_total || (origQty * unitPrice));
+                    const retainedSubtotal = isItemRefunded ? 0 : (unitPrice * retainedQty);
+                    const name = item.name || item.product_name || 'Item';
+                    const unit = item.unit ? ` ${item.unit}` : '';
+
+                    if (isItemRefunded) {
+                        return `
+                        <tr>
+                            <td class="text-start fw-bold pt-1 text-decoration-line-through text-muted" style="font-size: 11px;">
+                                ${name} <span style="color:#dc2626;font-size:9.5px;text-decoration:none;display:inline-block;font-weight:bold;">[REFUNDED]</span>
+                            </td>
+                            <td class="text-end fw-bold pt-1 text-danger" style="font-size: 11px; white-space: nowrap;">₱0.00</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="text-start pb-1 text-muted" style="font-size: 10px;">
+                                &nbsp;&nbsp;${qtyStr}${unit} (Returned & Restocked)
+                            </td>
+                        </tr>
+                        `;
+                    }
+
+                    if (isItemPartial) {
+                        return `
+                        <tr>
+                            <td class="text-start fw-bold pt-1" style="font-size: 11px;">
+                                ${name} <span style="color:#d97706;font-size:9.5px;font-weight:bold;">[${returnedQty} Ret.]</span>
+                            </td>
+                            <td class="text-end fw-bold pt-1" style="font-size: 11px; white-space: nowrap;">₱${retainedSubtotal.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="text-start pb-1" style="font-size: 10px; color: #444;">
+                                &nbsp;&nbsp;${retainedQty} retained (${qtyStr} orig) @ ₱${unitPrice.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </td>
+                        </tr>
+                        `;
+                    }
+
+                    return `
                     <tr>
-                        <td class="text-start py-0.5" style="vertical-align: top;">
-                            <div>${Number(item.qty || 1).toFixed(0)} x ${item.name} <span style="font-size:9px;">(V)</span></div>
-                        </td>
-                        <td class="text-end py-0.5" style="vertical-align: top; white-space: nowrap;">₱${Number(item.price || 0).toFixed(2)}</td>
-                        <td class="text-end py-0.5 fw-bold" style="vertical-align: top; white-space: nowrap;">₱${Number(item.subtotal || 0).toFixed(2)}</td>
+                        <td class="text-start fw-bold pt-1" style="font-size: 11px;">${name}</td>
+                        <td class="text-end fw-bold pt-1" style="font-size: 11px; white-space: nowrap;">₱${lineTotal.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     </tr>
-                `).join('');
+                    <tr>
+                        <td colspan="2" class="text-start pb-1" style="font-size: 10px; color: #444;">
+                            &nbsp;&nbsp;${qtyStr}${unit} @ ₱${unitPrice.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </td>
+                    </tr>
+                    `;
+                }).join('');
+
+                container.innerHTML = bannerHtml + itemsRows;
             }
         }
 
 
         if (printBtn) {
-            printBtn.classList.toggle('d-none', !this.state.isPaid);
+            printBtn.classList.toggle('d-none', !this.state.isPaid && !this._isSaleAlreadyPaid);
         }
 
         if (printBtn && !printBtn.dataset.bound) {

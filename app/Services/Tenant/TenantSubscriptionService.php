@@ -135,55 +135,66 @@ class TenantSubscriptionService
     }
 
     /**
-     * Check if a tenant can register a new POS Device based on subscription limits.
+     * Check if a tenant can register a new POS Terminal based on subscription limits.
      *
      * @param int $tenantId
-     * @return array ['allowed' => bool, 'message' => string, 'current' => int, 'limit' => int]
+     * @return array ['allowed' => bool, 'message' => string, 'current' => int, 'limit' => int, 'plan_name' => string]
      */
     public function canCreateDevice(?int $tenantId): array
+    {
+        return $this->canCreateTerminal($tenantId);
+    }
+
+    /**
+     * Check if a tenant can register a new POS Terminal based on subscription limits.
+     */
+    public function canCreateTerminal(?int $tenantId): array
     {
         if (!$tenantId) {
             return [
                 'allowed' => true,
-                'message' => 'Device registration permitted.',
+                'message' => 'POS Terminal registration permitted.',
                 'current' => 0,
                 'limit' => 1,
-                'plan_name' => 'Tindahan Starter',
+                'plan_name' => 'Free Trial Tier (14 Days)',
             ];
         }
 
         $subscription = $this->getTenantSubscription($tenantId);
-        $planName = $subscription?->name ?? 'Tindahan Starter';
+        $planName = $subscription?->name ?? 'Free Trial Tier (14 Days)';
         $planTier = strtolower($planName);
 
-        if (str_contains($planTier, 'starter') || str_contains($planTier, 'level i')) {
-            $maxDevices = 1;
-        } elseif (str_contains($planTier, 'growth') || str_contains($planTier, 'level ii')) {
-            $maxDevices = 3;
+        if ($subscription && !empty($subscription->max_terminals)) {
+            $maxTerminals = (int) $subscription->max_terminals;
+        } elseif (str_contains($planTier, 'free') || str_contains($planTier, 'starter') || str_contains($planTier, 'basic') || str_contains($planTier, 'level i')) {
+            $maxTerminals = 1;
+        } elseif (str_contains($planTier, 'growth') || str_contains($planTier, 'level ii') || str_contains($planTier, 'suki')) {
+            $maxTerminals = 3;
         } else {
-            $maxDevices = 20;
+            $maxTerminals = 10;
         }
 
-        $currentDevices = \App\Models\POS\POSTerminal::where('tenant_id', $tenantId)
+        $currentTerminals = \App\Models\POS\POSTerminal::where('tenant_id', $tenantId)
             ->where('archived', 0)
             ->count();
 
-        if ($currentDevices >= $maxDevices) {
+        if ($currentTerminals >= $maxTerminals) {
             return [
                 'allowed' => false,
-                'message' => "Nakarating na kayo sa maximum limit na {$maxDevices} POS Device(s) para sa inyong {$planName} Plan. Mag-upgrade sa mas mataas na plan para makapag-add ng karagdagang POS Device.",
-                'current' => $currentDevices,
-                'limit' => $maxDevices,
+                'message' => "Nakarating na kayo sa maximum limit na {$maxTerminals} POS Terminal(s) para sa inyong {$planName} Plan. Mag-upgrade sa mas mataas na plan para makapag-add ng karagdagang Terminal sa inyong tindahan.",
+                'current' => $currentTerminals,
+                'limit' => $maxTerminals,
                 'plan_name' => $planName,
             ];
         }
 
         return [
             'allowed' => true,
-            'message' => 'Device registration permitted.',
-            'current' => $currentDevices,
-            'limit' => $maxDevices,
+            'message' => 'POS Terminal registration permitted.',
+            'current' => $currentTerminals,
+            'limit' => $maxTerminals,
             'plan_name' => $planName,
         ];
     }
 }
+

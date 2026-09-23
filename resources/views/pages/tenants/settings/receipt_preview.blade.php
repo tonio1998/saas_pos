@@ -82,8 +82,11 @@
 </head>
 <body>
     <div class="receipt-header">
-        @if($tenant->logo && \Illuminate\Support\Facades\Storage::disk('public')->exists($tenant->logo))
-            <img src="{{ \Illuminate\Support\Facades\Storage::url($tenant->logo) }}" alt="Logo" class="store-logo"><br>
+        @php
+            $previewLogo = !empty($tenant->logo_square) ? $tenant->logo_square : (!empty($tenant->logo) ? $tenant->logo : null);
+        @endphp
+        @if($previewLogo && \Illuminate\Support\Facades\Storage::disk('public')->exists($previewLogo))
+            <img src="{{ \Illuminate\Support\Facades\Storage::url($previewLogo) }}" alt="Logo" class="store-logo"><br>
         @endif
         <div class="store-title">{{ $tenant->business_name ?? 'LIKHAPOS RETAIL' }}</div>
         <div>{{ $tenant->address ?? 'Main Branch, Surigao City' }}</div>

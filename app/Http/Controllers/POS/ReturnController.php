@@ -7,6 +7,9 @@ use App\Models\POS\POSSale;
 use App\Models\POS\POSSaleItem;
 use App\Models\POS\POSProducts;
 use App\Models\POS\InventoryMovement;
+use App\Models\POS\POSCashShift;
+use App\Models\POS\POSCashMovement;
+use App\Models\POS\POSPayment;
 use App\Traits\TCommonFunctions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -95,6 +98,7 @@ class ReturnController extends Controller
             $qty      = (float) $validated['qty'];
             $price    = (float) ($variant?->selling_price ?? $product->selling_price ?? 0);
             $refundTotal = -1 * ($qty * $price);
+            $refundPositive = $qty * $price;
 
             // ── Find original sale (if invoice provided) ──────────────────
             $originalSale = null;
@@ -106,20 +110,41 @@ class ReturnController extends Controller
                     })->first();
             }
 
+            // ── Find active cash shift / drawer ───────────────────────────
+            $activeShift = POSCashShift::where('tenant_id', $tenantId)
+                ->where('status', 'open')
+                ->where('cashier_id', auth()->id())
+                ->latest('id')
+                ->first();
+
+            if (!$activeShift) {
+                $activeShift = POSCashShift::where('tenant_id', $tenantId)
+                    ->where('status', 'open')
+                    ->latest('id')
+                    ->first();
+            }
+
+            $shiftId  = $activeShift?->id ?? $originalSale?->cash_shift_id;
+            $drawerId = $activeShift?->drawer_id ?? $originalSale?->drawer_id;
+            $invRef   = $originalSale?->invoice_no ?: ($originalSale?->sale_code ?: ($validated['invoice_no'] ?? null));
+
             // ── 1. Create negative refund sale (deducts from revenue) ─────
             $refundSale = new POSSale();
-            $refundSale->tenant_id      = $tenantId;
-            $refundSale->customer_id    = $originalSale?->customer_id;
-            $refundSale->cashier_id     = auth()->id();
-            $refundSale->invoice_no     = 'RTN-' . date('ymd') . '-' . strtoupper(substr(uniqid(), -4));
-            $refundSale->subtotal       = $refundTotal;
-            $refundSale->total_amount   = $refundTotal;  // NEGATIVE → auto-deducts from SUM
+            $refundSale->tenant_id       = $tenantId;
+            $refundSale->customer_id     = $originalSale?->customer_id;
+            $refundSale->cashier_id      = auth()->id();
+            $refundSale->cash_shift_id   = $shiftId;
+            $refundSale->drawer_id       = $drawerId;
+            $refundSale->reference_number= $invRef;
+            $refundSale->invoice_no      = 'RTN-' . date('ymd') . '-' . strtoupper(substr(uniqid(), -4));
+            $refundSale->subtotal        = $refundTotal;
+            $refundSale->total_amount    = $refundTotal;  // NEGATIVE → auto-deducts from SUM
             $refundSale->tendered_amount = 0;
-            $refundSale->change_amount  = 0;
-            $refundSale->sale_status    = 'refund';      // new status for refund records
-            $refundSale->sale_date      = now();
-            $refundSale->notes          = 'REFUND: ' . ($validated['reason'] ?? 'Customer Return')
-                . ($originalSale ? ' [Ref: ' . ($originalSale->invoice_no ?? $originalSale->sale_code) . ']' : '');
+            $refundSale->change_amount   = 0;
+            $refundSale->sale_status     = 'refund';      // refund transaction record
+            $refundSale->sale_date       = now();
+            $refundSale->notes           = 'REFUND: ' . ($validated['reason'] ?? 'Customer Return')
+                . ($invRef ? ' [Ref: ' . $invRef . ']' : '');
             $this->setCommonFields($refundSale);
             $refundSale->save();
 
@@ -150,54 +175,194 @@ class ReturnController extends Controller
             $inv = new InventoryMovement();
             $inv->tenant_id      = $tenantId;
             $inv->product_id     = $product->id;
+            $inv->variant_id     = $variantId;
             $inv->movement_type  = 'return';
             $inv->reference_type = 'sale_return';
             $inv->reference_id   = $refundSale->id;
             $inv->qty            = $qty;
-            $inv->remarks        = $variant
-                ? '[Variant: ' . $variant->variant_name . '] ' . $baseRemarks
-                : $baseRemarks;
+            $inv->remarks        = ($variant ? '[Variant: ' . $variant->variant_name . '] ' : '')
+                . $baseRemarks . ($invRef ? ' [Ref: ' . $invRef . ']' : '');
             $this->setCommonFields($inv);
             $inv->save();
+
+            // ── 5. Cash Drawer Deduction (POSCashMovement & POSPayment) ───
+            if ($refundPositive > 0 && ($shiftId || $drawerId)) {
+                $cm = new POSCashMovement();
+                $cm->tenant_id     = $tenantId;
+                $cm->movement_code = 'CM-' . date('ymd') . '-' . strtoupper(substr(uniqid(), -4));
+                $cm->cash_shift_id = $shiftId;
+                $cm->drawer_id     = $drawerId;
+                $cm->cashier_id    = auth()->id();
+                $cm->type          = 'OUT';
+                $cm->category      = 'refund';
+                $cm->amount        = $refundPositive;
+                $cm->reference_no  = $invRef ?: $refundSale->invoice_no;
+                $cm->remarks       = 'Sales Return / Refund Payout [Ref: ' . ($invRef ?: $refundSale->invoice_no) . ']';
+                $cm->movement_date = now();
+                $cm->status        = 'active';
+                $this->setCommonFields($cm);
+                $cm->save();
+
+                $payment = new POSPayment();
+                $payment->tenant_id        = $tenantId;
+                $payment->customer_id      = $originalSale?->customer_id;
+                $payment->sale_id          = $refundSale->id;
+                $payment->shift_id         = $shiftId;
+                $payment->drawer_id        = $drawerId;
+                $payment->payment_method   = $originalSale?->payment_method ?: 'cash';
+                $payment->amount           = $refundTotal;
+                $payment->reference_number = $invRef ?: $refundSale->invoice_no;
+                $payment->payment_date     = now();
+                $payment->notes            = 'Refund payout from register drawer';
+                $payment->status           = 'active';
+                $this->setCommonFields($payment);
+                $payment->save();
+            }
+
+            // ── 6. Update Original Sale Status if Applicable ──────────────
+            if ($originalSale) {
+                $this->syncOriginalSaleStatus($originalSale);
+            }
         });
 
         if ($request->wantsJson() || $request->ajax()) {
-            return response()->json(['success' => true, 'message' => 'Return processed. Revenue and inventory adjusted.']);
+            return response()->json(['success' => true, 'message' => 'Return processed. Cash deducted from drawer & inventory restocked.']);
         }
-        return redirect()->route('returns.index')->with('success', 'Return processed. Revenue and inventory adjusted.');
+        return redirect()->route('returns.index')->with('success', 'Return processed. Cash deducted from drawer & inventory restocked.');
     }
 
     public function searchInvoice(Request $request)
     {
         $invoiceNo = trim($request->get('invoice_no'));
         if (!$invoiceNo) {
-            return response()->json(['success' => false, 'message' => 'Please provide an invoice number.']);
+            return response()->json(['success' => false, 'message' => 'Please enter a Sales Invoice or Receipt Number.']);
         }
 
-        $sale = POSSale::where('tenant_id', auth()->user()->tenant_id)
+        $tenantId = auth()->user()->tenant_id;
+
+        // Find exact or partial match
+        $sale = POSSale::where('tenant_id', $tenantId)
             ->where(function($q) use ($invoiceNo) {
                 $q->where('invoice_no', $invoiceNo)
-                  ->orWhere('sale_code', $invoiceNo)
-                  ->orWhere('invoice_no', 'LIKE', '%' . $invoiceNo . '%')
-                  ->orWhere('sale_code', 'LIKE', '%' . $invoiceNo . '%');
+                  ->orWhere('sale_code', $invoiceNo);
             })
             ->with(['customer', 'items.product', 'items.variant', 'cashier'])
             ->first();
 
         if (!$sale) {
-            return response()->json(['success' => false, 'message' => 'Invoice or Sale reference "' . $invoiceNo . '" not found.']);
+            $sale = POSSale::where('tenant_id', $tenantId)
+                ->where(function($q) use ($invoiceNo) {
+                    $q->where('invoice_no', 'LIKE', '%' . $invoiceNo . '%')
+                      ->orWhere('sale_code', 'LIKE', '%' . $invoiceNo . '%');
+                })
+                ->with(['customer', 'items.product', 'items.variant', 'cashier'])
+                ->first();
         }
 
-        // product_name already stores "Princess Bea (1kl Pack)" — use it directly
-        $sale->items->each(function ($item) {
-            $item->item_name    = $item->product_name ?: ($item->product?->name ?? 'Product');
-            // Extract variant part from product_name e.g. "Princess Bea (1kl Pack)" → "1kl Pack"
-            if (preg_match('/\((.+)\)$/', $item->item_name, $m)) {
-                $item->variant_name = trim($m[1]);
-            } else {
-                $item->variant_name = $item->variant?->variant_name ?? null;
+        if (!$sale) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invoice or Sale reference "' . $invoiceNo . '" was not found.'
+            ]);
+        }
+
+        $status = strtolower($sale->sale_status ?? 'completed');
+
+        // Check if status is invalid for return
+        if ($status === 'refunded') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invoice [' . ($sale->invoice_no ?: $sale->sale_code) . '] has ALREADY been fully refunded.'
+            ]);
+        }
+
+        if ($status === 'refund') {
+            return response()->json([
+                'success' => false,
+                'message' => 'This record is a refund transaction, not an original sale invoice.'
+            ]);
+        }
+
+        if ($status === 'voided') {
+            return response()->json([
+                'success' => false,
+                'message' => 'This invoice has been voided and cannot be returned.'
+            ]);
+        }
+
+        if (!in_array($status, ['completed', 'partial_refund'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only completed sales can be processed for return (Current Status: ' . ucfirst($status) . ').'
+            ]);
+        }
+
+        // ── Calculate previous refunds for this sale ───────────────────────
+        $ref1 = $sale->invoice_no;
+        $ref2 = $sale->sale_code;
+
+        $refundSales = POSSale::where('tenant_id', $tenantId)
+            ->where('sale_status', 'refund')
+            ->where(function($q) use ($ref1, $ref2) {
+                if ($ref1) {
+                    $q->where('reference_number', $ref1)
+                      ->orWhere('notes', 'LIKE', '%[Ref: ' . $ref1 . ']%');
+                }
+                if ($ref2) {
+                    $q->orWhere('reference_number', $ref2)
+                      ->orWhere('notes', 'LIKE', '%[Ref: ' . $ref2 . ']%');
+                }
+            })
+            ->pluck('id');
+
+        $returnedMap = [];
+        if ($refundSales->isNotEmpty()) {
+            $returnedItems = POSSaleItem::whereIn('sale_id', $refundSales)
+                ->select('product_id', 'variant_id', DB::raw('SUM(ABS(qty)) as total_returned'))
+                ->groupBy('product_id', 'variant_id')
+                ->get();
+
+            foreach ($returnedItems as $ri) {
+                $key = ($ri->product_id ?? 0) . '_' . ($ri->variant_id ?? 0);
+                $returnedMap[$key] = (float) $ri->total_returned;
             }
-        });
+        }
+
+        // ── Filter only items that still have returnable quantity ──────────
+        $availableItems = [];
+        foreach ($sale->items as $item) {
+            $key = ($item->product_id ?? 0) . '_' . ($item->variant_id ?? 0);
+            $alreadyReturned = $returnedMap[$key] ?? 0;
+            $purchasedQty    = (float) $item->qty;
+            $remainingQty    = max(0, $purchasedQty - $alreadyReturned);
+
+            if ($remainingQty > 0.0001) {
+                $item->purchased_qty        = $purchasedQty;
+                $item->already_returned_qty = $alreadyReturned;
+                $item->remaining_qty        = $remainingQty;
+                $item->qty                  = $remainingQty; // default returnable qty
+
+                $item->item_name = $item->product_name ?: ($item->product?->name ?? 'Product');
+                if (preg_match('/\((.+)\)$/', $item->item_name, $m)) {
+                    $item->variant_name = trim($m[1]);
+                } else {
+                    $item->variant_name = $item->variant?->variant_name ?? null;
+                }
+                $availableItems[] = $item;
+            }
+        }
+
+        if (empty($availableItems)) {
+            // Update sale status to refunded if everything was already returned
+            $sale->update(['sale_status' => 'refunded']);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'All items from Invoice [' . ($sale->invoice_no ?: $sale->sale_code) . '] have already been fully returned/refunded.'
+            ]);
+        }
+
+        $sale->setRelation('items', collect($availableItems));
 
         return response()->json(['success' => true, 'sale' => $sale]);
     }
@@ -205,16 +370,16 @@ class ReturnController extends Controller
     public function storeBatch(Request $request)
     {
         $request->validate([
-            'invoice_no'       => 'required|string',
-            'items'            => 'required|array|min:1',
+            'invoice_no'         => 'required|string',
+            'items'              => 'required|array|min:1',
             'items.*.product_id' => 'required',
-            'items.*.qty'      => 'required|numeric|min:0.01',
-            'reason'           => 'nullable|string|max:500',
+            'items.*.qty'        => 'required|numeric|min:0.01',
+            'reason'             => 'nullable|string|max:500',
         ]);
 
         DB::transaction(function () use ($request) {
             $tenantId  = auth()->user()->tenant_id;
-            $invoiceNo = $request->input('invoice_no');
+            $invoiceNo = trim($request->input('invoice_no'));
             $reason    = $request->input('reason') ?: 'Partial/Full Return';
 
             $originalSale = POSSale::where('tenant_id', $tenantId)
@@ -223,11 +388,32 @@ class ReturnController extends Controller
                       ->orWhere('sale_code', $invoiceNo);
                 })->first();
 
+            // ── Find active cash shift / drawer ───────────────────────────
+            $activeShift = POSCashShift::where('tenant_id', $tenantId)
+                ->where('status', 'open')
+                ->where('cashier_id', auth()->id())
+                ->latest('id')
+                ->first();
+
+            if (!$activeShift) {
+                $activeShift = POSCashShift::where('tenant_id', $tenantId)
+                    ->where('status', 'open')
+                    ->latest('id')
+                    ->first();
+            }
+
+            $shiftId  = $activeShift?->id ?? $originalSale?->cash_shift_id;
+            $drawerId = $activeShift?->drawer_id ?? $originalSale?->drawer_id;
+            $invRef   = $originalSale?->invoice_no ?: ($originalSale?->sale_code ?: $invoiceNo);
+
             // ── 1. Create one refund sale for the whole batch ─────────────
             $refundSale = new POSSale();
             $refundSale->tenant_id       = $tenantId;
             $refundSale->customer_id     = $originalSale?->customer_id;
             $refundSale->cashier_id      = auth()->id();
+            $refundSale->cash_shift_id   = $shiftId;
+            $refundSale->drawer_id       = $drawerId;
+            $refundSale->reference_number= $invRef;
             $refundSale->invoice_no      = 'RTN-' . date('ymd') . '-' . strtoupper(substr(uniqid(), -4));
             $refundSale->sale_status     = 'refund';
             $refundSale->sale_date       = now();
@@ -236,7 +422,7 @@ class ReturnController extends Controller
             $refundSale->tendered_amount = 0;
             $refundSale->change_amount   = 0;
             $refundSale->notes           = 'REFUND: ' . $reason
-                . ' [Ref: ' . ($originalSale?->invoice_no ?? $originalSale?->sale_code ?? $invoiceNo) . ']';
+                . ' [Ref: ' . $invRef . ']';
             $this->setCommonFields($refundSale);
             $refundSale->save();
 
@@ -272,7 +458,7 @@ class ReturnController extends Controller
                 $this->setCommonFields($refundItem);
                 $refundItem->save();
 
-                // ── 3. Restock ────────────────────────────────────────────
+                // ── 3. Restock inventory ──────────────────────────────────
                 if ($variant) {
                     $variant->increment('stock_on_hand', $qty);
                     $product->increment('stock_on_hand', $qty * ($variant->qty_per_pack ?? 1));
@@ -284,12 +470,13 @@ class ReturnController extends Controller
                 $inv = new InventoryMovement();
                 $inv->tenant_id      = $tenantId;
                 $inv->product_id     = $product->id;
+                $inv->variant_id     = $variantId;
                 $inv->movement_type  = 'return';
                 $inv->reference_type = 'sale_return';
                 $inv->reference_id   = $refundSale->id;
                 $inv->qty            = $qty;
                 $inv->remarks        = ($variant ? '[Variant: ' . $variant->variant_name . '] ' : '')
-                    . $reason . ' [Ref Invoice: ' . $invoiceNo . ']';
+                    . $reason . ' [Ref: ' . $invRef . ']';
                 $this->setCommonFields($inv);
                 $inv->save();
             }
@@ -298,9 +485,86 @@ class ReturnController extends Controller
             $refundSale->subtotal     = $batchTotal;
             $refundSale->total_amount = $batchTotal;  // negative → auto-deducts from SUM
             $refundSale->save();
+
+            // ── 6. Cash Drawer Deduction (POSCashMovement & POSPayment) ───
+            $refundPositive = abs($batchTotal);
+            if ($refundPositive > 0 && ($shiftId || $drawerId)) {
+                $cm = new POSCashMovement();
+                $cm->tenant_id     = $tenantId;
+                $cm->movement_code = 'CM-' . date('ymd') . '-' . strtoupper(substr(uniqid(), -4));
+                $cm->cash_shift_id = $shiftId;
+                $cm->drawer_id     = $drawerId;
+                $cm->cashier_id    = auth()->id();
+                $cm->type          = 'OUT';
+                $cm->category      = 'refund';
+                $cm->amount        = $refundPositive;
+                $cm->reference_no  = $invRef ?: $refundSale->invoice_no;
+                $cm->remarks       = 'Sales Return / Refund Payout [Ref: ' . ($invRef ?: $refundSale->invoice_no) . ']';
+                $cm->movement_date = now();
+                $cm->status        = 'active';
+                $this->setCommonFields($cm);
+                $cm->save();
+
+                $payment = new POSPayment();
+                $payment->tenant_id        = $tenantId;
+                $payment->customer_id      = $originalSale?->customer_id;
+                $payment->sale_id          = $refundSale->id;
+                $payment->shift_id         = $shiftId;
+                $payment->drawer_id        = $drawerId;
+                $payment->payment_method   = $originalSale?->payment_method ?: 'cash';
+                $payment->amount           = $batchTotal;
+                $payment->reference_number = $invRef ?: $refundSale->invoice_no;
+                $payment->payment_date     = now();
+                $payment->notes            = 'Refund payout from register drawer';
+                $payment->status           = 'active';
+                $this->setCommonFields($payment);
+                $payment->save();
+            }
+
+            // ── 7. Update Original Sale Status ────────────────────────────
+            if ($originalSale) {
+                $this->syncOriginalSaleStatus($originalSale);
+            }
         });
 
-        return response()->json(['success' => true, 'message' => 'Return processed. Revenue and inventory auto-adjusted.']);
+        return response()->json(['success' => true, 'message' => 'Return processed successfully. Cash deducted from drawer & inventory restocked.']);
+    }
+
+    /**
+     * Helper to synchronize the original sale status (refunded or partial_refund)
+     */
+    private function syncOriginalSaleStatus(POSSale $originalSale): void
+    {
+        $tenantId = $originalSale->tenant_id;
+        $ref1 = $originalSale->invoice_no;
+        $ref2 = $originalSale->sale_code;
+
+        $refundSales = POSSale::where('tenant_id', $tenantId)
+            ->where('sale_status', 'refund')
+            ->where(function($q) use ($ref1, $ref2) {
+                if ($ref1) {
+                    $q->where('reference_number', $ref1)
+                      ->orWhere('notes', 'LIKE', '%[Ref: ' . $ref1 . ']%');
+                }
+                if ($ref2) {
+                    $q->orWhere('reference_number', $ref2)
+                      ->orWhere('notes', 'LIKE', '%[Ref: ' . $ref2 . ']%');
+                }
+            })
+            ->pluck('id');
+
+        $totalOriginalQty = (float) $originalSale->items()->sum('qty');
+        $totalReturnedQty = 0;
+
+        if ($refundSales->isNotEmpty()) {
+            $totalReturnedQty = (float) POSSaleItem::whereIn('sale_id', $refundSales)->sum(DB::raw('ABS(qty)'));
+        }
+
+        if ($totalOriginalQty > 0 && $totalReturnedQty >= ($totalOriginalQty - 0.001)) {
+            $originalSale->update(['sale_status' => 'refunded']);
+        } elseif ($totalReturnedQty > 0.001) {
+            $originalSale->update(['sale_status' => 'partial_refund']);
+        }
     }
 
     public function ajaxData()

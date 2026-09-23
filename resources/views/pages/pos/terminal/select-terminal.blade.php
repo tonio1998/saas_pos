@@ -12,11 +12,52 @@
         $deviceCheck = (new \App\Services\Tenant\TenantSubscriptionService())->canCreateDevice($tenantId);
     @endphp
 
-    <form action="{{ route('terminal.select') }}" method="POST">
-        @csrf
+    <div class="row justify-content-center">
+        <div class="col-xl-9">
 
-        <div class="row justify-content-center">
-            <div class="col-xl-9">
+            @if(session('error'))
+                <div class="alert alert-danger border-0 shadow-sm rounded-4 mb-4 p-3 d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-danger-subtle text-danger p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width:40px;height:40px;">
+                        <i class="bi bi-exclamation-octagon-fill fs-5"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-danger">Aksyon Hindi Pinayagan</div>
+                        <div class="small text-dark">{{ session('error') }}</div>
+                    </div>
+                </div>
+            @endif
+
+            @if(session('success'))
+                <div class="alert alert-success border-0 shadow-sm rounded-4 mb-4 p-3 d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-success-subtle text-success p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width:40px;height:40px;">
+                        <i class="bi bi-check-circle-fill fs-5"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-success">Tagumpay</div>
+                        <div class="small text-dark">{{ session('success') }}</div>
+                    </div>
+                </div>
+            @endif
+
+            @if(isset($userActiveShift) && $userActiveShift)
+                <div class="alert alert-primary border-0 shadow-sm rounded-4 mb-4 p-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2.5">
+                        <div class="rounded-circle bg-white text-primary p-2 d-flex align-items-center justify-content-center shadow-xs" style="width:38px;height:38px;">
+                            <i class="bi bi-person-badge-fill fs-5"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0">Aktibo ang Iyong Shift</h6>
+                            <small class="text-muted">Kasalukuyan kang may bukas na kaha sa <strong>{{ $userActiveShift->drawer?->drawer_name ?? 'iyong counter' }}</strong> (Shift #{{ $userActiveShift->shift_code }}).</small>
+                        </div>
+                    </div>
+                    <a href="{{ route('terminal.index') }}" class="btn btn-sm btn-primary rounded-pill px-3 py-1.5 fw-bold shadow-xs">
+                        <i class="bi bi-play-circle-fill me-1"></i> Ipagpatuloy ang Aking POS
+                    </a>
+                </div>
+            @endif
+
+            <form action="{{ route('terminal.select') }}" method="POST">
+                @csrf
 
                 <x-card>
 
@@ -45,28 +86,56 @@
 
                     <div class="row g-3">
                         @forelse($terminals as $terminal)
+                            @php
+                                $activeShift = $terminal->drawer?->activeShift;
+                                $isOwnedByMe = $activeShift && $activeShift->cashier_id === auth()->id();
+                                $isOccupiedByOther = $activeShift && $activeShift->cashier_id !== auth()->id();
+                                $isAvailable = $terminal->status === 'active' && !$activeShift;
+                            @endphp
                             <div class="col-lg-6">
-                                <label for="terminal{{ $terminal->id }}" class="terminal-card shadow-sm">
-                                    <input type="radio" id="terminal{{ $terminal->id }}" name="terminal_id" value="{{ encryptId($terminal->id) }}" required>
+                                <label for="terminal{{ $terminal->id }}" 
+                                       class="terminal-card shadow-sm {{ $isOccupiedByOther ? 'terminal-card-locked' : '' }} {{ $isOwnedByMe ? 'terminal-card-owned' : '' }}">
+                                    
+                                    <input type="radio" 
+                                           id="terminal{{ $terminal->id }}" 
+                                           name="terminal_id" 
+                                           value="{{ encryptId($terminal->id) }}" 
+                                           {{ $isOccupiedByOther ? 'disabled' : '' }}
+                                           {{ $isOwnedByMe ? 'checked' : '' }}
+                                           required>
 
                                     <div class="terminal-check">
-                                        <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                                        @if($isOccupiedByOther)
+                                            <i class="bi bi-lock-fill text-muted fs-5"></i>
+                                        @else
+                                            <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                                        @endif
                                     </div>
 
                                     <div class="d-flex justify-content-between align-items-start mb-2 pe-4">
                                         <div>
-                                            <h5 class="fw-bold text-dark mb-0">
-                                                <i class="bi bi-tablet-landscape text-success me-2"></i>
-                                                {{ $terminal->terminal_name }}
+                                            <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-1.5">
+                                                <i class="bi bi-tablet-landscape text-primary"></i>
+                                                <span>{{ $terminal->terminal_name }}</span>
                                             </h5>
-                                            <small class="text-muted">
+                                            <small class="text-muted font-mono extra-small">
                                                 Device Code: {{ $terminal->terminal_code }}
                                             </small>
                                         </div>
 
                                         <div>
-                                            @if($terminal->status == 'active')
-                                                <span class="badge bg-success text-white rounded-pill px-2.5 py-1">Ready</span>
+                                            @if($isOwnedByMe)
+                                                <span class="badge bg-primary text-white rounded-pill px-2.5 py-1 fw-bold shadow-xs">
+                                                    <i class="bi bi-person-check-fill me-1"></i> Your Shift
+                                                </span>
+                                            @elseif($isOccupiedByOther)
+                                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2.5 py-1 fw-bold" title="In use by {{ $activeShift->cashier?->name }}">
+                                                    <i class="bi bi-lock-fill me-1"></i> Busy ({{ $activeShift->cashier?->name ?? 'Cashier' }})
+                                                </span>
+                                            @elseif($terminal->status == 'active')
+                                                <span class="badge bg-success text-white rounded-pill px-2.5 py-1 fw-bold">
+                                                    <i class="bi bi-check2 me-1"></i> Available
+                                                </span>
                                             @elseif($terminal->status == 'maintenance')
                                                 <span class="badge bg-warning text-dark rounded-pill px-2.5 py-1">Maintenance</span>
                                             @else
@@ -77,16 +146,28 @@
 
                                     <hr class="my-2.5">
 
-                                    <div class="d-flex align-items-center">
-                                        <div class="drawer-icon me-3">
-                                            <i class="bi bi-safe2 text-success fs-5"></i>
-                                        </div>
-                                        <div>
-                                            <small class="text-muted d-block extra-small">Konektadong Cash Drawer</small>
-                                            <div class="fw-bold text-dark small">
-                                                {{ $terminal->drawer?->drawer_name ?? 'No Drawer Assigned' }}
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div class="d-flex align-items-center">
+                                            <div class="drawer-icon me-2.5">
+                                                <i class="bi bi-safe2 text-success fs-5"></i>
+                                            </div>
+                                            <div>
+                                                <small class="text-muted d-block extra-small">Konektadong Cash Drawer</small>
+                                                <div class="fw-bold text-dark small">
+                                                    {{ $terminal->drawer?->drawer_name ?? 'No Drawer Assigned' }}
+                                                </div>
                                             </div>
                                         </div>
+
+                                        @if($isOccupiedByOther)
+                                            <small class="text-danger extra-small fw-bold font-mono">
+                                                <i class="bi bi-shield-lock-fill me-1"></i> Locked
+                                            </small>
+                                        @elseif($isOwnedByMe)
+                                            <small class="text-primary extra-small fw-bold font-mono">
+                                                <i class="bi bi-broadcast me-1"></i> Active
+                                            </small>
+                                        @endif
                                     </div>
                                 </label>
                             </div>
@@ -123,9 +204,10 @@
                     </div>
                 @endif
 
-            </div>
+            </form>
+
         </div>
-    </form>
+    </div>
 
     <style>
         .terminal-icon {
@@ -152,7 +234,7 @@
             height: 100%;
         }
 
-        .terminal-card:hover {
+        .terminal-card:not(.terminal-card-locked):hover {
             transform: translateY(-2px);
             border-color: #059669;
             box-shadow: 0 8px 20px rgba(5, 150, 105, 0.08) !important;
@@ -181,6 +263,18 @@
             color: #059669;
         }
 
+        .terminal-card.terminal-card-owned {
+            border: 2px solid #7c3aed;
+            background: #fbf8ff;
+        }
+
+        .terminal-card.terminal-card-locked {
+            opacity: 0.68;
+            cursor: not-allowed !important;
+            background: #f8fafc !important;
+            border-color: #e2e8f0 !important;
+        }
+
         .drawer-icon {
             width: 38px;
             height: 38px;
@@ -195,18 +289,27 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const radios = document.querySelectorAll('input[name="terminal_id"]');
+            const radios = document.querySelectorAll('input[name="terminal_id"]:not(:disabled)');
             const button = document.getElementById('btnContinue');
             const selected = document.getElementById('selectedTerminal');
 
+            function updateSelected(radio) {
+                if (!radio) return;
+                button.disabled = false;
+                const card = radio.closest('.terminal-card');
+                const title = card.querySelector('h5 span') ? card.querySelector('h5 span').innerText.trim() : card.querySelector('h5').innerText.trim();
+                selected.innerHTML = '<span class="text-success"><i class="bi bi-check-circle-fill me-1"></i> <strong>Selected Device:</strong> ' + title + '</span>';
+            }
+
             radios.forEach(radio => {
-                radio.addEventListener('change', () => {
-                    button.disabled = false;
-                    const card = radio.closest('.terminal-card');
-                    const title = card.querySelector('h5').innerText.trim();
-                    selected.innerHTML = '<span class="text-success"><i class="bi bi-check-circle-fill me-1"></i> <strong>Selected Device:</strong> ' + title + '</span>';
-                });
+                radio.addEventListener('change', () => updateSelected(radio));
             });
+
+            // If a radio is already checked (e.g. current cashier's active shift)
+            const checkedRadio = document.querySelector('input[name="terminal_id"]:checked');
+            if (checkedRadio) {
+                updateSelected(checkedRadio);
+            }
         });
     </script>
 @endsection

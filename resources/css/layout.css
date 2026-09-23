@@ -865,11 +865,11 @@ table.dataTable{
 
 @media (min-width: 992px) {
     .likha-sidebar {
-        width: 235px !important;
-        min-width: 235px !important;
-        max-width: 235px !important;
-        background: #0f172a !important;
-        border-right: 1px solid #1e293b !important;
+        width: 280px !important;
+        min-width: 280px !important;
+        max-width: 280px !important;
+        background: var(--theme-sidebar, #0f172a) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
         height: 100vh !important;
         position: fixed !important;
         top: 0 !important;
@@ -882,8 +882,8 @@ table.dataTable{
     }
 
     .likha-main-content {
-        margin-left: 235px !important;
-        width: calc(100% - 235px) !important;
+        margin-left: 280px !important;
+        width: calc(100% - 280px) !important;
         min-height: 100vh;
         display: flex;
         flex-direction: column;
@@ -900,13 +900,14 @@ table.dataTable{
     .likha-sidebar {
         position: fixed !important;
         top: 0 !important;
-        left: -280px !important;
-        width: 280px !important;
-        min-width: 280px !important;
+        left: -270px !important;
+        width: 270px !important;
+        min-width: 270px !important;
         height: 100vh !important;
+        background: var(--theme-sidebar, #0f172a) !important;
         z-index: 1055 !important;
         transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
     }
 
     .likha-sidebar.show {

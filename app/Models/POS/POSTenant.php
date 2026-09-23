@@ -55,6 +55,16 @@ class POSTenant extends Model
         'archived' => 'boolean',
     ];
 
+    public function branches()
+    {
+        return $this->hasMany(POSBranch::class, 'tenant_id');
+    }
+
+    public function mainBranch()
+    {
+        return $this->hasOne(POSBranch::class, 'tenant_id')->where('is_main_branch', true);
+    }
+
     public function subscription()
     {
         return $this->belongsTo(

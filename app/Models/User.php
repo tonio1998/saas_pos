@@ -34,7 +34,9 @@ class User extends Authenticatable implements AuditableContract
         'verified',
         'nfc_code',
         'last_activity_at',
-        'current_session_id'
+        'current_session_id',
+        'otp_code',
+        'otp_expires_at',
     ];
 
     /**
@@ -58,6 +60,7 @@ class User extends Authenticatable implements AuditableContract
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'last_activity_at' => 'datetime',
+            'otp_expires_at' => 'datetime',
         ];
     }
 

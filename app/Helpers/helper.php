@@ -255,3 +255,18 @@ function generateSemesterName($order)
 
     return $semesters[$order] ?? 'Semester ' . $order;
 }
+
+if (!function_exists('current_tenant_id')) {
+    function current_tenant_id(): ?int
+    {
+        return \App\Services\Tenant\TenantContext::getTenantId();
+    }
+}
+
+if (!function_exists('current_tenant')) {
+    function current_tenant(): ?\App\Models\POS\POSTenant
+    {
+        return \App\Services\Tenant\TenantContext::getTenant();
+    }
+}
+

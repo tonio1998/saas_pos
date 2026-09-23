@@ -230,25 +230,25 @@
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
 
             {{-- Header --}}
-            <div class="modal-header border-bottom px-4 py-3" style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);">
+            <div class="modal-header bg-white border-bottom px-4 py-3 d-flex align-items-center justify-content-between w-100">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="rounded-3 p-2" style="background:rgba(99,102,241,.25);">
-                        <i class="bi bi-receipt text-indigo" style="color:#818cf8;font-size:1.1rem;"></i>
+                    <div class="rounded-3 p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="background:#ede9fe;color:#7c3aed;width:38px;height:38px;">
+                        <i class="bi bi-receipt fs-5"></i>
                     </div>
                     <div>
                         <div class="d-flex align-items-center gap-2">
-                            <h5 class="modal-title fw-bold text-white mb-0 fs-6">Transaction Audit Details</h5>
+                            <h5 class="modal-title fw-bold text-dark mb-0 fs-6">Transaction Audit Details</h5>
                             <span id="detailStatusBadge" class="badge rounded-pill px-2.5 py-0.5 fw-bold extra-small"></span>
                         </div>
-                        <small class="font-mono text-white-50" id="detailInvoice"></small>
+                        <small class="font-mono text-muted fw-semibold" id="detailInvoice"></small>
                     </div>
                 </div>
-                <div class="d-flex align-items-center gap-2">
-                    <a href="javascript:void(0)" id="btnModalPrintReceipt" target="_blank" class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 fw-bold extra-small shadow-xs d-flex align-items-center gap-1.5">
+                <div class="d-flex align-items-center gap-2.5 ms-auto">
+                    <a href="javascript:void(0)" id="btnModalPrintReceipt" target="_blank" class="btn btn-sm btn-white border rounded-pill px-3 py-1.5 fw-bold extra-small shadow-xs d-flex align-items-center gap-1.5 text-dark">
                         <i class="bi bi-printer-fill text-success"></i>
                         <span>Print Receipt</span>
                     </a>
-                    <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close shadow-none ms-1" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
             </div>
 
@@ -495,15 +495,18 @@
                 // ── Header ──
                 $('#detailInvoice').text(data.invoice_no ?? '');
 
-                const status = (data.status ?? 'completed').toLowerCase();
+                const rawStatus = (data.status ?? 'completed').toLowerCase().replace(/\s+/g, '_');
                 const statusColors = {
-                    completed: 'background:#dcfce7;color:#16a34a;',
-                    pending:   'background:#fef9c3;color:#ca8a04;',
-                    cancelled: 'background:#fee2e2;color:#dc2626;',
+                    completed:      'background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;',
+                    pending:        'background:#fef9c3;color:#ca8a04;border:1px solid #fef08a;',
+                    cancelled:      'background:#fee2e2;color:#dc2626;border:1px solid #fecaca;',
+                    refunded:       'background:#fee2e2;color:#dc2626;border:1px solid #fecaca;',
+                    partial_refund: 'background:#fef3c7;color:#d97706;border:1px solid #fde68a;',
+                    refund:         'background:#fee2e2;color:#dc2626;border:1px solid #fecaca;',
                 };
                 $('#detailStatusBadge')
                     .text(data.status ?? 'Completed')
-                    .attr('style', statusColors[status] ?? statusColors.completed);
+                    .attr('style', statusColors[rawStatus] ?? statusColors.completed);
 
                 // ── Meta ──
                 $('#detailCustomer').text(data.customer ?? 'Walk-in Customer');
@@ -514,7 +517,13 @@
                 // ── Sale Summary ──
                 $('#detailSubtotal').text(data.subtotal ?? '₱0.00');
                 $('#detailDiscount').text(data.discount ?? '₱0.00');
-                $('#detailTotal').text(data.total ?? '₱0.00');
+                if (data.is_refunded) {
+                    $('#detailTotal').html(`<span class="text-decoration-line-through text-muted small me-2 font-mono">${data.original_total}</span><span class="text-danger fw-bold font-mono">₱0.00</span> <span class="badge bg-danger text-white extra-small py-0.5 px-1 ms-1">Refunded</span>`);
+                } else if (data.is_partial) {
+                    $('#detailTotal').html(`<span class="text-decoration-line-through text-muted small me-2 font-mono">${data.original_total}</span><span class="text-dark fw-bold font-mono">${data.total}</span> <span class="badge bg-warning-subtle text-warning-emphasis extra-small py-0.5 px-1 ms-1">Retained</span>`);
+                } else {
+                    $('#detailTotal').text(data.total ?? '₱0.00');
+                }
 
                 // For split payments, sum from payments array
                 const paymentsArr   = data.payments || [];
@@ -536,14 +545,24 @@
                 // ── Profit Summary ──
                 const margin     = parseFloat(data.profit_margin_pct ?? 0);
                 const profitRaw  = parseFloat(data.net_profit_raw ?? 0);
-                const profitColor = profitRaw >= 0 ? '#16a34a' : '#dc2626';
-                const barColor    = profitRaw >= 0
-                    ? 'linear-gradient(90deg,#10b981,#059669)'
-                    : 'linear-gradient(90deg,#ef4444,#dc2626)';
+                const profitColor = data.is_refunded ? '#64748b' : (profitRaw >= 0 ? '#16a34a' : '#dc2626');
+                const barColor    = data.is_refunded
+                    ? '#cbd5e1'
+                    : (profitRaw >= 0 ? 'linear-gradient(90deg,#10b981,#059669)' : 'linear-gradient(90deg,#ef4444,#dc2626)');
 
-                $('#profitRevenue').text(data.total ?? '₱0.00');
-                $('#profitCost').text(data.total_cost ?? '₱0.00');
-                $('#profitNet').text(data.net_profit ?? '₱0.00').css('color', profitColor);
+                if (data.is_refunded) {
+                    $('#profitRevenue').html(`<span class="text-decoration-line-through text-muted small me-2 font-mono">${data.original_total}</span><span class="text-muted fw-bold font-mono">₱0.00</span>`);
+                    $('#profitCost').html(`<span class="text-decoration-line-through text-muted small me-2 font-mono">${data.original_cost}</span><span class="text-muted fw-bold font-mono">₱0.00</span>`);
+                    $('#profitNet').html(`<span class="text-decoration-line-through text-muted small me-2 font-mono">${data.original_profit}</span><span class="text-muted fw-bold font-mono">₱0.00</span>`).css('color', '#64748b');
+                } else if (data.is_partial) {
+                    $('#profitRevenue').html(`<span class="text-decoration-line-through text-muted small me-2 font-mono">${data.original_total}</span><span class="text-dark fw-bold font-mono">${data.total}</span>`);
+                    $('#profitCost').html(`<span class="text-decoration-line-through text-muted small me-2 font-mono">${data.original_cost}</span><span class="text-danger fw-bold font-mono">${data.total_cost}</span>`);
+                    $('#profitNet').html(`<span class="text-decoration-line-through text-muted small me-2 font-mono">${data.original_profit}</span><span class="fw-bold font-mono" style="color:${profitColor};">${data.net_profit}</span>`).css('color', profitColor);
+                } else {
+                    $('#profitRevenue').text(data.total ?? '₱0.00');
+                    $('#profitCost').text(data.total_cost ?? '₱0.00');
+                    $('#profitNet').text(data.net_profit ?? '₱0.00').css('color', profitColor);
+                }
                 $('#profitMarginPct').text(margin.toFixed(1) + '%').css('color', profitColor);
                 $('#profitMarginBar')
                     .css({ width: Math.min(Math.abs(margin), 100) + '%', background: barColor })
@@ -557,6 +576,36 @@
                     const promoItems = items.filter(i => i.promo_id || i.has_discount);
                     const discAmt    = parseFloat((data.discount ?? '0').replace(/[^0-9.]/g, ''));
                     const netP       = parseFloat(data.net_profit_raw ?? 0);
+
+                    if (data.is_refunded) {
+                        $('#detailNarrative')
+                            .attr('style', 'background:linear-gradient(135deg,#fef2f2 0%,#fee2e2 100%);border-color:#fca5a5!important;')
+                            .find('i')
+                            .attr('class', 'bi bi-arrow-counterclockwise mt-1 flex-shrink-0')
+                            .css('color', '#dc2626');
+
+                        let narrativeHtml = `⚠️ Transaction <strong>${data.invoice_no}</strong> was <strong>FULLY REFUNDED</strong>. All <strong>${totalItems} units</strong> across <strong>${items.length} products</strong> were returned & restocked to inventory. The total original amount of <strong>${data.original_total}</strong> was returned to customer <strong>${data.customer}</strong>. Net sales revenue and earnings for this transaction are <strong>₱0.00 (0.0% margin)</strong>.`;
+                        $('#detailNarrativeText').html(narrativeHtml);
+                        return;
+                    }
+
+                    if (data.is_partial) {
+                        $('#detailNarrative')
+                            .attr('style', 'background:linear-gradient(135deg,#fffbeb 0%,#fef3c7 100%);border-color:#fde68a!important;')
+                            .find('i')
+                            .attr('class', 'bi bi-percent mt-1 flex-shrink-0')
+                            .css('color', '#d97706');
+
+                        let narrativeHtml = `⚠️ Transaction <strong>${data.invoice_no}</strong> had a <strong>PARTIAL RETURN</strong>. A total of <strong>${data.refunded_qty} units</strong> were returned & restocked to inventory for a refund payout of <strong style="color:#dc2626">-${data.refunded_amount}</strong>. Retained net sales revenue is <strong>${data.total}</strong> with an adjusted net profit of <strong style="color:#16a34a">${data.net_profit} (${margin.toFixed(1)}% margin)</strong>.`;
+                        $('#detailNarrativeText').html(narrativeHtml);
+                        return;
+                    }
+
+                    $('#detailNarrative')
+                        .attr('style', 'background:linear-gradient(135deg,#eff6ff 0%,#dbeafe 100%);border-color:#bfdbfe!important;')
+                        .find('i')
+                        .attr('class', 'bi bi-lightbulb-fill mt-1 flex-shrink-0')
+                        .css('color', '#2563eb');
 
                     let parts = [];
 
@@ -608,6 +657,12 @@
                     const discTag  = hasDisc
                         ? `<span class="badge ms-1 px-1 rounded-1 fw-semibold" style="font-size:.6rem;background:#fee2e2;color:#dc2626;">-${item.discount_amount}</span>`
                         : '';
+                    let refundTag = '';
+                    if (data.is_refunded || item.is_item_refunded) {
+                        refundTag = `<span class="badge ms-1 px-1.5 py-0.5 rounded-pill fw-bold bg-danger bg-opacity-10 text-danger border border-danger-subtle" style="font-size:.62rem;"><i class="bi bi-arrow-counterclockwise me-0.5"></i>Refunded</span>`;
+                    } else if (item.is_item_partial || (item.returned_qty > 0)) {
+                        refundTag = `<span class="badge ms-1 px-1.5 py-0.5 rounded-pill fw-bold bg-warning bg-opacity-10 text-warning-emphasis border border-warning-subtle" style="font-size:.62rem;"><i class="bi bi-arrow-return-left me-0.5"></i>${item.returned_qty} returned</span>`;
+                    }
 
                     let priceDisplay;
                     if (hasDisc && item.original_price !== item.effective_price) {
@@ -617,25 +672,38 @@
                     }
 
                     const profitRaw  = parseFloat(item.net_profit_raw ?? 0);
-                    const profitCls  = profitRaw >= 0 ? 'text-success' : 'text-danger';
-                    const profitIcon = profitRaw >= 0 ? '▲' : '▼';
+                    const profitCls  = data.is_refunded ? 'text-muted' : (profitRaw >= 0 ? 'text-success' : 'text-danger');
+                    const profitIcon = data.is_refunded ? '' : (profitRaw >= 0 ? '▲ ' : '▼ ');
                     const margin     = parseFloat(item.profit_margin_pct ?? 0);
+
+                    let qtyDisplay = `<span class="font-mono fw-semibold">${item.quantity}</span>`;
+                    let lineTotalDisplay = `<span class="text-dark font-mono fw-bold">${item.line_total}</span>`;
+                    let profitDisplay = `<span class="font-mono fw-bold ${profitCls}">${profitIcon}${item.net_profit}</span>`;
+
+                    if (data.is_refunded) {
+                        lineTotalDisplay = `<div><span class="text-decoration-line-through text-muted extra-small font-mono d-block">${item.original_line_total}</span><span class="font-mono fw-bold text-muted">₱0.00</span></div>`;
+                        profitDisplay = `<div><span class="text-decoration-line-through text-muted extra-small font-mono d-block">${item.original_net_profit}</span><span class="font-mono fw-bold text-muted">₱0.00</span></div>`;
+                    } else if (item.returned_qty > 0) {
+                        qtyDisplay = `<div class="font-mono"><span class="fw-bold text-dark">${item.retained_qty}</span> <span class="text-muted extra-small">(${item.quantity} orig)</span></div>`;
+                        lineTotalDisplay = `<div><span class="text-decoration-line-through text-muted extra-small font-mono d-block">${item.original_line_total}</span><span class="font-mono fw-bold text-dark">${item.line_total}</span></div>`;
+                        profitDisplay = `<div><span class="text-decoration-line-through text-muted extra-small font-mono d-block">${item.original_net_profit}</span><span class="font-mono fw-bold ${profitCls}">${profitIcon}${item.net_profit}</span></div>`;
+                    }
 
                     rows += `
                         <tr>
                             <td class="ps-3">
                                 <div class="fw-bold text-dark d-flex align-items-center flex-wrap gap-1">
-                                    ${item.product ?? '-'} ${promoTag} ${discTag}
+                                    ${item.product ?? '-'} ${promoTag} ${discTag} ${refundTag}
                                 </div>
                                 <small class="text-muted font-mono">${item.barcode !== '-' ? item.barcode : ''}</small>
                             </td>
-                            <td class="text-center font-mono fw-semibold">${item.quantity}</td>
+                            <td class="text-center">${qtyDisplay}</td>
                             <td class="text-end font-mono text-muted small">${item.cost_price}</td>
                             <td class="text-end">${priceDisplay}</td>
-                            <td class="text-end font-mono fw-bold text-dark">${item.line_total}</td>
-                            <td class="text-end font-mono fw-bold ${profitCls}">${profitIcon} ${item.net_profit}</td>
+                            <td class="text-end">${lineTotalDisplay}</td>
+                            <td class="text-end">${profitDisplay}</td>
                             <td class="text-center">
-                                <span class="badge rounded-pill px-2 fw-bold font-mono" style="font-size:.72rem;background:${margin>=20?'#dcfce7':margin>=5?'#fef9c3':'#fee2e2'};color:${margin>=20?'#16a34a':margin>=5?'#ca8a04':'#dc2626'};">
+                                <span class="badge rounded-pill px-2 fw-bold font-mono" style="font-size:.72rem;background:${data.is_refunded?'#f1f5f9':(margin>=20?'#dcfce7':margin>=5?'#fef9c3':'#fee2e2')};color:${data.is_refunded?'#64748b':(margin>=20?'#16a34a':margin>=5?'#ca8a04':'#dc2626')};">
                                     ${margin.toFixed(1)}%
                                 </span>
                             </td>

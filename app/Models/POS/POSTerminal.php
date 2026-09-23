@@ -2,11 +2,14 @@
 
 namespace App\Models\POS;
 
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 
 class POSTerminal extends Model
 {
-     protected $table = 'pos_terminals';
+    use BelongsToTenant;
+
+    protected $table = 'pos_terminals';
 
     protected $fillable = [
         'tenant_id',
@@ -22,10 +25,12 @@ class POSTerminal extends Model
     ];
     protected static function booted(): void
     {
-        static::creating(function ($terminal) {
-            $terminal->updateQuietly([
-                'terminal_code' => generateTerminalCode($terminal->id),
-            ]);
+        static::created(function ($terminal) {
+            if (empty($terminal->terminal_code)) {
+                $terminal->updateQuietly([
+                    'terminal_code' => generateTerminalCode($terminal->id),
+                ]);
+            }
         });
     }
 

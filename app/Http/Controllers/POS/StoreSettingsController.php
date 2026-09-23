@@ -46,8 +46,15 @@ class StoreSettingsController extends Controller
      */
     public function update(Request $request)
     {
-        $tenantId = auth()->user()->tenant_id;
-        $tenant = POSTenant::where('id', $tenantId)->firstOrFail();
+        $tenantId = auth()->user()?->tenant_id ?: session('tenant_id');
+        $tenant = $tenantId ? POSTenant::find($tenantId) : null;
+        if (!$tenant) {
+            $tenant = POSTenant::first();
+        }
+
+        if (!$tenant) {
+            return back()->with('error', 'Store tenant profile not found.');
+        }
 
         $validated = $request->validate([
             'business_name'   => ['required', 'string', 'max:255'],
@@ -59,10 +66,14 @@ class StoreSettingsController extends Controller
             'receipt_footer'  => ['nullable', 'string', 'max:500'],
             'header_text'     => ['nullable', 'string', 'max:500'],
             'currency_symbol' => ['nullable', 'string', 'max:10'],
-            'logo'            => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp,svg', 'max:2048'],
+            'logo'               => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp,svg,bmp', 'max:10240'],
+            'logo_square'        => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp,svg,bmp', 'max:10240'],
+            'remove_logo'        => ['nullable', 'boolean'],
+            'remove_logo_square' => ['nullable', 'boolean'],
             
             // Theme Customizer Fields
             'theme_preset'              => ['nullable', 'string', 'max:50'],
+            'gradient'                  => ['nullable', 'string', 'max:255'],
             'primary_color'             => ['nullable', 'string', 'max:20'],
             'topbar_color'              => ['nullable', 'string', 'max:20'],
             'topbar_text_color'         => ['nullable', 'string', 'max:20'],
@@ -72,6 +83,9 @@ class StoreSettingsController extends Controller
             'sidebar_active_text_color' => ['nullable', 'string', 'max:20'],
             'accent_color'              => ['nullable', 'string', 'max:20'],
             'dark_mode'                 => ['nullable', 'boolean'],
+            'logo_sidebar_height'       => ['nullable', 'integer', 'min:20', 'max:80'],
+            'logo_topbar_height'        => ['nullable', 'integer', 'min:20', 'max:60'],
+            'logo_receipt_height'       => ['nullable', 'integer', 'min:25', 'max:100'],
             
             // CRM & Loyalty Settings
             'points_per_peso'            => ['nullable', 'numeric', 'min:0'],
@@ -80,14 +94,40 @@ class StoreSettingsController extends Controller
             'sms_utang_reminder_enabled' => ['nullable', 'boolean'],
         ]);
 
+        // 1. Horizontal / Primary Logo Upload or Removal
         if ($request->hasFile('logo')) {
-            // Delete old logo if exists
+            $file = $request->file('logo');
+            if ($file->isValid()) {
+                if ($tenant->logo && Storage::disk('public')->exists($tenant->logo)) {
+                    Storage::disk('public')->delete($tenant->logo);
+                }
+                $filename = 'logo_rect_' . $tenant->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $logoPath = $file->storeAs('tenants/logos', $filename, 'public');
+                $tenant->logo = $logoPath;
+            }
+        } elseif ($request->boolean('remove_logo')) {
             if ($tenant->logo && Storage::disk('public')->exists($tenant->logo)) {
                 Storage::disk('public')->delete($tenant->logo);
             }
+            $tenant->logo = null;
+        }
 
-            $logoPath = $request->file('logo')->store('tenants/logos', 'public');
-            $tenant->logo = $logoPath;
+        // 2. Square Icon / Receipt Stamp Upload or Removal
+        if ($request->hasFile('logo_square')) {
+            $fileSquare = $request->file('logo_square');
+            if ($fileSquare->isValid()) {
+                if ($tenant->logo_square && Storage::disk('public')->exists($tenant->logo_square)) {
+                    Storage::disk('public')->delete($tenant->logo_square);
+                }
+                $filenameSquare = 'logo_sq_' . $tenant->id . '_' . time() . '.' . $fileSquare->getClientOriginalExtension();
+                $logoSquarePath = $fileSquare->storeAs('tenants/logos', $filenameSquare, 'public');
+                $tenant->logo_square = $logoSquarePath;
+            }
+        } elseif ($request->boolean('remove_logo_square')) {
+            if ($tenant->logo_square && Storage::disk('public')->exists($tenant->logo_square)) {
+                Storage::disk('public')->delete($tenant->logo_square);
+            }
+            $tenant->logo_square = null;
         }
 
         $tenant->business_name   = trim($validated['business_name']);
@@ -100,9 +140,10 @@ class StoreSettingsController extends Controller
         $tenant->footer_text     = $validated['receipt_footer'] ?? null;
         $tenant->header_text     = $validated['header_text'] ?? null;
 
-        // Theme Settings Payload with explicit text & background colors
+        // Theme Settings Payload with explicit text & background colors and dynamic logo dimensions
         $tenant->theme_settings = [
             'preset'                    => $validated['theme_preset'] ?? $request->input('theme_preset', 'emerald'),
+            'gradient'                  => $validated['gradient'] ?? $request->input('gradient', null),
             'primary_color'             => $validated['primary_color'] ?? $request->input('primary_color', '#059669'),
             'topbar_color'              => $validated['topbar_color'] ?? $request->input('topbar_color', '#064E3B'),
             'topbar_text_color'         => $validated['topbar_text_color'] ?? $request->input('topbar_text_color', '#FFFFFF'),
@@ -112,6 +153,9 @@ class StoreSettingsController extends Controller
             'sidebar_active_text_color' => $validated['sidebar_active_text_color'] ?? $request->input('sidebar_active_text_color', '#FFFFFF'),
             'accent_color'              => $validated['accent_color'] ?? $request->input('accent_color', '#10B981'),
             'dark_mode'                 => (bool) ($validated['dark_mode'] ?? $request->input('dark_mode', false)),
+            'logo_sidebar_height'       => (int) ($validated['logo_sidebar_height'] ?? $request->input('logo_sidebar_height', 38)),
+            'logo_topbar_height'        => (int) ($validated['logo_topbar_height'] ?? $request->input('logo_topbar_height', 32)),
+            'logo_receipt_height'       => (int) ($validated['logo_receipt_height'] ?? $request->input('logo_receipt_height', 52)),
         ];
 
         // CRM Settings Payload
@@ -127,13 +171,20 @@ class StoreSettingsController extends Controller
 
         $tenant->save();
 
+        // Update session branding
+        session([
+            'tenant_id'   => $tenant->id,
+            'tenant_name' => $tenant->business_name,
+            'tenant_logo' => $tenant->logo,
+        ]);
+
         // Clear tenant subscription cache
         $this->subscriptionService->clearTenantCache($tenant->id);
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Store profile, POS branding, system theme, and CRM settings saved successfully!',
+                'message' => 'Store profile, POS branding logo, theme palette, and CRM settings saved successfully!',
                 'logo_url' => $tenant->logo ? Storage::url($tenant->logo) : asset('images/no_image.jpg'),
                 'theme' => $tenant->theme_settings,
                 'crm' => $tenant->crm_settings,
@@ -142,7 +193,7 @@ class StoreSettingsController extends Controller
 
         return redirect()
             ->route('settings.index')
-            ->with('success', 'Store profile, branding logo, and receipt settings updated successfully!');
+            ->with('success', 'Store profile, branding logo, and POS theme settings saved successfully!');
     }
 
     /**
