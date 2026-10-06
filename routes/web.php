@@ -212,6 +212,8 @@ Route::prefix('sa')->name('sa.')->middleware(['auth', 'role:SA',])->group(functi
         Route::post('/monitoring/bulk-remind', [SASubscriptionMonitoringController::class, 'sendBulkEmailReminders'])->name('monitoring.bulk-remind');
         Route::post('/monitoring/run-engine', [SASubscriptionMonitoringController::class, 'runAutomatedEngine'])->name('monitoring.run-engine');
         Route::post('/monitoring/{id}/toggle-status', [SASubscriptionMonitoringController::class, 'toggleStatus'])->name('monitoring.toggle-status');
+        Route::get('/monitoring/export-csv', [SASubscriptionMonitoringController::class, 'exportCsv'])->name('monitoring.export-csv');
+
         // Platform Billing, Invoices & Subscription History
         Route::get('/billing', [\App\Http\Controllers\SABillingController::class, 'index'])->name('billing');
         Route::get('/billing/invoice/{id}', [\App\Http\Controllers\SABillingController::class, 'showInvoice'])->name('billing.invoice');
