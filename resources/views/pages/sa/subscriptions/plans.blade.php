@@ -26,11 +26,11 @@
             <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-bold" onclick="window.location.reload();">
                 <i class="bi bi-arrow-clockwise me-1"></i> Refresh
             </button>
-            <button type="button" class="btn btn-success btn-sm rounded-pill fw-bold px-3.5 shadow-sm d-flex align-items-center gap-1.5"
-                    data-bs-toggle="modal" data-bs-target="#planModal" onclick="openCreateModal();" style="background:#059669; border-color:#059669;">
+            <a href="{{ route('sa.subscriptions.plans.create') }}" class="btn btn-success btn-sm rounded-pill fw-bold px-3.5 shadow-sm d-flex align-items-center gap-1.5 text-white"
+               style="background:#059669; border-color:#059669;">
                 <i class="bi bi-plus-circle-fill"></i>
                 <span>Create New Plan or Promo</span>
-            </button>
+            </a>
         </div>
     </div>
 
@@ -269,9 +269,9 @@
                             </div>
 
                             <div class="d-flex align-items-center gap-1">
-                                <button type="button" class="btn btn-sm btn-outline-primary rounded-3 px-2 py-1" title="Edit Plan" onclick="openEditModal({{ json_encode($plan) }});">
+                                <a href="{{ route('sa.subscriptions.plans.edit', $plan->id) }}" class="btn btn-sm btn-outline-primary rounded-3 px-2 py-1" title="Edit Plan & Limits (Dedicated Page)">
                                     <i class="bi bi-pencil-fill"></i>
-                                </button>
+                                </a>
                                 <button type="button" class="btn btn-sm btn-outline-warning rounded-3 px-2 py-1" title="Clone as Promo" onclick="clonePlan({{ $plan->id }}, '{{ addslashes($plan->name) }}');">
                                     <i class="bi bi-copy"></i>
                                 </button>
@@ -296,9 +296,9 @@
                     <h5 class="fw-bold text-dark">No subscription plans found in this filter</h5>
                     <p class="text-muted small mb-3">Create your first custom plan or promotional offer using the studio button above.</p>
                     <div>
-                        <button type="button" class="btn btn-success rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#planModal" onclick="openCreateModal();">
-                            + Create New Plan
-                        </button>
+                        <a href="{{ route('sa.subscriptions.plans.create') }}" class="btn btn-success rounded-pill px-4 fw-bold">
+                            + Create New Plan or Promo
+                        </a>
                     </div>
                 </div>
             </div>

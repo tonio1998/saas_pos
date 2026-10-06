@@ -196,7 +196,9 @@ Route::prefix('sa')->name('sa.')->middleware(['auth', 'role:SA',])->group(functi
         
         // Subscription & Promo Plans Management
         Route::get('/plans', [SASubscriptionPlanController::class, 'index'])->name('plans');
+        Route::get('/plans/create', [SASubscriptionPlanController::class, 'create'])->name('plans.create');
         Route::post('/plans', [SASubscriptionPlanController::class, 'store'])->name('plans.store');
+        Route::get('/plans/{id}/edit', [SASubscriptionPlanController::class, 'edit'])->name('plans.edit');
         Route::put('/plans/{id}', [SASubscriptionPlanController::class, 'update'])->name('plans.update');
         Route::post('/plans/{id}/toggle-status', [SASubscriptionPlanController::class, 'toggleStatus'])->name('plans.toggle-status');
         Route::post('/plans/{id}/clone', [SASubscriptionPlanController::class, 'clone'])->name('plans.clone');

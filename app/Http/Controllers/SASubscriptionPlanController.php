@@ -77,6 +77,23 @@ class SASubscriptionPlanController extends Controller
     }
 
     /**
+     * Show dedicated page to create a new subscription plan or special promo
+     */
+    public function create()
+    {
+        return view('pages.sa.subscriptions.plans.create');
+    }
+
+    /**
+     * Show dedicated page to edit an existing subscription plan or promo
+     */
+    public function edit($id)
+    {
+        $plan = POSSubscription::findOrFail($id);
+        return view('pages.sa.subscriptions.plans.edit', compact('plan'));
+    }
+
+    /**
      * Store new subscription plan or special promo package
      */
     public function store(Request $request)
