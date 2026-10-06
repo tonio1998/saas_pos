@@ -136,7 +136,7 @@
 
             <!-- Users -->
             <li class="sidebar-item">
-                <a href="{{ route('users.index') }}" class="sidebar-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
+                <a href="{{ route('sa.users.index') }}" class="sidebar-link {{ request()->routeIs('sa.users.*') ? 'active' : '' }}">
                     <span class="sidebar-icon-wrap">
                         <i class="bi bi-people-fill sidebar-icon"></i>
                     </span>

@@ -42,6 +42,7 @@ use App\Http\Controllers\POS\StoreSettingsController;
 use App\Http\Controllers\POS\TenantUserController;
 use App\Http\Controllers\POS\UnitController;
 use App\Http\Controllers\SADashboardController;
+use App\Http\Controllers\SAUserController;
 use App\Http\Controllers\TenantsDashboardController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\GradeLevelController;
@@ -122,6 +123,15 @@ Route::prefix('sa')->name('sa.')->middleware(['auth', 'role:SA',])->group(functi
 
     Route::get('/dashboard', [SADashboardController::class, 'index'])->name('dashboard.index');
     Route::get('/dashboard/data', [SADashboardController::class, 'data'])->name('.data');
+
+    Route::prefix('users')->name('users.')->group(function () {
+        Route::get('/', [SAUserController::class, 'index'])->name('index');
+        Route::get('/data', [SAUserController::class, 'ajaxData'])->name('data');
+        Route::post('/store', [SAUserController::class, 'store'])->name('store');
+        Route::put('/update/{id}', [SAUserController::class, 'update'])->name('update');
+        Route::post('/reset-password/{id}', [SAUserController::class, 'resetPassword'])->name('reset-password');
+        Route::delete('/delete/{id}', [SAUserController::class, 'destroy'])->name('destroy');
+    });
 
     Route::prefix('backups')->name('backups.')->group(function(){
         Route::get('/', [BackupController::class, 'index'])->name('index');

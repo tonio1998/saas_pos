@@ -176,6 +176,14 @@
                         <span class="sidebar-label">Tenants &amp; Stores</span>
                     </a>
                 </li>
+                <li class="sidebar-item">
+                    <a href="{{ route('sa.users.index') }}" class="sidebar-link {{ request()->routeIs('sa.users.*') ? 'active' : '' }}">
+                        <span class="sidebar-icon-wrap">
+                            <i class="bi bi-people-fill sidebar-icon text-warning"></i>
+                        </span>
+                        <span class="sidebar-label">System Users</span>
+                    </a>
+                </li>
             </ul>
         @endif
     </div>
