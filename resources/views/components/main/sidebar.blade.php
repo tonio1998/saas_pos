@@ -151,6 +151,16 @@
                 </a>
             </li>
 
+            <!-- Subscription & Promo Plans Studio -->
+            <li class="sidebar-item">
+                <a href="{{ route('sa.subscriptions.plans') }}" class="sidebar-link {{ request()->routeIs('sa.subscriptions.plans*') ? 'active' : '' }}">
+                    <span class="sidebar-icon-wrap">
+                        <i class="bi bi-tags-fill sidebar-icon text-success"></i>
+                    </span>
+                    <span class="sidebar-label">Plans & Promos</span>
+                </a>
+            </li>
+
             <!-- Users -->
             <li class="sidebar-item">
                 <a href="{{ route('sa.users.index') }}" class="sidebar-link {{ request()->routeIs('sa.users.*') ? 'active' : '' }}">

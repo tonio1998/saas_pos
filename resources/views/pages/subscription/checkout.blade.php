@@ -469,14 +469,16 @@
                             @foreach($plans as $plan)
                                 @php
                                     $isPreSelected = ($tenant->pending_plan_id ?? ($tenant->subscription_id ?? 2)) == $plan->id;
-                                    $isPopular = str_contains(strtolower($plan->name), 'growth') || $plan->sort_order == 2;
+                                    $effectivePrice = $plan->effectivePrice();
+                                    $hasPromoDiscount = $plan->is_promo && $plan->promo_price && $plan->promo_price < $plan->price;
+                                    $badgeText = $plan->badge_text ?: (str_contains(strtolower($plan->name), 'growth') || $plan->sort_order == 2 ? '⭐ Pinakasikat' : null);
                                 @endphp
                                 <div class="col-md-4">
                                     <div class="plan-card h-100 {{ $isPreSelected ? 'selected' : '' }}" 
-                                         onclick="selectPlan('{{ $plan->id }}', {{ $plan->price }}, '{{ addslashes($plan->name) }}', this)">
-                                        @if($isPopular)
-                                            <span class="badge bg-warning text-dark position-absolute top-0 end-0 translate-middle-y me-3 px-3 py-1 fw-bold rounded-pill shadow-sm" style="font-size: 0.72rem;">
-                                                ⭐ Pinakasikat
+                                         onclick="selectPlan('{{ $plan->id }}', {{ $effectivePrice }}, '{{ addslashes($plan->name) }}', this)">
+                                        @if($badgeText)
+                                            <span class="badge {{ $plan->is_promo ? 'bg-danger text-white' : 'bg-warning text-dark' }} position-absolute top-0 end-0 translate-middle-y me-3 px-3 py-1 fw-bold rounded-pill shadow-sm" style="font-size: 0.72rem;">
+                                                {{ $badgeText }}
                                             </span>
                                         @endif
 
@@ -484,8 +486,11 @@
                                             {{ $plan->billing_cycle ?? 'Monthly' }} Plan
                                         </div>
                                         <h4 class="fw-bold text-dark mb-1">{{ $plan->name }}</h4>
-                                        <div class="h2 fw-bold text-success mb-2">
-                                            ₱{{ number_format($plan->price, 0) }}
+                                        <div class="h2 fw-bold text-success mb-2 d-flex align-items-baseline gap-2">
+                                            <span>₱{{ number_format($effectivePrice, 0) }}</span>
+                                            @if($hasPromoDiscount)
+                                                <span class="fs-6 text-muted text-decoration-line-through fw-normal">₱{{ number_format($plan->price, 0) }}</span>
+                                            @endif
                                             <small class="fs-6 text-muted fw-normal">/ buwan</small>
                                         </div>
                                         <p class="text-secondary extra-small mb-3" style="min-height: 38px;">
@@ -493,6 +498,7 @@
                                         </p>
 
                                         <div class="pt-3 border-top extra-small text-muted d-flex flex-column gap-2">
+                                            <div><i class="bi bi-tablet-landscape-fill text-success me-1.5"></i> <strong>{{ $plan->max_terminals ?? 1 }} POS Terminal{{ ($plan->max_terminals ?? 1) > 1 ? 's' : '' }}</strong> (1 Unit = 1 Counter)</div>
                                             <div><i class="bi bi-box-seam-fill text-info me-1.5"></i> Hanggang <strong>{{ number_format($plan->max_products) }} SKUs</strong></div>
                                             <div><i class="bi bi-people-fill text-primary me-1.5"></i> <strong>{{ $plan->max_customers ? number_format($plan->max_customers) . ' Suki' : 'Walang Limitang Suki' }}</strong></div>
                                             <div><i class="bi bi-person-badge-fill text-secondary me-1.5"></i> <strong>{{ $plan->max_users }} User Accounts</strong> ({{ $plan->max_cashier_accounts }} Cashiers)</div>

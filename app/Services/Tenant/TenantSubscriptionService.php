@@ -196,5 +196,47 @@ class TenantSubscriptionService
             'plan_name' => $planName,
         ];
     }
+
+    /**
+     * Check if a tenant can create a new Product based on subscription limits.
+     */
+    public function canCreateProduct(?int $tenantId): array
+    {
+        if (!$tenantId) {
+            return [
+                'allowed' => true,
+                'message' => 'Product creation permitted.',
+                'current' => 0,
+                'limit' => 1000,
+                'plan_name' => 'Free Trial Tier (14 Days)',
+            ];
+        }
+
+        $subscription = $this->getTenantSubscription($tenantId);
+        $planName = $subscription?->name ?? 'Tindahan Starter';
+        $maxProducts = (int) ($subscription?->max_products ?? 1000);
+
+        $currentProducts = \App\Models\POS\POSProducts::where('tenant_id', $tenantId)
+            ->where(function($q) { $q->whereNull('status')->orWhere('status', 'active'); })
+            ->count();
+
+        if ($currentProducts >= $maxProducts) {
+            return [
+                'allowed' => false,
+                'message' => "You have reached your catalog limit of " . number_format($maxProducts) . " Products for your {$planName} Plan. Upgrade your subscription to add more items.",
+                'current' => $currentProducts,
+                'limit' => $maxProducts,
+                'plan_name' => $planName,
+            ];
+        }
+
+        return [
+            'allowed' => true,
+            'message' => 'Product creation permitted.',
+            'current' => $currentProducts,
+            'limit' => $maxProducts,
+            'plan_name' => $planName,
+        ];
+    }
 }
 

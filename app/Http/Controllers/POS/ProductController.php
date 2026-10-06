@@ -152,6 +152,16 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
+        $tenantId = auth()->user()->tenant_id;
+        $productCheck = (new \App\Services\Tenant\TenantSubscriptionService())->canCreateProduct($tenantId);
+        if (!$productCheck['allowed']) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'name' => $productCheck['message']
+                ]);
+        }
+
         $validated = $request->validate([
             'name'                              => ['required', 'string', 'max:255'],
             'description'                       => ['nullable', 'string'],

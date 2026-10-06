@@ -44,6 +44,7 @@ use App\Http\Controllers\POS\UnitController;
 use App\Http\Controllers\SADashboardController;
 use App\Http\Controllers\SAUserController;
 use App\Http\Controllers\SASubscriptionMonitoringController;
+use App\Http\Controllers\SASubscriptionPlanController;
 use App\Http\Controllers\TenantsDashboardController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\GradeLevelController;
@@ -193,6 +194,14 @@ Route::prefix('sa')->name('sa.')->middleware(['auth', 'role:SA',])->group(functi
         Route::post('/verifications/{id}/approve', [SubscriptionPaymentController::class, 'saApproveVerification'])->name('approve');
         Route::post('/verifications/{id}/reject', [SubscriptionPaymentController::class, 'saRejectVerification'])->name('reject');
         
+        // Subscription & Promo Plans Management
+        Route::get('/plans', [SASubscriptionPlanController::class, 'index'])->name('plans');
+        Route::post('/plans', [SASubscriptionPlanController::class, 'store'])->name('plans.store');
+        Route::put('/plans/{id}', [SASubscriptionPlanController::class, 'update'])->name('plans.update');
+        Route::post('/plans/{id}/toggle-status', [SASubscriptionPlanController::class, 'toggleStatus'])->name('plans.toggle-status');
+        Route::post('/plans/{id}/clone', [SASubscriptionPlanController::class, 'clone'])->name('plans.clone');
+        Route::delete('/plans/{id}', [SASubscriptionPlanController::class, 'destroy'])->name('plans.destroy');
+
         // Subscription Expiration & Due Date Monitoring
         Route::get('/monitoring', [SASubscriptionMonitoringController::class, 'index'])->name('monitoring');
         Route::get('/monitoring/data', [SASubscriptionMonitoringController::class, 'ajaxData'])->name('monitoring.data');
