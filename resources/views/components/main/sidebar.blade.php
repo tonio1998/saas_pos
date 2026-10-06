@@ -1,449 +1,519 @@
-<div class="sidebar d-flex flex-column">
+@php
+    $pendingPaymentsCount = \App\Models\POS\POSTenant::where('payment_status', 'pending_verification')->count();
+    $activeTenantContext = session('tenant_id') ? \App\Models\POS\POSTenant::find(session('tenant_id')) : null;
+@endphp
 
-    <div class="border-bottom px-4 pb-3">
+<div class="sidebar-inner d-flex flex-column h-100">
 
-        <a
-            href="{{ route('sa.dashboard.index') }}"
-            class="d-flex align-items-center text-decoration-none"
-        >
-
-            <img
-                src="{{ asset('images/ic_launcher.png') }}"
-                alt="Logo"
-                class="me-3"
-                style="width:52px;height:52px;object-fit:contain;"
-            >
-
-            <div>
-
-                <h5 class="fw-bold text-dark mb-0">
-                    BantayEskwela
-                </h5>
-
-                <small class="text-muted">
-                    Super Admin Console
-                </small>
-
+    <!-- Brand Header -->
+    <div class="sidebar-brand-wrapper position-relative">
+        <a href="{{ route('sa.dashboard.index') }}" class="sidebar-brand-link text-decoration-none">
+            <div class="sidebar-brand-fallback">
+                <div class="sidebar-brand-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                    <i class="bi bi-shield-shaded text-white"></i>
+                </div>
+                <div class="sidebar-brand-text">
+                    <div class="sidebar-brand-title">Likha<span class="sidebar-brand-accent">POS</span></div>
+                    <div class="d-flex align-items-center gap-1.5 mt-0.5">
+                        <span class="badge bg-warning text-dark fw-bold px-1.5 py-0.5" style="font-size: 0.65rem; letter-spacing: 0.4px;">
+                            SUPERADMIN
+                        </span>
+                        <span class="sidebar-brand-sub text-truncate">Console</span>
+                    </div>
+                </div>
             </div>
-
         </a>
+
+        <!-- Mobile Close Button -->
+        <button type="button" id="sidebarCloseBtn" class="sidebar-close-btn d-lg-none" aria-label="Close Sidebar">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    <!-- Quick Switcher Banner / Store Context Status Strip -->
+    <div class="sidebar-branch-strip">
+        @if($activeTenantContext)
+            <div class="p-2 rounded-3 border" style="background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.35) !important;">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="extra-small text-warning fw-bold text-uppercase" style="font-size: 0.65rem;">
+                        <i class="bi bi-shop me-1"></i> Store Context Active
+                    </span>
+                    <span class="sidebar-status-pill py-0 px-1.5" style="font-size: 0.62rem;">Live</span>
+                </div>
+                <div class="fw-bold text-white small text-truncate mb-1.5" title="{{ $activeTenantContext->business_name }}">
+                    {{ $activeTenantContext->business_name }}
+                </div>
+                <div class="d-flex gap-1">
+                    <a href="{{ route('dashboard.index') }}" class="btn btn-warning btn-sm fw-bold flex-grow-1 py-1 text-dark" style="font-size: 0.75rem;">
+                        <i class="bi bi-arrow-right-circle me-1"></i> Open Store
+                    </a>
+                    <form method="POST" action="{{ route('sa.tenants.close-context') }}" class="m-0">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-secondary btn-sm py-1 px-2 text-white-50" title="Exit Store Context" style="font-size: 0.75rem;">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        @else
+            <div class="sidebar-branch-card d-flex align-items-center justify-content-between gap-2">
+                <div class="d-flex align-items-center gap-1.5 min-w-0 flex-grow-1">
+                    <i class="bi bi-hdd-network-fill text-warning flex-shrink-0" style="font-size: 0.9rem;"></i>
+                    <span class="sidebar-branch-name text-truncate">Platform Root Mode</span>
+                </div>
+                <a href="{{ route('dashboard.index') }}" class="badge text-decoration-none fw-bold" style="background: rgba(5, 150, 105, 0.25); color: #34d399; font-size: 0.68rem; padding: 4px 8px; border-radius: 6px;">
+                    <i class="bi bi-shop me-1"></i> Store View
+                </a>
+            </div>
+        @endif
+    </div>
+
+    <!-- Navigation Menu Items -->
+    <div class="sidebar-scroll flex-grow-1 overflow-auto">
+
+        <!-- SECTION: MAIN -->
+        <div class="sidebar-section-title">
+            Main
+        </div>
+        <ul class="sidebar-menu list-unstyled mb-0">
+            <li class="sidebar-item">
+                <a href="{{ route('sa.dashboard.index') }}" class="sidebar-link {{ request()->routeIs('sa.dashboard.*') ? 'active' : '' }}">
+                    <span class="sidebar-icon-wrap">
+                        <i class="bi bi-speedometer2 sidebar-icon"></i>
+                    </span>
+                    <span class="sidebar-label">Platform CRM</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ route('dashboard.index') }}" class="sidebar-link" style="border: 1px dashed rgba(52, 211, 153, 0.35);">
+                    <span class="sidebar-icon-wrap" style="background: rgba(5, 150, 105, 0.2); color: #34d399;">
+                        <i class="bi bi-shop sidebar-icon"></i>
+                    </span>
+                    <span class="sidebar-label fw-bold" style="color: #34d399;">Open Store POS View</span>
+                    <i class="bi bi-box-arrow-up-right ms-auto extra-small opacity-75" style="font-size: 0.72rem;"></i>
+                </a>
+            </li>
+        </ul>
+
+        <!-- SECTION: PLATFORM MANAGEMENT -->
+        <div class="sidebar-section-title">
+            Platform Management
+        </div>
+        <ul class="sidebar-menu list-unstyled mb-0">
+            <!-- Tenants Accordion -->
+            <li class="sidebar-item">
+                <a class="sidebar-link {{ request()->routeIs('sa.tenants.*') ? 'active' : '' }}" data-bs-toggle="collapse" href="#tenantsMenu" role="button" aria-expanded="{{ request()->routeIs('sa.tenants.*') ? 'true' : 'false' }}">
+                    <span class="sidebar-icon-wrap">
+                        <i class="bi bi-buildings-fill sidebar-icon"></i>
+                    </span>
+                    <span class="sidebar-label">Tenants &amp; Stores</span>
+                    <i class="bi bi-chevron-down dropdown-icon ms-auto"></i>
+                </a>
+                <div class="collapse {{ request()->routeIs('sa.tenants.*') ? 'show' : '' }} sidebar-dropdown" id="tenantsMenu">
+                    <a href="{{ route('sa.tenants.index') }}" class="sidebar-sublink {{ request()->routeIs('sa.tenants.index') ? 'active' : '' }}">
+                        <i class="bi bi-list-ul sidebar-subicon"></i>
+                        <span>Tenant Stores List</span>
+                    </a>
+                    <a href="{{ route('sa.tenants.create') }}" class="sidebar-sublink {{ request()->routeIs('sa.tenants.create') ? 'active' : '' }}">
+                        <i class="bi bi-plus-circle-fill sidebar-subicon"></i>
+                        <span>Register New Tenant</span>
+                    </a>
+                </div>
+            </li>
+
+            <!-- Payment Verifications -->
+            <li class="sidebar-item">
+                <a href="{{ route('sa.subscriptions.verifications') }}" class="sidebar-link {{ request()->routeIs('sa.subscriptions.*') ? 'active' : '' }}">
+                    <span class="sidebar-icon-wrap">
+                        <i class="bi bi-patch-check-fill sidebar-icon text-warning"></i>
+                    </span>
+                    <span class="sidebar-label">Verifications</span>
+                    @if($pendingPaymentsCount > 0)
+                        <span class="badge bg-danger rounded-pill ms-auto px-2 py-0.5" style="font-size: 0.7rem;">{{ $pendingPaymentsCount }}</span>
+                    @endif
+                </a>
+            </li>
+
+            <!-- Users -->
+            <li class="sidebar-item">
+                <a href="{{ route('users.index') }}" class="sidebar-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
+                    <span class="sidebar-icon-wrap">
+                        <i class="bi bi-people-fill sidebar-icon"></i>
+                    </span>
+                    <span class="sidebar-label">System Users</span>
+                </a>
+            </li>
+
+            <!-- Access Control Accordion -->
+            <li class="sidebar-item">
+                <a class="sidebar-link {{ request()->routeIs('roles.*') || request()->routeIs('permissions.*') ? 'active' : '' }}" data-bs-toggle="collapse" href="#accessMenu" role="button" aria-expanded="{{ request()->routeIs('roles.*') || request()->routeIs('permissions.*') ? 'true' : 'false' }}">
+                    <span class="sidebar-icon-wrap">
+                        <i class="bi bi-shield-lock-fill sidebar-icon"></i>
+                    </span>
+                    <span class="sidebar-label">Access Control</span>
+                    <i class="bi bi-chevron-down dropdown-icon ms-auto"></i>
+                </a>
+                <div class="collapse {{ request()->routeIs('roles.*') || request()->routeIs('permissions.*') ? 'show' : '' }} sidebar-dropdown" id="accessMenu">
+                    <a href="{{ route('roles.index') }}" class="sidebar-sublink {{ request()->routeIs('roles.*') ? 'active' : '' }}">
+                        <i class="bi bi-person-badge-fill sidebar-subicon"></i>
+                        <span>Roles</span>
+                    </a>
+                    <a href="{{ route('permissions.index') }}" class="sidebar-sublink {{ request()->routeIs('permissions.*') ? 'active' : '' }}">
+                        <i class="bi bi-key-fill sidebar-subicon"></i>
+                        <span>Permissions</span>
+                    </a>
+                </div>
+            </li>
+        </ul>
+
+        <!-- SECTION: MONITORING & SECURITY -->
+        <div class="sidebar-section-title">
+            Monitoring &amp; Security
+        </div>
+        <ul class="sidebar-menu list-unstyled mb-0">
+            <li class="sidebar-item">
+                <a href="{{ route('sa.activity-logs.index') }}" class="sidebar-link {{ request()->routeIs('sa.activity-logs.*') ? 'active' : '' }}">
+                    <span class="sidebar-icon-wrap">
+                        <i class="bi bi-clock-history sidebar-icon"></i>
+                    </span>
+                    <span class="sidebar-label">Audit Logs</span>
+                </a>
+            </li>
+
+            <li class="sidebar-item">
+                <a class="sidebar-link {{ request()->routeIs('sa.security.*') ? 'active' : '' }}" data-bs-toggle="collapse" href="#securityMenu" role="button" aria-expanded="{{ request()->routeIs('sa.security.*') ? 'true' : 'false' }}">
+                    <span class="sidebar-icon-wrap">
+                        <i class="bi bi-shield-check sidebar-icon"></i>
+                    </span>
+                    <span class="sidebar-label">Security Controls</span>
+                    <i class="bi bi-chevron-down dropdown-icon ms-auto"></i>
+                </a>
+                <div class="collapse {{ request()->routeIs('sa.security.*') ? 'show' : '' }} sidebar-dropdown" id="securityMenu">
+                    <a href="{{ route('sa.security.login-activities.index') }}" class="sidebar-sublink {{ request()->routeIs('sa.security.login-activities.*') ? 'active' : '' }}">
+                        <i class="bi bi-box-arrow-in-right sidebar-subicon"></i>
+                        <span>Login Activities</span>
+                    </a>
+                    <a href="{{ route('sa.security.active-sessions.index') }}" class="sidebar-sublink {{ request()->routeIs('sa.security.active-sessions.*') ? 'active' : '' }}">
+                        <i class="bi bi-pc-display sidebar-subicon"></i>
+                        <span>Active Sessions</span>
+                    </a>
+                    <a href="{{ route('sa.security.suspicious-activities.index') }}" class="sidebar-sublink {{ request()->routeIs('sa.security.suspicious-activities.*') ? 'active' : '' }}">
+                        <i class="bi bi-exclamation-triangle-fill sidebar-subicon text-danger"></i>
+                        <span>Suspicious Activities</span>
+                    </a>
+                </div>
+            </li>
+        </ul>
+
+        <!-- SECTION: ANALYTICS & SYSTEM -->
+        <div class="sidebar-section-title">
+            Analytics &amp; System
+        </div>
+        <ul class="sidebar-menu list-unstyled mb-0">
+            <li class="sidebar-item">
+                <a href="{{ route('sa.platform-analytics.index') }}" class="sidebar-link {{ request()->routeIs('sa.platform-analytics.*') ? 'active' : '' }}">
+                    <span class="sidebar-icon-wrap">
+                        <i class="bi bi-bar-chart-fill sidebar-icon"></i>
+                    </span>
+                    <span class="sidebar-label">Platform Analytics</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ route('sa.system-settings.index') }}" class="sidebar-link {{ request()->routeIs('sa.system-settings.*') ? 'active' : '' }}">
+                    <span class="sidebar-icon-wrap">
+                        <i class="bi bi-sliders2-vertical sidebar-icon"></i>
+                    </span>
+                    <span class="sidebar-label">System Settings</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ route('sa.backups.index') }}" class="sidebar-link {{ request()->routeIs('sa.backups.*') ? 'active' : '' }}">
+                    <span class="sidebar-icon-wrap">
+                        <i class="bi bi-database-fill-gear sidebar-icon"></i>
+                    </span>
+                    <span class="sidebar-label">Database Backups</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ route('support-center.index') }}" class="sidebar-link {{ request()->routeIs('support-center.*') ? 'active' : '' }}">
+                    <span class="sidebar-icon-wrap">
+                        <i class="bi bi-life-preserver sidebar-icon"></i>
+                    </span>
+                    <span class="sidebar-label">Support Center</span>
+                </a>
+            </li>
+        </ul>
 
     </div>
 
-    <div class="sidebar-scroll flex-grow-1 py-3">
-
-        <div class="px-3 mb-2">
-
-            <small class="text-uppercase text-muted fw-semibold">
-                Main
-            </small>
-
-        </div>
-
-        <ul class="sidebar-menu">
-
-            <li class="sidebar-item">
-
-                <a
-                    href="{{ route('sa.dashboard.index') }}"
-                    class="sidebar-link justify-content-start {{ request()->routeIs('sa.dashboard.*') ? 'active' : '' }}"
-                >
-
-                    <i class="bi bi-grid-1x2-fill sidebar-icon"></i>
-
-                    <span>
-                        Dashboard
-                    </span>
-
-                </a>
-
-            </li>
-
-            <li class="sidebar-item">
-
-                <a
-                    href="{{ route('dashboard.index') }}"
-                    class="sidebar-link justify-content-start text-success"
-                >
-
-                    <i class="bi bi-shop sidebar-icon text-success"></i>
-
-                    <span class="fw-bold">
-                        Open Store POS View
-                    </span>
-
-                </a>
-
-            </li>
-
-        </ul>
-
-        <div class="px-3 mt-3 mb-2">
-
-            <small class="text-uppercase text-muted fw-semibold">
-                Platform Management
-            </small>
-
-        </div>
-
-        <ul class="sidebar-menu">
-
-            <li class="sidebar-item">
-
-                <a
-                    class="sidebar-link d-flex justify-content-between align-items-center {{ request()->routeIs('sa.tenants.*') ? '' : 'collapsed' }}"
-                    data-bs-toggle="collapse"
-                    href="#tenantsMenu"
-                    role="button"
-                    aria-expanded="{{ request()->routeIs('sa.tenants.*') ? 'true' : 'false' }}"
-                >
-
-                    <div class="d-flex align-items-center">
-
-                        <i class="bi bi-buildings-fill sidebar-icon"></i>
-
-                        <span>
-                            Tenants
-                        </span>
-
-                    </div>
-
-                    <i class="bi bi-chevron-down dropdown-icon"></i>
-
-                </a>
-
-                <div
-                    class="collapse sidebar-dropdown {{ request()->routeIs('sa.tenants.*') ? 'show' : '' }}"
-                    id="tenantsMenu"
-                >
-
-                    <a
-                        href="{{ route('sa.tenants.index') }}"
-                        class="sidebar-sublink {{ request()->routeIs('sa.tenants.index') ? 'active' : '' }}"
-                    >
-
-                        <i class="bi bi-list-ul sidebar-subicon"></i>
-
-                        <span>
-                            Tenant List
-                        </span>
-
-                    </a>
-
-                    <a
-                        href="{{ route('sa.tenants.create') }}"
-                        class="sidebar-sublink {{ request()->routeIs('sa.tenants.create') ? 'active' : '' }}"
-                    >
-
-                        <i class="bi bi-plus-circle-fill sidebar-subicon"></i>
-
-                        <span>
-                            Register Tenant
-                        </span>
-
-                    </a>
-
-                    @php
-                        $pendingPaymentsCount = \App\Models\POS\POSTenant::where('payment_status', 'pending_verification')->count();
-                    @endphp
-                    <a
-                        href="{{ route('sa.subscriptions.verifications') }}"
-                        class="sidebar-sublink d-flex align-items-center justify-content-between {{ request()->routeIs('sa.subscriptions.*') ? 'active' : '' }}"
-                    >
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-patch-check-fill sidebar-subicon text-warning"></i>
-                            <span>Verifications</span>
-                        </div>
-                        @if($pendingPaymentsCount > 0)
-                            <span class="badge bg-danger rounded-pill px-2 py-0.5" style="font-size: 0.7rem;">{{ $pendingPaymentsCount }}</span>
-                        @endif
-                    </a>
-
-                </div>
-
-            </li>
-
-            <li class="sidebar-item">
-
-                <a
-                    href="{{ route('users.index') }}"
-                    class="sidebar-link justify-content-start {{ request()->routeIs('users.*') ? 'active' : '' }}"
-                >
-
-                    <i class="bi bi-people-fill sidebar-icon"></i>
-
-                    <span>
-                        Users
-                    </span>
-
-                </a>
-
-            </li>
-
-            <li class="sidebar-item">
-
-                <a
-                    class="sidebar-link d-flex justify-content-between align-items-center {{ request()->routeIs('roles.*') || request()->routeIs('permissions.*') ? '' : 'collapsed' }}"
-                    data-bs-toggle="collapse"
-                    href="#accessMenu"
-                    role="button"
-                    aria-expanded="{{ request()->routeIs('roles.*') || request()->routeIs('permissions.*') ? 'true' : 'false' }}"
-                >
-
-                    <div class="d-flex align-items-center">
-
-                        <i class="bi bi-shield-lock-fill sidebar-icon"></i>
-
-                        <span>
-                            Access Control
-                        </span>
-
-                    </div>
-
-                    <i class="bi bi-chevron-down dropdown-icon"></i>
-
-                </a>
-
-                <div
-                    class="collapse sidebar-dropdown {{ request()->routeIs('roles.*') || request()->routeIs('permissions.*') ? 'show' : '' }}"
-                    id="accessMenu"
-                >
-
-                    <a
-                        href="{{ route('roles.index') }}"
-                        class="sidebar-sublink {{ request()->routeIs('roles.*') ? 'active' : '' }}"
-                    >
-
-                        <i class="bi bi-person-badge-fill sidebar-subicon"></i>
-
-                        <span>
-                            Roles
-                        </span>
-
-                    </a>
-
-                    <a
-                        href="{{ route('permissions.index') }}"
-                        class="sidebar-sublink {{ request()->routeIs('permissions.*') ? 'active' : '' }}"
-                    >
-
-                        <i class="bi bi-key-fill sidebar-subicon"></i>
-
-                        <span>
-                            Permissions
-                        </span>
-
-                    </a>
-
-                </div>
-
-            </li>
-
-        </ul>
-
-        <div class="px-3 mt-3 mb-2">
-
-            <small class="text-uppercase text-muted fw-semibold">
-                Monitoring
-            </small>
-
-        </div>
-
-        <ul class="sidebar-menu">
-            <li class="sidebar-item">
-
-                <a
-                    href="{{ route('sa.activity-logs.index') }}"
-                    class="sidebar-link justify-content-start {{ request()->routeIs('sa.activity-logs.*') ? 'active' : '' }}"
-                >
-
-                    <i class="bi bi-clock-history sidebar-icon"></i>
-
-                    <span>
-                        Audit Logs
-                    </span>
-
-                </a>
-
-            </li>
-
-            <li class="sidebar-item">
-
-                <a
-                    class="sidebar-link d-flex justify-content-between align-items-center {{ request()->routeIs('sa.security.*') ? '' : 'collapsed' }}"
-                    data-bs-toggle="collapse"
-                    href="#securityMenu"
-                    role="button"
-                    aria-expanded="{{ request()->routeIs('sa.security.*') ? 'true' : 'false' }}"
-                >
-
-                    <div class="d-flex align-items-center">
-
-                        <i class="bi bi-shield-lock-fill sidebar-icon"></i>
-
-                        <span>
-                            Security Controls
-                        </span>
-
-                    </div>
-
-                    <i class="bi bi-chevron-down dropdown-icon"></i>
-
-                </a>
-
-                <div
-                    class="collapse sidebar-dropdown {{ request()->routeIs('sa.security.*') ? 'show' : '' }}"
-                    id="securityMenu"
-                >
-
-                    <a
-                        href="{{ route('sa.security.login-activities.index') }}"
-                        class="sidebar-sublink {{ request()->routeIs('sa.security.login-activities.*') ? 'active' : '' }}"
-                    >
-
-                        <i class="bi bi-box-arrow-in-right sidebar-subicon"></i>
-
-                        <span>
-                            Login Activities
-                        </span>
-
-                    </a>
-
-                    <a
-                        href="{{ route('sa.security.active-sessions.index') }}"
-                        class="sidebar-sublink {{ request()->routeIs('sa.security.active-sessions.*') ? 'active' : '' }}"
-                    >
-
-                        <i class="bi bi-pc-display sidebar-subicon"></i>
-
-                        <span>
-                            Active Sessions
-                        </span>
-
-                    </a>
-
-                    <a
-                        href="{{ route('sa.security.suspicious-activities.index') }}"
-                        class="sidebar-sublink {{ request()->routeIs('sa.security.suspicious-activities.*') ? 'active' : '' }}"
-                    >
-
-                        <i class="bi bi-exclamation-triangle-fill sidebar-subicon"></i>
-
-                        <span>
-                            Suspicious Activities
-                        </span>
-
-                    </a>
-
-                </div>
-
-            </li>
-
-        </ul>
-
-        <div class="px-3 mt-3 mb-2">
-
-            <small class="text-uppercase text-muted fw-semibold">
-                Analytics
-            </small>
-
-        </div>
-
-        <ul class="sidebar-menu">
-
-            <li class="sidebar-item">
-
-                <a
-                    href="{{ route('sa.platform-analytics.index') }}"
-                    class="sidebar-link justify-content-start {{ request()->routeIs('sa.platform-analytics.*') ? 'active' : '' }}"
-                >
-
-                    <i class="bi bi-bar-chart-fill sidebar-icon"></i>
-
-                    <span>
-                        Platform Analytics
-                    </span>
-
-                </a>
-
-            </li>
-
-        </ul>
-
-        <div class="px-3 mt-3 mb-2">
-
-            <small class="text-uppercase text-muted fw-semibold">
-                System
-            </small>
-
-        </div>
-
-        <ul class="sidebar-menu">
-            <li class="sidebar-item">
-
-                <a
-                    href="{{ route('sa.system-settings.index') }}"
-                    class="sidebar-link justify-content-start {{ request()->routeIs('sa.system-settings.*') ? 'active' : '' }}"
-                >
-
-                    <i class="bi bi-sliders2-vertical sidebar-icon"></i>
-
-                    <span>
-                        System Settings
-                    </span>
-
-                </a>
-
-            </li>
-
-            <li class="sidebar-item">
-
-                <a
-                    href="{{ route('sa.backups.index') }}"
-                    class="sidebar-link justify-content-start {{ request()->routeIs('sa.backups.*') ? 'active' : '' }}"
-                >
-
-                    <i class="bi bi-database-fill-gear sidebar-icon"></i>
-
-                    <span>
-                        Backups
-                    </span>
-
-                </a>
-
-            </li>
-
-        </ul>
-
-        <div class="px-3 mt-3 mb-2">
-
-            <small class="text-uppercase text-muted fw-semibold">
-                Support
-            </small>
-
-        </div>
-
-        <ul class="sidebar-menu">
-
-            <li class="sidebar-item">
-
-                <a
-                    href="{{ route('support-center.index') }}"
-                    class="sidebar-link justify-content-start {{ request()->routeIs('support-center.*') ? 'active' : '' }}"
-                >
-
-                    <i class="bi bi-life-preserver sidebar-icon"></i>
-
-                    <span>
-                        Support Center
-                    </span>
-
-                </a>
-
-            </li>
-
-        </ul>
-
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer mt-auto">
+        <a href="{{ route('terminal.index') }}" class="sidebar-pos-launch-btn">
+            <i class="bi bi-calculator-fill"></i>
+            <span>Open POS Terminal</span>
+        </a>
     </div>
 
 </div>
+
+{{-- ── Sidebar Styles (LikhaPOS Dark Navy Theme) ───────────── --}}
+<style>
+.sidebar-inner {
+    padding: 16px 14px 18px;
+    background: var(--theme-sidebar, #0f172a);
+    color: var(--theme-sidebar-text, #cbd5e1);
+}
+
+.sidebar-brand-wrapper {
+    padding: 4px 6px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.sidebar-brand-link {
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+.sidebar-brand-fallback {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+.sidebar-brand-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+}
+.sidebar-brand-text {
+    line-height: 1.2;
+    min-width: 0;
+}
+.sidebar-brand-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.01em;
+}
+.sidebar-brand-accent {
+    color: #34d399;
+}
+.sidebar-brand-sub {
+    font-size: 0.72rem;
+    color: #cbd5e1;
+    opacity: 0.8;
+    font-weight: 600;
+}
+
+.sidebar-close-btn {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 10px;
+    color: #ffffff;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+.sidebar-close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-branch-strip {
+    padding: 10px 4px 12px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.sidebar-branch-card {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 7px 11px;
+    min-width: 0;
+}
+.sidebar-branch-name {
+    font-size: 0.77rem;
+    font-weight: 700;
+    color: #cbd5e1;
+    letter-spacing: 0.15px;
+    line-height: 1.2;
+}
+.sidebar-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #4ade80;
+    background: rgba(34, 197, 94, 0.12);
+    border: 1px solid rgba(34, 197, 94, 0.25);
+    border-radius: 50px;
+    padding: 3px 9px;
+}
+
+.sidebar-scroll {
+    padding-right: 4px;
+}
+.sidebar-scroll::-webkit-scrollbar {
+    width: 4px;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+}
+
+.sidebar-section-title {
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.9px;
+    color: #64748b;
+    padding: 14px 10px 6px;
+}
+
+.sidebar-item {
+    margin-bottom: 4px;
+}
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    padding: 9px 12px;
+    border-radius: 12px;
+    color: #cbd5e1;
+    font-size: 0.86rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    min-height: 42px;
+    gap: 11px;
+}
+.sidebar-link:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    transform: translateX(3px);
+}
+.sidebar-link.active {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+    color: #ffffff !important;
+    font-weight: 700;
+    box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
+}
+
+.sidebar-icon-wrap {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.07);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1.02rem;
+    transition: all 0.2s ease;
+}
+.sidebar-link.active .sidebar-icon-wrap {
+    background: rgba(255, 255, 255, 0.22);
+    color: #ffffff !important;
+}
+
+.sidebar-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.86rem;
+}
+
+.dropdown-icon {
+    font-size: 0.72rem;
+    transition: transform 0.2s ease;
+    opacity: 0.75;
+}
+.sidebar-link[aria-expanded="true"] .dropdown-icon {
+    transform: rotate(180deg);
+}
+
+.sidebar-dropdown {
+    padding-left: 10px;
+    margin: 4px 0 8px 16px;
+    border-left: 2px solid rgba(255, 255, 255, 0.12);
+}
+.sidebar-sublink {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    min-height: 34px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #94a3b8;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    margin-bottom: 2px;
+    white-space: nowrap;
+}
+.sidebar-sublink:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    transform: translateX(2px);
+}
+.sidebar-sublink.active {
+    background: rgba(5, 150, 105, 0.2);
+    color: #34d399 !important;
+    font-weight: 700;
+}
+.sidebar-subicon {
+    font-size: 0.95rem;
+    width: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sidebar-footer {
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.sidebar-pos-launch-btn {
+    width: 100%;
+    padding: 11px 16px;
+    min-height: 44px;
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    color: #ffffff !important;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    text-decoration: none;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+}
+.sidebar-pos-launch-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+    filter: brightness(1.08);
+}
+</style>
