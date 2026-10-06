@@ -19,8 +19,11 @@ class POSSubscription extends Model
         'max_admin_accounts',
         'max_cashier_accounts',
         'max_products',
+        'max_customers',
         'max_branches',
         'max_storage_mb',
+        'inclusions',
+        'limitations',
         'allow_inventory',
         'allow_reports',
         'allow_multi_branch',
@@ -42,6 +45,14 @@ class POSSubscription extends Model
         'archived',
         'created_by',
         'updated_by',
+    ];
+
+    protected $casts = [
+        'inclusions'   => 'array',
+        'limitations'  => 'array',
+        'price'        => 'float',
+        'max_products' => 'integer',
+        'max_customers'=> 'integer',
     ];
 
     public function tenant()

@@ -215,9 +215,9 @@
                         </div>
                         <p class="text-secondary extra-small mb-2">{{ $plan->description }}</p>
                         <div class="pt-2 border-top extra-small font-mono text-muted">
-                            <div><i class="bi bi-calculator-fill text-warning me-1"></i>POS Terminals: <strong>{{ $plan->max_terminals ?? 1 }} Terminal(s)</strong></div>
-                            <div><i class="bi bi-people-fill text-primary me-1"></i>Max Users: <strong>{{ $plan->max_users }} Accounts</strong> ({{ $plan->max_cashier_accounts }} Cashiers)</div>
                             <div><i class="bi bi-box-seam-fill text-info me-1"></i>Products Limit: <strong>{{ number_format($plan->max_products) }} SKUs</strong></div>
+                            <div><i class="bi bi-people-fill text-primary me-1"></i>Suki Customers: <strong>{{ $plan->max_customers ? number_format($plan->max_customers) . ' Suki' : 'Unlimited Suki' }}</strong></div>
+                            <div><i class="bi bi-person-badge text-secondary me-1"></i>Max Users: <strong>{{ $plan->max_users }} Accounts</strong> ({{ $plan->max_cashier_accounts }} Cashiers)</div>
                             @if($plan->allow_multi_branch)
                                 <div class="text-success fw-bold"><i class="bi bi-buildings-fill me-1"></i>Multi-Branch: Up to {{ $plan->max_branches }} Branches</div>
                             @endif

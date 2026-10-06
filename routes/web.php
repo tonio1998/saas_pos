@@ -76,7 +76,13 @@ Route::get('/', function () {
         ->latest()
         ->get();
 
-    return view('welcome', compact('reviews'));
+    $subscriptions = \App\Models\POS\POSSubscription::where('status', 'active')
+        ->whereIn('id', [1, 2, 3])
+        ->orderBy('sort_order')
+        ->get()
+        ->keyBy('id');
+
+    return view('welcome', compact('reviews', 'subscriptions'));
 })->name('home');
 
 Route::post('/submit-review', [AuthController::class, 'submitReview'])->name('reviews.store');

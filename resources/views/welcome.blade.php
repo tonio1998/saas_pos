@@ -618,39 +618,111 @@
             position: relative;
         }
         
-        .duration-pills-wrap {
+        /* Unified Billing Interval Switcher */
+        .pricing-switcher-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 38px;
+            padding: 0 10px;
+        }
+        .pricing-switcher-pill {
             display: inline-flex;
             align-items: center;
-            background: #f1f5f9;
-            padding: 4px;
-            border-radius: 50px;
-            gap: 2px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            padding: 5px;
+            border-radius: 60px;
+            gap: 4px;
+            border: 1.5px solid #e2e8f0;
+            box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
+            max-width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
-        .duration-pill {
-            font-size: 0.8rem;
+        .billing-cycle-btn {
+            font-size: 0.84rem;
             font-weight: 600;
-            padding: 6px 14px;
+            padding: 7px 15px;
             border-radius: 50px;
             color: #64748b;
             background: transparent;
             border: none;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
+            white-space: nowrap;
         }
-        .duration-pill.active {
+        .billing-cycle-btn:hover:not(.active) {
+            color: #0f172a;
+            background: #f1f5f9;
+        }
+        .billing-cycle-btn.active {
             background: #155dfc;
             color: #ffffff;
-            box-shadow: 0 2px 8px rgba(21, 93, 252, 0.3);
+            box-shadow: 0 4px 14px rgba(21, 93, 252, 0.35);
         }
-        .duration-pill:hover:not(.active) {
+        .discount-badge {
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 20px;
+            background: rgba(16, 185, 129, 0.12);
+            color: #059669;
+            letter-spacing: 0.2px;
+            transition: all 0.2s ease;
+        }
+        .billing-cycle-btn.active .discount-badge {
+            background: rgba(255, 255, 255, 0.22);
+            color: #ffffff;
+        }
+        .discount-badge.discount-gold {
+            background: rgba(245, 158, 11, 0.15);
+            color: #d97706;
+        }
+        .billing-cycle-btn.active .discount-badge.discount-gold {
+            background: rgba(255, 255, 255, 0.28);
+            color: #ffffff;
+        }
+
+        /* Quota & Capacity Box inside Cards */
+        .sub-quota-badge-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+        .quota-item {
+            font-size: 0.82rem;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .quota-item strong {
             color: #0f172a;
-            background: rgba(255, 255, 255, 0.7);
+            font-weight: 700;
+        }
+        .quota-item i {
+            font-size: 0.92rem;
+        }
+
+        @media (max-width: 768px) {
+            .pricing-switcher-pill {
+                justify-content: flex-start;
+                scrollbar-width: none;
+            }
+            .pricing-switcher-pill::-webkit-scrollbar {
+                display: none;
+            }
+            .billing-cycle-btn {
+                padding: 6px 12px;
+                font-size: 0.78rem;
+            }
         }
 
         /* Three Main Pricing Cards */
@@ -1541,142 +1613,199 @@
     </section>
 
     <!-- ==========================================================================
-         SUBSCRIPTION & PRICING SECTION (MATCHES USER REFERENCE IMAGE EXACTLY)
+         SUBSCRIPTION & PRICING SECTION (PANG-ENTERPRISE NA ABOT-KAYA SA MASA)
          ========================================================================== -->
     <section id="pricing" class="pricing-section-container">
         <div class="container">
-            <div class="text-center max-w-700 mx-auto mb-5">
+            <div class="text-center max-w-700 mx-auto mb-4">
                 <span class="section-header-badge badge-cyan">
                     <i class="bi bi-tags-fill"></i> Transparent Subscription Plans
                 </span>
                 <h2 class="fw-extrabold text-dark display-6 font-heading">Presyong Abot-Kaya Para sa Bawat Negosyo</h2>
-                <p class="text-muted">Pumili ng plano na angkop sa laki ng inyong operasyon. Walang hidden setup fees.</p>
+                <p class="text-muted">Pumili ng plano na angkop sa laki ng inyong operasyon. May buwanang bayad at walang hidden setup fees.</p>
             </div>
+
+            <!-- Unified Billing Interval Switcher -->
+            <div class="pricing-switcher-wrapper">
+                <div class="pricing-switcher-pill" role="tablist" aria-label="Billing Interval">
+                    <button type="button" class="billing-cycle-btn active" onclick="switchBillingCycle('monthly', this)">
+                        <span>Monthly</span>
+                    </button>
+                    <button type="button" class="billing-cycle-btn" onclick="switchBillingCycle('quarterly', this)">
+                        <span>Quarterly</span>
+                        <span class="discount-badge">Save 10%</span>
+                    </button>
+                    <button type="button" class="billing-cycle-btn" onclick="switchBillingCycle('1year', this)">
+                        <span>1 Year</span>
+                        <span class="discount-badge">Save 20%</span>
+                    </button>
+                    <button type="button" class="billing-cycle-btn" onclick="switchBillingCycle('3years', this)">
+                        <span>3 Years</span>
+                        <span class="discount-badge">Save 30%</span>
+                    </button>
+                    <button type="button" class="billing-cycle-btn" onclick="switchBillingCycle('5years', this)">
+                        <span>5 Years</span>
+                        <span class="discount-badge">Save 40%</span>
+                    </button>
+                    <button type="button" class="billing-cycle-btn" onclick="switchBillingCycle('10years', this)">
+                        <span>10 Years</span>
+                        <span class="discount-badge discount-gold">⭐ Save 50%</span>
+                    </button>
+                </div>
+            </div>
+
+            @php
+                $basicSub = $subscriptions[1] ?? null;
+                $proSub = $subscriptions[2] ?? null;
+                $enterpriseSub = $subscriptions[3] ?? null;
+            @endphp
 
             <div class="row g-4 align-items-stretch justify-content-center">
                 
-                <!-- CARD 1: BASIC -->
+                <!-- CARD 1: BASIC (Tindahan Starter) -->
                 <div class="col-lg-4 col-md-6">
                     <div class="sub-card">
                         <!-- Top Icon -->
                         <div class="sub-icon text-primary">
                             <i class="bi bi-rocket-takeoff-fill"></i>
                         </div>
-                        <h3 class="sub-title">Basic</h3>
-                        <p class="sub-desc">Perfect for startups and small businesses.</p>
-
-                        <!-- Duration Selector Pills for Basic -->
-                        <div class="duration-pills-wrap" id="basicPills">
-                            <button class="duration-pill active" onclick="setPlanDuration('basic', 'quarterly', 300, 100, this)">Quarterly</button>
-                            <button class="duration-pill" onclick="setPlanDuration('basic', '1year', 1080, 90, this)">1 Year</button>
-                            <button class="duration-pill" onclick="setPlanDuration('basic', '3years', 3000, 83, this)">3 Years</button>
-                            <button class="duration-pill" onclick="setPlanDuration('basic', '4years', 3800, 79, this)">4 Years</button>
-                            <button class="duration-pill" onclick="setPlanDuration('basic', '6years', 5400, 75, this)">6 Years</button>
-                            <button class="duration-pill" onclick="setPlanDuration('basic', '10years', 8400, 70, this)">10 Years ⭐</button>
-                        </div>
+                        <h3 class="sub-title">{{ $basicSub?->name ?? 'Basic' }}</h3>
+                        <p class="sub-desc">{{ $basicSub?->description ?? 'Abot-kaya para sa sari-sari store, bakery, at nagsisimulang negosyo.' }}</p>
 
                         <!-- Price Value Display -->
                         <div class="d-flex align-items-baseline gap-2">
-                            <span class="sub-price-val" id="basicPrice">₱300</span>
-                            <span class="sub-price-period" id="basicPeriod">/Quarterly</span>
+                            <span class="sub-price-val" id="basicPrice">₱{{ number_format($basicSub?->price ?? 300, 0) }}</span>
+                            <span class="sub-price-period" id="basicPeriod">/month</span>
                         </div>
                         <div class="sub-billed-note">
-                            Billed as <strong id="basicMonthly">₱100/month</strong>
+                            <span id="basicMonthly">₱10/araw • Bayaran buwan-buwan</span>
                         </div>
 
-                        <!-- Included Features -->
+                        <!-- Capacity & Limitations Quota Box (From Database) -->
+                        <div class="sub-quota-badge-box">
+                            <div class="quota-item">
+                                <i class="bi bi-box-seam-fill text-primary"></i>
+                                <span><strong>Hanggang {{ number_format($basicSub?->max_products ?? 1000) }}</strong> Products / SKUs</span>
+                            </div>
+                            <div class="quota-item">
+                                <i class="bi bi-people-fill text-primary"></i>
+                                <span><strong>Hanggang {{ number_format($basicSub?->max_customers ?? 300) }}</strong> Suki / Credit Ledger</span>
+                            </div>
+                            <div class="quota-item">
+                                <i class="bi bi-person-badge-fill text-primary"></i>
+                                <span><strong>{{ $basicSub?->max_admin_accounts ?? 1 }} Admin + {{ $basicSub?->max_cashier_accounts ?? 1 }} Cashier</strong> Account</span>
+                            </div>
+                            <div class="quota-item">
+                                <i class="bi bi-shop text-primary"></i>
+                                <span><strong>{{ $basicSub?->max_branches ?? 1 }} Store Branch</strong> Lamang</span>
+                            </div>
+                        </div>
+
+                        <!-- Included Features (From Database) -->
                         <div class="feature-group-heading">INCLUDED FEATURES</div>
                         <ul class="sub-feature-list">
-                            <li><i class="bi bi-check-circle-fill check-green"></i> Dashboard Analytics</li>
-                            <li><i class="bi bi-check-circle-fill check-green"></i> Product Management</li>
-                            <li><i class="bi bi-check-circle-fill check-green"></i> Inventory Management</li>
-                            <li><i class="bi bi-check-circle-fill check-green"></i> Sales Monitoring</li>
-                            <li><i class="bi bi-check-circle-fill check-green"></i> Employee Management</li>
-                            <li><i class="bi bi-check-circle-fill check-green"></i> Periodic Sales Reports</li>
+                            @foreach($basicSub?->inclusions ?? [
+                                'Lightning Barcode Scanning',
+                                'Real-Time Inventory & Auto-Deduct',
+                                'Suki Utang & Repayment Ledger',
+                                'Cash Drawer Auto-Pop Trigger',
+                                'Daily Gross Sales & Shift Summary',
+                                '58mm / 80mm Receipt Printing',
+                                'Standard Technical Support'
+                            ] as $inc)
+                                <li><i class="bi bi-check-circle-fill check-green"></i> {{ $inc }}</li>
+                            @endforeach
                         </ul>
 
-                        <!-- Limitations -->
+                        <!-- Limitations (From Database) -->
                         <div class="feature-group-heading">LIMITATIONS</div>
                         <ul class="sub-feature-list">
-                            <li><i class="bi bi-calculator-fill text-warning"></i> <strong>1 POS Terminal Only</strong> (Single Register)</li>
-                            <li><i class="bi bi-check-circle-fill check-green"></i> 1 Administrator Account</li>
-                            <li><i class="bi bi-check-circle-fill check-green"></i> Up to 2 Cashier Accounts</li>
-                            <li><i class="bi bi-check-circle-fill check-green"></i> 1 Branch Only</li>
-                            <li class="faded"><i class="bi bi-dash-circle text-muted"></i> Multi Branch</li>
-                            <li class="faded"><i class="bi bi-dash-circle text-muted"></i> Purchase Journal</li>
-                            <li class="faded"><i class="bi bi-dash-circle text-muted"></i> Cash Receipt Journal</li>
-                            <li class="faded"><i class="bi bi-dash-circle text-muted"></i> Cash Disbursement Journal</li>
-                            <li class="faded"><i class="bi bi-dash-circle text-muted"></i> Transaction Override</li>
-                            <li class="faded"><i class="bi bi-dash-circle text-muted"></i> Advanced Reports</li>
-                            <li><i class="bi bi-check-circle-fill check-green"></i> Standard Technical Support</li>
+                            @foreach($basicSub?->limitations ?? [
+                                'Hanggang 1,000 Products / SKUs',
+                                'Hanggang 300 Suki / Credit Profiles',
+                                '1 Store Branch Lamang'
+                            ] as $lim)
+                                <li class="faded"><i class="bi bi-dash-circle text-muted"></i> {{ $lim }}</li>
+                            @endforeach
                         </ul>
 
                         <!-- Bottom Button -->
-                        <a href="{{ route('register', ['plan' => 1]) }}" class="btn-sub-trial">
+                        <a href="{{ route('register', ['plan' => $basicSub?->id ?? 1]) }}" class="btn-sub-trial">
                             Start Free Trial
                         </a>
                     </div>
                 </div>
 
-                <!-- CARD 2: PRO (Featured with Gradient Top Bar) -->
+                <!-- CARD 2: PRO (Suki Growth - Featured) -->
                 <div class="col-lg-4 col-md-6">
                     <div class="sub-card card-pro">
                         <!-- Top Icon -->
                         <div class="sub-icon text-primary">
                             <i class="bi bi-award-fill" style="color: #155dfc;"></i>
                         </div>
-                        <h3 class="sub-title">Pro</h3>
-                        <p class="sub-desc">Ideal for growing businesses with multiple employees.</p>
-
-                        <!-- Duration Selector Pills for Pro -->
-                        <div class="duration-pills-wrap" id="proPills">
-                            <button class="duration-pill active" onclick="setPlanDuration('pro', 'quarterly', 600, 200, this)">Quarterly</button>
-                            <button class="duration-pill" onclick="setPlanDuration('pro', '1year', 2160, 180, this)">1 Year</button>
-                            <button class="duration-pill" onclick="setPlanDuration('pro', '3years', 6000, 166, this)">3 Years</button>
-                            <button class="duration-pill" onclick="setPlanDuration('pro', '4years', 7600, 158, this)">4 Years</button>
-                            <button class="duration-pill" onclick="setPlanDuration('pro', '6years', 10800, 150, this)">6 Years</button>
-                            <button class="duration-pill" onclick="setPlanDuration('pro', '10years', 16800, 140, this)">10 Years ⭐</button>
-                        </div>
+                        <h3 class="sub-title">{{ $proSub?->name ?? 'Pro' }}</h3>
+                        <p class="sub-desc">{{ $proSub?->description ?? 'Para sa lumalaking minimart na may multiple shifting at maraming items.' }}</p>
 
                         <!-- Price Value Display -->
                         <div class="d-flex align-items-baseline gap-2">
-                            <span class="sub-price-val" id="proPrice">₱600</span>
-                            <span class="sub-price-period" id="proPeriod">/Quarterly</span>
+                            <span class="sub-price-val" id="proPrice">₱{{ number_format($proSub?->price ?? 600, 0) }}</span>
+                            <span class="sub-price-period" id="proPeriod">/month</span>
                         </div>
                         <div class="sub-billed-note">
-                            Billed as <strong id="proMonthly">₱200/month</strong>
+                            <span id="proMonthly">₱20/araw • Bayaran buwan-buwan</span>
                         </div>
 
-                        <!-- Everything in Basic Plus -->
+                        <!-- Capacity & Limitations Quota Box (From Database) -->
+                        <div class="sub-quota-badge-box">
+                            <div class="quota-item">
+                                <i class="bi bi-box-seam-fill text-primary"></i>
+                                <span><strong>Hanggang {{ number_format($proSub?->max_products ?? 5000) }}</strong> Products / SKUs</span>
+                            </div>
+                            <div class="quota-item">
+                                <i class="bi bi-people-fill text-primary"></i>
+                                <span><strong>Hanggang {{ number_format($proSub?->max_customers ?? 2000) }}</strong> Suki / Credit Ledger</span>
+                            </div>
+                            <div class="quota-item">
+                                <i class="bi bi-person-badge-fill text-primary"></i>
+                                <span><strong>{{ $proSub?->max_admin_accounts ?? 2 }} Admin + {{ $proSub?->max_cashier_accounts ?? 6 }} Cashier</strong> Accounts</span>
+                            </div>
+                            <div class="quota-item">
+                                <i class="bi bi-shop text-primary"></i>
+                                <span><strong>{{ $proSub?->max_branches ?? 1 }} Main Store Branch</strong></span>
+                            </div>
+                        </div>
+
+                        <!-- Everything in Basic Plus (From Database) -->
                         <div class="feature-group-heading">EVERYTHING IN BASIC, PLUS:</div>
                         <ul class="sub-feature-list">
-                            <li><i class="bi bi-check-circle-fill check-green"></i> Purchase Journal</li>
-                            <li><i class="bi bi-check-circle-fill check-green"></i> Cash Receipt Journal</li>
-                            <li><i class="bi bi-check-circle-fill check-green"></i> Cash Disbursement Journal</li>
-                            <li><i class="bi bi-check-circle-fill check-green"></i> Sales Report Generation</li>
-                            <li><i class="bi bi-check-circle-fill check-green"></i> Cashiering Management</li>
-                            <li><i class="bi bi-check-circle-fill check-green"></i> Product Cart</li>
-                            <li><i class="bi bi-check-circle-fill check-green"></i> Sales Transaction Override</li>
-                            <li><i class="bi bi-check-circle-fill check-green"></i> Dashboard Analytics</li>
-                            <li><i class="bi bi-check-circle-fill check-green"></i> Inventory Management</li>
-                            <li><i class="bi bi-check-circle-fill check-green"></i> Product Management</li>
-                            <li><i class="bi bi-check-circle-fill check-green"></i> Employee Management</li>
+                            @foreach($proSub?->inclusions ?? [
+                                'Lahat ng nasa Basic',
+                                'Purchase Journal & Supplier Invoices',
+                                'Cash Receipt & Cash Disbursement',
+                                'Staff Anti-Kupit Void PIN Override',
+                                'Cashier Shift Turnover & Drawer Audit',
+                                'Net Profit & Margin Analytics',
+                                'Top-Moving Product Insights',
+                                'Priority Technical Support'
+                            ] as $inc)
+                                <li><i class="bi bi-check-circle-fill check-green"></i> {{ $inc }}</li>
+                            @endforeach
                         </ul>
 
-                        <!-- Limitations -->
+                        <!-- Limitations (From Database) -->
                         <div class="feature-group-heading">LIMITATIONS & QUOTAS</div>
                         <ul class="sub-feature-list">
-                            <li><i class="bi bi-calculator-fill text-primary"></i> <strong class="text-primary">Up to 3 POS Terminals</strong> (Multi-Counter Ready)</li>
-                            <li><i class="bi bi-check-circle-fill check-green"></i> 2 Administrator Accounts</li>
-                            <li><i class="bi bi-check-circle-fill check-green"></i> Up to 6 Cashier Accounts</li>
-                            <li><i class="bi bi-check-circle-fill check-green"></i> 1 Main Branch</li>
-                            <li class="faded"><i class="bi bi-dash-circle text-muted"></i> Multi Branch Support</li>
-                            <li class="faded"><i class="bi bi-dash-circle text-muted"></i> Custom API Integrations</li>
-                            <li><i class="bi bi-check-circle-fill check-green"></i> Priority Technical Support</li>
+                            @foreach($proSub?->limitations ?? [
+                                'Hanggang 5,000 Products / SKUs',
+                                'Hanggang 2,000 Suki / Credit Profiles',
+                                '1 Main Store Branch'
+                            ] as $lim)
+                                <li class="faded"><i class="bi bi-dash-circle text-muted"></i> {{ $lim }}</li>
+                            @endforeach
                         </ul>
 
                         <!-- Bottom Button -->
-                        <a href="{{ route('register', ['plan' => 2]) }}" class="btn-sub-pro">
+                        <a href="{{ route('register', ['plan' => $proSub?->id ?? 2]) }}" class="btn-sub-pro">
                             Upgrade to PRO
                         </a>
                     </div>
@@ -1696,42 +1825,45 @@
                             </span>
                         </div>
 
-                        <h3 class="sub-title">Premium</h3>
-                        <p class="sub-desc">Designed for enterprises with advanced operational requirements.</p>
+                        <h3 class="sub-title">{{ $enterpriseSub?->name ?? 'Premium' }}</h3>
+                        <p class="sub-desc">{{ $enterpriseSub?->description ?? 'Enterprise-grade cloud POS na abot-kaya para sa mga grocery chains at wholesalers.' }}</p>
 
                         <!-- Translucent Specs Box -->
                         <div class="enterprise-specs-box">
                             <div class="specs-row">
                                 <span class="specs-label">Plan Type</span>
-                                <span class="specs-val">Custom Plan</span>
+                                <span class="specs-val">Enterprise Cloud</span>
                             </div>
                             <div class="specs-row">
-                                <span class="specs-label">Software Development</span>
+                                <span class="specs-label">Software Setup & Training</span>
                                 <span class="specs-val">₱15,000–₱30,000</span>
                             </div>
                             <div class="specs-row">
                                 <span class="specs-label">Monthly Maintenance</span>
-                                <span class="specs-val">Starting at ₱500/mo</span>
+                                <span class="specs-val">Simula ₱500–₱1,299/mo</span>
                             </div>
                         </div>
 
-                        <!-- Everything in Pro Plus -->
+                        <!-- Everything in Pro Plus (From Database) -->
                         <div class="feature-group-heading">EVERYTHING IN PRO, PLUS:</div>
                         <ul class="sub-feature-list">
-                            <li><i class="bi bi-calculator-fill text-warning"></i> <strong>10+ POS Terminals Included</strong></li>
-                            <li><i class="bi bi-check-circle-fill check-yellow"></i> Multi-Branch (Up to 5 Branches)</li>
-                            <li><i class="bi bi-check-circle-fill check-yellow"></i> Unlimited Administrator Accounts</li>
-                            <li><i class="bi bi-check-circle-fill check-yellow"></i> Unlimited Cashier Accounts</li>
-                            <li><i class="bi bi-check-circle-fill check-yellow"></i> Multi-Branch Central Dashboard</li>
-                            <li><i class="bi bi-check-circle-fill check-yellow"></i> Central Warehouse & Stock Transfer</li>
-                            <li><i class="bi bi-check-circle-fill check-yellow"></i> Unlimited Products</li>
-                            <li><i class="bi bi-check-circle-fill check-yellow"></i> Unlimited Customers & Suppliers</li>
-                            <li><i class="bi bi-check-circle-fill check-yellow"></i> Unlimited Monthly Transactions</li>
-                            <li><i class="bi bi-check-circle-fill check-yellow"></i> VIP 24/7 Dedicated Support</li>
+                            @foreach($enterpriseSub?->inclusions ?? [
+                                'Lahat ng nasa Pro',
+                                'Unlimited Products & Barcodes (50k+ SKUs)',
+                                'Unlimited Suki Customers & Suppliers',
+                                'Multi-Branch Support (Up to 5 Branches Included)',
+                                'Multi-Branch Central Consolidated Dashboard',
+                                'Central Warehouse & Inter-Branch Stock Transfers',
+                                'Unlimited Administrator & Cashier Accounts',
+                                'BIR Compliance Support & Data Export',
+                                'Dedicated Cloud Server & 24/7 VIP Support'
+                            ] as $inc)
+                                <li><i class="bi bi-check-circle-fill check-yellow"></i> {{ $inc }}</li>
+                            @endforeach
                         </ul>
 
                         <!-- Bottom Button: Bright Yellow -->
-                        <a href="{{ route('register', ['plan' => 3]) }}" class="btn-sub-enterprise">
+                        <a href="{{ route('register', ['plan' => $enterpriseSub?->id ?? 3]) }}" class="btn-sub-enterprise">
                             Contact Sales
                         </a>
                     </div>
@@ -2039,30 +2171,62 @@
             document.getElementById('calcSavingsDisplay').innerText = '₱' + Math.round(savings).toLocaleString() + ' / month';
         }
 
-        // Pricing Term Switcher
-        function setPlanDuration(plan, term, totalVal, monthlyVal, btn) {
-            // Update active pill
-            const pillsWrap = btn.parentElement;
-            pillsWrap.querySelectorAll('.duration-pill').forEach(p => p.classList.remove('active'));
-            btn.classList.add('active');
-
-            // Format period label
-            let periodText = '/Quarterly';
-            if (term === '1year') periodText = '/Year';
-            else if (term === '3years') periodText = '/3 Years';
-            else if (term === '4years') periodText = '/4 Years';
-            else if (term === '6years') periodText = '/6 Years';
-            else if (term === '10years') periodText = '/10 Years';
-
-            if (plan === 'basic') {
-                document.getElementById('basicPrice').innerText = '₱' + totalVal.toLocaleString();
-                document.getElementById('basicPeriod').innerText = periodText;
-                document.getElementById('basicMonthly').innerText = '₱' + monthlyVal + '/month';
-            } else if (plan === 'pro') {
-                document.getElementById('proPrice').innerText = '₱' + totalVal.toLocaleString();
-                document.getElementById('proPeriod').innerText = periodText;
-                document.getElementById('proMonthly').innerText = '₱' + monthlyVal + '/month';
+        // Pricing Billing Cycle Switcher
+        const pricingPlans = {
+            monthly: {
+                period: '/month',
+                basic: { price: '₱300', note: '₱10/araw • Bayaran buwan-buwan' },
+                pro: { price: '₱600', note: '₱20/araw • Bayaran buwan-buwan' }
+            },
+            quarterly: {
+                period: '/Quarter',
+                basic: { price: '₱810', note: 'Billed as ₱270/month (Save 10%)' },
+                pro: { price: '₱1,620', note: 'Billed as ₱540/month (Save 10%)' }
+            },
+            '1year': {
+                period: '/Year',
+                basic: { price: '₱2,880', note: 'Billed as ₱240/month (Save 20%)' },
+                pro: { price: '₱5,760', note: 'Billed as ₱480/month (Save 20%)' }
+            },
+            '3years': {
+                period: '/3 Years',
+                basic: { price: '₱7,560', note: 'Billed as ₱210/month (Save 30%)' },
+                pro: { price: '₱15,120', note: 'Billed as ₱420/month (Save 30%)' }
+            },
+            '5years': {
+                period: '/5 Years',
+                basic: { price: '₱10,800', note: 'Billed as ₱180/month (Save 40%)' },
+                pro: { price: '₱21,600', note: 'Billed as ₱360/month (Save 40%)' }
+            },
+            '10years': {
+                period: '/10 Years',
+                basic: { price: '₱18,000', note: 'Billed as ₱150/month (⭐ Save 50% Best Value)' },
+                pro: { price: '₱36,000', note: 'Billed as ₱300/month (⭐ Save 50% Best Value)' }
             }
+        };
+
+        function switchBillingCycle(term, btn) {
+            document.querySelectorAll('.billing-cycle-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+
+            const data = pricingPlans[term];
+            if (!data) return;
+
+            const basicPrice = document.getElementById('basicPrice');
+            const basicPeriod = document.getElementById('basicPeriod');
+            const basicMonthly = document.getElementById('basicMonthly');
+
+            const proPrice = document.getElementById('proPrice');
+            const proPeriod = document.getElementById('proPeriod');
+            const proMonthly = document.getElementById('proMonthly');
+
+            if (basicPrice) basicPrice.innerText = data.basic.price;
+            if (basicPeriod) basicPeriod.innerText = data.period;
+            if (basicMonthly) basicMonthly.innerText = data.basic.note;
+
+            if (proPrice) proPrice.innerText = data.pro.price;
+            if (proPeriod) proPeriod.innerText = data.period;
+            if (proMonthly) proMonthly.innerText = data.pro.note;
         }
     </script>
 </body>
