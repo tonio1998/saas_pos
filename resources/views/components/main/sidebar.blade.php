@@ -161,6 +161,16 @@
                 </a>
             </li>
 
+            <!-- Billing & Invoices Ledger -->
+            <li class="sidebar-item">
+                <a href="{{ route('sa.subscriptions.billing') }}" class="sidebar-link {{ request()->routeIs('sa.subscriptions.billing*') ? 'active' : '' }}">
+                    <span class="sidebar-icon-wrap">
+                        <i class="bi bi-receipt-cutoff sidebar-icon text-info"></i>
+                    </span>
+                    <span class="sidebar-label">Billing & Invoices</span>
+                </a>
+            </li>
+
             <!-- Users -->
             <li class="sidebar-item">
                 <a href="{{ route('sa.users.index') }}" class="sidebar-link {{ request()->routeIs('sa.users.*') ? 'active' : '' }}">

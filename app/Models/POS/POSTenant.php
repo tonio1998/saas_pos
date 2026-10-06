@@ -97,6 +97,22 @@ class POSTenant extends Model
         );
     }
 
+    public function invoices()
+    {
+        return $this->hasMany(
+            POSSubscriptionInvoice::class,
+            'tenant_id'
+        )->orderBy('id', 'desc');
+    }
+
+    public function latestInvoice()
+    {
+        return $this->hasOne(
+            POSSubscriptionInvoice::class,
+            'tenant_id'
+        )->latestOfMany();
+    }
+
     public function creator()
     {
         return $this->belongsTo(

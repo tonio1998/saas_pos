@@ -5,6 +5,7 @@ namespace App\Http\Controllers\POS;
 use App\Http\Controllers\Controller;
 use App\Models\POS\POSTenant;
 use App\Models\POS\POSSubscription;
+use App\Models\POS\POSSubscriptionInvoice;
 use App\Services\Tenant\TenantSubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -69,11 +70,34 @@ class SubscriptionPaymentController extends Controller
                 'payment_reference'    => $referenceNo,
                 'payment_sender_name'  => trim($validated['sender_name']),
                 'payment_sender_phone' => trim($validated['sender_phone'] ?? ''),
-                'payment_amount'       => (float) $plan->price,
+                'payment_amount'       => (float) $plan->effectivePrice(),
                 'payment_proof'        => $proofPath,
                 'payment_submitted_at' => now(),
                 'payment_status'       => 'pending_verification',
                 'payment_notes'        => $validated['notes'] ?? null,
+            ]);
+
+            // Create or update pending subscription invoice record
+            POSSubscriptionInvoice::create([
+                'tenant_id'            => $tenant->id,
+                'subscription_id'      => $plan->id,
+                'plan_name'            => $plan->name,
+                'billing_cycle'        => $plan->billing_cycle ?? 'monthly',
+                'duration_days'        => $plan->duration_days ?? 30,
+                'max_terminals'        => $plan->max_terminals ?? 1,
+                'max_products'         => $plan->max_products ?? 1000,
+                'amount'               => (float) $plan->price,
+                'discount_amount'      => ($plan->is_promo && $plan->promo_price) ? max(0, (float)$plan->price - (float)$plan->promo_price) : 0,
+                'net_amount'           => (float) $plan->effectivePrice(),
+                'payment_method'       => $validated['payment_method'],
+                'payment_reference'    => $referenceNo,
+                'payment_proof'        => $proofPath,
+                'payment_sender_name'  => trim($validated['sender_name']),
+                'payment_sender_phone' => trim($validated['sender_phone'] ?? ''),
+                'payment_status'       => 'pending',
+                'billing_date'         => now()->toDateString(),
+                'due_date'             => now()->addDays(3)->toDateString(),
+                'notes'                => $validated['notes'] ?? null,
             ]);
         });
 
@@ -170,7 +194,7 @@ class SubscriptionPaymentController extends Controller
 
         $verifierName = auth()->user()->name ?? 'SuperAdmin';
 
-        DB::transaction(function () use ($tenant, $plan, $startDate, $endDate, $verifierName) {
+        DB::transaction(function () use ($tenant, $plan, $startDate, $endDate, $verifierName, $durationDays) {
             $tenant->update([
                 'subscription_id'    => $plan->id,
                 'pending_plan_id'    => null,
@@ -181,6 +205,41 @@ class SubscriptionPaymentController extends Controller
                 'subscription_end'   => $endDate->toDateString(),
                 'payment_notes'      => "Verified and approved by {$verifierName} on " . now()->format('M d, Y h:i A'),
             ]);
+
+            // Sync with invoice record
+            $invoice = POSSubscriptionInvoice::where('tenant_id', $tenant->id)
+                ->where('payment_status', 'pending')
+                ->latest()
+                ->first();
+
+            if (!$invoice) {
+                $invoice = new POSSubscriptionInvoice([
+                    'tenant_id'            => $tenant->id,
+                    'subscription_id'      => $plan->id,
+                    'plan_name'            => $plan->name,
+                    'billing_cycle'        => $plan->billing_cycle ?? 'monthly',
+                    'duration_days'        => $durationDays,
+                    'max_terminals'        => $plan->max_terminals ?? 1,
+                    'max_products'         => $plan->max_products ?? 1000,
+                    'amount'               => (float) $plan->effectivePrice(),
+                    'discount_amount'      => 0,
+                    'net_amount'           => (float) $plan->effectivePrice(),
+                    'payment_method'       => $tenant->payment_method ?? 'manual_sa',
+                    'payment_reference'    => $tenant->payment_reference ?? ('APPV-' . strtoupper(\Illuminate\Support\Str::random(6))),
+                    'payment_sender_name'  => $tenant->payment_sender_name ?? $tenant->owner_name,
+                    'payment_sender_phone' => $tenant->payment_sender_phone ?? $tenant->phone,
+                    'billing_date'         => now()->toDateString(),
+                    'due_date'             => now()->addDays(3)->toDateString(),
+                ]);
+            }
+
+            $invoice->payment_status = 'paid';
+            $invoice->paid_at = now();
+            $invoice->period_start = $startDate->toDateString();
+            $invoice->period_end = $endDate->toDateString();
+            $invoice->verified_by = auth()->id();
+            $invoice->notes = ($invoice->notes ? $invoice->notes . ' | ' : '') . "Verified by {$verifierName} on " . now()->format('M d, Y h:i A');
+            $invoice->save();
         });
 
         // Clear tenant subscription cache
@@ -203,10 +262,26 @@ class SubscriptionPaymentController extends Controller
         $tenant = POSTenant::findOrFail($id);
         $verifierName = auth()->user()->name ?? 'SuperAdmin';
 
-        $tenant->update([
-            'payment_status' => 'rejected',
-            'payment_notes'  => $validated['rejection_reason'] . " (Reviewed by {$verifierName})",
-        ]);
+        DB::transaction(function () use ($tenant, $validated, $verifierName) {
+            $tenant->update([
+                'payment_status' => 'rejected',
+                'payment_notes'  => $validated['rejection_reason'] . " (Reviewed by {$verifierName})",
+            ]);
+
+            $invoice = POSSubscriptionInvoice::where('tenant_id', $tenant->id)
+                ->where('payment_status', 'pending')
+                ->latest()
+                ->first();
+
+            if ($invoice) {
+                $invoice->update([
+                    'payment_status'   => 'rejected',
+                    'rejection_reason' => $validated['rejection_reason'],
+                    'verified_by'      => auth()->id(),
+                    'notes'            => ($invoice->notes ? $invoice->notes . ' | ' : '') . "Rejected by {$verifierName}: " . $validated['rejection_reason'],
+                ]);
+            }
+        });
 
         // Clear tenant subscription cache
         app(TenantSubscriptionService::class)->clearTenantCache($tenant->id);

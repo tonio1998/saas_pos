@@ -212,7 +212,13 @@ Route::prefix('sa')->name('sa.')->middleware(['auth', 'role:SA',])->group(functi
         Route::post('/monitoring/bulk-remind', [SASubscriptionMonitoringController::class, 'sendBulkEmailReminders'])->name('monitoring.bulk-remind');
         Route::post('/monitoring/run-engine', [SASubscriptionMonitoringController::class, 'runAutomatedEngine'])->name('monitoring.run-engine');
         Route::post('/monitoring/{id}/toggle-status', [SASubscriptionMonitoringController::class, 'toggleStatus'])->name('monitoring.toggle-status');
-        Route::get('/monitoring/export-csv', [SASubscriptionMonitoringController::class, 'exportCsv'])->name('monitoring.export-csv');
+        // Platform Billing, Invoices & Subscription History
+        Route::get('/billing', [\App\Http\Controllers\SABillingController::class, 'index'])->name('billing');
+        Route::get('/billing/invoice/{id}', [\App\Http\Controllers\SABillingController::class, 'showInvoice'])->name('billing.invoice');
+        Route::post('/billing/manual', [\App\Http\Controllers\SABillingController::class, 'storeManual'])->name('billing.manual');
+        Route::post('/billing/{id}/approve', [\App\Http\Controllers\SABillingController::class, 'approveInvoice'])->name('billing.approve');
+        Route::post('/billing/{id}/reject', [\App\Http\Controllers\SABillingController::class, 'rejectInvoice'])->name('billing.reject');
+        Route::get('/billing/tenant/{id}', [\App\Http\Controllers\SABillingController::class, 'tenantHistory'])->name('billing.tenant');
     });
 });
 
@@ -602,6 +608,11 @@ Route::middleware('auth')->group(function(){
         Route::get('/checkout', [SubscriptionPaymentController::class, 'checkout'])->name('checkout');
         Route::post('/pay', [SubscriptionPaymentController::class, 'processPayment'])->name('pay');
         Route::get('/status', [SubscriptionPaymentController::class, 'checkStatus'])->name('status');
+
+        // Store Billing, Invoices & Subscription History
+        Route::get('/billing', [\App\Http\Controllers\POS\TenantBillingController::class, 'index'])->name('billing');
+        Route::get('/billing/invoice/{id}', [\App\Http\Controllers\POS\TenantBillingController::class, 'showInvoice'])->name('billing.invoice');
+        Route::post('/billing/cancel/{id}', [\App\Http\Controllers\POS\TenantBillingController::class, 'cancelPending'])->name('billing.cancel');
     });
 
     Route::prefix('support')->name('support.')->group(function () {

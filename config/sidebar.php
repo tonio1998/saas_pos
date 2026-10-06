@@ -346,6 +346,7 @@ return [
                 'active' => [
                     'settings.*',
                     'users.*',
+                    'subscription.*',
                 ],
                 'children' => [
 
@@ -361,6 +362,13 @@ return [
                         'route'  => 'users.index',
                         'icon'   => 'bi bi-people-fill',
                         'active' => 'users.*',
+                    ],
+
+                    [
+                        'label'  => 'Subscription & Billing',
+                        'route'  => 'subscription.billing',
+                        'icon'   => 'bi bi-receipt-cutoff',
+                        'active' => 'subscription.*',
                     ],
 
                 ],
