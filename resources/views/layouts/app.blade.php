@@ -3,6 +3,8 @@
     if (!$tenant) {
         $tenant = \App\Models\POS\POSTenant::first();
     }
+    $isSuperAdmin = auth()->check() && (auth()->user()->hasRole('SA') || auth()->user()->is_super_admin);
+    $isSuspended = $tenant && $tenant->isSuspended();
     $hasLogo = $tenant && $tenant->logo && \Illuminate\Support\Facades\Storage::disk('public')->exists($tenant->logo);
     $hasSquareLogo = $tenant && $tenant->logo_square && \Illuminate\Support\Facades\Storage::disk('public')->exists($tenant->logo_square);
     $appStoreConfig = [
@@ -40,12 +42,15 @@
     
     <script>
         window.POS_STORE_CONFIG = {!! json_encode($appStoreConfig) !!};
+        @if($isSuspended && !$isSuperAdmin)
+        window.TENANT_SUSPENDED = true;
+        @endif
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @include('theme')
     @stack('styles')
 </head>
-<body class="bg-light">
+<body class="bg-light {{ $isSuspended && !$isSuperAdmin ? 'store-view-only' : '' }}">
 
 <!-- Mobile Sidebar Backdrop Overlay -->
 <div id="sidebarBackdrop" class="sidebar-overlay"></div>
@@ -59,6 +64,48 @@
     <!-- Main Content Area (Topbar + Page Body) -->
     <div class="likha-main-content">
         <x-pos.topbar />
+
+        @if($isSuspended && !$isSuperAdmin)
+            <!-- Suspended View-Only Sticky Banner -->
+            <div class="px-4 py-3 text-white shadow-sm d-flex align-items-center justify-content-between flex-wrap gap-3 sticky-top" style="background: linear-gradient(135deg, #991b1b 0%, #b91c1c 50%, #dc2626 100%); z-index: 1020;">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-white text-danger p-2 d-flex align-items-center justify-content-center shadow-xs flex-shrink-0" style="width: 38px; height: 38px;">
+                        <i class="bi bi-shield-lock-fill fs-5"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-white text-danger fw-extrabold text-uppercase px-2 py-0.5" style="letter-spacing: 0.5px; font-size: 0.7rem;">STORE SUSPENDED</span>
+                            <span class="fw-bold small text-white">View-Only Mode Active</span>
+                        </div>
+                        <div class="extra-small text-white-50 mt-0.5">
+                            Cashier terminal selling and data modifications are disabled. To reactivate your store, renew your subscription or contact 24/7 customer support.
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <a href="tel:09128941731" class="btn btn-sm btn-white text-danger fw-bold rounded-pill px-3 py-1.5 shadow-xs bg-white text-danger border-0">
+                        <i class="bi bi-telephone-fill me-1"></i> Support: 0912 894 1731
+                    </a>
+                    <a href="{{ route('subscription.checkout') }}" class="btn btn-sm btn-warning text-dark fw-bold rounded-pill px-3 py-1.5 shadow-xs border-0">
+                        <i class="bi bi-credit-card-2-front-fill me-1"></i> Renew Subscription
+                    </a>
+                    <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3 py-1.5" data-bs-toggle="modal" data-bs-target="#supportHubModal">
+                        <i class="bi bi-headset me-1"></i> 24/7 Support Hub
+                    </button>
+                </div>
+            </div>
+        @elseif($isSuspended && $isSuperAdmin)
+            <!-- SuperAdmin Inspection Mode Banner -->
+            <div class="bg-dark text-warning px-4 py-2 border-bottom border-warning d-flex align-items-center justify-content-between flex-wrap gap-2 sticky-top" style="z-index: 1020;">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-warning text-dark fw-bold">SUPERADMIN INSPECTION</span>
+                    <span class="small text-light">This store (<strong>{{ $tenant->business_name }}</strong>) is currently <strong>SUSPENDED / LOCKED</strong>. You are inspecting in SuperAdmin bypass mode.</span>
+                </div>
+                <a href="{{ route('sa.subscriptions.monitoring') }}" class="btn btn-sm btn-outline-warning rounded-pill px-3 py-1 fw-bold">
+                    Manage in SA Monitoring &rarr;
+                </a>
+            </div>
+        @endif
 
         <main class="likha-page-body">
             @yield('content')
@@ -136,5 +183,39 @@
         </div>
     </div>
 </div>
+
+@if($isSuspended && !$isSuperAdmin)
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Intercept any mutative form submissions when store is suspended (View-Only mode)
+        document.querySelectorAll('form').forEach(form => {
+            const action = (form.getAttribute('action') || '').toLowerCase();
+            // Whitelist navigation/read/auth/support routes
+            if (action.includes('logout') || action.includes('support') || action.includes('subscription') || action.includes('payment')) {
+                return;
+            }
+            form.addEventListener('submit', function(e) {
+                const methodInput = form.querySelector('input[name="_method"]');
+                const method = methodInput ? methodInput.value.toUpperCase() : (form.getAttribute('method') || 'GET').toUpperCase();
+                if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+                    e.preventDefault();
+                    if (window.Swal) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'View-Only Mode',
+                            text: 'This store account is currently suspended. Data modifications are locked. Please contact 24/7 Support at 0912 894 1731 or renew your subscription.',
+                            confirmButtonColor: '#d33',
+                            confirmButtonText: 'Understood'
+                        });
+                    } else {
+                        alert('This store account is currently suspended (View-Only Mode). Modifying or saving records is disabled. Please contact 24/7 Customer Support at 0912 894 1731 or renew your subscription.');
+                    }
+                    return false;
+                }
+            });
+        });
+    });
+</script>
+@endif
 </body>
 </html>

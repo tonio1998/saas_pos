@@ -19,6 +19,30 @@ class POSTerminalController extends Controller
     public function index(Request $request)
     {
         $tenantId = auth()->user()->tenant_id;
+        $tenant = \App\Models\POS\POSTenant::find($tenantId);
+        $isSuperAdmin = auth()->check() && (auth()->user()->hasRole('SA') || auth()->user()->is_super_admin);
+
+        // If the store is suspended, redirect directly to the blurred view-only terminal screen
+        if ($tenant && $tenant->isSuspended() && !$isSuperAdmin) {
+            $latestSale = POSSale::where('tenant_id', $tenantId)->latest()->first();
+            if ($latestSale) {
+                return redirect()->route('sales.create', ['sale' => encryptId($latestSale->id)]);
+            }
+
+            $terminal = POSTerminal::where('tenant_id', $tenantId)->first();
+            if ($terminal) {
+                $viewSale = new POSSale();
+                $viewSale->tenant_id = $tenantId;
+                $viewSale->terminal_id = $terminal->id;
+                $viewSale->drawer_id = $terminal->drawer_id;
+                $viewSale->sale_code = 'VIEW-' . strtoupper(\Illuminate\Support\Str::random(6));
+                $viewSale->sale_status = 'pending';
+                $this->setCommonFields($viewSale);
+                $viewSale->save();
+
+                return redirect()->route('sales.create', ['sale' => encryptId($viewSale->id)]);
+            }
+        }
 
         // Check if the current cashier already has an active open shift anywhere
         $userActiveShift = POSCashShift::query()
@@ -62,6 +86,11 @@ class POSTerminalController extends Controller
 
     public function select(Request $request)
     {
+        $tenant = \App\Models\POS\POSTenant::find(auth()->user()->tenant_id);
+        if ($tenant && $tenant->isSuspended() && !(auth()->user()->hasRole('SA') || auth()->user()->is_super_admin)) {
+            return back()->with('error', 'Store account is suspended. Register shifts and terminal cashiering are locked. Please contact 24/7 Support at 0912 894 1731.');
+        }
+
         $request->validate([
             'terminal_id' => ['required'],
         ]);
@@ -81,6 +110,11 @@ class POSTerminalController extends Controller
 
     public function create(Request $request)
     {
+        $tenant = \App\Models\POS\POSTenant::find(auth()->user()->tenant_id);
+        if ($tenant && $tenant->isSuspended() && !(auth()->user()->hasRole('SA') || auth()->user()->is_super_admin)) {
+            return back()->with('error', 'Store account is suspended. Terminal registration is disabled in view-only mode.');
+        }
+
         $tenantId = auth()->user()->tenant_id;
         $deviceCheck = (new \App\Services\Tenant\TenantSubscriptionService())->canCreateDevice($tenantId);
         $drawers = POSCashDrawer::where('tenant_id', $tenantId)->where('status', 'active')->get();
@@ -91,6 +125,10 @@ class POSTerminalController extends Controller
 
     public function store(Request $request)
     {
+        $tenant = \App\Models\POS\POSTenant::find(auth()->user()->tenant_id);
+        if ($tenant && $tenant->isSuspended() && !(auth()->user()->hasRole('SA') || auth()->user()->is_super_admin)) {
+            return back()->with('error', 'Store account is suspended. Terminal registration is disabled in view-only mode.');
+        }
         $deviceCheck = (new \App\Services\Tenant\TenantSubscriptionService())->canCreateDevice(auth()->user()->tenant_id);
         if (!$deviceCheck['allowed']) {
             return back()

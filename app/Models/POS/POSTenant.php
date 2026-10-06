@@ -140,7 +140,12 @@ class POSTenant extends Model
 
     public function isLocked(): bool
     {
-        return $this->status === 'locked';
+        return in_array(strtolower($this->status ?? ''), ['locked', 'suspended', 'inactive']);
+    }
+
+    public function isSuspended(): bool
+    {
+        return in_array(strtolower($this->status ?? ''), ['locked', 'suspended', 'inactive']);
     }
 
     public function isExpired(): bool

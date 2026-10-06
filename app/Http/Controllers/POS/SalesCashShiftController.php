@@ -228,6 +228,12 @@ class SalesCashShiftController extends Controller
 
     public function create(Request $request, string $drawerId)
     {
+        $tenant = \App\Models\POS\POSTenant::find(auth()->user()->tenant_id);
+        if ($tenant && $tenant->isSuspended() && !(auth()->user()->hasRole('SA') || auth()->user()->is_super_admin)) {
+            return redirect()->route('terminal.index')
+                ->with('error', 'Store account is suspended. Register shifts and cashiering are locked. Please contact 24/7 Support at 0912 894 1731.');
+        }
+
         $drawerId = decryptId($drawerId);
         $drawer = $this->findDrawer($drawerId);
 
@@ -382,6 +388,12 @@ class SalesCashShiftController extends Controller
 
     public function store(Request $request)
     {
+        $tenant = \App\Models\POS\POSTenant::find(auth()->user()->tenant_id);
+        if ($tenant && $tenant->isSuspended() && !(auth()->user()->hasRole('SA') || auth()->user()->is_super_admin)) {
+            return redirect()->route('terminal.index')
+                ->with('error', 'Store account is suspended. Register shifts and cashiering are locked. Please contact 24/7 Support at 0912 894 1731.');
+        }
+
         $data = $request->validate([
             'drawer_id' => ['required', 'integer'],
             'opening_cash' => ['required', 'numeric', 'min:0'],

@@ -500,6 +500,7 @@ class SASubscriptionMonitoringController extends Controller
 
         $newStatus = $validated['action'] === 'suspend' ? 'locked' : 'active';
         $tenant->update(['status' => $newStatus]);
+        \Illuminate\Support\Facades\Cache::forget('tenant_settings_' . $tenant->id);
 
         $actionWord = $newStatus === 'active' ? 'reactivated' : 'locked / suspended';
 

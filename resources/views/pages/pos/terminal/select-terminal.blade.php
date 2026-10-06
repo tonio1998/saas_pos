@@ -9,6 +9,12 @@
 
     @php
         $tenantId = auth()->check() ? auth()->user()->tenant_id : null;
+        $tenant = auth()->check() ? auth()->user()->tenant : null;
+        if (!$tenant && $tenantId) {
+            $tenant = \App\Models\POS\POSTenant::find($tenantId);
+        }
+        $isSuperAdmin = auth()->check() && (auth()->user()->hasRole('SA') || auth()->user()->is_super_admin);
+        $isSuspended = $tenant && $tenant->isSuspended();
         $deviceCheck = (new \App\Services\Tenant\TenantSubscriptionService())->canCreateDevice($tenantId);
     @endphp
 
@@ -54,6 +60,11 @@
                         <i class="bi bi-play-circle-fill me-1"></i> Ipagpatuloy ang Aking POS
                     </a>
                 </div>
+            @endif
+
+            @if($isSuspended && !$isSuperAdmin)
+            <div class="position-relative overflow-hidden rounded-4">
+                <div style="filter: blur(6px); pointer-events: none; user-select: none; opacity: 0.65;">
             @endif
 
             <form action="{{ route('terminal.select') }}" method="POST">
@@ -205,6 +216,61 @@
                 @endif
 
             </form>
+
+            @if($isSuspended && !$isSuperAdmin)
+                </div>
+
+                <!-- Centered Suspended Modal Overlay -->
+                <div class="position-absolute top-50 start-50 translate-middle w-100 p-3" style="max-width: 530px; z-index: 50;">
+                    <div class="card border border-danger border-opacity-25 rounded-4 shadow-2xl p-4 p-md-5 text-center text-white" style="background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(14px); box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8);">
+                        <div class="mb-3">
+                            <div class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 78px; height: 78px; background: rgba(239, 68, 68, 0.15); border: 2px solid rgba(239, 68, 68, 0.4); box-shadow: 0 0 35px rgba(239, 68, 68, 0.35);">
+                                <i class="bi bi-shield-lock-fill text-danger fs-1"></i>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <span class="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle px-3 py-1.5 fw-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.6px;">
+                                <i class="bi bi-exclamation-octagon-fill me-1"></i> Account Suspended &bull; View-Only Mode
+                            </span>
+                        </div>
+                        <h3 class="fw-extrabold text-white mb-1">POS Terminals Locked</h3>
+                        <p class="text-secondary small mb-3">
+                            Store Account: <strong class="text-light">{{ $tenant?->business_name }}</strong>
+                        </p>
+                        <p class="small text-slate-300 mb-4 px-2" style="color: #cbd5e1; line-height: 1.6;">
+                            This store has been placed on administrative hold due to subscription status or suspension. Terminal cashiering and shift openings are disabled. You may view store data, but terminal transactions cannot be initiated.
+                        </p>
+                        <div class="p-3 mb-4 rounded-3 text-start" style="background: rgba(30, 41, 59, 0.85); border: 1px dashed rgba(245, 158, 11, 0.5);">
+                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                <div class="d-flex align-items-center gap-2.5">
+                                    <div class="rounded-circle bg-warning text-dark p-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                                        <i class="bi bi-headset fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-secondary text-uppercase extra-small fw-bold" style="font-size: 0.68rem;">24/7 Priority Hotline</div>
+                                        <div class="text-warning font-mono fw-bold fs-6">0912 894 1731</div>
+                                    </div>
+                                </div>
+                                <a href="tel:09128941731" class="btn btn-warning btn-sm rounded-pill px-3 py-1.5 fw-bold">Call Now</a>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <a href="{{ route('subscription.checkout') }}" class="btn btn-success text-white rounded-pill py-2.5 fw-bold shadow-sm" style="background: #059669; border-color: #059669;">
+                                <i class="bi bi-credit-card-2-front-fill me-1"></i> Renew Subscription / Pay Now
+                            </a>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-outline-light rounded-pill py-2 flex-grow-1 fw-bold small" data-bs-toggle="modal" data-bs-target="#supportHubModal">
+                                    <i class="bi bi-chat-dots-fill me-1"></i> 24/7 Support Hub
+                                </button>
+                                <a href="{{ route('dashboard.index') }}" class="btn btn-outline-secondary rounded-pill py-2 flex-grow-1 fw-bold small text-light border-secondary">
+                                    <i class="bi bi-speedometer2 me-1"></i> View Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
 
         </div>
     </div>

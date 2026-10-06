@@ -654,6 +654,14 @@ class SalesController extends Controller
 
     public function complete(Request $request)
     {
+        $tenant = POSTenant::find(auth()->user()->tenant_id);
+        if ($tenant && $tenant->isSuspended() && !(auth()->user()->hasRole('SA') || auth()->user()->is_super_admin)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Store account is suspended. POS transactions are disabled. Please contact 24/7 Support at 0912 894 1731 or renew your subscription.'
+            ], 403);
+        }
+
         $data = $request->validate([
             'sale_id' => ['required'],
             'customer_id' => ['nullable'],
@@ -959,6 +967,14 @@ class SalesController extends Controller
 
     public function store(Request $request): \Illuminate\Http\JsonResponse
     {
+        $tenant = POSTenant::find(auth()->user()->tenant_id);
+        if ($tenant && $tenant->isSuspended() && !(auth()->user()->hasRole('SA') || auth()->user()->is_super_admin)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Store account is suspended. POS transactions are disabled. Please contact 24/7 Support at 0912 894 1731 or renew your subscription.'
+            ], 403);
+        }
+
         $data = $request->validate([
             'customer_id' => ['nullable', 'integer'],
             'subtotal' => ['required', 'numeric', 'min:0'],
@@ -1458,6 +1474,9 @@ class SalesController extends Controller
         $isGrowth = str_contains($planTier, 'growth') || str_contains($planTier, 'level ii');
         $isPro = str_contains($planTier, 'pro') || str_contains($planTier, 'level iii');
 
+        $isSuperAdmin = auth()->check() && (auth()->user()->hasRole('SA') || auth()->user()->is_super_admin);
+        $isSuspended = $tenant ? $tenant->isSuspended() : false;
+
         return view(
             'pages.tenants.terminal.create',
             compact(
@@ -1470,13 +1489,21 @@ class SalesController extends Controller
                 'planName',
                 'isStarter',
                 'isGrowth',
-                'isPro'
+                'isPro',
+                'isSuspended',
+                'isSuperAdmin'
             )
         );
     }
 
     public function newSale(Request $request)
     {
+        $tenant = POSTenant::find(auth()->user()->tenant_id);
+        if ($tenant && $tenant->isSuspended() && !(auth()->user()->hasRole('SA') || auth()->user()->is_super_admin)) {
+            return redirect()->route('terminal.index')
+                ->with('error', 'Store account is suspended. Creating new sales is disabled in view-only mode. Please contact 24/7 Support at 0912 894 1731.');
+        }
+
         $terminal = POSTerminal::findOrFail(decryptId($request->segment(3)));
         $shift = POSCashShift::findOrFail(decryptId($request->segment(4)));
 
