@@ -35,7 +35,7 @@
                     </div>
                     <div class="crm-store-info">
                         <span class="crm-store-name">{{ $activeTenant->business_name }}</span>
-                        <span class="crm-store-status text-warning">
+                        <span class="crm-store-status text-warning-emphasis fw-bold">
                             <span class="crm-dot-green"></span> Active Store Context
                         </span>
                     </div>
@@ -59,8 +59,8 @@
         <div class="crm-topbar-right">
 
             {{-- Verifications Quick Link --}}
-            <a href="{{ route('sa.subscriptions.verifications') }}" class="btn btn-sm rounded-pill fw-bold d-none d-sm-inline-flex align-items-center gap-1.5 px-3 shadow-xs {{ $pendingVerificationsCount > 0 ? 'btn-danger' : 'btn-outline-light text-white' }}" style="font-size: 0.78rem;">
-                <i class="bi bi-patch-check-fill"></i>
+            <a href="{{ route('sa.subscriptions.verifications') }}" class="btn btn-sm rounded-pill fw-bold d-none d-sm-inline-flex align-items-center gap-1.5 px-3 shadow-xs {{ $pendingVerificationsCount > 0 ? 'btn-danger' : 'btn-outline-warning text-dark' }}" style="{{ $pendingVerificationsCount > 0 ? '' : 'background: #fef3c7; border: 1px solid #f59e0b;' }} font-size: 0.78rem;">
+                <i class="bi bi-patch-check-fill {{ $pendingVerificationsCount > 0 ? '' : 'text-warning-emphasis' }}"></i>
                 <span>Verifications</span>
                 @if($pendingVerificationsCount > 0)
                     <span class="badge bg-white text-danger rounded-pill px-1.5 py-0.5 ms-1" style="font-size: 0.68rem;">{{ $pendingVerificationsCount }}</span>
@@ -83,7 +83,7 @@
                     </div>
                     <div class="crm-user-info d-none d-md-block">
                         <span class="crm-user-name">{{ $userName }}</span>
-                        <span class="crm-user-role text-warning">{{ $userRole }}</span>
+                        <span class="crm-user-role text-warning-emphasis fw-bold">{{ $userRole }}</span>
                     </div>
                     <i class="bi bi-chevron-down crm-chevron d-none d-md-block"></i>
                 </button>
@@ -152,3 +152,245 @@
         </div>
     </div>
 </header>
+
+{{-- ── Topbar Styles (Dedicated Complete CRM Topbar) ────────── --}}
+<style>
+.crm-topbar {
+    height: 64px;
+    background: var(--theme-topbar, #0f172a);
+    color: var(--theme-topbar-text, #ffffff);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+.crm-topbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 14px;
+}
+.crm-topbar-left  { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; }
+.crm-topbar-center{ display: flex; align-items: center; justify-content: center; }
+.crm-topbar-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+.crm-page-title   { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
+.crm-title-text   {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--theme-topbar-text, #ffffff);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.01em;
+}
+.crm-subtitle {
+    font-size: 0.72rem;
+    color: var(--theme-topbar-text, #ffffff);
+    opacity: 0.75;
+    font-weight: 500;
+}
+
+.crm-store-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    padding: 5px 16px 5px 6px;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(8px);
+}
+.crm-store-pill:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.35);
+}
+.crm-store-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--theme-primary, #059669);
+    border-radius: 50%;
+    color: #ffffff;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+.crm-store-info  { display: flex; flex-direction: column; line-height: 1.2; }
+.crm-store-name  {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--theme-topbar-text, #ffffff);
+    white-space: nowrap;
+}
+.crm-store-status {
+    font-size: 0.68rem;
+    color: var(--theme-topbar-text, #ffffff);
+    opacity: 0.8;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 600;
+}
+.crm-dot-green   { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; display: inline-block; }
+
+.crm-icon-btn {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    color: var(--theme-topbar-text, #ffffff);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    padding: 0;
+}
+.crm-icon-btn:hover {
+    background: rgba(255, 255, 255, 0.22);
+    color: var(--theme-topbar-text, #ffffff);
+    transform: translateY(-1px);
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
+.crm-pos-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--theme-primary, #059669);
+    color: #ffffff !important;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.84rem;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 50px;
+    text-decoration: none;
+    border: none;
+    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
+}
+.crm-pos-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+    filter: brightness(1.08);
+}
+
+.crm-divider {
+    width: 1px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.18);
+    margin: 0 2px;
+}
+
+.crm-user-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    padding: 4px 12px 4px 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--theme-topbar-text, #ffffff);
+}
+.crm-user-btn::after { display: none; }
+.crm-user-btn:hover  {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.35);
+}
+.crm-avatar {
+    width: 32px;
+    height: 32px;
+    background: var(--theme-primary, #059669);
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.88rem;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.crm-user-info { display: flex; flex-direction: column; line-height: 1.2; text-align: left; }
+.crm-user-name { font-size: 0.82rem; font-weight: 700; color: var(--theme-topbar-text, #ffffff); }
+.crm-user-role { font-size: 0.68rem; color: var(--theme-topbar-text, #ffffff); opacity: 0.75; text-transform: capitalize; }
+.crm-chevron   { font-size: 0.68rem; color: var(--theme-topbar-text, #ffffff); opacity: 0.7; }
+
+.crm-dropdown {
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.9) !important;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12) !important;
+}
+.crm-drop-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+.crm-drop-avatar {
+    width: 44px;
+    height: 44px;
+    background: var(--theme-primary, #059669);
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 1.15rem;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.crm-drop-name  { font-size: 0.88rem; font-weight: 800; color: #0f172a; }
+.crm-drop-email { font-size: 0.74rem; color: #64748b; max-width: 170px; }
+.crm-drop-item {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: #334155;
+    padding: 8px 12px !important;
+    border-radius: 10px;
+    transition: all 0.15s ease;
+}
+.crm-drop-item:hover {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+}
+.crm-drop-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+.crm-logout-item       { color: #ef4444 !important; }
+.crm-logout-item:hover { background: #fef2f2 !important; color: #dc2626 !important; }
+
+@media (max-width: 991px) {
+    .crm-topbar { padding: 0 1rem; }
+}
+</style>
