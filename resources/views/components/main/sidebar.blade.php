@@ -1,5 +1,9 @@
 @php
     $pendingPaymentsCount = \App\Models\POS\POSTenant::where('payment_status', 'pending_verification')->count();
+    $dueSoonCount = \App\Models\POS\POSTenant::whereNotNull('subscription_end')
+        ->where('subscription_end', '<=', now()->addDays(7)->endOfDay())
+        ->where('status', '!=', 'inactive')
+        ->count();
     $activeTenantContext = session('tenant_id') ? \App\Models\POS\POSTenant::find(session('tenant_id')) : null;
 @endphp
 
@@ -123,13 +127,26 @@
 
             <!-- Payment Verifications -->
             <li class="sidebar-item">
-                <a href="{{ route('sa.subscriptions.verifications') }}" class="sidebar-link {{ request()->routeIs('sa.subscriptions.*') ? 'active' : '' }}">
+                <a href="{{ route('sa.subscriptions.verifications') }}" class="sidebar-link {{ request()->routeIs('sa.subscriptions.verifications*') ? 'active' : '' }}">
                     <span class="sidebar-icon-wrap">
                         <i class="bi bi-patch-check-fill sidebar-icon text-warning"></i>
                     </span>
                     <span class="sidebar-label">Verifications</span>
                     @if($pendingPaymentsCount > 0)
                         <span class="badge bg-danger rounded-pill ms-auto px-2 py-0.5" style="font-size: 0.7rem;">{{ $pendingPaymentsCount }}</span>
+                    @endif
+                </a>
+            </li>
+
+            <!-- Due Date Monitoring Sentinel -->
+            <li class="sidebar-item">
+                <a href="{{ route('sa.subscriptions.monitoring') }}" class="sidebar-link {{ request()->routeIs('sa.subscriptions.monitoring*') ? 'active' : '' }}">
+                    <span class="sidebar-icon-wrap">
+                        <i class="bi bi-alarm-fill sidebar-icon text-danger"></i>
+                    </span>
+                    <span class="sidebar-label">Due Sentinel</span>
+                    @if($dueSoonCount > 0)
+                        <span class="badge bg-danger rounded-pill ms-auto px-2 py-0.5" style="font-size: 0.7rem;">{{ $dueSoonCount }}</span>
                     @endif
                 </a>
             </li>

@@ -158,7 +158,7 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="{{ route('sa.subscriptions.verifications') }}" class="sidebar-link {{ request()->routeIs('sa.subscriptions.*') ? 'active' : '' }}">
+                    <a href="{{ route('sa.subscriptions.verifications') }}" class="sidebar-link {{ request()->routeIs('sa.subscriptions.verifications*') ? 'active' : '' }}">
                         <span class="sidebar-icon-wrap">
                             <i class="bi bi-patch-check-fill sidebar-icon text-warning"></i>
                         </span>
@@ -166,6 +166,14 @@
                         @if(($sidebarPendingVerifications ?? 0) > 0)
                             <span class="badge bg-danger rounded-pill ms-auto px-2 py-0.5" style="font-size: 0.7rem;">{{ $sidebarPendingVerifications }}</span>
                         @endif
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{{ route('sa.subscriptions.monitoring') }}" class="sidebar-link {{ request()->routeIs('sa.subscriptions.monitoring*') ? 'active' : '' }}">
+                        <span class="sidebar-icon-wrap">
+                            <i class="bi bi-alarm-fill sidebar-icon text-danger"></i>
+                        </span>
+                        <span class="sidebar-label">Due Sentinel</span>
                     </a>
                 </li>
                 <li class="sidebar-item">

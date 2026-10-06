@@ -244,4 +244,57 @@ class SupportTicketController extends Controller
             'Ticket status updated.'
         );
     }
+
+    public function requestCallback(Request $request)
+    {
+        $validated = $request->validate([
+            'phone'    => ['required', 'string', 'max:50'],
+            'issue'    => ['required', 'string', 'max:500'],
+            'category' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $tenantName = auth()->user()?->tenant?->business_name ?? 'Tenant Store';
+
+        $ticket = $this->service->create([
+            'subject'            => "[URGENT 24/7 CALLBACK] {$tenantName} - {$validated['issue']}",
+            'description'        => "24/7 Emergency Callback requested by " . (auth()->user()?->name ?? 'User') . ".\nStore: {$tenantName}\nPhone: {$validated['phone']}\nIssue Details: {$validated['issue']}",
+            'priority'           => 'critical',
+            'category'           => $validated['category'] ?? '24/7 Urgent Callback',
+            'contact_phone'      => $validated['phone'],
+            'callback_requested' => true,
+            'source'             => '24_7_hotline_widget',
+        ]);
+
+        return response()->json([
+            'success'   => true,
+            'message'   => 'Your 24/7 emergency callback request was received! Our on-call support team will call you at ' . $validated['phone'] . ' shortly.',
+            'ticket_no' => $ticket->ticket_no,
+        ]);
+    }
+
+    public function storeTenantTicket(Request $request)
+    {
+        $validated = $request->validate([
+            'subject'     => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string', 'min:5'],
+            'priority'    => ['required', 'in:low,medium,high,critical'],
+            'category'    => ['nullable', 'string', 'max:100'],
+            'phone'       => ['nullable', 'string', 'max:50'],
+        ]);
+
+        $ticket = $this->service->create([
+            'subject'       => $validated['subject'],
+            'description'   => $validated['description'],
+            'priority'      => $validated['priority'],
+            'category'      => $validated['category'] ?? 'POS Support',
+            'contact_phone' => $validated['phone'] ?? null,
+            'source'        => 'pos_tenant_portal',
+        ]);
+
+        return response()->json([
+            'success'   => true,
+            'message'   => 'Support ticket #' . $ticket->ticket_no . ' created successfully. Our 24/7 team is on it!',
+            'ticket_no' => $ticket->ticket_no,
+        ]);
+    }
 }

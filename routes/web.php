@@ -43,6 +43,7 @@ use App\Http\Controllers\POS\TenantUserController;
 use App\Http\Controllers\POS\UnitController;
 use App\Http\Controllers\SADashboardController;
 use App\Http\Controllers\SAUserController;
+use App\Http\Controllers\SASubscriptionMonitoringController;
 use App\Http\Controllers\TenantsDashboardController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\GradeLevelController;
@@ -191,6 +192,11 @@ Route::prefix('sa')->name('sa.')->middleware(['auth', 'role:SA',])->group(functi
         Route::get('/verifications', [SubscriptionPaymentController::class, 'saVerifications'])->name('verifications');
         Route::post('/verifications/{id}/approve', [SubscriptionPaymentController::class, 'saApproveVerification'])->name('approve');
         Route::post('/verifications/{id}/reject', [SubscriptionPaymentController::class, 'saRejectVerification'])->name('reject');
+        
+        // Subscription Expiration & Due Date Monitoring
+        Route::get('/monitoring', [SASubscriptionMonitoringController::class, 'index'])->name('monitoring');
+        Route::get('/monitoring/data', [SASubscriptionMonitoringController::class, 'ajaxData'])->name('monitoring.data');
+        Route::post('/monitoring/{id}/extend', [SASubscriptionMonitoringController::class, 'extendDue'])->name('monitoring.extend');
     });
 });
 
@@ -580,6 +586,11 @@ Route::middleware('auth')->group(function(){
         Route::get('/checkout', [SubscriptionPaymentController::class, 'checkout'])->name('checkout');
         Route::post('/pay', [SubscriptionPaymentController::class, 'processPayment'])->name('pay');
         Route::get('/status', [SubscriptionPaymentController::class, 'checkStatus'])->name('status');
+    });
+
+    Route::prefix('support')->name('support.')->group(function () {
+        Route::post('/request-callback', [SupportTicketController::class, 'requestCallback'])->name('request-callback');
+        Route::post('/create-ticket', [SupportTicketController::class, 'storeTenantTicket'])->name('create-ticket');
     });
 
 });

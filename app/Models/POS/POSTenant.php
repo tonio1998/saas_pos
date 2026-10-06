@@ -168,4 +168,109 @@ class POSTenant extends Model
             'tenant_id'
         );
     }
+
+    public function sales()
+    {
+        return $this->hasMany(
+            POSSale::class,
+            'tenant_id'
+        );
+    }
+
+    public function supportTickets()
+    {
+        return $this->hasMany(
+            \App\Models\SupportTicket::class,
+            'tenant_id'
+        );
+    }
+
+    /**
+     * Get days until subscription due date (positive = remaining, negative = overdue)
+     */
+    public function getDaysUntilDueAttribute(): ?int
+    {
+        if (!$this->subscription_end) {
+            return null;
+        }
+
+        return (int) now()->startOfDay()->diffInDays($this->subscription_end->startOfDay(), false);
+    }
+
+    /**
+     * Get subscription due status array
+     */
+    public function getDueStatusAttribute(): array
+    {
+        if ($this->payment_status === 'pending_verification') {
+            return [
+                'status' => 'pending_verification',
+                'label' => 'Payment Verification Pending',
+                'badge_class' => 'bg-warning text-dark border-warning',
+                'urgency' => 'high',
+                'days' => 0,
+            ];
+        }
+
+        if (!$this->subscription_end) {
+            return [
+                'status' => 'no_date',
+                'label' => 'No Due Date Set',
+                'badge_class' => 'bg-secondary text-white',
+                'urgency' => 'none',
+                'days' => null,
+            ];
+        }
+
+        $days = $this->days_until_due;
+
+        if ($days < 0) {
+            $absDays = abs($days);
+            return [
+                'status' => 'expired',
+                'label' => "Overdue by {$absDays} " . ($absDays === 1 ? 'day' : 'days'),
+                'badge_class' => 'bg-danger text-white border-danger',
+                'urgency' => 'critical',
+                'days' => $days,
+            ];
+        }
+
+        if ($days === 0) {
+            return [
+                'status' => 'due_today',
+                'label' => 'Due Today',
+                'badge_class' => 'bg-danger text-white border-danger animate-pulse',
+                'urgency' => 'critical',
+                'days' => 0,
+            ];
+        }
+
+        if ($days <= 3) {
+            return [
+                'status' => 'critical_soon',
+                'label' => "Expires in {$days} " . ($days === 1 ? 'day' : 'days'),
+                'badge_class' => 'bg-warning text-dark border-warning',
+                'urgency' => 'high',
+                'days' => $days,
+            ];
+        }
+
+        if ($days <= 7) {
+            return [
+                'status' => 'due_soon',
+                'label' => "Expires in {$days} days",
+                'badge_class' => 'bg-warning-subtle text-warning-emphasis border-warning',
+                'urgency' => 'medium',
+                'days' => $days,
+            ];
+        }
+
+        return [
+            'status' => 'healthy',
+            'label' => "Active ({$days} days left)",
+            'badge_class' => 'bg-success-subtle text-success border-success-subtle',
+            'urgency' => 'low',
+            'days' => $days,
+        ];
+    }
 }

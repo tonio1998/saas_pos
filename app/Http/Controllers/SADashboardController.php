@@ -33,7 +33,23 @@ class SADashboardController extends Controller
             'totalUsers'                => User::count(),
             'totalSalesVolume'          => (float) POSSale::sum('total_amount'),
             'todaySalesVolume'          => (float) POSSale::whereDate('created_at', $today)->sum('total_amount'),
+            'dueSoonCount'              => POSTenant::whereNotNull('subscription_end')
+                ->where('subscription_end', '>=', $today)
+                ->where('subscription_end', '<=', now()->addDays(7)->endOfDay())
+                ->count(),
+            'due3DaysCount'             => POSTenant::whereNotNull('subscription_end')
+                ->where('subscription_end', '>=', $today)
+                ->where('subscription_end', '<=', now()->addDays(3)->endOfDay())
+                ->count(),
         ];
+
+        // Queue of tenants due soon (within 7 days or overdue)
+        $tenantsDueSoon = POSTenant::with(['subscription'])
+            ->whereNotNull('subscription_end')
+            ->where('subscription_end', '<=', now()->addDays(7)->endOfDay())
+            ->orderBy('subscription_end', 'asc')
+            ->take(6)
+            ->get();
 
         // Queue of subscriptions awaiting verification
         $pendingVerifications = POSTenant::with(['subscription', 'pendingPlan'])
@@ -80,7 +96,8 @@ class SADashboardController extends Controller
             'pendingVerifications',
             'recentTenants',
             'planBreakdown',
-            'recentActivities'
+            'recentActivities',
+            'tenantsDueSoon'
         ));
     }
 

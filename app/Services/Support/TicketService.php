@@ -23,21 +23,27 @@ class TicketService
 
             'ticket_no' => $ticketNo,
 
+            'tenant_id' => $data['tenant_id'] ?? session('tenant_id') ?? auth()->user()?->tenant_id,
+
             'school_id' => session('school_id'),
 
             'user_id' => auth()->id(),
+
+            'contact_phone' => $data['contact_phone'] ?? auth()->user()?->phone ?? auth()->user()?->tenant?->phone,
+
+            'callback_requested' => !empty($data['callback_requested']),
 
             'subject' => $data['subject'],
 
             'description' => $data['description'],
 
-            'priority' => $data['priority'],
+            'priority' => $data['priority'] ?? 'medium',
 
-            'category' => $data['category'],
+            'category' => $data['category'] ?? 'General Inquiry',
 
             'status' => 'open',
 
-            'source' => 'web',
+            'source' => $data['source'] ?? 'web',
 
             'ip_address' => request()->ip(),
 

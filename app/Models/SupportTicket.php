@@ -12,9 +12,15 @@ class SupportTicket extends Model implements AuditableContract
 
         'ticket_no',
 
+        'tenant_id',
+
         'school_id',
 
         'user_id',
+
+        'contact_phone',
+
+        'callback_requested',
 
         'assigned_to',
 
@@ -57,8 +63,18 @@ class SupportTicket extends Model implements AuditableContract
 
         'is_incident' => 'boolean',
 
+        'callback_requested' => 'boolean',
+
         'archived' => 'boolean',
     ];
+
+    public function tenant()
+    {
+        return $this->belongsTo(
+            \App\Models\POS\POSTenant::class,
+            'tenant_id'
+        );
+    }
 
     public function school()
     {

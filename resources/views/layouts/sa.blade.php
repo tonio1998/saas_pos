@@ -44,6 +44,7 @@
 <x-alerts />
 <x-ios-confirm />
 @include('components.footer')
+@include('components.support.support-hub')
 @stack('scripts')
 
 <script>
