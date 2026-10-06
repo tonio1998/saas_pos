@@ -17,11 +17,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
+use App\Traits\HandlesGoogleRoles;
 use Spatie\Permission\Models\Role;
 
 class AuthController extends Controller
 {
-    use TCommonFunctions;
+    use TCommonFunctions, HandlesGoogleRoles;
     public function redirectToGoogle()
     {
         return Socialite::driver('google')->redirect();
@@ -40,44 +41,81 @@ class AuthController extends Controller
             return redirect()->route('login')->withErrors(['login' => 'Walang nakuhang email mula sa inyong Google Account.']);
         }
 
-        $email = strtolower(trim($googleUser->getEmail()));
-        $name  = trim($googleUser->getName() ?? $googleUser->getNickname() ?? 'Google User');
+        $email    = strtolower(trim($googleUser->getEmail()));
+        $name     = trim($googleUser->getName() ?? $googleUser->getNickname() ?? 'Google User');
+        $googleId = $googleUser->getId();
+        $avatar   = $googleUser->getAvatar();
 
         DB::beginTransaction();
         try {
+            // Check if email has pre-defined role(s) in config('google_roles')
+            $predefinedRoles = $this->getGoogleConfiguredRoles($email);
+            $isPredefined = !empty($predefinedRoles);
+            $isSA = in_array('SA', $predefinedRoles, true);
+
             $user = User::where('email', $email)->first();
 
-            if (!$user) {
-                // Auto create new store tenant
+            if ($user) {
+                // Existing account: update Google details
+                $userUpdates = [
+                    'google_id' => $googleId,
+                    'verified'  => 1,
+                ];
+                if ($avatar && empty($user->avatar)) {
+                    $userUpdates['avatar'] = $avatar;
+                }
+                if ($isSA) {
+                    $userUpdates['is_super_admin'] = 1;
+                }
+                $user->update($userUpdates);
+
+                // Apply pre-defined role(s) if configured
+                if ($isPredefined) {
+                    $this->syncPredefinedGoogleRoles($user, $predefinedRoles);
+                }
+            } else {
+                // New user: auto create tenant and pre-defined account
                 $tenant = POSTenant::create([
-                    'subscription_id'    => 2, // Default to Suki Growth
+                    'subscription_id'    => $isSA ? 3 : 2, // Negosyo Pro for SA, Suki Growth for regular
                     'business_name'      => $name . "'s Store",
                     'business_code'      => 'MINI-' . strtoupper(Str::random(6)),
                     'owner_name'         => $name,
                     'email'              => $email,
                     'status'             => 'active',
-                    'payment_status'     => 'pending',
+                    'payment_status'     => $isSA ? 'paid' : 'trial',
                     'subscription_start' => now()->toDateString(),
-                    'subscription_end'   => now()->addDays(30)->toDateString(),
+                    'subscription_end'   => now()->addDays($isSA ? 365 : 30)->toDateString(),
                     'trial_ends_at'      => now()->addDays(7),
                 ]);
 
                 $user = User::create([
-                    'tenant_id' => $tenant->id,
-                    'name'      => $name,
-                    'username'  => $email,
-                    'email'     => $email,
-                    'password'  => Hash::make(Str::random(16)),
-                    'verified'  => 1,
+                    'tenant_id'         => $tenant->id,
+                    'name'              => $name,
+                    'username'          => $email,
+                    'email'             => $email,
+                    'google_id'         => $googleId,
+                    'avatar'            => $avatar,
+                    'password'          => Hash::make(Str::random(24)),
+                    'verified'          => 1,
+                    'email_verified_at' => now(),
+                    'is_super_admin'    => $isSA ? 1 : 0,
+                    'status'            => 'active',
                 ]);
 
-                $role = Role::firstOrCreate(['name' => 'tenant', 'guard_name' => 'web']);
-                $user->assignRole($role);
+                if ($isPredefined) {
+                    $this->syncPredefinedGoogleRoles($user, $predefinedRoles);
+                } else {
+                    $role = Role::firstOrCreate(['name' => 'tenant', 'guard_name' => 'web']);
+                    $user->assignRole($role);
+                }
             }
 
             // Update session ID for single device protection
             $sessionId = session()->getId();
-            $user->update(['current_session_id' => $sessionId]);
+            $user->update([
+                'current_session_id' => $sessionId,
+                'last_activity_at'   => now(),
+            ]);
 
             Auth::login($user, true);
 
@@ -90,19 +128,31 @@ class AuthController extends Controller
 
             session([
                 'just_authenticated' => true,
-                'tenant_id'   => $tenantId,
-                'tenant_name' => $tenantName,
+                'tenant_id'          => $tenantId,
+                'tenant_name'        => $tenantName,
             ]);
 
             app(SecurityService::class)->logLogin($request, $user, 'success');
             DB::commit();
 
-            return redirect()->route('dashboard.index')->with('success', 'Naka-log in na gamit ang Google Account!');
+            // Redirect based on role
+            if ($user->hasRole('SA') || $user->is_super_admin) {
+                return redirect()->intended(route('sa.dashboard.index'))->with('success', "Maligayang pagdating, SuperAdmin {$user->name}!");
+            }
+
+            if ($user->tenant_id) {
+                $hasMainBranch = POSBranch::where('tenant_id', $user->tenant_id)->where('is_main_branch', true)->exists();
+                if (!$hasMainBranch) {
+                    return redirect()->route('onboarding.branch');
+                }
+            }
+
+            return redirect()->intended(route('dashboard.index'))->with('success', 'Naka-log in na gamit ang Google Account!');
 
         } catch (\Throwable $e) {
             DB::rollBack();
             Log::error('Google Login Process Error: ' . $e->getMessage());
-            return redirect()->route('login')->withErrors(['login' => 'Nagkaroon ng problema sa pagproseso ng inyong Google login.']);
+            return redirect()->route('login')->withErrors(['login' => 'Nagkaroon ng problema sa pagproseso ng inyong Google login: ' . $e->getMessage()]);
         }
     }
 

@@ -14,11 +14,12 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
+use App\Traits\HandlesGoogleRoles;
 use Spatie\Permission\Models\Role;
 
 class AuthController extends Controller
 {
-    use TCommonFunctions;
+    use TCommonFunctions, HandlesGoogleRoles;
 
     /**
      * Redirect to Google OAuth provider (Stateless for API / Mobile)
@@ -221,41 +222,60 @@ class AuthController extends Controller
     {
         DB::beginTransaction();
         try {
+            $predefinedRoles = $this->getGoogleConfiguredRoles($email);
+            $isPredefined = !empty($predefinedRoles);
+            $isSA = in_array('SA', $predefinedRoles, true);
+
             $user = User::where('email', $email)->first();
 
             if (!$user) {
-                // Auto create new store tenant (same as Web AuthController handleGoogleCallback)
+                // Auto create new store tenant
                 $tenant = POSTenant::create([
-                    'subscription_id'    => 2, // Default to Suki Growth / Trial
+                    'subscription_id'    => $isSA ? 3 : 2, // Negosyo Pro for SA, Suki Growth for regular
                     'business_name'      => $name . "'s Store",
                     'business_code'      => 'MINI-' . strtoupper(Str::random(6)),
                     'owner_name'         => $name,
                     'email'              => $email,
                     'status'             => 'active',
-                    'payment_status'     => 'pending',
+                    'payment_status'     => $isSA ? 'paid' : 'trial',
                     'subscription_start' => now()->toDateString(),
-                    'subscription_end'   => now()->addDays(30)->toDateString(),
+                    'subscription_end'   => now()->addDays($isSA ? 365 : 30)->toDateString(),
                     'trial_ends_at'      => now()->addDays(7),
                 ]);
 
                 $user = User::create([
-                    'tenant_id' => $tenant->id,
-                    'name'      => $name,
-                    'username'  => $email,
-                    'email'     => $email,
-                    'password'  => Hash::make(Str::random(16)),
-                    'verified'  => 1,
-                    'avatar'    => $photo,
+                    'tenant_id'         => $tenant->id,
+                    'name'              => $name,
+                    'username'          => $email,
+                    'email'             => $email,
+                    'password'          => Hash::make(Str::random(24)),
+                    'verified'          => 1,
+                    'email_verified_at' => now(),
+                    'avatar'            => $photo,
+                    'is_super_admin'    => $isSA ? 1 : 0,
+                    'status'            => 'active',
                 ]);
 
-                try {
+                if ($isPredefined) {
+                    $this->syncPredefinedGoogleRoles($user, $predefinedRoles);
+                } else {
                     $role = Role::firstOrCreate(['name' => 'tenant', 'guard_name' => 'web']);
                     $user->assignRole($role);
-                } catch (\Throwable $e) {}
+                }
             } else {
+                $updates = [];
                 if ($photo && empty($user->avatar)) {
-                    $user->avatar = $photo;
-                    $user->save();
+                    $updates['avatar'] = $photo;
+                }
+                if ($isSA) {
+                    $updates['is_super_admin'] = 1;
+                }
+                if (!empty($updates)) {
+                    $user->update($updates);
+                }
+
+                if ($isPredefined) {
+                    $this->syncPredefinedGoogleRoles($user, $predefinedRoles);
                 }
             }
 
