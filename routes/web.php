@@ -197,6 +197,11 @@ Route::prefix('sa')->name('sa.')->middleware(['auth', 'role:SA',])->group(functi
         Route::get('/monitoring', [SASubscriptionMonitoringController::class, 'index'])->name('monitoring');
         Route::get('/monitoring/data', [SASubscriptionMonitoringController::class, 'ajaxData'])->name('monitoring.data');
         Route::post('/monitoring/{id}/extend', [SASubscriptionMonitoringController::class, 'extendDue'])->name('monitoring.extend');
+        Route::post('/monitoring/{id}/send-email', [SASubscriptionMonitoringController::class, 'sendEmailReminder'])->name('monitoring.send-email');
+        Route::post('/monitoring/bulk-remind', [SASubscriptionMonitoringController::class, 'sendBulkEmailReminders'])->name('monitoring.bulk-remind');
+        Route::post('/monitoring/run-engine', [SASubscriptionMonitoringController::class, 'runAutomatedEngine'])->name('monitoring.run-engine');
+        Route::post('/monitoring/{id}/toggle-status', [SASubscriptionMonitoringController::class, 'toggleStatus'])->name('monitoring.toggle-status');
+        Route::get('/monitoring/export-csv', [SASubscriptionMonitoringController::class, 'exportCsv'])->name('monitoring.export-csv');
     });
 });
 
