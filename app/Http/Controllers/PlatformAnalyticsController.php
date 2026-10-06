@@ -30,7 +30,7 @@ class PlatformAnalyticsController extends Controller
                 $activeUsers = User::where('last_activity_at', '>=', now()->subMinutes(10))
                     ->count();
 
-                $totalSchools = School::count();
+                $totalStores = \App\Models\POS\POSTenant::count();
 
                 $activeSessions = DB::table('sessions')
                     ->count();
@@ -48,7 +48,8 @@ class PlatformAnalyticsController extends Controller
                 return response()->json([
                     'total_users' => number_format($totalUsers),
                     'active_users' => number_format($activeUsers),
-                    'total_schools' => number_format($totalSchools),
+                    'total_schools' => number_format($totalStores),
+                    'total_stores' => number_format($totalStores),
                     'active_sessions' => number_format($activeSessions),
                     'suspicious_activities' => number_format($suspiciousActivities),
                     'today_logins' => number_format($todayLogins),
@@ -128,12 +129,13 @@ class PlatformAnalyticsController extends Controller
             now()->addMinutes(10),
             function () {
 
-                return School::select(
-                    'school.SchoolName',
+                return \App\Models\POS\POSTenant::select(
+                    'pos_tenants.business_name as SchoolName',
+                    'pos_tenants.business_name',
                     DB::raw('COUNT(users.id) as users_count')
                 )
-                    ->leftJoin('users', 'users.school_id', '=', 'school.id')
-                    ->groupBy('school.id', 'school.SchoolName')
+                    ->leftJoin('users', 'users.tenant_id', '=', 'pos_tenants.id')
+                    ->groupBy('pos_tenants.id', 'pos_tenants.business_name')
                     ->orderByDesc('users_count')
                     ->limit(10)
                     ->get();

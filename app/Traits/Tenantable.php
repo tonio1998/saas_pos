@@ -7,17 +7,10 @@ trait Tenantable
     protected static function bootTenantable(): void
     {
         static::creating(function ($model) {
-
-            if (
-                session()->has('school_id') &&
-                empty($model->school_id)
-            ) {
-
-                $model->school_id =
-                    session('school_id');
-
+            $tenantId = session('tenant_id') ?? \App\Services\Tenant\TenantContext::getTenantId() ?? auth()->user()?->tenant_id;
+            if ($tenantId && empty($model->tenant_id)) {
+                $model->tenant_id = $tenantId;
             }
-
         });
 
         static::addGlobalScope(

@@ -44,17 +44,17 @@ class UserController extends Controller
     public function users_search(Request $request)
     {
         $search = $request->search;
-        $users = SchoolUsers::query()
-            ->when($search,function($q) use ($search){
-                $q->where('name','like',"%{$search}%");
+        $users = User::query()
+            ->when($search, function($q) use ($search){
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
             })
-            ->with('school')
             ->limit(10)
             ->get();
         return $users->map(function($user){
             return [
-                'id'=>$user->id,
-                'text'=>$user->name . '[' . $user->email . ']'
+                'id' => $user->id,
+                'text' => $user->name . ' [' . $user->email . ']'
             ];
         });
     }
