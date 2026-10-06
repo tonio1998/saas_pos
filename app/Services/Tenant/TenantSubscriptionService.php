@@ -76,7 +76,7 @@ class TenantSubscriptionService
             if ($currentCount >= $maxCashiers) {
                 return [
                     'allowed' => false,
-                    'message' => "Your current subscription plan ({$planName}) allows up to {$maxCashiers} Cashier account(s). You currently have {$currentCount}. Please upgrade your subscription to Level II or III to add more Cashier accounts.",
+                    'message' => "Your current subscription plan ({$planName}) allows up to {$maxCashiers} Cashier account(s). You currently have {$currentCount}. Please upgrade your subscription (Suki Growth o Negosyo Pro) to add more Cashier accounts.",
                     'current' => $currentCount,
                     'limit' => $maxCashiers,
                 ];

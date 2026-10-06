@@ -132,11 +132,11 @@
                         <div class="col-md-12">
                             <label class="form-label fw-semibold">Semester</label>
                             <select class="form-select" name="Semester" id="Semester">
-                                <option value="1" {{ $currentSemester == 1 ? 'selected' : '' }}>1st Semester</option>
-                                <option value="2" {{ $currentSemester == 2 ? 'selected' : '' }}>2nd Semester</option>
-                                <option value="3" {{ $currentSemester == 3 ? 'selected' : '' }}>3rd Semester</option>
-                                <option value="4" {{ $currentSemester == 4 ? 'selected' : '' }}>4th Semester</option>
-                                <option value="5" {{ $currentSemester == 5 ? 'selected' : '' }}>Summer</option>
+                                <option value="1" {{ ($currentSemester ?? 1) == 1 ? 'selected' : '' }}>1st Semester</option>
+                                <option value="2" {{ ($currentSemester ?? 1) == 2 ? 'selected' : '' }}>2nd Semester</option>
+                                <option value="3" {{ ($currentSemester ?? 1) == 3 ? 'selected' : '' }}>3rd Semester</option>
+                                <option value="4" {{ ($currentSemester ?? 1) == 4 ? 'selected' : '' }}>4th Semester</option>
+                                <option value="5" {{ ($currentSemester ?? 1) == 5 ? 'selected' : '' }}>Summer</option>
                             </select>
                         </div>
 
@@ -144,7 +144,7 @@
                             <label class="form-label fw-semibold">Academic Year</label>
                             <select class="form-select" name="AYFrom" id="AYFrom">
                                 @for($year = now()->year + 1; $year >= 2020; $year--)
-                                    <option value="{{ $year }}" {{ $AYFrom == $year ? 'selected' : '' }}>
+                                    <option value="{{ $year }}" {{ ($AYFrom ?? now()->year) == $year ? 'selected' : '' }}>
                                         {{ $year }} - {{ $year + 1 }}
                                     </option>
                                 @endfor

@@ -14,6 +14,7 @@ class POSTenant extends Model
 
     protected $fillable = [
         'subscription_id',
+        'pending_plan_id',
         'business_name',
         'business_code',
         'owner_name',
@@ -37,8 +38,15 @@ class POSTenant extends Model
         'trial_ends_at',
         'status',
         'payment_status',
+        'payment_method',
         'payment_reference',
+        'payment_proof',
+        'payment_sender_name',
+        'payment_sender_phone',
+        'payment_amount',
         'paid_at',
+        'payment_submitted_at',
+        'payment_notes',
         'archived',
         'created_by',
         'updated_by',
@@ -51,6 +59,8 @@ class POSTenant extends Model
         'subscription_end' => 'date',
         'trial_ends_at' => 'datetime',
         'paid_at' => 'datetime',
+        'payment_submitted_at' => 'datetime',
+        'payment_amount' => 'decimal:2',
         'bir_acc_date' => 'date',
         'archived' => 'boolean',
     ];
@@ -68,8 +78,16 @@ class POSTenant extends Model
     public function subscription()
     {
         return $this->belongsTo(
-            PosSubscription::class,
+            POSSubscription::class,
             'subscription_id'
+        );
+    }
+
+    public function pendingPlan()
+    {
+        return $this->belongsTo(
+            POSSubscription::class,
+            'pending_plan_id'
         );
     }
 
@@ -101,7 +119,17 @@ class POSTenant extends Model
 
     public function isPendingPayment(): bool
     {
-        return $this->payment_status === 'pending' && $this->status !== 'active';
+        return ($this->payment_status === 'pending' || $this->payment_status === 'pending_verification') && $this->status !== 'active';
+    }
+
+    public function isPendingVerification(): bool
+    {
+        return $this->payment_status === 'pending_verification';
+    }
+
+    public function isPaymentRejected(): bool
+    {
+        return $this->payment_status === 'rejected';
     }
 
     public function isLocked(): bool

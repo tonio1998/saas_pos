@@ -176,6 +176,12 @@ Route::prefix('sa')->name('sa.')->middleware(['auth', 'role:SA',])->group(functi
             Route::get('/', [SystemSettingController::class, 'index'])->name('index');
             Route::put('/', [SystemSettingController::class, 'update'])->name('update');
         });
+
+    Route::prefix('subscriptions')->name('subscriptions.')->group(function () {
+        Route::get('/verifications', [SubscriptionPaymentController::class, 'saVerifications'])->name('verifications');
+        Route::post('/verifications/{id}/approve', [SubscriptionPaymentController::class, 'saApproveVerification'])->name('approve');
+        Route::post('/verifications/{id}/reject', [SubscriptionPaymentController::class, 'saRejectVerification'])->name('reject');
+    });
 });
 
 Route::prefix('support-center')->name('support-center.')->middleware(['auth', 'role:SA',])

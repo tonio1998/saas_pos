@@ -76,7 +76,7 @@
                     {{ $usage['cashiers']['current'] ?? 0 }} / <span class="fs-4 text-muted">{{ $usage['cashiers']['limit'] ?? 2 }}</span>
                 </div>
                 <div class="d-flex align-items-center justify-content-between gap-2 mt-auto pt-1">
-                    <span class="text-success extra-small fw-bold"><i class="bi bi-shop me-1"></i>POS Terminal Users</span>
+                    <span class="text-success extra-small fw-bold"><i class="bi bi-cash-stack me-1"></i>Cashier Staff Limit</span>
                 </div>
             </div>
         </div>
@@ -147,7 +147,7 @@
                     <div class="mb-3">
                         <label class="form-label extra-small fw-bold text-uppercase text-muted">System Role <span class="text-danger">*</span></label>
                         <select name="role" class="form-select font-mono" required>
-                            <option value="cashier">🟢 Cashier Staff (POS Terminal Cashier)</option>
+                            <option value="cashier">🟢 Cashier Staff (Cashiering & Sales)</option>
                             <option value="manager">🟡 Store Manager (Reports & Inventory)</option>
                             <option value="admin">🔵 Store Admin (Full Access)</option>
                         </select>

@@ -126,6 +126,22 @@
 
                     </a>
 
+                    @php
+                        $pendingPaymentsCount = \App\Models\POS\POSTenant::where('payment_status', 'pending_verification')->count();
+                    @endphp
+                    <a
+                        href="{{ route('sa.subscriptions.verifications') }}"
+                        class="sidebar-sublink d-flex align-items-center justify-content-between {{ request()->routeIs('sa.subscriptions.*') ? 'active' : '' }}"
+                    >
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-patch-check-fill sidebar-subicon text-warning"></i>
+                            <span>Verifications</span>
+                        </div>
+                        @if($pendingPaymentsCount > 0)
+                            <span class="badge bg-danger rounded-pill px-2 py-0.5" style="font-size: 0.7rem;">{{ $pendingPaymentsCount }}</span>
+                        @endif
+                    </a>
+
                 </div>
 
             </li>

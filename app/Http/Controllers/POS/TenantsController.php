@@ -536,6 +536,16 @@ class TenantsController extends Controller
                                             Switch Tenant
                                         </a>
 
+                                        ' . ($tenant->payment_status === 'pending_verification' ? '
+                                        <a
+                                            href="' . route('sa.subscriptions.verifications') . '"
+                                            class="btn btn-warning text-start fw-bold"
+                                        >
+                                            <i class="bi bi-patch-check-fill me-2"></i>
+                                            Verify Payment
+                                        </a>
+                                        ' : '') . '
+
                                     </div>
 
                                 </div>
@@ -610,17 +620,15 @@ class TenantsController extends Controller
             })
 
             ->addColumn('status', function ($tenant) {
+                if ($tenant->payment_status === 'pending_verification') {
+                    return '<span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>Verify Payment</span>';
+                }
 
                 return match ($tenant->status) {
-
                     'active' => '<span class="badge bg-success">Active</span>',
-
                     'inactive' => '<span class="badge bg-secondary">Inactive</span>',
-
                     'locked' => '<span class="badge bg-danger">Locked</span>',
-
                     'unlocked' => '<span class="badge bg-info">Unlocked</span>',
-
                     default => '<span class="badge bg-warning">Unknown</span>',
                 };
             })
