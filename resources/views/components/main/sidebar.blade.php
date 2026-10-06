@@ -59,6 +59,23 @@
 
             </li>
 
+            <li class="sidebar-item">
+
+                <a
+                    href="{{ route('dashboard.index') }}"
+                    class="sidebar-link justify-content-start text-success"
+                >
+
+                    <i class="bi bi-shop sidebar-icon text-success"></i>
+
+                    <span class="fw-bold">
+                        Open Store POS View
+                    </span>
+
+                </a>
+
+            </li>
+
         </ul>
 
         <div class="px-3 mt-3 mb-2">

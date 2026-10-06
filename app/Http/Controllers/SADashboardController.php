@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Employees;
-use App\Models\ScanLogs;
-use App\Models\School;
-use App\Models\SmsQueuingModel;
-use App\Models\Students;
-use App\Models\SystemSetting;
+use App\Models\POS\POSCustomers;
+use App\Models\POS\POSProducts;
+use App\Models\POS\POSSale;
+use App\Models\POS\POSSubscription;
+use App\Models\POS\POSTenant;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -16,201 +15,114 @@ use OwenIt\Auditing\Models\Audit;
 
 class SADashboardController extends Controller
 {
-    public $data = [];
-
     public function index()
     {
-        return view(
-            'pages.sa.dashboard.index',
-            $this->data
-        );
-    }
+        abort_unless(auth()->check() && (auth()->user()->hasRole('SA') || auth()->user()->is_super_admin), 403);
 
-public function data()
-{
-    $today = now()->toDateString();
+        $today = now()->toDateString();
 
-    $smsSettings = SystemSetting::query()
-        ->where('sms_enabled', true)
-        ->first();
+        $metrics = [
+            'totalTenants'              => POSTenant::count(),
+            'activeTenants'             => POSTenant::where('status', 'active')->count(),
+            'paidSubscriptions'         => POSTenant::where('payment_status', 'paid')->count(),
+            'pendingVerificationsCount' => POSTenant::where('payment_status', 'pending_verification')->count(),
+            'trialTenants'              => POSTenant::where('payment_status', 'trial')->count(),
+            'expiredTenants'            => POSTenant::whereNotNull('subscription_end')->where('subscription_end', '<', $today)->count(),
+            'totalProducts'             => POSProducts::count(),
+            'totalCustomers'            => POSCustomers::count(),
+            'totalUsers'                => User::count(),
+            'totalSalesVolume'          => (float) POSSale::sum('total_amount'),
+            'todaySalesVolume'          => (float) POSSale::whereDate('created_at', $today)->sum('total_amount'),
+        ];
 
-    return response()->json([
+        // Queue of subscriptions awaiting verification
+        $pendingVerifications = POSTenant::with(['subscription', 'pendingPlan'])
+            ->where('payment_status', 'pending_verification')
+            ->orderByDesc('payment_submitted_at')
+            ->take(10)
+            ->get();
 
-        'store' => School::query()
-            ->count(),
+        // Recent tenants for CRM monitoring
+        $recentTenants = POSTenant::with(['subscription', 'branches'])
+            ->latest()
+            ->take(8)
+            ->get();
 
-        'users' => User::query()
-            ->count(),
+        // Plan distribution
+        $plans = POSSubscription::where('status', 'active')->orderBy('sort_order')->get();
+        $planBreakdown = [];
+        foreach ($plans as $plan) {
+            $planBreakdown[] = [
+                'name'  => $plan->name,
+                'price' => $plan->price,
+                'count' => POSTenant::where('subscription_id', $plan->id)->count(),
+            ];
+        }
 
-        'smsSent' => SmsQueuingModel::query()
-            ->whereDate(
-                'created_at',
-                $today
-            )
-            ->where(
-                'remark',
-                'sent'
-            )
-            ->count(),
-
-        'activeSchools' => School::query()
-            ->where(
-                'status',
-                'active'
-            )
-            ->count(),
-
-        'onlineUsers' => User::query()
-            ->whereNotNull(
-                'last_activity_at'
-            )
-            ->where(
-                'last_activity_at',
-                '>=',
-                now()->subMinutes(15)
-            )
-            ->count(),
-
-        'failedSms' => SmsQueuingModel::query()
-            ->where(
-                'remark',
-                'failed'
-            )
-            ->count(),
-
-        'securityLogs' => ScanLogs::query()
-            ->count(),
-
-        'smsSettings' => [
-
-            'enabled'
-                => (bool) (
-                    $smsSettings?->sms_enabled
-                ),
-
-            'provider'
-                => $smsSettings?->sms_provider
-                ?? 'gsm',
-
-            'status'
-                => $smsSettings?->sms_status
-                ?? 'unknown',
-
-            'signal_status'
-                => $smsSettings?->sms_signal_status
-                ?? 'unknown',
-
-            'last_error'
-                => $smsSettings?->sms_last_error,
-
-            'failed_count'
-                => $smsSettings?->sms_failed_count
-                ?? 0,
-
-            'last_failed_at'
-                => $smsSettings?->sms_last_failed_at
-                ?->diffForHumans(),
-        ],
-
-        'recentActivities' => Audit::query()
+        // Recent platform audit logs
+        $recentActivities = Audit::query()
             ->with('user')
             ->latest()
             ->take(10)
             ->get()
             ->map(function ($audit) {
-
                 return [
-
-                    'name'
-                        => optional(
-                            $audit->user
-                        )->name
-                        ?? 'System',
-
-                    'description'
-                        => $this->formatAuditMessage(
-                            $audit
-                        ),
-
-                    'time'
-                        => $audit->created_at
-                        ->diffForHumans(),
-
-                    'event'
-                        => $audit->event,
-
-                    'ip'
-                        => $audit->ip_address,
+                    'name'        => optional($audit->user)->name ?? 'System',
+                    'description' => $this->formatAuditMessage($audit),
+                    'time'        => $audit->created_at ? $audit->created_at->diffForHumans() : 'Recently',
+                    'event'       => $audit->event,
+                    'ip'          => $audit->ip_address,
                 ];
-            })
-            ->values(),
-    ]);
-}
+            });
 
+        return view('pages.sa.dashboard.index', compact(
+            'metrics',
+            'pendingVerifications',
+            'recentTenants',
+            'planBreakdown',
+            'recentActivities'
+        ));
+    }
 
-    protected function formatAuditMessage($audit) {
-        $user = optional(
-            $audit->user
-        )->name ?? 'System';
+    public function data()
+    {
+        abort_unless(auth()->check() && (auth()->user()->hasRole('SA') || auth()->user()->is_super_admin), 403);
 
-        $model = Str::of(
-            class_basename(
-                $audit->auditable_type
-            )
-        )
+        $today = now()->toDateString();
+
+        return response()->json([
+            'totalTenants'              => POSTenant::count(),
+            'activeTenants'             => POSTenant::where('status', 'active')->count(),
+            'paidSubscriptions'         => POSTenant::where('payment_status', 'paid')->count(),
+            'pendingVerificationsCount' => POSTenant::where('payment_status', 'pending_verification')->count(),
+            'trialTenants'              => POSTenant::where('payment_status', 'trial')->count(),
+            'totalSalesVolume'          => number_format((float) POSSale::sum('total_amount'), 2),
+            'todaySalesVolume'          => number_format((float) POSSale::whereDate('created_at', $today)->sum('total_amount'), 2),
+            'totalProducts'             => POSProducts::count(),
+            'totalCustomers'            => POSCustomers::count(),
+            'totalUsers'                => User::count(),
+            'onlineUsers'               => User::whereNotNull('last_activity_at')->where('last_activity_at', '>=', now()->subMinutes(15))->count(),
+        ]);
+    }
+
+    protected function formatAuditMessage($audit)
+    {
+        $user = optional($audit->user)->name ?? 'System';
+
+        $model = Str::of(class_basename($audit->auditable_type ?? 'Record'))
             ->snake()
             ->replace('_', ' ')
             ->singular()
             ->lower();
 
-        $article = in_array(
-            substr($model, 0, 1),
-            ['a', 'e', 'i', 'o', 'u']
-        )
-            ? 'an'
-            : 'a';
+        $article = in_array(substr($model, 0, 1), ['a', 'e', 'i', 'o', 'u']) ? 'an' : 'a';
 
         return match ($audit->event) {
-
-            'created' =>
-
-                $user .
-                ' created ' .
-                $article .
-                ' ' .
-                $model,
-
-            'updated' =>
-
-                $user .
-                ' updated ' .
-                $article .
-                ' ' .
-                $model,
-
-            'deleted' =>
-
-                $user .
-                ' deleted ' .
-                $article .
-                ' ' .
-                $model,
-
-            'restored' =>
-
-                $user .
-                ' restored ' .
-                $article .
-                ' ' .
-                $model,
-
-            default =>
-
-                $user .
-                ' performed an action on ' .
-                $article .
-                ' ' .
-                $model,
+            'created'  => "{$user} created {$article} {$model}",
+            'updated'  => "{$user} updated {$article} {$model}",
+            'deleted'  => "{$user} deleted {$article} {$model}",
+            'restored' => "{$user} restored {$article} {$model}",
+            default    => "{$user} performed an action on {$article} {$model}",
         };
     }
 }

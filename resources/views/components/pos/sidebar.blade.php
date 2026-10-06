@@ -52,6 +52,48 @@
         </div>
     </div>
 
+    @if(auth()->check() && (auth()->user()->hasRole('SA') || auth()->user()->is_super_admin))
+        @php
+            $sidebarPendingVerifications = \App\Models\POS\POSTenant::where('payment_status', 'pending_verification')->count();
+        @endphp
+        <div class="px-1 mb-2.5">
+            <div class="p-2.5 rounded-3 border" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.22) 100%); border-color: rgba(245, 158, 11, 0.4) !important;">
+                <div class="d-flex align-items-center justify-content-between mb-1.5">
+                    <span class="badge bg-warning text-dark fw-bold px-2 py-0.5" style="font-size: 0.68rem; letter-spacing: 0.5px;">
+                        <i class="bi bi-shield-lock-fill me-1"></i> SUPERADMIN
+                    </span>
+                    <span class="extra-small text-warning-emphasis fw-bold" style="font-size: 0.68rem;">Tenant Mode</span>
+                </div>
+                <div class="d-grid gap-1">
+                    <a href="{{ route('sa.dashboard.index') }}" class="btn btn-warning btn-sm rounded-2 fw-bold d-flex align-items-center justify-content-between py-1 px-2.5 text-dark shadow-xs" style="background: #fbbf24; border: 1px solid #d97706; font-size: 0.8rem;">
+                        <span class="d-flex align-items-center gap-1.5">
+                            <i class="bi bi-speedometer2"></i>
+                            <span>SA Console</span>
+                        </span>
+                        <i class="bi bi-arrow-right-short fs-6"></i>
+                    </a>
+                    <a href="{{ route('sa.subscriptions.verifications') }}" class="btn btn-outline-warning btn-sm rounded-2 fw-bold d-flex align-items-center justify-content-between py-1 px-2.5 text-warning extra-small" style="font-size: 0.75rem;">
+                        <span class="d-flex align-items-center gap-1">
+                            <i class="bi bi-patch-check-fill"></i>
+                            <span>Verifications</span>
+                        </span>
+                        @if($sidebarPendingVerifications > 0)
+                            <span class="badge bg-danger rounded-pill px-1.5 py-0.5">{{ $sidebarPendingVerifications }}</span>
+                        @endif
+                    </a>
+                    @if(session('tenant_id'))
+                        <form method="POST" action="{{ route('sa.tenants.close-context') }}" class="m-0">
+                            @csrf
+                            <button type="submit" class="btn btn-link text-white-50 btn-sm w-100 p-0 extra-small text-decoration-none mt-0.5" style="font-size: 0.7rem;">
+                                <i class="bi bi-x-circle me-1"></i> Close Store Context
+                            </button>
+                        </form>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Navigation Menu Items -->
     <div class="sidebar-scroll flex-grow-1 overflow-auto">
         @foreach(config('sidebar') as $section)
@@ -101,6 +143,41 @@
                 @endforeach
             </ul>
         @endforeach
+
+        @if(auth()->check() && (auth()->user()->hasRole('SA') || auth()->user()->is_super_admin))
+            <div class="sidebar-section-title text-warning mt-3">
+                <i class="bi bi-shield-check me-1"></i> SUPERADMIN PLATFORM
+            </div>
+            <ul class="sidebar-menu list-unstyled mb-0">
+                <li class="sidebar-item">
+                    <a href="{{ route('sa.dashboard.index') }}" class="sidebar-link {{ request()->routeIs('sa.dashboard.*') ? 'active' : '' }}">
+                        <span class="sidebar-icon-wrap">
+                            <i class="bi bi-speedometer2 sidebar-icon text-warning"></i>
+                        </span>
+                        <span class="sidebar-label">Platform CRM</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{{ route('sa.subscriptions.verifications') }}" class="sidebar-link {{ request()->routeIs('sa.subscriptions.*') ? 'active' : '' }}">
+                        <span class="sidebar-icon-wrap">
+                            <i class="bi bi-patch-check-fill sidebar-icon text-warning"></i>
+                        </span>
+                        <span class="sidebar-label">Verifications</span>
+                        @if(($sidebarPendingVerifications ?? 0) > 0)
+                            <span class="badge bg-danger rounded-pill ms-auto px-2 py-0.5" style="font-size: 0.7rem;">{{ $sidebarPendingVerifications }}</span>
+                        @endif
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{{ route('sa.tenants.index') }}" class="sidebar-link {{ request()->routeIs('sa.tenants.*') ? 'active' : '' }}">
+                        <span class="sidebar-icon-wrap">
+                            <i class="bi bi-buildings-fill sidebar-icon text-warning"></i>
+                        </span>
+                        <span class="sidebar-label">Tenants &amp; Stores</span>
+                    </a>
+                </li>
+            </ul>
+        @endif
     </div>
 
     <!-- Sidebar Footer Quick POS Launcher -->

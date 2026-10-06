@@ -109,6 +109,20 @@
                 </ul>
             </div>
 
+            @if(auth()->check() && (auth()->user()->hasRole('SA') || auth()->user()->is_super_admin))
+                @php
+                    $saTopbarPendingCount = \App\Models\POS\POSTenant::where('payment_status', 'pending_verification')->count();
+                @endphp
+                <a href="{{ route('sa.dashboard.index') }}" class="btn btn-sm rounded-pill fw-bold d-none d-md-inline-flex align-items-center gap-1.5 px-3 shadow-xs me-1 text-dark" 
+                   style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); border: 1px solid #d97706; font-size: 0.8rem;" title="Bumalik sa SuperAdmin Console">
+                    <i class="bi bi-shield-lock-fill"></i>
+                    <span>SuperAdmin Portal</span>
+                    @if($saTopbarPendingCount > 0)
+                        <span class="badge bg-danger rounded-pill px-1.5 py-0.5 ms-1" style="font-size: 0.68rem;">{{ $saTopbarPendingCount }}</span>
+                    @endif
+                </a>
+            @endif
+
             {{-- POS Terminal Button --}}
             <a href="{{ route('terminal.index') }}" class="crm-pos-btn d-none d-sm-flex">
                 <i class="bi bi-calculator-fill"></i>
@@ -138,6 +152,30 @@
                         </div>
                     </li>
                     <li class="px-2 pt-2 pb-1">
+                        @if(auth()->check() && (auth()->user()->hasRole('SA') || auth()->user()->is_super_admin))
+                            <a class="dropdown-item crm-drop-item fw-bold" href="{{ route('sa.dashboard.index') }}" style="background: rgba(245, 158, 11, 0.1);">
+                                <span class="crm-drop-icon bg-warning text-dark"><i class="bi bi-shield-lock-fill"></i></span>
+                                <div>
+                                    <div class="fw-bold text-dark">SuperAdmin Portal</div>
+                                    <div class="small text-muted" style="font-size: 0.7rem;">Platform CRM &amp; Monitoring</div>
+                                </div>
+                            </a>
+                            <a class="dropdown-item crm-drop-item" href="{{ route('sa.subscriptions.verifications') }}">
+                                <span class="crm-drop-icon bg-warning-subtle text-warning"><i class="bi bi-patch-check-fill"></i></span>
+                                <div>
+                                    <div class="fw-semibold">Verifications</div>
+                                    <div class="small text-muted" style="font-size: 0.7rem;">Approve payment proofs</div>
+                                </div>
+                            </a>
+                            <a class="dropdown-item crm-drop-item" href="{{ route('sa.tenants.index') }}">
+                                <span class="crm-drop-icon bg-info-subtle text-info"><i class="bi bi-buildings"></i></span>
+                                <div>
+                                    <div class="fw-semibold">Switch Tenant</div>
+                                    <div class="small text-muted" style="font-size: 0.7rem;">Manage all stores</div>
+                                </div>
+                            </a>
+                            <hr class="my-1 text-muted opacity-25">
+                        @endif
                         <a class="dropdown-item crm-drop-item" href="{{ route('settings.index') }}">
                             <span class="crm-drop-icon bg-success-subtle text-success"><i class="bi bi-gear-fill"></i></span>
                             Store Settings &amp; Theme
